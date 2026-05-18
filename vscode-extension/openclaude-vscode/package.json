@@ -1,0 +1,179 @@
+﻿{
+  "name": "Mythos Patriarch-vscode",
+  "displayName": "Mythos Patriarch",
+  "description": "Practical VS Code companion for Mythos Patriarch with project-aware launch behavior and a real Control Center.",
+  "version": "0.2.0",
+  "publisher": "devnull-bootloader",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Themes",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:Mythos Patriarch.start",
+    "onCommand:Mythos Patriarch.startInWorkspaceRoot",
+    "onCommand:Mythos Patriarch.openDocs",
+    "onCommand:Mythos Patriarch.openSetupDocs",
+    "onCommand:Mythos Patriarch.openWorkspaceProfile",
+    "onCommand:Mythos Patriarch.openControlCenter",
+    "onCommand:Mythos Patriarch.newChat",
+    "onCommand:Mythos Patriarch.openChat",
+    "onCommand:Mythos Patriarch.resumeSession",
+    "onCommand:Mythos Patriarch.abortChat",
+    "onView:Mythos Patriarch.controlCenter",
+    "onView:Mythos Patriarch.chat"
+  ],
+  "main": "./src/extension.js",
+  "files": [
+    "README.md",
+    "media/**",
+    "src/extension.js",
+    "src/presentation.js",
+    "src/state.js",
+    "src/chat/**",
+    "themes/**"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "Mythos Patriarch.start",
+        "title": "Mythos Patriarch: Launch in Terminal",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.startInWorkspaceRoot",
+        "title": "Mythos Patriarch: Launch in Workspace Root",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.openDocs",
+        "title": "Mythos Patriarch: Open Repository",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.openSetupDocs",
+        "title": "Mythos Patriarch: Open Setup Guide",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.openWorkspaceProfile",
+        "title": "Mythos Patriarch: Open Workspace Profile",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.openControlCenter",
+        "title": "Mythos Patriarch: Open Control Center",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.newChat",
+        "title": "Mythos Patriarch: New Chat",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.openChat",
+        "title": "Mythos Patriarch: Open Chat Panel",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.resumeSession",
+        "title": "Mythos Patriarch: Resume Session",
+        "category": "Mythos Patriarch"
+      },
+      {
+        "command": "Mythos Patriarch.abortChat",
+        "title": "Mythos Patriarch: Abort Generation",
+        "category": "Mythos Patriarch"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "Mythos Patriarch",
+          "title": "Mythos Patriarch",
+          "icon": "media/Mythos Patriarch.svg"
+        }
+      ]
+    },
+    "views": {
+      "Mythos Patriarch": [
+        {
+          "id": "Mythos Patriarch.chat",
+          "name": "Chat",
+          "type": "webview"
+        },
+        {
+          "id": "Mythos Patriarch.controlCenter",
+          "name": "Control Center",
+          "type": "webview"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "Mythos Patriarch.openChat",
+        "key": "ctrl+shift+l",
+        "mac": "cmd+shift+l"
+      }
+    ],
+    "configuration": {
+      "title": "Mythos Patriarch",
+      "properties": {
+        "Mythos Patriarch.launchCommand": {
+          "type": "string",
+          "default": "Mythos Patriarch",
+          "description": "Command run in the integrated terminal when launching Mythos Patriarch."
+        },
+        "Mythos Patriarch.terminalName": {
+          "type": "string",
+          "default": "Mythos Patriarch",
+          "description": "Integrated terminal tab name for Mythos Patriarch sessions."
+        },
+        "Mythos Patriarch.useOpenAIShim": {
+          "type": "boolean",
+          "default": false,
+          "description": "Optionally set CLAUDE_CODE_USE_OPENAI=1 in launched Mythos Patriarch terminals."
+        },
+        "Mythos Patriarch.permissionMode": {
+          "type": "string",
+          "default": "acceptEdits",
+          "enum": ["default", "acceptEdits", "bypassPermissions", "plan"],
+          "enumDescriptions": [
+            "Prompt for permission on each tool use (requires manual approval)",
+            "Auto-approve file edits, prompt for other operations (recommended)",
+            "Auto-approve all operations without prompting",
+            "Read-only mode — no file modifications allowed"
+          ],
+          "description": "Permission mode for chat sessions. Controls which tool operations are auto-approved."
+        }
+      }
+    },
+    "themes": [
+      {
+        "label": "Mythos Patriarch Terminal Black",
+        "uiTheme": "vs-dark",
+        "path": "./themes/Mythos Patriarch-Terminal-Black.json"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node --test ./src/*.test.js",
+    "lint": "node scripts/lint.js",
+    "package": "npx @vscode/vsce package --no-dependencies"
+  },
+  "keywords": [
+    "Mythos Patriarch",
+    "terminal",
+    "theme",
+    "cli",
+    "llm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gitlawb/Mythos Patriarch"
+  },
+  "license": "MIT"
+}
