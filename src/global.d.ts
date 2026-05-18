@@ -178,3 +178,130 @@ declare module '@opentelemetry/exporter-trace-otlp-http' {
 declare module '@opentelemetry/exporter-trace-otlp-proto' {
   export class OTLPTraceExporter { constructor(opts?: any) }
 }
+
+// ---------------------------------------------------------------------------
+// Anthropic-internal component stubs (never rendered in open build — guarded
+// by `false &&` or RUNTIME_FLAVOR checks).  Declared so tsc --noEmit passes.
+// ---------------------------------------------------------------------------
+declare const GateOverridesWarning: React.FC<any>
+declare const ExperimentEnrollmentNotice: React.FC<any>
+declare const TungstenPill: React.FC<any>
+declare const Gates: React.FC<{ onOwnsEscChange: (v: boolean) => void; contentHeight: number }>
+declare const UltraplanChoiceDialog: React.FC<any>
+declare const UltraplanLaunchDialog: React.FC<any>
+declare function launchUltraplan(opts: any): Promise<void>
+declare const HOOK_TIMING_DISPLAY_THRESHOLD_MS: number
+
+// Ant-internal model resolution (dead-code in open build)
+declare function resolveAntModel(model: string): {
+  model: string
+  contextWindow?: number
+  defaultMaxTokens?: number
+  upperMaxTokensLimit?: number
+} | null
+declare function getAntModelOverrideConfig(): {
+  defaultModel?: string
+  defaultModelEffortLevel?: any
+  defaultSystemPromptSuffix?: string
+  antModels?: any[]
+} | null
+
+// Markdown module declarations (imported by skill content files)
+declare module '*.md' {
+  const content: string
+  export default content
+}
+
+// Vitest query-string module declarations
+declare module '*?switch-to-third-party' {
+  const mod: any
+  export default mod
+}
+declare module '*?save-bare-mode' {
+  const mod: any
+  export default mod
+}
+declare module '*?save-no-plaintext-fallback' {
+  const mod: any
+  export default mod
+}
+declare module '*?refresh-success' {
+  const mod: any
+  export default mod
+}
+declare module '*?refresh-cooldown' {
+  const mod: any
+  export default mod
+}
+declare module '*?refresh-drop-stale-api-key' {
+  const mod: any
+  export default mod
+}
+declare module '*?refresh-dedupe' {
+  const mod: any
+  export default mod
+}
+declare module '*?preserve-profile-id' {
+  const mod: any
+  export default mod
+}
+declare module '*?attach-profile-id' {
+  const mod: any
+  export default mod
+}
+declare module '*?refresh-async-read' {
+  const mod: any
+  export default mod
+}
+declare module '*?refresh-memory-cooldown' {
+  const mod: any
+  export default mod
+}
+declare module '*?codex-secure-storage' {
+  const mod: any
+  export default mod
+}
+declare module '*?codex-env-precedence' {
+  const mod: any
+  export default mod
+}
+declare module '*?codex-env-nested-account' {
+  const mod: any
+  export default mod
+}
+declare module '*?codex-auth-json-nested-account' {
+  const mod: any
+  export default mod
+}
+declare module '*?codex-secure-storage-no-auth-io' {
+  const mod: any
+  export default mod
+}
+declare module '*?codex-refresh-cooldown-fallback' {
+  const mod: any
+  export default mod
+}
+declare module '*?codex-refresh-cooldown-account-id-fallback' {
+  const mod: any
+  export default mod
+}
+declare module '*?runtime-no-sync-secure-storage' {
+  const mod: any
+  export default mod
+}
+declare module '*?hydrate=sets-token' {
+  const mod: any
+  export default mod
+}
+declare module '*?hydrate=preserve-existing' {
+  const mod: any
+  export default mod
+}
+declare module '*?read-bare-mode' {
+  const mod: any
+  export default mod
+}
+declare module '*?clear-bare-mode' {
+  const mod: any
+  export default mod
+}

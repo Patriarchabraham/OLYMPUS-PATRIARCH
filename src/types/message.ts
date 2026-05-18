@@ -59,6 +59,7 @@ export interface CompactMetadata {
   preservedSegment?: {
     headUuid?: string
     tailUuid?: string
+    anchorUuid?: string
   }
 }
 
@@ -428,8 +429,7 @@ export type RenderableMessage =
 
 export interface CollapsedReadSearchGroup {
   type: 'collapsed_read_search'
-  messages: NormalizedAssistantMessage<BetaToolUseBlock>[]
-  results: unknown[]
+  messages: CollapsibleMessage[]
   searchCount: number
   readCount: number
   listCount: number
@@ -439,10 +439,10 @@ export interface CollapsedReadSearchGroup {
   memoryWriteCount: number
   readFilePaths: string[]
   searchArgs: string[]
-  latestDisplayHint: string
-  displayMessage: RenderableMessage
+  latestDisplayHint: string | undefined
+  displayMessage: CollapsibleMessage
   uuid: UUID
-  timestamp: number
+  timestamp: string
   teamMemorySearchCount?: number
   teamMemoryReadCount?: number
   teamMemoryWriteCount?: number
@@ -450,20 +450,25 @@ export interface CollapsedReadSearchGroup {
   mcpServerNames?: string[]
   bashCount?: number
   gitOpBashCount?: number
-  commits?: string[]
-  pushes?: string[]
-  branches?: string[]
-  prs?: string[]
+  commits?: Array<{ sha: string; kind: import('../tools/shared/gitOperationTracking.js').CommitKind }>
+  pushes?: Array<{ branch: string }>
+  branches?: Array<{ ref: string; action: import('../tools/shared/gitOperationTracking.js').BranchAction }>
+  prs?: Array<{ number: number; url?: string; action: import('../tools/shared/gitOperationTracking.js').PrAction }>
   hookTotalMs?: number
   hookCount?: number
-  hookInfos?: Array<{ command: string; durationMs?: number }>
-  relevantMemories?: Array<{ path: string; content: string }>
+  hookInfos?: StopHookInfo[]
+  relevantMemories?: Array<{ path: string; content: string; mtimeMs: number }>
 }
 
 export interface GroupedToolUseMessage {
   type: 'grouped_tool_use'
   messages: NormalizedAssistantMessage<BetaToolUseBlock>[]
   toolName: string
+  results: unknown[]
+  displayMessage: NormalizedAssistantMessage<BetaToolUseBlock>
+  uuid: UUID
+  timestamp: string
+  messageId: string
 }
 
 // ─── Master discriminated union ──────────────────────────────────
@@ -487,7 +492,7 @@ export type Message =
  * A message that can be collapsed in the UI for compact display.
  */
 export type CollapsibleMessage =
-  | AssistantMessage
-  | UserMessage
+  | NormalizedAssistantMessage
+  | NormalizedUserMessage
   | SystemMessage
   | GroupedToolUseMessage

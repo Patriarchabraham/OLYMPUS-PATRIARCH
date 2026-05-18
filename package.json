@@ -158,7 +158,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "biome check --fix"
+      "biome check --fix --unsafe --no-errors-on-unmatched"
     ]
   }
 }
