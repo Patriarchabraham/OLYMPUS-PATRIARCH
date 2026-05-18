@@ -33,13 +33,12 @@
     }
   },
   "files": {
-    "includes": [
-      "!node_modules",
-      "!dist",
-      "!*.min.js",
-      "!src/native-ts/**",
-      "!vscode-extension/**"
-    ]
+    "ignoreUnknown": true
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
   },
   "overrides": [
     {
