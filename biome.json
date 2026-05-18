@@ -1,8 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
   "linter": {
     "enabled": true,
     "rules": {
@@ -36,17 +33,17 @@
     }
   },
   "files": {
-    "ignore": [
-      "node_modules",
-      "dist",
-      "*.min.js",
-      "src/native-ts/",
-      "vscode-extension/"
+    "includes": [
+      "!node_modules",
+      "!dist",
+      "!*.min.js",
+      "!src/native-ts/**",
+      "!vscode-extension/**"
     ]
   },
   "overrides": [
     {
-      "include": ["*.test.ts", "*.test.tsx"],
+      "includes": ["*.test.ts", "*.test.tsx"],
       "linter": {
         "rules": {
           "suspicious": {

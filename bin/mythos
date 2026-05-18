@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+
+/**
+ * Mythos — AI coding agent powered by Patriarch
+ *
+ * If dist/cli.mjs exists (built), run that.
+ * Otherwise fall back to tsx to run source directly.
+ */
+
+import { existsSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath, pathToFileURL } from 'url'
+
+// Heap OOM prevention: respawn with 4GB heap if not yet configured
+const currentMax = parseInt(
+  [...(process.env.NODE_OPTIONS || '').matchAll(/--max-old-space-size=(\d+)/g)]
+    .map(m => m[1])
+    .pop() || '0',
+  10,
+)
+if (currentMax < 4096 && !process.env._MYTHOS_HEAP_SET) {
+  process.env._MYTHOS_HEAP_SET = '1'
+  process.env.NODE_OPTIONS = [
+    ...(process.env.NODE_OPTIONS || '').split(/\s+/).filter(Boolean),
+    '--max-old-space-size=4096',
+  ].join(' ')
+  const { spawn } = await import('child_process')
+  const child = spawn(process.argv[0], process.argv.slice(1), {
+    stdio: 'inherit',
+    env: process.env,
+  })
+  child.on('exit', code => process.exit(code ?? 1))
+  // Prevent rest of this process from executing
+  await new Promise(() => {})
+}
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const distPath = join(__dirname, '..', 'dist', 'cli.mjs')
+
+if (existsSync(distPath)) {
+  await import(pathToFileURL(distPath).href)
+} else {
+  // Fallback: use tsx to run source directly
+  const srcPath = join(__dirname, '..', 'src', 'entrypoints', 'cli.tsx')
+  if (existsSync(srcPath)) {
+    const tsxPath = join(__dirname, '..', 'node_modules', '.bin', 'tsx')
+    // Check if tsx exists
+    if (existsSync(tsxPath) || existsSync(tsxPath + '.cmd')) {
+      const { execFile } = await import('child_process')
+      const child = execFile(
+        process.platform === 'win32' ? 'npx' : 'npx',
+        ['tsx', srcPath, ...process.argv.slice(2)],
+        { stdio: 'inherit', env: { ...process.env } },
+      )
+      child.on('exit', (code) => process.exit(code ?? 1))
+    } else {
+      console.error(`
+  mythos: Build required.
+
+  Run:
+    npm run build
+
+  Then:
+    mythos
+`)
+      process.exit(1)
+    }
+  } else {
+    console.error(`
+  mythos: Source files not found.
+
+  Run:
+    npm install && npm run build
+
+  Then:
+    mythos
+`)
+    process.exit(1)
+  }
+}
