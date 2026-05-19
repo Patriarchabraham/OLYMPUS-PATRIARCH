@@ -1,21 +1,22 @@
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, test, vi } from 'vitest'
 
 afterEach(() => {
-  mock.restore()
+	vi.restoreAllMocks()
 })
 
 async function importFreshTeammateModelModule(provider = 'mistral') {
-  mock.restore()
-  mock.module('../model/providers.js', () => ({
-    getAPIProvider: () => provider,
-  }))
-  const nonce = `${Date.now()}-${Math.random()}`
-  return import(`./teammateModel.js?ts=${nonce}`)
+	vi.restoreAllMocks()
+	vi.mock('../model/providers.js', () => ({
+		getAPIProvider: () => provider,
+	}))
+	const nonce = `${Date.now()}-${Math.random()}`
+	void nonce
+	vi.resetModules()
+	return vi.importActual('./teammateModel.js')
 }
 
 test('getHardcodedTeammateModelFallback returns a Mistral fallback in mistral mode', async () => {
-  const { getHardcodedTeammateModelFallback } =
-    await importFreshTeammateModelModule()
+	const { getHardcodedTeammateModelFallback } = await importFreshTeammateModelModule()
 
-  expect(getHardcodedTeammateModelFallback()).toBe('devstral-latest')
+	expect(getHardcodedTeammateModelFallback()).toBe('devstral-latest')
 })
