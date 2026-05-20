@@ -1,225 +1,235 @@
-
-import { expect, test, mock, describe, beforeEach, afterEach } from "bun:test";
-import { linuxSecretStorage } from "./linuxSecretStorage.js";
-import { windowsCredentialStorage } from "./windowsCredentialStorage.js";
-import { getSecureStorageServiceName, CREDENTIALS_SERVICE_SUFFIX } from "./macOsKeychainHelpers.js";
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { linuxSecretStorage } from './linuxSecretStorage.js'
+import { CREDENTIALS_SERVICE_SUFFIX, getSecureStorageServiceName } from './macOsKeychainHelpers.js'
+import { windowsCredentialStorage } from './windowsCredentialStorage.js'
 
 type MockFn = {
-  (...args: any[]): { exitCode: number; stdout: string };
-  mock: { calls: any[][] };
-  mockClear(): void;
-  mockImplementation(fn: (...args: any[]) => any): any;
-  mockImplementationOnce(fn: (...args: any[]) => any): any;
-  mockReturnValue(value: any): any;
-  toHaveBeenCalledTimes(n: number): any;
+	(...args: any[]): { exitCode: number; stdout: string }
+	mock: { calls: any[][] }
+	mockClear(): void
+	mockImplementation(fn: (...args: any[]) => any): any
+	mockImplementationOnce(fn: (...args: any[]) => any): any
+	mockReturnValue(value: any): any
+	toHaveBeenCalledTimes(n: number): any
 }
 
-// Mock execaSync
-const mockExecaSync = mock(() => ({ exitCode: 0, stdout: "" })) as unknown as MockFn;
-mock.module("execa", () => ({
-  execaSync: mockExecaSync,
-}));
+function getCalls(mock: { mock: { calls: any[][] } }): any[][] {
+	return mock.mock.calls as any[][]
+}
 
-describe("Secure Storage Platform Implementations", () => {
-  const originalEnv = process.env;
+// Mock execaSync — vi.hoisted ensures the mock is available when vi.mock factory runs
+const { mockExecaSync } = vi.hoisted(() => ({
+	mockExecaSync: vi.fn(() => ({ exitCode: 0, stdout: '' })),
+}))
+vi.mock('execa', () => ({
+	execaSync: mockExecaSync,
+}))
 
-  beforeEach(() => {
-    process.env = { ...originalEnv };
-    mockExecaSync.mockClear();
-    // Default mock behavior
-    mockExecaSync.mockImplementation(() => ({ exitCode: 0, stdout: "" }));
-  });
+describe('Secure Storage Platform Implementations', () => {
+	const originalEnv = process.env
 
-  afterEach(() => {
-    process.env = originalEnv;
-  });
+	beforeEach(() => {
+		process.env = { ...originalEnv }
+		mockExecaSync.mockClear()
+		// Default mock behavior
+		mockExecaSync.mockImplementation(() => ({ exitCode: 0, stdout: '' }))
+	})
 
-  const testData = {
-    mcpOAuth: {
-      "test-server": {
-        accessToken: "secret-token",
-        expiresAt: 123456789,
-        serverName: "test",
-        serverUrl: "http://test"
-      }
-    }
-  };
+	afterEach(() => {
+		process.env = originalEnv
+	})
 
-  describe("Config-Dir Isolation", () => {
-    test("service name changes with CLAUDE_CONFIG_DIR", () => {
-      const defaultName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX);
+	const testData = {
+		mcpOAuth: {
+			'test-server': {
+				accessToken: 'secret-token',
+				expiresAt: 123456789,
+				serverName: 'test',
+				serverUrl: 'http://test',
+			},
+		},
+	}
 
-      process.env.CLAUDE_CONFIG_DIR = "/tmp/other-config";
-      const otherName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX);
+	describe('Config-Dir Isolation', () => {
+		test('service name changes with CLAUDE_CONFIG_DIR', () => {
+			const defaultName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX)
 
-      expect(otherName).not.toBe(defaultName);
-      expect(otherName).toContain("Claude Code");
-      expect(otherName).toContain(CREDENTIALS_SERVICE_SUFFIX);
-    });
+			process.env.CLAUDE_CONFIG_DIR = '/tmp/other-config'
+			const otherName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX)
 
-    test("Linux storage uses scoped service name", () => {
-      process.env.CLAUDE_CONFIG_DIR = "/tmp/linux-scoped";
-      const expectedName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX);
+			expect(otherName).not.toBe(defaultName)
+			expect(otherName).toContain('Claude Code')
+			expect(otherName).toContain(CREDENTIALS_SERVICE_SUFFIX)
+		})
 
-      linuxSecretStorage.update(testData);
+		test('Linux storage uses scoped service name', () => {
+			process.env.CLAUDE_CONFIG_DIR = '/tmp/linux-scoped'
+			const expectedName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX)
 
-      const call0 = mockExecaSync.mock.calls[0];
-      expect(call0![1]).toContain(expectedName);
-    });
+			linuxSecretStorage.update(testData)
 
-    test("Windows storage uses scoped resource name", () => {
-      process.env.CLAUDE_CONFIG_DIR = "/tmp/win-scoped";
-      const expectedName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX);
+			const call0 = getCalls(mockExecaSync)[0]
+			expect(call0![1]).toContain(expectedName)
+		})
 
-      windowsCredentialStorage.update(testData);
+		test('Windows storage uses scoped resource name', () => {
+			process.env.CLAUDE_CONFIG_DIR = '/tmp/win-scoped'
+			const expectedName = getSecureStorageServiceName(CREDENTIALS_SERVICE_SUFFIX)
 
-      const call0 = mockExecaSync.mock.calls[0]!;
-      const script: string = call0[1][1];
-      const options: any = call0[2];
-      expect(script).toContain(expectedName);
-      expect(script).toContain("ProtectedData");
-      expect(options.input).toContain("secret-token");
-    });
-  });
+			windowsCredentialStorage.update(testData)
 
-  describe("Windows PowerShell Escaping", () => {
-    test("escapes single quotes and prevents $ expansion", () => {
-      const dataWithDollar = {
-        mcpOAuth: {
-          "server": {
-            accessToken: "token-with-$env:USERNAME",
-            expiresAt: 123,
-            serverName: "s",
-            serverUrl: "u"
-          }
-        }
-      };
+			const call0 = getCalls(mockExecaSync)[0]!
+			const script: string = call0[1][1]
+			const options: any = call0[2]
+			expect(script).toContain(expectedName)
+			expect(script).toContain('ProtectedData')
+			expect(options.input).toContain('secret-token')
+		})
+	})
 
-      windowsCredentialStorage.update(dataWithDollar);
+	describe('Windows PowerShell Escaping', () => {
+		test('escapes single quotes and prevents $ expansion', () => {
+			const dataWithDollar = {
+				mcpOAuth: {
+					server: {
+						accessToken: 'token-with-$env:USERNAME',
+						expiresAt: 123,
+						serverName: 's',
+						serverUrl: 'u',
+					},
+				},
+			}
 
-      const call0 = mockExecaSync.mock.calls[0]!;
-      const script: string = call0[1][1];
-      const options: any = call0[2];
-      expect(script).toContain("[Console]::In.ReadToEnd()");
-      expect(options.input).toContain("token-with-$env:USERNAME");
+			windowsCredentialStorage.update(dataWithDollar)
 
-      const dataWithQuotes = { mcpOAuth: { "s": { accessToken: "token'quote", expiresAt: 1, serverName: "s", serverUrl: "u" } } };
-      windowsCredentialStorage.update(dataWithQuotes);
-      const call1 = mockExecaSync.mock.calls[1]!;
-      const options2: any = call1[2];
-      expect(options2.input).toContain("token'quote");
-    });
+			const call0 = getCalls(mockExecaSync)[0]!
+			const script: string = call0[1][1]
+			const options: any = call0[2]
+			expect(script).toContain('[Console]::In.ReadToEnd()')
+			expect(options.input).toContain('token-with-$env:USERNAME')
 
-    test("delete() skips legacy PasswordVault by default", () => {
-      windowsCredentialStorage.delete();
-      expect(mockExecaSync).toHaveBeenCalledTimes(1);
-      const call0 = mockExecaSync.mock.calls[0]!;
-      const script: string = call0[1][1];
-      expect(script).not.toContain("System.Runtime.WindowsRuntime");
-    });
+			const dataWithQuotes = {
+				mcpOAuth: {
+					s: { accessToken: "token'quote", expiresAt: 1, serverName: 's', serverUrl: 'u' },
+				},
+			}
+			windowsCredentialStorage.update(dataWithQuotes)
+			const call1 = getCalls(mockExecaSync)[1]!
+			const options2: any = call1[2]
+			expect(options2.input).toContain("token'quote")
+		})
 
-    test("delete() includes legacy assembly load when explicitly enabled", () => {
-      process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = "1";
-      windowsCredentialStorage.delete();
-      const call1 = mockExecaSync.mock.calls[1]!;
-      const script: string = call1[1][1];
-      expect(script).toContain("Add-Type -AssemblyName System.Runtime.WindowsRuntime");
-    });
+		test('delete() skips legacy PasswordVault by default', () => {
+			windowsCredentialStorage.delete()
+			expect(mockExecaSync).toHaveBeenCalledTimes(1)
+			const call0 = getCalls(mockExecaSync)[0]!
+			const script: string = call0[1][1]
+			expect(script).not.toContain('System.Runtime.WindowsRuntime')
+		})
 
-    test("escapes double quotes in username", () => {
-      process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = "1";
-      process.env.USER = 'user"name';
-      windowsCredentialStorage.read();
-      const call1 = mockExecaSync.mock.calls[1]!;
-      const script: string = call1[1][1];
-      expect(script).toContain('user`"name');
-      expect(script).not.toContain('user"name');
-    });
+		test('delete() includes legacy assembly load when explicitly enabled', () => {
+			process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = '1'
+			windowsCredentialStorage.delete()
+			const call1 = getCalls(mockExecaSync)[1]!
+			const script: string = call1[1][1]
+			expect(script).toContain('Add-Type -AssemblyName System.Runtime.WindowsRuntime')
+		})
 
-    test("read() does not touch legacy PasswordVault by default", () => {
-      mockExecaSync.mockImplementationOnce(() => ({ exitCode: 1, stdout: "" }));
+		test('escapes double quotes in username', () => {
+			process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = '1'
+			process.env.USER = 'user"name'
+			windowsCredentialStorage.read()
+			const call1 = getCalls(mockExecaSync)[1]!
+			const script: string = call1[1][1]
+			expect(script).toContain('user`"name')
+			expect(script).not.toContain('user"name')
+		})
 
-      const result = windowsCredentialStorage.read();
+		test('read() does not touch legacy PasswordVault by default', () => {
+			mockExecaSync.mockImplementationOnce(() => ({ exitCode: 1, stdout: '' }))
 
-      expect(result).toBeNull();
-      expect(mockExecaSync).toHaveBeenCalledTimes(1);
-    });
+			const result = windowsCredentialStorage.read()
 
-    test("read() falls back to legacy PasswordVault when explicitly enabled", () => {
-      process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = "1";
-      mockExecaSync
-        .mockImplementationOnce(() => ({ exitCode: 0, stdout: "{not-json" }))
-        .mockImplementationOnce(() => ({
-          exitCode: 0,
-          stdout: JSON.stringify(testData),
-        }));
+			expect(result).toBeNull()
+			expect(mockExecaSync).toHaveBeenCalledTimes(1)
+		})
 
-      const result = windowsCredentialStorage.read();
+		test('read() falls back to legacy PasswordVault when explicitly enabled', () => {
+			process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = '1'
+			mockExecaSync
+				.mockImplementationOnce(() => ({ exitCode: 0, stdout: '{not-json' }))
+				.mockImplementationOnce(() => ({
+					exitCode: 0,
+					stdout: JSON.stringify(testData),
+				}))
 
-      expect(result).toEqual(testData);
-      expect(mockExecaSync).toHaveBeenCalledTimes(2);
-    });
+			const result = windowsCredentialStorage.read()
 
-    test("read() fails closed when the legacy PasswordVault payload is invalid JSON", () => {
-      process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = "1";
-      mockExecaSync
-        .mockImplementationOnce(() => ({ exitCode: 1, stdout: "" }))
-        .mockImplementationOnce(() => ({ exitCode: 0, stdout: "{not-json" }));
+			expect(result).toEqual(testData)
+			expect(mockExecaSync).toHaveBeenCalledTimes(2)
+		})
 
-      const result = windowsCredentialStorage.read();
+		test('read() fails closed when the legacy PasswordVault payload is invalid JSON', () => {
+			process.env.OPENCLAUDE_ENABLE_LEGACY_WINDOWS_PASSWORDVAULT = '1'
+			mockExecaSync
+				.mockImplementationOnce(() => ({ exitCode: 1, stdout: '' }))
+				.mockImplementationOnce(() => ({ exitCode: 0, stdout: '{not-json' }))
 
-      expect(result).toBeNull();
-      expect(mockExecaSync).toHaveBeenCalledTimes(2);
-    });
-  });
+			const result = windowsCredentialStorage.read()
 
-  describe("Linux secret-tool Interaction", () => {
-    test("update passes payload via stdin", () => {
-      linuxSecretStorage.update(testData);
+			expect(result).toBeNull()
+			expect(mockExecaSync).toHaveBeenCalledTimes(2)
+		})
+	})
 
-      const call0 = mockExecaSync.mock.calls[0]!;
-      const options: any = call0[2];
-      expect(options.input).toContain("secret-token");
-    });
+	describe('Linux secret-tool Interaction', () => {
+		test('update passes payload via stdin', () => {
+			linuxSecretStorage.update(testData)
 
-    test("read parses stdout", () => {
-      mockExecaSync.mockReturnValue({ exitCode: 0, stdout: JSON.stringify(testData) });
-      const result = linuxSecretStorage.read();
+			const call0 = getCalls(mockExecaSync)[0]!
+			const options: any = call0[2]
+			expect(options.input).toContain('secret-token')
+		})
 
-      expect(result).toEqual(testData);
-    });
-  });
+		test('read parses stdout', () => {
+			mockExecaSync.mockReturnValue({ exitCode: 0, stdout: JSON.stringify(testData) })
+			const result = linuxSecretStorage.read()
 
-  describe("Platform Selection", () => {
-    const originalPlatform = process.platform;
+			expect(result).toEqual(testData)
+		})
+	})
 
-    async function importFreshSecureStorage() {
-      return import(`./index.js?ts=${Date.now()}-${Math.random()}`);
-    }
+	describe('Platform Selection', () => {
+		const originalPlatform = process.platform
 
-    afterEach(() => {
-      Object.defineProperty(process, 'platform', { value: originalPlatform });
-    });
+		async function importFreshSecureStorage() {
+			vi.resetModules()
+			return vi.importActual<typeof import('./index.js')>('./index.js')
+		}
 
-    test("darwin returns keychain with fallback", async () => {
-      Object.defineProperty(process, 'platform', { value: 'darwin' });
-      const { getSecureStorage } = await importFreshSecureStorage();
-      const storage = getSecureStorage();
-      expect(storage.name).toContain("keychain");
-    });
+		afterEach(() => {
+			Object.defineProperty(process, 'platform', { value: originalPlatform })
+		})
 
-    test("linux returns libsecret with fallback", async () => {
-      Object.defineProperty(process, 'platform', { value: 'linux' });
-      const { getSecureStorage } = await importFreshSecureStorage();
-      const storage = getSecureStorage();
-      expect(storage.name).toContain("libsecret");
-    });
+		test('darwin returns keychain with fallback', async () => {
+			Object.defineProperty(process, 'platform', { value: 'darwin' })
+			const { getSecureStorage } = await importFreshSecureStorage()
+			const storage = getSecureStorage()
+			expect(storage.name).toContain('keychain')
+		})
 
-    test("win32 returns credential-locker with fallback", async () => {
-      Object.defineProperty(process, 'platform', { value: 'win32' });
-      const { getSecureStorage } = await importFreshSecureStorage();
-      const storage = getSecureStorage();
-      expect(storage.name).toContain("credential-locker");
-    });
-  });
-});
+		test('linux returns libsecret with fallback', async () => {
+			Object.defineProperty(process, 'platform', { value: 'linux' })
+			const { getSecureStorage } = await importFreshSecureStorage()
+			const storage = getSecureStorage()
+			expect(storage.name).toContain('libsecret')
+		})
+
+		test('win32 returns credential-locker with fallback', async () => {
+			Object.defineProperty(process, 'platform', { value: 'win32' })
+			const { getSecureStorage } = await importFreshSecureStorage()
+			const storage = getSecureStorage()
+			expect(storage.name).toContain('credential-locker')
+		})
+	})
+})
