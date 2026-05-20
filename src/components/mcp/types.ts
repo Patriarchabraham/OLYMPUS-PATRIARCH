@@ -9,7 +9,7 @@ import type {
 export type StdioServerInfo = {
   name: string
   client: MCPServerConnection
-  scope: string
+  scope: ConfigScope
   transport: 'stdio'
   config: McpStdioServerConfig
 }
@@ -17,7 +17,7 @@ export type StdioServerInfo = {
 export type SSEServerInfo = {
   name: string
   client: MCPServerConnection
-  scope: string
+  scope: ConfigScope
   transport: 'sse'
   isAuthenticated?: boolean
   config: McpSSEServerConfig
@@ -26,7 +26,7 @@ export type SSEServerInfo = {
 export type HTTPServerInfo = {
   name: string
   client: MCPServerConnection
-  scope: string
+  scope: ConfigScope
   transport: 'http'
   isAuthenticated?: boolean
   config: McpHTTPServerConfig
@@ -35,7 +35,7 @@ export type HTTPServerInfo = {
 export type ClaudeAIServerInfo = {
   name: string
   client: MCPServerConnection
-  scope: string
+  scope: ConfigScope
   transport: 'claudeai-proxy'
   isAuthenticated?: boolean
   config: McpClaudeAIProxyServerConfig
@@ -50,6 +50,7 @@ export type AgentMcpServerInfo = {
   command?: string
   url?: string
   needsAuth: boolean
+  isAuthenticated?: boolean
 }
 
 export type MCPViewState =

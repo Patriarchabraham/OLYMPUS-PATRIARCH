@@ -33,7 +33,7 @@ type Props = {
   verbose: boolean;
   isTranscriptMode?: boolean;
 };
-export function SystemTextMessage(t0) {
+export function SystemTextMessage(t0: Props) {
   const $ = _c(51);
   const {
     message,
@@ -198,7 +198,7 @@ export function SystemTextMessage(t0) {
     return t6;
   }
   const isStopHookSummary = message.subtype === "stop_hook_summary";
-  if (!isStopHookSummary && !verbose && message.level === "info") {
+  if (!isStopHookSummary && !verbose && 'level' in message && message.level === "info") {
     return null;
   }
   if (message.subtype === "api_error") {
@@ -227,13 +227,14 @@ export function SystemTextMessage(t0) {
     }
     return t1;
   }
-  const content = message.content;
+  const content = 'content' in message ? (message as { content: unknown }).content : undefined;
   if (typeof content !== "string") {
     return null;
   }
-  const t1 = message.level !== "info";
-  const t2 = message.level === "warning" ? "warning" : undefined;
-  const t3 = message.level === "info";
+  const level = 'level' in message ? (message as { level: string }).level : undefined;
+  const t1 = level !== "info";
+  const t2 = level === "warning" ? "warning" : undefined;
+  const t3 = level === "info";
   let t4;
   if ($[45] !== addMargin || $[46] !== content || $[47] !== t1 || $[48] !== t2 || $[49] !== t3) {
     t4 = <Box flexDirection="row" width="100%"><SystemTextMessageInner content={content} addMargin={addMargin} dot={t1} color={t2} dimColor={t3} /></Box>;
@@ -603,7 +604,7 @@ function MemorySavedMessage(t0) {
   } = message;
   let t1;
   if ($[0] !== message) {
-    t1 = feature("TEAMMEM") ? teamMemSaved.teamMemSavedPart(message) : null;
+    t1 = feature("TEAMMEM") && teamMemSaved ? teamMemSaved.teamMemSavedPart(message) : null;
     $[0] = message;
     $[1] = t1;
   } else {

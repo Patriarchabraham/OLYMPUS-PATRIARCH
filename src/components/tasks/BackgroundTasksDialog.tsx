@@ -549,7 +549,7 @@ function toListItem(task: BackgroundTaskState): ListItem {
         task: task as any
       };
   }
-  return { id: task.id, type: 'local_bash' as const, label: task.description, status: task.status, task: task as any };
+  return { id: (task as any).id, type: 'local_bash' as const, label: (task as any).description, status: (task as any).status, task: task as any };
 }
 function Item(t0) {
   const $ = _c(14);

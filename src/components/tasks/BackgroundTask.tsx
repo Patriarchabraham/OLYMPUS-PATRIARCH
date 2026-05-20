@@ -14,7 +14,7 @@ type Props = {
   task: DeepImmutable<BackgroundTaskState>;
   maxActivityWidth?: number;
 };
-export function BackgroundTask(t0) {
+export function BackgroundTask(t0: Props) {
   const $ = _c(92);
   const {
     task,
@@ -230,7 +230,7 @@ export function BackgroundTask(t0) {
         }
         let t3;
         if ($[57] !== task.agentCount || $[58] !== task.status) {
-          t3 = task.status === "running" ? `${task.agentCount} ${plural(task.agentCount, "agent")}` : task.status === "completed" ? "done" : undefined;
+          t3 = task.status === "running" ? `${task.agentCount ?? 0} ${plural(task.agentCount ?? 0, "agent")}` : task.status === "completed" ? "done" : undefined;
           $[57] = task.agentCount;
           $[58] = task.status;
           $[59] = t3;

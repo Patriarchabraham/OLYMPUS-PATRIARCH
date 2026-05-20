@@ -1,11 +1,12 @@
-export type LocalWorkflowTaskState = {
-  id: string
-  type: string
-  status: string
-  description: string
+import type { TaskStateBase, TaskStatus, TaskType } from '../../Task.js'
+
+export type LocalWorkflowTaskState = TaskStateBase & {
+  type: 'local_workflow'
+  status: TaskStatus
   summary?: string
-  startTime?: number
   isBackgrounded?: boolean
+  workflowName?: string
+  agentCount?: number
 }
 export async function killWorkflowTask(_id: string): Promise<void> {}
 export async function skipWorkflowAgent(_id: string, _agentId: string): Promise<void> {}

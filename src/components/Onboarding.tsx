@@ -212,7 +212,7 @@ export function Onboarding({
       </Box>
     </Box>;
 }
-export function SkippableStep(t0) {
+export function SkippableStep(t0: { skip: boolean; onSkip: () => void; children: React.ReactNode }) {
   const $ = _c(4);
   const {
     skip,
