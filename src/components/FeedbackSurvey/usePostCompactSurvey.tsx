@@ -134,7 +134,7 @@ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
       const newBoundaries = Array.from(currentCompactBoundaries).filter(uuid => !seenCompactBoundaries.current.has(uuid));
       if (newBoundaries.length > 0) {
         seenCompactBoundaries.current = new Set(currentCompactBoundaries);
-        pendingCompactBoundaryUuid.current = newBoundaries[newBoundaries.length - 1];
+        pendingCompactBoundaryUuid.current = newBoundaries[newBoundaries.length - 1] as null;
       }
     };
     t10 = [enabled, currentCompactBoundaries, state, isLoading, hasActivePrompt, gateEnabled, messages, open];

@@ -82,12 +82,12 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     void logOTelEvent('feedback_survey', {
       event_type: 'responded',
       appearance_id: appearanceId_0,
-      response: selected,
+      response: selected as string,
       survey_type: 'memory'
     });
   }, []);
   const shouldShowTranscriptPrompt = useCallback((selected_0: FeedbackSurveyResponse) => {
-    if ("external" !== 'ant') {
+    if ("external" as string !== 'ant') {
       return false;
     }
     if (selected_0 !== 'bad' && selected_0 !== 'good') {

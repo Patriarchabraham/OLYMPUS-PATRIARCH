@@ -310,7 +310,7 @@ function ShellOutputContent(t0) {
   const {
     content,
     bytesTotal
-  } = use(outputPromise) as { content?: string; bytesTotal?: number };
+  } = use(outputPromise) as { content: string; bytesTotal: number };
   if (!content) {
     let t1;
     if ($[0] === Symbol.for("react.memo_cache_sentinel")) {

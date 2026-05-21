@@ -52,13 +52,13 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
     ...(rawUtil.five_hour && {
       five_hour: {
         used_percentage: rawUtil.five_hour.utilization * 100,
-        resets_at: rawUtil.five_hour.resets_at
+        resets_at: String(rawUtil.five_hour.resets_at)
       }
     }),
     ...(rawUtil.seven_day && {
       seven_day: {
         used_percentage: rawUtil.seven_day.utilization * 100,
-        resets_at: rawUtil.seven_day.resets_at
+        resets_at: String(rawUtil.seven_day.resets_at)
       }
     })
   };
@@ -123,7 +123,7 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
         original_branch: worktreeSession.originalBranch
       }
     })
-  };
+  } as StatusLineCommandInput;
 }
 type Props = {
   // messages stays behind a ref (read only in the debounced callback);

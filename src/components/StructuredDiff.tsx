@@ -92,7 +92,16 @@ function renderColorDiff(patch: StructuredPatchHunk, firstLine: string | null, f
   perHunk.set(key, entry);
   return entry;
 }
-export const StructuredDiff = memo(function StructuredDiff(t0) {
+type StructuredDiffProps = {
+  patch: StructuredPatchHunk;
+  dim: boolean;
+  filePath: string;
+  firstLine: string | null;
+  fileContent: string | undefined;
+  width: number;
+  skipHighlighting?: boolean;
+};
+export const StructuredDiff = memo(function StructuredDiff(t0: StructuredDiffProps) {
   const $ = _c(26);
   const {
     patch,

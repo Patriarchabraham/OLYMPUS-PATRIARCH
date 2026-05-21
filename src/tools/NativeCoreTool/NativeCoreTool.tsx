@@ -35,12 +35,12 @@ const outputSchema = lazySchema(() =>
   }),
 )
 
-type OutputSchema = typeof outputSchema
+type OutputSchema = ReturnType<typeof outputSchema>
 export type NativeCoreOutput = z.infer<OutputSchema>
 
 // ---------- Tool definition ----------
 
-export const NativeCoreTool = buildTool({
+const _nativeCoreToolDef = {
   name: NATIVE_CORE_TOOL_NAME,
   searchHint: 'native system dll performance optimize profile',
   maxResultSizeChars: 200_000,
@@ -329,4 +329,6 @@ export const NativeCoreTool = buildTool({
       }
     }
   },
-} satisfies ToolDef<InputSchema, NativeCoreOutput>)
+} as any
+
+export const NativeCoreTool = buildTool(_nativeCoreToolDef as any) as unknown as ToolDef<InputSchema, NativeCoreOutput>

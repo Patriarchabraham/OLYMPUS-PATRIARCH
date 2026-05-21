@@ -1,7 +1,7 @@
 import { c as _c } from "react-compiler-runtime";
 import { feature } from 'bun:bundle';
 import * as React from 'react';
-import { useSyncExternalStore } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 import { Box, Text } from '../ink.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
 import { calculateTokenWarningState, getEffectiveContextWindowSize, isAutoCompactEnabled } from '../services/compact/autoCompact.js';
@@ -32,7 +32,7 @@ function CollapseLabel(t0) {
   }
   const {
     getStats,
-    subscribe
+    subscribe: rawSubscribe
   } = t1 as typeof import('../services/contextCollapse/index.js');
   let t2;
   if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
@@ -45,7 +45,11 @@ function CollapseLabel(t0) {
   } else {
     t2 = $[1];
   }
-  const snapshot = useSyncExternalStore(subscribe, t2);
+  const subscribe = useCallback((onStoreChange: () => void) => {
+    const { unsubscribe } = rawSubscribe();
+    return unsubscribe;
+  }, [rawSubscribe]);
+  const snapshot = useSyncExternalStore(subscribe, t2) as string;
   let t3;
   if ($[2] !== snapshot) {
     t3 = snapshot.split("|").map(Number);
@@ -84,7 +88,7 @@ function CollapseLabel(t0) {
   }
   return t5;
 }
-export function TokenWarning(t0) {
+export function TokenWarning(t0: Props) {
   const $ = _c(13);
   const {
     tokenUsage,

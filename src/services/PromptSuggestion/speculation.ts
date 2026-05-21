@@ -254,18 +254,24 @@ export function prepareMessagesForInjection(messages: Message[]): Message[] {
 
   return messages
     .map(msg => {
-      if (!('message' in msg) || !Array.isArray(msg.message.content)) return msg
-      const content = msg.message.content.filter(keep)
-      if (content.length === msg.message.content.length) return msg
+      if (typeof msg === 'string' || !('message' in msg) || !('content' in (msg as any).message) || !Array.isArray((msg as any).message.content)) return msg
+      const typedMsg = msg as Message & { message: { content: unknown[] } }
+      const content = typedMsg.message.content.filter((b: unknown): b is { type: string; text?: string } => keep(b as { type: string; text?: string; id?: string; tool_use_id?: string; is_error?: boolean; content?: unknown }))
+      if (content.length === typedMsg.message.content.length) return msg
       if (content.length === 0) return null
       // Drop messages where all remaining blocks are whitespace-only text
       // (API rejects these with 400: "text content blocks must contain non-whitespace text")
       const hasNonWhitespaceContent = content.some(
-        (b: { type: string; text?: string }) =>
+        (b) =>
           b.type !== 'text' || (b.text !== undefined && b.text.trim() !== ''),
       )
       if (!hasNonWhitespaceContent) return null
-      return { ...msg, message: { ...msg.message, content } } as typeof msg
+      const clone: Record<string, unknown> = {}
+      for (const key of Object.keys(typedMsg)) {
+        clone[key] = (typedMsg as unknown as Record<string, unknown>)[key]
+      }
+      clone.message = { ...(typedMsg.message as Record<string, unknown>), content }
+      return clone as unknown as typeof msg
     })
     .filter((m): m is Message => m !== null)
 }
@@ -283,7 +289,7 @@ function createSpeculationFeedbackMessage(
   const toolUses = countToolsInMessages(messages)
   const tokens = boundary?.type === 'complete' ? boundary.outputTokens : null
 
-  const parts = []
+  const parts: string[] = []
   if (toolUses > 0) {
     parts.push(`Speculated ${toolUses} tool ${toolUses === 1 ? 'use' : 'uses'}`)
   } else {

@@ -26,7 +26,7 @@ type StructuredDiffComponent = React.ComponentType<{
   width: number
   skipHighlighting?: boolean
 }>
-const StructuredDiffView = StructuredDiff as StructuredDiffComponent
+const StructuredDiffView = StructuredDiff as unknown as StructuredDiffComponent
 
 export type ThemePickerProps = {
   onThemeSelect: (setting: ThemeSetting) => void;

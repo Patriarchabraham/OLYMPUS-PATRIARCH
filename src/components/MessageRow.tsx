@@ -90,7 +90,7 @@ export function hasContentAfterIndex(messages: RenderableMessage[], index: numbe
   }
   return false;
 }
-function MessageRowImpl(t0) {
+function MessageRowImpl(t0: Props) {
   const $ = _c(64);
   const {
     message: msg,
@@ -139,7 +139,7 @@ function MessageRowImpl(t0) {
   const displayMsg = t2;
   let t3;
   if ($[10] !== isCollapsed || $[11] !== isGrouped || $[12] !== lookups || $[13] !== msg) {
-    t3 = isGrouped || isCollapsed ? [] : getProgressMessagesFromLookup(msg, lookups);
+    t3 = isGrouped || isCollapsed ? [] : getProgressMessagesFromLookup(msg as any, lookups);
     $[10] = isCollapsed;
     $[11] = isGrouped;
     $[12] = lookups;
@@ -151,8 +151,8 @@ function MessageRowImpl(t0) {
   const progressMessagesForMessage = t3;
   let t4;
   if ($[15] !== inProgressToolUseIDs || $[16] !== isCollapsed || $[17] !== isGrouped || $[18] !== lookups || $[19] !== msg || $[20] !== screen || $[21] !== streamingToolUseIDs) {
-    const siblingToolUseIDs = isGrouped || isCollapsed ? EMPTY_STRING_SET : getSiblingToolUseIDsFromLookup(msg, lookups);
-    t4 = shouldRenderStatically(msg, streamingToolUseIDs, inProgressToolUseIDs, siblingToolUseIDs, screen, lookups);
+    const siblingToolUseIDs = isGrouped || isCollapsed ? EMPTY_STRING_SET : getSiblingToolUseIDsFromLookup(msg as any, lookups);
+    t4 = shouldRenderStatically(msg as any, streamingToolUseIDs, inProgressToolUseIDs, siblingToolUseIDs, screen, lookups);
     $[15] = inProgressToolUseIDs;
     $[16] = isCollapsed;
     $[17] = isGrouped;
@@ -204,7 +204,7 @@ function MessageRowImpl(t0) {
       } else {
         let t5;
         if ($[31] !== inProgressToolUseIDs || $[32] !== msg) {
-          const toolUseID = getToolUseID(msg);
+          const toolUseID = getToolUseID(msg as any);
           t5 = !toolUseID || inProgressToolUseIDs.has(toolUseID);
           $[31] = inProgressToolUseIDs;
           $[32] = msg;
@@ -230,7 +230,7 @@ function MessageRowImpl(t0) {
   const t7 = hasMetadata ? undefined : columns;
   let t8;
   if ($[37] !== commands || $[38] !== inProgressToolUseIDs || $[39] !== isActiveCollapsedGroup || $[40] !== isStatic || $[41] !== isTranscriptMode || $[42] !== isUserContinuation || $[43] !== lastThinkingBlockId || $[44] !== latestBashOutputUUID || $[45] !== lookups || $[46] !== msg || $[47] !== onOpenRateLimitOptions || $[48] !== progressMessagesForMessage || $[49] !== shouldAnimate || $[50] !== t6 || $[51] !== t7 || $[52] !== tools || $[53] !== verbose) {
-    t8 = <Message message={msg} lookups={lookups} addMargin={t6} containerWidth={t7} tools={tools} commands={commands} verbose={verbose} inProgressToolUseIDs={inProgressToolUseIDs} progressMessagesForMessage={progressMessagesForMessage} shouldAnimate={shouldAnimate} shouldShowDot={true} isTranscriptMode={isTranscriptMode} isStatic={isStatic} onOpenRateLimitOptions={onOpenRateLimitOptions} isActiveCollapsedGroup={isActiveCollapsedGroup} isUserContinuation={isUserContinuation} lastThinkingBlockId={lastThinkingBlockId} latestBashOutputUUID={latestBashOutputUUID} />;
+    t8 = <Message message={msg as any} lookups={lookups} addMargin={t6} containerWidth={t7} tools={tools} commands={commands} verbose={verbose} inProgressToolUseIDs={inProgressToolUseIDs} progressMessagesForMessage={progressMessagesForMessage} shouldAnimate={shouldAnimate} shouldShowDot={true} isTranscriptMode={isTranscriptMode} isStatic={isStatic} onOpenRateLimitOptions={onOpenRateLimitOptions} isActiveCollapsedGroup={isActiveCollapsedGroup} isUserContinuation={isUserContinuation} lastThinkingBlockId={lastThinkingBlockId} latestBashOutputUUID={latestBashOutputUUID} />;
     $[37] = commands;
     $[38] = inProgressToolUseIDs;
     $[39] = isActiveCollapsedGroup;
@@ -304,7 +304,7 @@ export function isMessageStreaming(msg: RenderableMessage, streamingToolUseIDs: 
     const toolIds = getToolUseIdsFromCollapsedGroup(msg);
     return toolIds.some(id => streamingToolUseIDs.has(id));
   }
-  const toolUseID = getToolUseID(msg);
+  const toolUseID = getToolUseID(msg as any);
   return !!toolUseID && streamingToolUseIDs.has(toolUseID);
 }
 
@@ -329,7 +329,7 @@ export function allToolsResolved(msg: RenderableMessage, resolvedToolUseIDs: Set
       return resolvedToolUseIDs.has(block.id);
     }
   }
-  const toolUseID = getToolUseID(msg);
+  const toolUseID = getToolUseID(msg as any);
   return !toolUseID || resolvedToolUseIDs.has(toolUseID);
 }
 

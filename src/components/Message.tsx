@@ -55,7 +55,7 @@ export type Props = {
   /** UUID of the latest user bash output message (for auto-expanding) */
   latestBashOutputUUID?: string | null;
 };
-function MessageImpl(t0) {
+function MessageImpl(t0: any) {
   const $ = _c(94);
   const {
     message,
@@ -252,7 +252,7 @@ function MessageImpl(t0) {
           } = require("../services/compact/snipProjection.js") as typeof import('../services/compact/snipProjection.js');
           const {
             isSnipMarkerMessage
-          } = require("../services/compact/snipCompact.js") as typeof import('../services/compact/snipCompact.js');
+          } = require("../services/compact/snipCompact.js") as typeof import('../services/compact/snipCompact.js') & Record<string, any>;
           if (isSnipBoundaryMessage(message)) {
             let t2;
             if ($[65] === Symbol.for("react.memo_cache_sentinel")) {
@@ -623,4 +623,4 @@ export function areMessagePropsEqual(prev: Props, next: Props): boolean {
   if (prev.isStatic && next.isStatic) return true;
   return false;
 }
-export const Message = React.memo(MessageImpl, areMessagePropsEqual);
+export const Message = React.memo(MessageImpl as React.FC<Props>, areMessagePropsEqual);

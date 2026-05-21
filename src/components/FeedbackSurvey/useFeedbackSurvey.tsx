@@ -117,7 +117,7 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
     void logOTelEvent('feedback_survey', {
       event_type: 'responded',
       appearance_id: appearanceId_0,
-      response: selected,
+      response: selected as string,
       survey_type: surveyType
     });
   }, [updateLastShownTime, surveyType]);

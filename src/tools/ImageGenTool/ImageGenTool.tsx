@@ -124,7 +124,7 @@ function isAnyProviderAvailable(): boolean {
   return !!process.env.OLLAMA_API_URL || !!process.env.IMAGE_GEN_ENABLED
 }
 
-export const ImageGenTool = buildTool({
+const _imageGenToolDef = {
   name: IMAGE_GEN_TOOL_NAME,
   searchHint: 'generate images from text descriptions',
   maxResultSizeChars: 50_000,
@@ -237,4 +237,6 @@ export const ImageGenTool = buildTool({
       content,
     }
   },
-} satisfies ToolDef<InputSchema, ImageGenResult>)
+}
+
+export const ImageGenTool = buildTool(_imageGenToolDef as any) as unknown as ToolDef<InputSchema, ImageGenResult>
