@@ -18,3 +18,8 @@ coverage/
 agent.log
 plan/
 .vercel
+evolution/state.json
+*_errors.txt
+web/node_modules/
+bun.lock
+*.log

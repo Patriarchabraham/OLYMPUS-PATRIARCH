@@ -1,4 +1,4 @@
-﻿import { afterEach, expect, mock, test } from 'bun:test'
+﻿import { afterEach, expect, vi, test } from 'vitest'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { resolveRuntimeCodexCredentials } from './providerConfig.js'
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 function makeJwt(payload: Record<string, unknown>): string {
@@ -79,7 +79,7 @@ test('runtime credential resolution preserves an explicit auth.json path even wh
 test('runtime credential resolution avoids sync secure-storage reads when async credentials are provided', async () => {
   let syncReadCalled = false
 
-  mock.module('../../utils/codexCredentials.js', () => ({
+  vi.mock('../../utils/codexCredentials.js', () => ({
     isCodexRefreshFailureCoolingDown: () => false,
     readCodexCredentials: () => {
       syncReadCalled = true

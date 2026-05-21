@@ -1,10 +1,11 @@
-﻿import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+﻿import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { mkdtemp, mkdir, rm, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { dirname, join } from 'path'
 import {
   clearAgentDefinitionsCache,
   getAgentDefinitionsWithOverrides,
+  type CustomAgentDefinition,
 } from './loadAgentsDir.js'
 import { loadMarkdownFilesForSubdir } from '../../utils/markdownConfigLoader.js'
 
@@ -110,6 +111,6 @@ describe('agent definition loading', () => {
     const { activeAgents } = await getAgentDefinitionsWithOverrides(projectDir)
     const agent = activeAgents.find(agent => agent.agentType === 'shared-agent')
 
-    expect(agent?.getSystemPrompt()).toBe('Mythos Patriarch prompt')
+    expect((agent as CustomAgentDefinition)?.getSystemPrompt()).toBe('Mythos Patriarch prompt')
   })
 })

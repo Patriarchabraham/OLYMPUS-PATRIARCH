@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import { beforeEach, describe, expect, vi, test } from 'vitest'
 
 type MarketplaceEntry = {
   name: string
@@ -21,9 +21,9 @@ let config = {
   lspRecommendationNeverPlugins: [] as string[],
   lspRecommendationIgnoredCount: 0,
 }
-let addMarketplaceSourceFn = mock(() => {})
+let addMarketplaceSourceFn = vi.fn(() => {})
 
-mock.module('./marketplaceManager.js', () => ({
+vi.mock('./marketplaceManager.js', () => ({
   loadKnownMarketplacesConfig: async () =>
     Object.fromEntries(
       Object.keys(marketplaces).map(name => [
@@ -37,17 +37,17 @@ mock.module('./marketplaceManager.js', () => ({
   addMarketplaceSource: addMarketplaceSourceFn,
 }))
 
-mock.module('../binaryCheck.js', () => ({
+vi.mock('../binaryCheck.js', () => ({
   isBinaryInstalled: async (command: string) => installedBinaries.has(command),
 }))
 
-mock.module('./installedPluginsManager.js', () => ({
+vi.mock('./installedPluginsManager.js', () => ({
   isPluginInstalled: (pluginId: string) => installedPlugins.has(pluginId),
 }))
 
-mock.module('../config.js', () => ({
+vi.mock('../config.js', () => ({
   getGlobalConfig: () => config,
-  saveGlobalConfig: mock((updater: (current: typeof config) => typeof config) => {
+  saveGlobalConfig: vi.fn((updater: (current: typeof config) => typeof config) => {
     config = updater(config)
   }),
 }))

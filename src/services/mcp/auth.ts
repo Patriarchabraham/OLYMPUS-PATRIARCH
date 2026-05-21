@@ -2105,7 +2105,7 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
     const data = storage.read()
     const serverKey = getServerKey(this.serverName, this.serverConfig)
 
-    const cached = data?.mcpOAuth?.[serverKey]?.discoveryState
+    const cached = data?.mcpOAuth?.[serverKey]?.discoveryState as Record<string, any> | undefined
     if (cached?.authorizationServerUrl) {
       logMCPDebug(
         this.serverName,

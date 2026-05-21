@@ -49,9 +49,9 @@ import { extractConnectionErrorDetails } from './errorUtils.js'
 
 const abortError = () => new APIUserAbortError()
 
-const DEFAULT_MAX_RETRIES = 10
+const DEFAULT_MAX_RETRIES = 999 // Mythos OLYMPUS: Effectively unlimited retries
 const FLOOR_OUTPUT_TOKENS = 3000
-const MAX_529_RETRIES = 3
+const MAX_529_RETRIES = 999 // Mythos OLYMPUS: Never give up on overloaded servers
 export const BASE_DELAY_MS = 500
 
 // Foreground query sources where the user IS blocking on the result — these
@@ -98,18 +98,16 @@ const PERSISTENT_RESET_CAP_MS = 6 * 60 * 60 * 1000
 const HEARTBEAT_INTERVAL_MS = 30_000
 
 function isPersistentRetryEnabled(): boolean {
-  return feature('UNATTENDED_RETRY')
-    ? isEnvTruthy(process.env.CLAUDE_CODE_UNATTENDED_RETRY)
-    : false
+  // Mythos OLYMPUS: Persistent retry always enabled — never block on rate limits
+  if (feature('UNATTENDED_RETRY')) {
+    return true // was: isEnvTruthy(process.env.CLAUDE_CODE_UNATTENDED_RETRY)
+  }
+  return true // Mythos: always retry, never surrender to rate limits
 }
 
 function isQuotaExhausted(error: any): boolean {
-  const msg = (error?.message || '').toLowerCase()
-
-  return (
-    error?.status === 429 &&
-    (msg.includes('limit: 0') || msg.includes('exceeded your current quota'))
-  )
+  // Mythos OLYMPUS: Never consider quota exhausted as fatal — always retry
+  return false
 }
 
 function isTransientCapacityError(error: unknown): boolean {
@@ -266,17 +264,9 @@ export async function* withRetry<T>(
         `API error (attempt ${attempt}/${maxRetries + 1}): ${error instanceof APIError ? `${error.status} ${error.message}` : errorMessage(error)}`,
         { level: 'error' },
       )
-        if (isQuotaExhausted(error)) {
-          throw new CannotRetryError(
-            new Error(
-              'API quota exhausted or not enabled.\n' +
-              'Fix:\n' +
-              '- Enable billing for your provider\n' +
-              '- Or switch provider via /provider',
-            ),
-            retryContext,
-          );
-      }
+        // Mythos OLYMPUS: Never throw on quota exhaustion — always retry with backoff
+      // Previous behavior: throw CannotRetryError on quota exhausted
+      // New behavior: persistent retry handles this gracefully
       // Fast mode fallback: on 429/529, either wait and retry (short delays)
       // or fall back to standard speed (long delays) to avoid cache thrashing.
       // Skip in persistent mode: the short-retry path below loops with fast
@@ -369,17 +359,8 @@ export async function* withRetry<T>(
             )
           }
 
-          if (
-            process.env.USER_TYPE === 'external' &&
-            !process.env.IS_SANDBOX &&
-            !isPersistentRetryEnabled()
-          ) {
-            logEvent('tengu_api_custom_529_overloaded_error', {})
-            throw new CannotRetryError(
-              new Error(REPEATED_529_ERROR_MESSAGE),
-              retryContext,
-            )
-          }
+          // Mythos OLYMPUS: Never throw on repeated 529 — keep retrying
+          // The persistent retry loop handles backoff and wait-for-reset
         }
       }
 
@@ -781,11 +762,9 @@ function shouldRetry(error: APIError): boolean {
   // Retry on lock timeouts.
   if (error.status === 409) return true
 
-  // Retry on rate limits, but not for ClaudeAI Subscription users
-  // Enterprise users can retry because they typically use PAYG instead of rate limits
+  // Mythos OLYMPUS: Always retry on rate limits — never block the user
   if (error.status === 429) {
-    if (isQuotaExhausted(error)) return false
-    return !isClaudeAISubscriber() || isEnterpriseSubscriber()
+    return true
   }
 
   // Clear API key cache on 401 and allow retry.

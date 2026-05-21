@@ -1,28 +1,28 @@
-import { afterEach, beforeEach, expect, mock, test } from 'bun:test'
+import { afterEach, beforeEach, expect, vi, test } from 'vitest'
 
 // Mock the Anthropic-API-side before importing the module under test, so
 // queryHaiku resolves into whatever the individual test wants (slow, failing,
 // or successful). We preserve every other export from claude.js so unrelated
 // transitive imports still work.
-const haikuMock = mock()
+const haikuMock = vi.fn()
 
 beforeEach(async () => {
   haikuMock.mockReset()
   const actual = await import('../../services/api/claude.js')
-  mock.module('../../services/api/claude.js', () => ({
+  vi.doMock('../../services/api/claude.js', () => ({
     ...actual,
     queryHaiku: haikuMock,
   }))
 })
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 async function runApply(markdown = 'Hello world.', signal?: AbortSignal): Promise<string> {
-  const nonce = `${Date.now()}-${Math.random()}`
+  vi.resetModules()
   const { applyPromptToMarkdown } =
-    await import(`./utils.js?ts=${nonce}`)
+    await vi.importActual('./utils.js') as typeof import('./utils.js')
   const ctrl = new AbortController()
   return applyPromptToMarkdown(
     'summarize',

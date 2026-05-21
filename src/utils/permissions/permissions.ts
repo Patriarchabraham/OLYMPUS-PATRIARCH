@@ -415,7 +415,7 @@ async function runPermissionRequestHooksForHeadlessAgent(
       input,
       context,
       permissionMode,
-      suggestions,
+      suggestions as any,
       context.abortController.signal,
     )) {
       if (!hookResult.permissionRequestResult) {

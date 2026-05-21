@@ -111,7 +111,7 @@ import type {
 import type { StatusLineCommandInput } from '../types/statusLine.js'
 import type { ElicitResult } from '@modelcontextprotocol/sdk/types.js'
 import type { FileSuggestionCommandInput } from '../types/fileSuggestion.js'
-import type { HookResultMessage } from 'src/types/message.js'
+import type { HookResultMessage, ProgressMessage } from 'src/types/message.js'
 import chalk from 'chalk'
 import type {
   HookMatcher,
@@ -532,7 +532,7 @@ export interface HookResult {
 }
 
 export type AggregatedHookResult = {
-  message?: HookResultMessage
+  message?: HookResultMessage | ProgressMessage
   blockingError?: HookBlockingError
   preventContinuation?: boolean
   stopReason?: string
@@ -561,7 +561,7 @@ function validateHookJson(
   const validation = hookJSONOutputSchema().safeParse(parsed)
   if (validation.success) {
     logForDebugging('Successfully parsed and validated hook JSON output')
-    return { json: validation.data }
+    return { json: validation.data as HookJSONOutput }
   }
   const errors = validation.error.issues
     .map(err => `  - ${err.path.join('.')}: ${err.message}`)
@@ -637,7 +637,7 @@ function parseHttpHookOutput(body: string): {
       logForDebugging(
         'HTTP hook returned empty body, treating as empty JSON object',
       )
-      return { json: validation.data }
+      return { json: validation.data as HookJSONOutput }
     }
   }
 
@@ -832,7 +832,7 @@ function processHookJSONOutput({
       case 'PermissionRequest':
         // Extract the permission request decision
         if (json.hookSpecificOutput.decision) {
-          result.permissionRequestResult = json.hookSpecificOutput.decision
+          result.permissionRequestResult = json.hookSpecificOutput.decision as PermissionRequestResult
           // Also update permissionBehavior for consistency
           result.permissionBehavior =
             json.hookSpecificOutput.decision.behavior === 'allow'
@@ -3824,7 +3824,7 @@ export async function executeStopFailureHooks(
   const hookInput: StopFailureHookInput = {
     ...createBaseHookInput(undefined, undefined, toolUseContext),
     hook_event_name: 'StopFailure',
-    error,
+    error: error as StopFailureHookInput['error'],
     error_details: lastMessage.errorDetails,
     last_assistant_message: lastAssistantText,
   }
@@ -3833,7 +3833,7 @@ export async function executeStopFailureHooks(
     getAppState: toolUseContext?.getAppState,
     hookInput,
     timeoutMs,
-    matchQuery: error,
+    matchQuery: String(error),
   })
 }
 
@@ -4411,7 +4411,7 @@ export async function* executePermissionRequestHooks<ToolInput>(
     hook_event_name: 'PermissionRequest',
     tool_name: toolName,
     tool_input: toolInput,
-    permission_suggestions: permissionSuggestions,
+    permission_suggestions: permissionSuggestions as PermissionRequestHookInput['permission_suggestions'],
   }
 
   yield* executeHooks({
@@ -4648,7 +4648,7 @@ function parseElicitationHookOutput(
   }
 
   try {
-    const parsed = hookJSONOutputSchema().parse(JSON.parse(trimmed))
+    const parsed = hookJSONOutputSchema().parse(JSON.parse(trimmed)) as HookJSONOutput
     if (isAsyncHookJSONOutput(parsed)) {
       return {}
     }

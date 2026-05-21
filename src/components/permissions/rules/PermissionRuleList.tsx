@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppState, useSetAppState } from 'src/state/AppState.js';
 import { applyPermissionUpdate, persistPermissionUpdate } from 'src/utils/permissions/PermissionUpdate.js';
-import type { PermissionUpdateDestination } from 'src/utils/permissions/PermissionUpdateSchema.js';
+import type { PermissionUpdate, PermissionUpdateDestination } from 'src/utils/permissions/PermissionUpdateSchema.js';
 import type { CommandResultDisplay } from '../../../commands.js';
 import { Select } from '../../../components/CustomSelect/select.js';
 import { PRODUCT_DISPLAY_NAME } from '../../../constants/product.js';
@@ -471,7 +471,7 @@ type Props = {
   initialTab?: TabType;
   onRetryDenials?: (commands: string[]) => void;
 };
-export function PermissionRuleList(t0) {
+export function PermissionRuleList(t0: Props) {
   const $ = _c(113);
   const {
     onExit,
@@ -494,7 +494,7 @@ export function PermissionRuleList(t0) {
   } else {
     t2 = $[1];
   }
-  const [changes, setChanges] = useState(t2);
+  const [changes, setChanges] = useState<string[]>(t2);
   const toolPermissionContext = useAppState(_temp);
   const setAppState = useSetAppState();
   const isTerminalFocused = useTerminalFocus();
@@ -509,7 +509,7 @@ export function PermissionRuleList(t0) {
   } else {
     t3 = $[2];
   }
-  const denialStateRef = useRef(t3);
+  const denialStateRef = useRef<{ approved: Set<number>; retry: Set<number>; denials: AutoModeDenial[] }>(t3);
   let t4;
   if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
     t4 = s_0 => {
@@ -520,12 +520,12 @@ export function PermissionRuleList(t0) {
     t4 = $[3];
   }
   const handleDenialStateChange = t4;
-  const [selectedRule, setSelectedRule] = useState();
+  const [selectedRule, setSelectedRule] = useState<PermissionRule | undefined>();
   const [lastFocusedRuleKey, setLastFocusedRuleKey] = useState();
-  const [addingRuleToTab, setAddingRuleToTab] = useState(null);
-  const [validatedRule, setValidatedRule] = useState(null);
+  const [addingRuleToTab, setAddingRuleToTab] = useState<TabType | null>(null);
+  const [validatedRule, setValidatedRule] = useState<{ ruleValue: PermissionRuleValue; ruleBehavior: PermissionBehavior } | null>(null);
   const [isAddingWorkspaceDirectory, setIsAddingWorkspaceDirectory] = useState(false);
-  const [removingDirectory, setRemovingDirectory] = useState(null);
+  const [removingDirectory, setRemovingDirectory] = useState<string | null>(null);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [headerFocused, setHeaderFocused] = useState(true);
   let t5;
@@ -599,7 +599,7 @@ export function PermissionRuleList(t0) {
             }
         }
       })();
-      const options = [];
+      const options: Option[] = [];
       if (tab !== "workspace" && tab !== "recent" && !query) {
         options.push({
           label: `Add a new rule${figures.ellipsis}`,
@@ -626,7 +626,7 @@ export function PermissionRuleList(t0) {
           }
           options.push({
             label: ruleString,
-            value: ruleKey
+            value: ruleKey as string
           });
         }
       }
@@ -796,7 +796,7 @@ export function PermissionRuleList(t0) {
   if ($[30] !== changes || $[31] !== onExit || $[32] !== onRetryDenials) {
     t18 = () => {
       const s_1 = denialStateRef.current;
-      const denialsFor = set => Array.from(set).map(idx => s_1.denials[idx]).filter(_temp2);
+      const denialsFor = (set: Set<number>) => Array.from(set).map(idx => s_1.denials[idx]).filter(_temp2);
       const retryDenials = denialsFor(s_1.retry);
       if (retryDenials.length > 0) {
         const commands = retryDenials.map(_temp3);
@@ -952,8 +952,8 @@ export function PermissionRuleList(t0) {
     let t22;
     if ($[56] !== setAppState || $[57] !== toolPermissionContext) {
       t22 = (path_0, remember) => {
-        const destination = remember ? "localSettings" : "session";
-        const permissionUpdate = {
+        const destination: PermissionUpdateDestination = remember ? "localSettings" : "session";
+        const permissionUpdate: PermissionUpdate = {
           type: "addDirectories" as const,
           directories: [path_0],
           destination

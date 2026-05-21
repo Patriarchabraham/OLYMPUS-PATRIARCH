@@ -163,7 +163,7 @@ export class DataMonitor {
 
       const req = httpModule.request(options, (res: { on: (event: string, cb: (chunk?: Buffer) => void) => void; statusCode?: number }) => {
         const chunks: Buffer[] = []
-        res.on('data', (chunk: Buffer) => chunks.push(chunk))
+        res.on('data', (chunk?: Buffer) => { if (chunk) chunks.push(chunk) })
         res.on('end', () => {
           const body = Buffer.concat(chunks).toString('utf-8')
 

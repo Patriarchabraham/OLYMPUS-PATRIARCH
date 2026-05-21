@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'bun:test'
+import { afterEach, beforeEach, expect, test } from 'vitest'
 
 import { getMaxOutputTokensForModel } from '../services/api/claude.ts'
 import {

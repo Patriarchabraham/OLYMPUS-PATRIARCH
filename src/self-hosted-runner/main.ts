@@ -1,1 +1,1 @@
-export async function selfHostedRunnerMain(): Promise<void> {}
+export async function selfHostedRunnerMain(_args?: string[]): Promise<void> {}

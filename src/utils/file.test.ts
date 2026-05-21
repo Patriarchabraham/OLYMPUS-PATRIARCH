@@ -6,7 +6,7 @@ async function importFileModuleWithKillswitchEnabled(killswitchEnabled: boolean)
 	}))
 
 	vi.resetModules()
-	return vi.importActual('./file.js')
+	return vi.importActual<typeof import('./file.js')>('./file.js')
 }
 
 afterEach(() => {

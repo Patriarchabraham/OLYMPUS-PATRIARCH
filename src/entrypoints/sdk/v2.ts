@@ -329,7 +329,7 @@ class SDKSessionImpl implements SDKSession {
   }
 
   getMessages(): SDKMessage[] {
-    return this.engine.getMessages().map(msg => mapMessageToSDK(msg as Record<string, unknown>))
+    return this.engine.getMessages().map(msg => mapMessageToSDK(msg as unknown as Record<string, unknown>))
   }
 
   interrupt(): void {

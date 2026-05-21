@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { shouldRefreshOAuthAccountInfo } from './client.js'
 
 test('OAuth account info population does not refresh when Claude.ai auth is inactive', () => {

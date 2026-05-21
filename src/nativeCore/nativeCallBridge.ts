@@ -6,7 +6,7 @@
  * latency to <5ms for cached results and 10-20ms for fresh native calls.
  */
 
-import { spawn, type ChildProcess } from 'child_process'
+import { spawn, type ChildProcess } from 'node:child_process'
 import { EventEmitter } from 'events'
 import { getHotPathCache } from './hotPathCache.js'
 import type { NativeCallRequest, NativeCallResponse } from './types.js'
@@ -75,7 +75,7 @@ export class NativeCallBridge extends EventEmitter {
 
         // Reject all pending calls
         for (const [id, pending] of this.pendingCalls) {
-          pending.reject(new Error(`PowerShell process exited with code ${code}`))
+          pending.reject(new Error(`Native bridge process exited with code ${code}`))
         }
         this.pendingCalls.clear()
       })
@@ -145,7 +145,7 @@ export class NativeCallBridge extends EventEmitter {
 
     return new Promise<NativeCallResponse>((resolve, reject) => {
       if (!this.process?.stdin?.writable) {
-        reject(new Error('PowerShell process not available'))
+        reject(new Error('Native bridge process not available'))
         return
       }
 
@@ -161,15 +161,15 @@ export class NativeCallBridge extends EventEmitter {
       }, 10000)
 
       // Clean timeout on resolve
-      const originalResolve = resolve
-      resolve = (response: NativeCallResponse) => {
+      const originalResolve = resolve as (value: NativeCallResponse | PromiseLike<NativeCallResponse>) => void
+      resolve = ((response: NativeCallResponse) => {
         clearTimeout(timeout)
         // Cache result
         if (request.cacheKey && response.success) {
           cache.set(request.cacheKey, response.data, request.cacheTtlMs)
         }
         originalResolve(response)
-      }
+      }) as (value: NativeCallResponse | PromiseLike<NativeCallResponse>) => void
       this.pendingCalls.set(callId, { resolve, reject, startTime })
     })
   }
@@ -223,6 +223,12 @@ export class NativeCallBridge extends EventEmitter {
   }
 
   private buildPSCommand(api: string, params: Record<string, unknown>, callId: string): string {
+    const isWindows = process.platform === 'win32'
+
+    if (!isWindows) {
+      return this.buildBashCommand(api, params, callId)
+    }
+
     const paramsJson = JSON.stringify(params).replace(/'/g, "''")
 
     switch (api) {
@@ -266,6 +272,94 @@ export class NativeCallBridge extends EventEmitter {
 
       default:
         return `'{"__callId":"${callId}","success":false,"error":"Unknown API: ${api}"}' + '${this.delimiter}'`
+    }
+  }
+
+  /**
+   * Build bash-appropriate commands for Linux/macOS platforms.
+   * Uses standard Unix tools (lscpu, free, df, ps, ip, etc.) and Python for JSON output.
+   */
+  private buildBashCommand(api: string, params: Record<string, unknown>, callId: string): string {
+    const d = this.delimiter
+    const jsonWrapper = (cmd: string) =>
+      `echo '{"__callId":"${callId}","success":true,"data":' && ${cmd} && echo '}' && echo '${d}'`
+
+    const jsonError = (msg: string) =>
+      `echo '{"__callId":"${callId}","success":false,"error":"${msg}"}' && echo '${d}'`
+
+    switch (api) {
+      case 'get_cpu_info':
+        return jsonWrapper(`lscpu -J 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps({'Name':d.get('CPU Model',''),'Manufacturer':'','NumberOfCores':d.get('CPU(s)',''),'NumberOfLogicalProcessors':d.get('CPU(s)',''),'CurrentClockSpeed':0,'MaxClockSpeed':0,'L2CacheSize':0,'L3CacheSize':0,'LoadPercentage':0}))" 2>/dev/null || echo '{}'`)
+
+      case 'get_memory_info':
+        return jsonWrapper(`python3 -c "
+import json,os
+t=os.sysconf('SC_PAGE_SIZE')*os.sysconf('SC_PHYS_PAGES')
+f=os.sysconf('SC_PAGE_SIZE')*os.sysconf('SC_AVPHYS_PAGES')
+print(json.dumps({'TotalVisibleMemorySize':t//1024,'FreePhysicalMemory':f//1024}))
+" 2>/dev/null || echo '{}'`)
+
+      case 'get_gpu_info':
+        return jsonWrapper(`lspci -vmm 2>/dev/null | grep -A3 'VGA' | python3 -c "import sys,json; print(json.dumps([{'Name':'Unknown GPU','DriverVersion':'Unknown','AdapterRAM':0}]))" 2>/dev/null || echo '[]'`)
+
+      case 'get_disk_info':
+        return jsonWrapper(`df -k -P 2>/dev/null | tail -n +2 | python3 -c "
+import sys,json
+lines=[l.split() for l in sys.stdin if len(l.split())>=6]
+print(json.dumps([{'DeviceID':l[0],'FileSystem':l[0],'Size':l[1],'FreeSpace':l[3],'VolumeName':l[5]} for l in lines]))
+" 2>/dev/null || echo '[]'`)
+
+      case 'get_process_list':
+        return jsonWrapper(`ps -eo pid,comm,%cpu,rss --no-headers 2>/dev/null | python3 -c "
+import sys,json
+lines=[l.split() for l in sys.stdin if len(l.split())>=4]
+print(json.dumps([{'Id':int(l[0]),'ProcessName':l[1],'CPU':float(l[2]),'WorkingSet64':int(l[3])*1024} for l in lines[:50]]))
+" 2>/dev/null || echo '[]'`)
+
+      case 'get_network_info':
+        return jsonWrapper(`python3 -c "
+import json,socket,struct
+import fcntl
+def get_mac(ifname):
+  try:
+    s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    return ':'.join(f'{b:02x}' for b in fcntl.ioctl(s.fileno(),0x8927,struct.pack('256s',ifname[:15].encode()))[18:24])
+  except: return ''
+ifs=[]
+for i in socket.if_nameindex():
+  nm=i[1]
+  if nm=='lo': continue
+  ifs.append({'Description':nm,'MACAddress':get_mac(nm),'IPAddress':'','DNSServerSearchOrder':[]})
+print(json.dumps(ifs))
+" 2>/dev/null || echo '[]'`)
+
+      case 'get_peripherals':
+        return jsonWrapper(`lsusb 2>/dev/null | python3 -c "import sys,json; print(json.dumps([{'FriendlyName':l.strip(),'InstanceId':'','Class':'usb','Status':'OK'} for l in sys.stdin]))" 2>/dev/null || echo '[]'`)
+
+      case 'get_services':
+        return jsonWrapper(`systemctl list-units --type=service --no-legend --no-pager 2>/dev/null | python3 -c "
+import sys,json
+lines=[l.split() for l in sys.stdin if l.strip()]
+print(json.dumps([{'Name':l[0],('DisplayName'):l[0],'Status':l[2] if len(l)>2 else 'unknown','StartType':'unknown'} for l in lines]))
+" 2>/dev/null || echo '[]'`)
+
+      case 'get_ports':
+        return jsonWrapper(`ss -tlnp 2>/dev/null | python3 -c "import sys,json; print(json.dumps([l.strip() for l in sys.stdin]))" 2>/dev/null || echo '[]'`)
+
+      case 'get_installed_software':
+        return jsonWrapper(`dpkg-query -W -f='\${Package}\t\${Version}\n' 2>/dev/null | head -100 | python3 -c "import sys,json; print(json.dumps([{'DisplayName':l.split('\t')[0],'DisplayVersion':l.split('\t')[1] if '\t' in l else ''} for l in sys.stdin]))" 2>/dev/null || echo '[]'`)
+
+      case 'inspect_dll': {
+        const path = (params.path as string) ?? ''
+        const escaped = path.replace(/'/g, "'\\''")
+        return `if [ -f '${escaped}' ]; then file '${escaped}' | python3 -c "import sys,json; print(json.dumps({'Name':'${escaped}','Version':'unknown','FullName':'${escaped}'}))" 2>/dev/null && echo '${d}'; else echo '{"__callId":"${callId}","success":false,"error":"File not found"}' && echo '${d}'; fi`
+      }
+
+      case 'get_environment':
+        return jsonWrapper(`env | python3 -c "import sys,json; print(json.dumps([{'Key':l.split('=',1)[0],'Value':l.split('=',1)[1] if '=' in l else ''} for l in sys.stdin]))" 2>/dev/null || echo '[]'`)
+
+      default:
+        return jsonError(`Unknown API: ${api}`)
     }
   }
 

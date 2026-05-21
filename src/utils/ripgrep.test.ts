@@ -1,4 +1,4 @@
-﻿import { expect, test } from 'bun:test'
+﻿import { expect, test } from 'vitest'
 import path from 'path'
 
 import { resolveRipgrepConfig, wrapRipgrepUnavailableError } from './ripgrep.js'

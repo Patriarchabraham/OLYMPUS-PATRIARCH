@@ -1,6 +1,8 @@
 ﻿import { PassThrough } from 'node:stream'
 
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
+
+const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
@@ -10,6 +12,11 @@ import { AppStateProvider } from '../state/AppState.js'
 
 const SYNC_START = '\x1B[?2026h'
 const SYNC_END = '\x1B[?2026l'
+
+async function importFreshProviderManager() {
+  vi.resetModules()
+  return vi.importActual('./ProviderManager.js') as Promise<typeof import('./ProviderManager.js')>
+}
 
 const ORIGINAL_ENV = {
   CLAUDE_CODE_SIMPLE: process.env.CLAUDE_CODE_SIMPLE,
@@ -91,7 +98,7 @@ async function waitForCondition(
     if (predicate()) {
       return
     }
-    await Bun.sleep(intervalMs)
+    await sleep(intervalMs)
   }
 
   throw new Error('Timed out waiting for ProviderManager test condition')
@@ -140,7 +147,7 @@ async function navigateToPreset(
   if (index < 0) throw new Error(`Unknown preset label: ${label}`)
   for (let i = 0; i < index; i++) {
     stdin.write('j')
-    await Bun.sleep(25)
+    await sleep(25)
   }
 }
 
@@ -162,7 +169,7 @@ function mockProviderProfilesModule(options?: {
   updateProviderProfile?: (...args: unknown[]) => unknown
   setActiveProviderProfile?: (...args: unknown[]) => unknown
 }): void {
-  mock.module('../utils/providerProfiles.js', () => ({
+  vi.doMock('../utils/providerProfiles.js', () => ({
     addProviderProfile: options?.addProviderProfile ?? (() => null),
     applyActiveProviderProfileFromConfig: () => {},
     deleteProviderProfile: () => ({ removed: false, activeProfileId: null }),
@@ -289,10 +296,10 @@ function mockProviderManagerDependencies(
     setActiveProviderProfile: options?.setActiveProviderProfile,
   })
 
-  mock.module('../utils/providerDiscovery.js', () => ({
+  vi.doMock('../utils/providerDiscovery.js', () => ({
   }))
 
-  mock.module('../integrations/discoveryService.js', () => ({
+  vi.doMock('../integrations/discoveryService.js', () => ({
     probeRouteReadiness:
       options?.probeRouteReadiness ??
       (async (routeId: string) => {
@@ -315,7 +322,7 @@ function mockProviderManagerDependencies(
       }),
   }))
 
-  mock.module('../utils/githubModelsCredentials.js', () => ({
+  vi.doMock('../utils/githubModelsCredentials.js', () => ({
     clearGithubModelsToken: () => ({ success: true }),
     GITHUB_MODELS_HYDRATED_ENV_MARKER: 'CLAUDE_CODE_GITHUB_TOKEN_HYDRATED',
     hydrateGithubModelsTokenFromSecureStorage: () => {},
@@ -323,7 +330,7 @@ function mockProviderManagerDependencies(
     readGithubModelsTokenAsync: githubAsyncRead,
   }))
 
-  mock.module('../utils/codexCredentials.js', () => ({
+  vi.doMock('../utils/codexCredentials.js', () => ({
     attachCodexProfileIdToStoredCredentials: () => ({ success: true }),
     clearCodexCredentials:
       options?.clearCodexCredentials ?? (() => ({ success: true })),
@@ -333,7 +340,7 @@ function mockProviderManagerDependencies(
       options?.codexAsyncRead ?? (async () => undefined),
   }))
 
-  mock.module('../utils/providerProfile.js', () => ({
+  vi.doMock('../utils/providerProfile.js', () => ({
     applySavedProfileToCurrentSession:
       options?.applySavedProfileToCurrentSession ?? (async () => null),
     buildCodexOAuthProfileEnv: (tokens: {
@@ -365,11 +372,15 @@ function mockProviderManagerDependencies(
     }),
   }))
 
-  mock.module('../utils/settings/settings.js', () => ({
-    updateSettingsForSource: () => ({ error: null }),
-  }))
+  vi.doMock('../utils/settings/settings.js', async () => {
+    const actual = await vi.importActual<typeof import('../utils/settings/settings.js')>('../utils/settings/settings.js')
+    return {
+      ...actual,
+      updateSettingsForSource: () => ({ error: null }),
+    }
+  })
 
-  mock.module('./useCodexOAuthFlow.js', () => ({
+  vi.doMock('./useCodexOAuthFlow.js', () => ({
     useCodexOAuthFlow:
       options?.useCodexOAuthFlow ??
       (() => ({
@@ -413,6 +424,13 @@ async function mountProviderManager(
   getOutput: () => string
   dispose: () => Promise<void>
 }> {
+  // Must re-import wrappers so their React context objects match the
+  // freshly-imported ProviderManager (vi.resetModules creates new instances).
+  const { AppStateProvider: FreshAppStateProvider } =
+    await vi.importActual<typeof import('../state/AppState.js')>('../state/AppState.js')
+  const { KeybindingSetup: FreshKeybindingSetup } =
+    await vi.importActual<typeof import('../keybindings/KeybindingProviderSetup.js')>('../keybindings/KeybindingProviderSetup.js')
+
   const { stdout, stdin, getOutput } = createTestStreams()
   const root = await createRoot({
     stdout: stdout as unknown as NodeJS.WriteStream,
@@ -421,14 +439,14 @@ async function mountProviderManager(
   })
 
   root.render(
-    <AppStateProvider onChangeAppState={options?.onChangeAppState}>
-      <KeybindingSetup>
+    <FreshAppStateProvider onChangeAppState={options?.onChangeAppState}>
+      <FreshKeybindingSetup>
         <ProviderManager
           mode={options?.mode ?? 'manage'}
           onDone={options?.onDone ?? (() => {})}
         />
-      </KeybindingSetup>
-    </AppStateProvider>,
+      </FreshKeybindingSetup>
+    </FreshAppStateProvider>,
   )
 
   return {
@@ -438,7 +456,7 @@ async function mountProviderManager(
       root.unmount()
       stdin.end()
       stdout.end()
-      await Bun.sleep(0)
+      await sleep(0)
     },
   }
 }
@@ -473,7 +491,7 @@ async function renderProviderManagerFrame(
 }
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 
   for (const [key, value] of Object.entries(ORIGINAL_ENV)) {
     if (value === undefined) {
@@ -489,15 +507,14 @@ test('ProviderManager resolves GitHub virtual provider from async storage withou
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const syncRead = mock(() => {
+  const syncRead = vi.fn(() => {
     throw new Error('sync credential read should not run in ProviderManager render flow')
   })
-  const asyncRead = mock(async () => 'stored-token')
+  const asyncRead = vi.fn(async () => 'stored-token')
 
   mockProviderManagerDependencies(syncRead, asyncRead)
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const output = await renderProviderManagerFrame(ProviderManager, {
     waitForOutput: frame =>
       frame.includes('Provider manager') &&
@@ -519,16 +536,15 @@ test('ProviderManager avoids first-frame false negative while stored-token looku
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const syncRead = mock(() => {
+  const syncRead = vi.fn(() => {
     throw new Error('sync credential read should not run in ProviderManager render flow')
   })
   const deferredStoredToken = createDeferred<string | undefined>()
-  const asyncRead = mock(async () => deferredStoredToken.promise)
+  const asyncRead = vi.fn(async () => deferredStoredToken.promise)
 
   mockProviderManagerDependencies(syncRead, asyncRead)
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   const firstFrame = await waitForFrameOutput(
@@ -558,8 +574,7 @@ test('ProviderManager avoids first-frame false negative while stored-token looku
 test('ProviderManager shows API mode picker for custom OpenAI-compatible providers', async () => {
   mockProviderManagerDependencies(() => undefined, async () => undefined)
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   try {
@@ -601,8 +616,7 @@ test('ProviderManager shows API mode picker for custom OpenAI-compatible provide
 test('ProviderManager skips advanced auth fields when adding MiniMax', async () => {
   mockProviderManagerDependencies(() => undefined, async () => undefined)
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   try {
@@ -657,8 +671,7 @@ test('ProviderManager explains when Hicap non-gpt responses mode is saved as cha
     }),
   })
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   try {
@@ -691,7 +704,7 @@ test('ProviderManager explains when Hicap non-gpt responses mode is saved as cha
     )
 
     mounted.stdin.write('j')
-    await Bun.sleep(25)
+    await sleep(25)
     mounted.stdin.write('\r')
     const apiKeyOutput = await waitForFrameOutput(mounted.getOutput, frame =>
       frame.includes('Step 5 of 6: API key'),
@@ -728,7 +741,7 @@ test('ProviderManager clears hidden Hicap auth fields when editing', async () =>
       'X-Regular-Header': 'kept',
     },
   }
-  const updateProviderProfile = mock((id: string, payload: any) => ({
+  const updateProviderProfile = vi.fn((id: string, payload: any) => ({
     ...legacyHicapProfile,
     id,
     ...payload,
@@ -744,8 +757,7 @@ test('ProviderManager clears hidden Hicap auth fields when editing', async () =>
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   try {
@@ -755,9 +767,9 @@ test('ProviderManager clears hidden Hicap auth fields when editing', async () =>
     )
 
     mounted.stdin.write('j')
-    await Bun.sleep(25)
+    await sleep(25)
     mounted.stdin.write('j')
-    await Bun.sleep(25)
+    await sleep(25)
     mounted.stdin.write('\r')
 
     await waitForFrameOutput(mounted.getOutput, frame =>
@@ -765,7 +777,7 @@ test('ProviderManager clears hidden Hicap auth fields when editing', async () =>
       frame.includes('Legacy Hicap'),
     )
 
-    await Bun.sleep(25)
+    await sleep(25)
     mounted.stdin.write('\r')
     await waitForFrameOutput(mounted.getOutput, frame =>
       frame.includes('Edit provider profile') &&
@@ -819,8 +831,7 @@ test('ProviderManager skips advanced fields for legacy Kimi Code profiles', asyn
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   try {
@@ -830,9 +841,9 @@ test('ProviderManager skips advanced fields for legacy Kimi Code profiles', asyn
     )
 
     mounted.stdin.write('j')
-    await Bun.sleep(25)
+    await sleep(25)
     mounted.stdin.write('j')
-    await Bun.sleep(25)
+    await sleep(25)
     mounted.stdin.write('\r')
 
     await waitForFrameOutput(mounted.getOutput, frame =>
@@ -840,7 +851,7 @@ test('ProviderManager skips advanced fields for legacy Kimi Code profiles', asyn
       frame.includes('Legacy Kimi Code'),
     )
 
-    await Bun.sleep(25)
+    await sleep(25)
     mounted.stdin.write('\r')
     await waitForFrameOutput(mounted.getOutput, frame =>
       frame.includes('Edit provider profile') &&
@@ -879,8 +890,8 @@ test('ProviderManager first-run Ollama preset auto-detects installed models', as
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const onDone = mock(() => {})
-  const addProviderProfile = mock((payload: {
+  const onDone = vi.fn(() => {})
+  const addProviderProfile = vi.fn((payload: {
     provider: string
     name: string
     baseUrl: string
@@ -919,8 +930,7 @@ test('ProviderManager first-run Ollama preset auto-detects installed models', as
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     mode: 'first-run',
     onDone,
@@ -945,7 +955,7 @@ test('ProviderManager first-run Ollama preset auto-detects installed models', as
   expect(modelFrame).toContain('Choose an Ollama model')
   expect(modelFrame).toContain('gemma4:31b-cloud')
 
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForCondition(() => onDone.mock.calls.length > 0)
@@ -967,15 +977,14 @@ test('ProviderManager first-run Ollama preset auto-detects installed models', as
 })
 
 test('ProviderManager preserves the Ollama readiness message when the probe is unreachable', async () => {
-  const onDone = mock(() => {})
+  const onDone = vi.fn(() => {})
 
   mockProviderManagerDependencies(
     () => undefined,
     async () => undefined,
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     mode: 'first-run',
     onDone,
@@ -1008,8 +1017,8 @@ test('ProviderManager first-run Atomic Chat preset auto-detects loaded models', 
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const onDone = mock(() => {})
-  const addProviderProfile = mock((payload: {
+  const onDone = vi.fn(() => {})
+  const addProviderProfile = vi.fn((payload: {
     provider: string
     name: string
     baseUrl: string
@@ -1042,8 +1051,7 @@ test('ProviderManager first-run Atomic Chat preset auto-detects loaded models', 
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     mode: 'first-run',
     onDone,
@@ -1068,7 +1076,7 @@ test('ProviderManager first-run Atomic Chat preset auto-detects loaded models', 
   expect(modelFrame).toContain('Choose an Atomic Chat model')
   expect(modelFrame).toContain('Qwen3_5-4B_Q4_K_M')
 
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForCondition(() => onDone.mock.calls.length > 0)
@@ -1095,10 +1103,10 @@ test('ProviderManager first-run Codex OAuth switches the current session after l
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const onDone = mock(() => {})
-  const applySavedProfileToCurrentSession = mock(async () => null)
-  const persistCredentials = mock(() => {})
-  const addProviderProfile = mock((payload: {
+  const onDone = vi.fn(() => {})
+  const applySavedProfileToCurrentSession = vi.fn(async () => null)
+  const persistCredentials = vi.fn(() => {})
+  const addProviderProfile = vi.fn((payload: {
     provider: string
     name: string
     baseUrl: string
@@ -1137,8 +1145,7 @@ test('ProviderManager first-run Codex OAuth switches the current session after l
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     mode: 'first-run',
     onDone,
@@ -1185,12 +1192,12 @@ test('ProviderManager first-run Codex OAuth reports next-startup fallback when s
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const onDone = mock(() => {})
-  const applySavedProfileToCurrentSession = mock(
+  const onDone = vi.fn(() => {})
+  const applySavedProfileToCurrentSession = vi.fn(
     async () => 'validation failed',
   )
-  const persistCredentials = mock(() => {})
-  const addProviderProfile = mock((payload: {
+  const persistCredentials = vi.fn(() => {})
+  const addProviderProfile = vi.fn((payload: {
     provider: string
     name: string
     baseUrl: string
@@ -1229,8 +1236,7 @@ test('ProviderManager first-run Codex OAuth reports next-startup fallback when s
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     mode: 'first-run',
     onDone,
@@ -1266,7 +1272,7 @@ test('ProviderManager does not hijack a manual Codex profile when OAuth credenti
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const onDone = mock(() => {})
+  const onDone = vi.fn(() => {})
   const manualProfile = {
     id: 'provider_manual_codex',
     provider: 'openai',
@@ -1275,7 +1281,7 @@ test('ProviderManager does not hijack a manual Codex profile when OAuth credenti
     model: 'gpt-5.4',
     apiKey: 'manual-key',
   }
-  const addProviderProfile = mock((payload: {
+  const addProviderProfile = vi.fn((payload: {
     provider: string
     name: string
     baseUrl: string
@@ -1289,8 +1295,8 @@ test('ProviderManager does not hijack a manual Codex profile when OAuth credenti
     model: payload.model,
     apiKey: payload.apiKey,
   }))
-  const updateProviderProfile = mock(() => manualProfile)
-  const persistCredentials = mock(() => {})
+  const updateProviderProfile = vi.fn(() => manualProfile)
+  const persistCredentials = vi.fn(() => {})
 
   mockProviderManagerDependencies(
     () => undefined,
@@ -1323,8 +1329,7 @@ test('ProviderManager does not hijack a manual Codex profile when OAuth credenti
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     mode: 'first-run',
     onDone,
@@ -1364,10 +1369,10 @@ test('ProviderManager keeps Codex OAuth as next-startup only when activating the
     apiKey: '',
   }
 
-  const applySavedProfileToCurrentSession = mock(
+  const applySavedProfileToCurrentSession = vi.fn(
     async () => 'validation failed',
   )
-  const setActiveProviderProfile = mock(() => codexProfile)
+  const setActiveProviderProfile = vi.fn(() => codexProfile)
 
   mockProviderManagerDependencies(
     () => undefined,
@@ -1385,8 +1390,7 @@ test('ProviderManager keeps Codex OAuth as next-startup only when activating the
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   await waitForFrameOutput(
@@ -1398,7 +1402,7 @@ test('ProviderManager keeps Codex OAuth as next-startup only when activating the
   )
 
   mounted.stdin.write('j')
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForFrameOutput(
@@ -1406,14 +1410,14 @@ test('ProviderManager keeps Codex OAuth as next-startup only when activating the
     frame => frame.includes('Set active provider') && frame.includes('Codex OAuth'),
   )
 
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForCondition(() => setActiveProviderProfile.mock.calls.length > 0)
   await waitForCondition(
     () => applySavedProfileToCurrentSession.mock.calls.length > 0,
   )
-  await Bun.sleep(50)
+  await sleep(50)
   const output = stripAnsi(extractLastFrame(mounted.getOutput()))
 
   expect(output).toContain(
@@ -1440,7 +1444,7 @@ test('ProviderManager activating a multi-model provider sets the session model t
     apiKey: 'sk-test',
   }
 
-  const setActiveProviderProfile = mock(() => multiModelProfile)
+  const setActiveProviderProfile = vi.fn(() => multiModelProfile)
   const appStateChanges: Array<{ newState: any; oldState: any }> = []
 
   mockProviderManagerDependencies(
@@ -1452,8 +1456,7 @@ test('ProviderManager activating a multi-model provider sets the session model t
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     onChangeAppState: args => {
       appStateChanges.push(args as { newState: any; oldState: any })
@@ -1468,7 +1471,7 @@ test('ProviderManager activating a multi-model provider sets the session model t
   )
 
   mounted.stdin.write('j')
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForFrameOutput(
@@ -1478,7 +1481,7 @@ test('ProviderManager activating a multi-model provider sets the session model t
       frame.includes('Multi Model Provider'),
   )
 
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForCondition(() => setActiveProviderProfile.mock.calls.length > 0)
@@ -1522,7 +1525,7 @@ test('ProviderManager editing an active multi-model provider keeps app state on 
     apiKey: 'sk-test',
   }
 
-  const updateProviderProfile = mock(() => multiModelProfile)
+  const updateProviderProfile = vi.fn(() => multiModelProfile)
   const appStateChanges: Array<{ newState: any; oldState: any }> = []
 
   mockProviderManagerDependencies(
@@ -1535,8 +1538,7 @@ test('ProviderManager editing an active multi-model provider keeps app state on 
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager, {
     onChangeAppState: args => {
       appStateChanges.push(args as { newState: any; oldState: any })
@@ -1551,9 +1553,9 @@ test('ProviderManager editing an active multi-model provider keeps app state on 
   )
 
   mounted.stdin.write('j')
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('j')
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForFrameOutput(
@@ -1563,7 +1565,7 @@ test('ProviderManager editing an active multi-model provider keeps app state on 
       frame.includes('Multi Model Provider'),
   )
 
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   await waitForFrameOutput(
@@ -1671,8 +1673,7 @@ test('ProviderManager set-active list uses descriptor-backed provider type label
     },
   )
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const mounted = await mountProviderManager(ProviderManager)
 
   await waitForFrameOutput(
@@ -1683,7 +1684,7 @@ test('ProviderManager set-active list uses descriptor-backed provider type label
   )
 
   mounted.stdin.write('j')
-  await Bun.sleep(25)
+  await sleep(25)
   mounted.stdin.write('\r')
 
   const output = await waitForFrameOutput(
@@ -1707,12 +1708,12 @@ test('ProviderManager resolves Codex OAuth state from async storage without sync
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const githubSyncRead = mock(() => undefined)
-  const githubAsyncRead = mock(async () => undefined)
-  const codexSyncRead = mock(() => {
+  const githubSyncRead = vi.fn(() => undefined)
+  const githubAsyncRead = vi.fn(async () => undefined)
+  const codexSyncRead = vi.fn(() => {
     throw new Error('sync codex credential read should not run in ProviderManager render flow')
   })
-  const codexAsyncRead = mock(async () => ({
+  const codexAsyncRead = vi.fn(async () => ({
     accessToken: 'codex-access-token',
     refreshToken: 'codex-refresh-token',
   }))
@@ -1722,8 +1723,7 @@ test('ProviderManager resolves Codex OAuth state from async storage without sync
     codexAsyncRead,
   })
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const output = await renderProviderManagerFrame(ProviderManager, {
     waitForOutput: frame =>
       frame.includes('Provider manager') &&
@@ -1742,13 +1742,12 @@ test('ProviderManager hides Codex OAuth setup in bare mode', async () => {
   delete process.env.GITHUB_TOKEN
   delete process.env.GH_TOKEN
 
-  const githubSyncRead = mock(() => undefined)
-  const githubAsyncRead = mock(async () => undefined)
+  const githubSyncRead = vi.fn(() => undefined)
+  const githubAsyncRead = vi.fn(async () => undefined)
 
   mockProviderManagerDependencies(githubSyncRead, githubAsyncRead)
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { ProviderManager } = await import(`./ProviderManager.js?ts=${nonce}`)
+  const { ProviderManager } = await importFreshProviderManager()
   const output = await renderProviderManagerFrame(ProviderManager, {
     mode: 'first-run',
     waitForOutput: frame =>

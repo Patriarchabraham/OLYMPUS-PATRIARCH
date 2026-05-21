@@ -14,3 +14,5 @@ export type SDKControlReloadPluginsResponse = any
 export type SDKPartialAssistantMessage = any
 export type StdoutMessage = any
 export type StdinMessage = any
+export type SDKControlCancelRequest = any
+export type SDKControlRequestInner = any

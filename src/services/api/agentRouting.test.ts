@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { resolveAgentProvider } from './agentRouting.js'
 import type { SettingsJson } from '../../utils/settings/types.js'
 

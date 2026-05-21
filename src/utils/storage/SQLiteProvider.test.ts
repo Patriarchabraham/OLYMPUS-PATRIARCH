@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, beforeEach, afterEach, afterAll } from 'bun:test'
+﻿import { describe, expect, it, beforeEach, afterEach, afterAll } from 'vitest'
 import {
   addGlobalEntity,
   resetGlobalGraph,
@@ -12,7 +12,14 @@ import { join } from 'path'
 import { getProjectsDir } from '../envUtils.js'
 import { sanitizePath } from '../sessionStoragePortable.js'
 
-describe('SQLite Storage Layer', () => {
+// Skip entire suite when better-sqlite3 is not available
+let sqliteAvailable = false
+try {
+  require('better-sqlite3')
+  sqliteAvailable = true
+} catch {}
+
+describe.skipIf(!sqliteAvailable)('SQLite Storage Layer', () => {
   const originalConfigDir = process.env.CLAUDE_CONFIG_DIR
   const configDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-sqlite-'))
   process.env.CLAUDE_CONFIG_DIR = configDir

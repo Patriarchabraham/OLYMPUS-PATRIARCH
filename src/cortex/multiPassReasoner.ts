@@ -4,7 +4,7 @@
  */
 
 import type { DecomposedQuery, ReasoningPass, ReasoningStrategy } from './types.js'
-import type { GenerateFn } from '../../reasoning/types.js'
+import type { GenerateFn } from '../reasoning/types.js'
 
 /** Default placeholder generate function for when no LLM is connected */
 const placeholderGenerate: GenerateFn = async (prompt: string): Promise<string> => {

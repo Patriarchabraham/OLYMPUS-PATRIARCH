@@ -241,10 +241,9 @@ ${sessionIds.map(id => `- ${id}`).join('\n')}`
         isDreamTask(dreamState) &&
         dreamState.filesTouched.length > 0
       ) {
-        appendSystemMessage({
-          ...createMemorySavedMessage(dreamState.filesTouched),
-          verb: 'Improved',
-        })
+        appendSystemMessage(
+          createMemorySavedMessage(dreamState.filesTouched),
+        )
       }
       logForDebugging(
         `[autoDream] completed — cache: read=${result.totalUsage.cache_read_input_tokens} created=${result.totalUsage.cache_creation_input_tokens}`,

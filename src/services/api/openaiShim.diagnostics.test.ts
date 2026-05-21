@@ -1,4 +1,4 @@
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 
 const originalFetch = globalThis.fetch
 const originalEnv = {
@@ -15,25 +15,29 @@ function restoreEnv(key: string, value: string | undefined): void {
   }
 }
 
+async function importFreshOpenAIShim() {
+  vi.resetModules()
+  return vi.importActual('./openaiShim.ts') as Promise<typeof import('./openaiShim.ts')>
+}
+
 afterEach(() => {
   globalThis.fetch = originalFetch
   restoreEnv('OPENAI_BASE_URL', originalEnv.OPENAI_BASE_URL)
   restoreEnv('OPENAI_API_KEY', originalEnv.OPENAI_API_KEY)
   restoreEnv('OPENAI_MODEL', originalEnv.OPENAI_MODEL)
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 test('logs classified transport diagnostics with category and code', async () => {
-  const debugSpy = mock((..._args: unknown[]) => {}) as unknown as {
+  const debugSpy = vi.fn((..._args: unknown[]) => {}) as unknown as {
     (...args: unknown[]): void
     mock: { calls: unknown[][] }
   }
-  mock.module('../../utils/debug.js', () => ({
+  vi.doMock('../../utils/debug.js', () => ({
     logForDebugging: debugSpy,
   }))
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { createOpenAIShimClient } = await import(`./openaiShim.ts?ts=${nonce}`)
+  const { createOpenAIShimClient } = await importFreshOpenAIShim()
 
   process.env.OPENAI_BASE_URL = 'http://localhost:11434/v1'
   process.env.OPENAI_API_KEY = 'ollama'
@@ -42,7 +46,7 @@ test('logs classified transport diagnostics with category and code', async () =>
     code: 'ECONNREFUSED',
   })
 
-  globalThis.fetch = mock(async () => {
+  globalThis.fetch = vi.fn(async () => {
     throw transportError
   }) as unknown as typeof globalThis.fetch
 
@@ -74,16 +78,15 @@ test('logs classified transport diagnostics with category and code', async () =>
 })
 
 test('redacts credentials in transport diagnostic URL logs', async () => {
-  const debugSpy = mock((..._args: unknown[]) => {}) as unknown as {
+  const debugSpy = vi.fn((..._args: unknown[]) => {}) as unknown as {
     (...args: unknown[]): void
     mock: { calls: unknown[][] }
   }
-  mock.module('../../utils/debug.js', () => ({
+  vi.doMock('../../utils/debug.js', () => ({
     logForDebugging: debugSpy,
   }))
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { createOpenAIShimClient } = await import(`./openaiShim.ts?ts=${nonce}`)
+  const { createOpenAIShimClient } = await importFreshOpenAIShim()
 
   process.env.OPENAI_BASE_URL = 'http://user:supersecret@localhost:11434/v1'
   process.env.OPENAI_API_KEY = 'supersecret'
@@ -92,7 +95,7 @@ test('redacts credentials in transport diagnostic URL logs', async () => {
     code: 'ECONNREFUSED',
   })
 
-  globalThis.fetch = mock(async () => {
+  globalThis.fetch = vi.fn(async () => {
     throw transportError
   }) as unknown as typeof globalThis.fetch
 
@@ -124,21 +127,20 @@ test('redacts credentials in transport diagnostic URL logs', async () => {
   expect(logLine).not.toContain('supersecret@')
 })
 test('logs self-heal localhost fallback with redacted from/to URLs', async () => {
-  const debugSpy = mock((..._args: unknown[]) => {}) as unknown as {
+  const debugSpy = vi.fn((..._args: unknown[]) => {}) as unknown as {
     (...args: unknown[]): void
     mock: { calls: unknown[][] }
   }
-  mock.module('../../utils/debug.js', () => ({
+  vi.doMock('../../utils/debug.js', () => ({
     logForDebugging: debugSpy,
   }))
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { createOpenAIShimClient } = await import(`./openaiShim.ts?ts=${nonce}`)
+  const { createOpenAIShimClient } = await importFreshOpenAIShim()
 
   process.env.OPENAI_BASE_URL = 'http://user:supersecret@localhost:11434/v1'
   process.env.OPENAI_API_KEY = 'supersecret'
 
-  globalThis.fetch = mock(async (input: string | Request) => {
+  globalThis.fetch = vi.fn(async (input: string | Request) => {
     const url = typeof input === 'string' ? input : input.url
     if (url.includes('localhost')) {
       throw Object.assign(new TypeError('fetch failed'), {
@@ -204,22 +206,21 @@ test('logs self-heal localhost fallback with redacted from/to URLs', async () =>
 })
 
 test('logs self-heal toolless retry for local tool-call incompatibility', async () => {
-  const debugSpy = mock((..._args: unknown[]) => {}) as unknown as {
+  const debugSpy = vi.fn((..._args: unknown[]) => {}) as unknown as {
     (...args: unknown[]): void
     mock: { calls: unknown[][] }
   }
-  mock.module('../../utils/debug.js', () => ({
+  vi.doMock('../../utils/debug.js', () => ({
     logForDebugging: debugSpy,
   }))
 
-  const nonce = `${Date.now()}-${Math.random()}`
-  const { createOpenAIShimClient } = await import(`./openaiShim.ts?ts=${nonce}`)
+  const { createOpenAIShimClient } = await importFreshOpenAIShim()
 
   process.env.OPENAI_BASE_URL = 'http://localhost:11434/v1'
   process.env.OPENAI_API_KEY = 'ollama'
 
   let callCount = 0
-  globalThis.fetch = mock(async () => {
+  globalThis.fetch = vi.fn(async () => {
     callCount += 1
     if (callCount === 1) {
       return new Response('tool_calls are not supported', {

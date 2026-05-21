@@ -1,18 +1,27 @@
 import { afterEach, expect, test, vi } from 'vitest'
 
+const provider = vi.hoisted(() => {
+	let value = 'mistral'
+	return {
+		get: () => value,
+		set: (v: string) => {
+			value = v
+		},
+	}
+})
+
+vi.mock('../model/providers.js', () => ({
+	getAPIProvider: () => provider.get(),
+}))
+
 afterEach(() => {
 	vi.restoreAllMocks()
 })
 
-async function importFreshTeammateModelModule(provider = 'mistral') {
-	vi.restoreAllMocks()
-	vi.mock('../model/providers.js', () => ({
-		getAPIProvider: () => provider,
-	}))
-	const nonce = `${Date.now()}-${Math.random()}`
-	void nonce
+async function importFreshTeammateModelModule(providerName = 'mistral') {
+	provider.set(providerName)
 	vi.resetModules()
-	return vi.importActual('./teammateModel.js')
+	return vi.importActual<typeof import('./teammateModel.js')>('./teammateModel.js')
 }
 
 test('getHardcodedTeammateModelFallback returns a Mistral fallback in mistral mode', async () => {

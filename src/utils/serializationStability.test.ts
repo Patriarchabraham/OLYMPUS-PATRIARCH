@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { sortKeysDeep, stableStringify } from './stableStringify.js'
 
 // These tests pin byte-level stability of serialization helpers. The

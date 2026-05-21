@@ -1,6 +1,6 @@
 ﻿import { c as _c } from "react-compiler-runtime";
 import { feature } from 'bun:bundle';
-import { plot as asciichart } from 'asciichart';
+import asciichart from 'asciichart';
 import chalk from 'chalk';
 import figures from 'figures';
 import React, { Suspense, use, useCallback, useEffect, useMemo, useState } from 'react';
@@ -79,7 +79,7 @@ function createAllTimeStatsPromise(): Promise<StatsResult> {
     };
   });
 }
-export function Stats(t0) {
+export function Stats(t0: Props) {
   const $ = _c(4);
   const {
     onClose
@@ -124,8 +124,8 @@ function StatsContent(t0) {
     allTimePromise,
     onClose
   } = t0;
-  const allTimeResult = use(allTimePromise);
-  const [dateRange, setDateRange] = useState("all");
+  const allTimeResult = use(allTimePromise) as StatsResult;
+  const [dateRange, setDateRange] = useState<StatsDateRange>("all");
   let t1;
   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
     t1 = {};
@@ -135,8 +135,8 @@ function StatsContent(t0) {
   }
   const [statsCache, setStatsCache] = useState(t1);
   const [isLoadingFiltered, setIsLoadingFiltered] = useState(false);
-  const [activeTab, setActiveTab] = useState("Overview");
-  const [copyStatus, setCopyStatus] = useState(null);
+  const [activeTab, setActiveTab] = useState<"Overview" | "Models">("Overview");
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
   let t2;
   let t3;
   if ($[1] !== dateRange || $[2] !== statsCache) {

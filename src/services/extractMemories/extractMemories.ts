@@ -437,19 +437,21 @@ export function initExtractMemories(): void {
       const writtenPaths = extractWrittenPaths(result.messages)
       const turnCount = count(result.messages, m => m.type === 'assistant')
 
+      const cacheCreationInputTokens = result.totalUsage.cache_creation_input_tokens ?? 0
+      const cacheReadInputTokens = result.totalUsage.cache_read_input_tokens ?? 0
       const totalInput =
         result.totalUsage.input_tokens +
-        result.totalUsage.cache_creation_input_tokens +
-        result.totalUsage.cache_read_input_tokens
+        cacheCreationInputTokens +
+        cacheReadInputTokens
       const hitPct =
         totalInput > 0
           ? (
-              (result.totalUsage.cache_read_input_tokens / totalInput) *
+              (cacheReadInputTokens / totalInput) *
               100
             ).toFixed(1)
           : '0.0'
       logForDebugging(
-        `[extractMemories] finished — ${writtenPaths.length} files written, cache: read=${result.totalUsage.cache_read_input_tokens} create=${result.totalUsage.cache_creation_input_tokens} input=${result.totalUsage.input_tokens} (${hitPct}% hit)`,
+        `[extractMemories] finished — ${writtenPaths.length} files written, cache: read=${cacheReadInputTokens} create=${cacheCreationInputTokens} input=${result.totalUsage.input_tokens} (${hitPct}% hit)`,
       )
 
       if (writtenPaths.length > 0) {

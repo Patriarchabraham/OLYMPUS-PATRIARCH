@@ -300,8 +300,8 @@ export async function autoCompactIfNeeded(
 
   if (!partitioned.canFitInWindow && availableSpace > 1000) {
     // Preserve system messages
-    const systemMessages = messages.filter(m => m.message?.role === 'system')
-    const nonSystemMessages = messages.filter(m => m.message?.role !== 'system')
+    const systemMessages = messages.filter(m => (m as any).message?.role === 'system')
+    const nonSystemMessages = messages.filter(m => (m as any).message?.role !== 'system')
     
     const pruned = pruneByRelevance(nonSystemMessages, {
       targetTokens: availableSpace,

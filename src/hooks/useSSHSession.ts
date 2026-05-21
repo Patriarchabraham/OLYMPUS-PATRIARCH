@@ -218,7 +218,7 @@ export function useSSHSession({
       const m = managerRef.current
       if (!m) return false
       setIsLoading(true)
-      return m.sendMessage(content)
+      return (m.sendMessage(content as any) as any) ?? true
     },
     [setIsLoading],
   )

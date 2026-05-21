@@ -63,7 +63,7 @@ async function collectStreamEventTypes(responseText: string): Promise<string[]> 
 
 async function importFreshProviderConfigModule() {
 	vi.resetModules()
-	return vi.importActual('./providerConfig.js')
+	return vi.importActual<typeof import('./providerConfig.js')>('./providerConfig.js')
 }
 
 describe('Codex provider config', () => {

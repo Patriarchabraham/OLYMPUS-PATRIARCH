@@ -84,10 +84,8 @@ async function importFreshConversationRecovery() {
 			return 'firstParty'
 		},
 	}))
-	const nonce = `${Date.now()}-${Math.random()}`
-	void nonce
 	vi.resetModules()
-	return vi.importActual('./conversationRecovery.ts')
+	return vi.importActual<typeof import('./conversationRecovery')>('./conversationRecovery.ts')
 }
 
 function clearProviderEnv(): void {

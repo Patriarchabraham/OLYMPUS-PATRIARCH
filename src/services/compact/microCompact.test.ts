@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 
 import type { Message } from '../../types/message.js'
 import { createAssistantMessage, createUserMessage } from '../../utils/messages.js'
@@ -61,9 +61,9 @@ describe('microCompact MCP tool compaction', () => {
 
   test('module exports load correctly', async () => {
     const mod = await import('./microCompact.js')
-    expect(mod.microcompactMessages).toBeFunction()
-    expect(mod.estimateMessageTokens).toBeFunction()
-    expect(mod.evaluateTimeBasedTrigger).toBeFunction()
+    expect(typeof mod.microcompactMessages).toBe('function')
+    expect(typeof mod.estimateMessageTokens).toBe('function')
+    expect(typeof mod.evaluateTimeBasedTrigger).toBe('function')
   })
 
   test('estimateMessageTokens counts MCP tool_use blocks', async () => {

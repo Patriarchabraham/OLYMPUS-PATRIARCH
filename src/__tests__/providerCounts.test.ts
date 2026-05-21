@@ -2,7 +2,7 @@
  * Tests for Web Search Provider result count configurations.
  */
 
-import { describe, test, expect } from 'bun:test'
+import { describe, test, expect } from 'vitest'
 import { resolve } from 'path'
 
 const SRC = resolve(import.meta.dir, '..', 'tools', 'WebSearchTool', 'providers')

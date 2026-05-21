@@ -1,1 +1,1 @@
-export async function runDaemonWorker(): Promise<void> {}
+export async function runDaemonWorker(_kind?: string): Promise<void> {}

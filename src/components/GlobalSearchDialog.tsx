@@ -35,7 +35,7 @@ const MAX_TOTAL_MATCHES = 500;
  * Global Search dialog (ctrl+shift+f / cmd+shift+f).
  * Debounced ripgrep search across the workspace.
  */
-export function GlobalSearchDialog(t0) {
+export function GlobalSearchDialog(t0: Props) {
   const $ = _c(40);
   const {
     onDone,
@@ -55,11 +55,11 @@ export function GlobalSearchDialog(t0) {
   } else {
     t1 = $[0];
   }
-  const [matches, setMatches] = useState(t1);
+  const [matches, setMatches] = useState<Match[]>(t1);
   const [truncated, setTruncated] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
-  const [focused, setFocused] = useState(undefined);
+  const [focused, setFocused] = useState<Match | undefined>(undefined);
   const [preview, setPreview] = useState<{ file: string; line: number; content: string } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -234,7 +234,7 @@ export function GlobalSearchDialog(t0) {
   }
   let t14;
   if ($[24] !== preview || $[25] !== previewWidth || $[26] !== query) {
-    t14 = m_8 => preview?.file === m_8.file && preview.line === m_8.line ? <><Text dimColor={true}>{truncatePathMiddle(m_8.file, previewWidth)}:{m_8.line}</Text>{preview.content.split("\n").map((line_0, i) => <Text key={i}>{highlightMatch(truncateToWidth(line_0, previewWidth), query)}</Text>)}</> : <LoadingState message={"Loading\u2026"} dimColor={true} />;
+    t14 = m_8 => preview?.file === m_8.file && preview?.line === m_8.line ? <><Text dimColor={true}>{truncatePathMiddle(m_8.file, previewWidth)}:{m_8.line}</Text>{(preview?.content ?? '').split("\n").map((line_0, i) => <Text key={i}>{highlightMatch(truncateToWidth(line_0, previewWidth), query)}</Text>)}</> : <LoadingState message={"Loading\u2026"} dimColor={true} />;
     $[24] = preview;
     $[25] = previewWidth;
     $[26] = query;
@@ -244,7 +244,7 @@ export function GlobalSearchDialog(t0) {
   }
   let t15;
   if ($[28] !== handleOpen || $[29] !== matchLabel || $[30] !== matches || $[31] !== onDone || $[32] !== t10 || $[33] !== t11 || $[34] !== t12 || $[35] !== t13 || $[36] !== t14 || $[37] !== t9 || $[38] !== visibleResults) {
-    t15 = <FuzzyPicker title="Global Search" placeholder={"Type to search\u2026"} items={matches} getKey={matchKey} visibleCount={visibleResults} direction="up" previewPosition={t9} onQueryChange={handleQueryChange} onFocus={setFocused} onSelect={handleOpen} onTab={t10} onShiftTab={t11} onCancel={onDone} emptyMessage={t12} matchLabel={matchLabel} selectAction="open in editor" renderItem={t13} renderPreview={t14} />;
+    t15 = <FuzzyPicker title="Global Search" placeholder={"Type to search\u2026"} items={matches} getKey={matchKey} visibleCount={visibleResults} direction="up" previewPosition={t9} onQueryChange={handleQueryChange} onFocus={setFocused as (item: Match | undefined) => void} onSelect={handleOpen} onTab={t10} onShiftTab={t11} onCancel={onDone} emptyMessage={t12} matchLabel={matchLabel} selectAction="open in editor" renderItem={t13} renderPreview={t14} />;
     $[28] = handleOpen;
     $[29] = matchLabel;
     $[30] = matches;
@@ -269,9 +269,9 @@ function _temp4(query_0, controller_1, setMatches_0, setTruncated_0, setIsSearch
     if (controller_1.signal.aborted) {
       return;
     }
-    const parsed = [];
+    const parsed: Match[] = [];
     for (const line of lines) {
-      const m_1 = parseRipgrepLine(line);
+      const m_1 = parseRipgrepLine(line) as Match | null;
       if (!m_1) {
         continue;
       }

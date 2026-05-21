@@ -46,6 +46,8 @@ export interface OAuthProfileResponse {
     email: string
     display_name?: string
     created_at?: string
+    has_claude_max?: boolean
+    has_claude_pro?: boolean
   }
   organization: {
     uuid: string
@@ -64,19 +66,18 @@ export interface UserRolesResponse {
   organization_name?: string
 }
 
-export interface ReferralCampaign {
-  id: string
-  name: string
-  description?: string
-  active: boolean
-  startedAt?: string
-  expiresAt?: string
-}
+export type ReferralCampaign = string
 
 export interface ReferralEligibilityResponse {
   eligible: boolean
   reason?: string
   campaignId?: string
+  referral_code_details?: {
+    referral_link?: string
+    campaign?: string
+  }
+  referrer_reward?: ReferrerRewardInfo
+  remaining_passes?: number
 }
 
 export interface ReferrerRewardInfo {
@@ -84,6 +85,8 @@ export interface ReferrerRewardInfo {
   amount?: number
   description?: string
   claimedAt?: string
+  currency?: string
+  amount_minor_units?: number
 }
 
 export interface ReferralRedemptionsResponse {
@@ -93,4 +96,5 @@ export interface ReferralRedemptionsResponse {
     campaignId?: string
   }>
   totalCount: number
+  limit?: number
 }

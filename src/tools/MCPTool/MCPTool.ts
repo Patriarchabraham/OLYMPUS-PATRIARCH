@@ -150,5 +150,5 @@ export const MCPTool = buildTool({
       content,
     }
   },
-} satisfies ToolDef<InputSchema, Output>)
+} as ToolDef<InputSchema, Output>)
 

@@ -1,4 +1,4 @@
-﻿import { afterEach, expect, test } from 'bun:test'
+﻿import { afterEach, expect, test } from 'vitest'
 
 // MACRO is replaced at build time by Bun.define but not in test mode.
 // Define it globally so tests that import modules using MACRO don't crash.
@@ -27,13 +27,13 @@ afterEach(() => {
   clearSystemPromptSections()
 })
 
-test('CLI identity prefixes describe Mythos Patriarch instead of Claude Code', () => {
-  expect(getCLISyspromptPrefix()).toContain('Mythos Patriarch')
+test('CLI identity prefixes describe Mythos Anthropic instead of Claude Code', () => {
+  expect(getCLISyspromptPrefix()).toContain('Mythos Anthropic')
   expect(getCLISyspromptPrefix()).not.toContain('Claude Code')
   expect(getCLISyspromptPrefix()).not.toContain("Anthropic's official CLI for Claude")
 
   for (const prefix of CLI_SYSPROMPT_PREFIXES) {
-    expect(prefix).toContain('Mythos Patriarch')
+    expect(prefix).toContain('Mythos Anthropic')
     expect(prefix).not.toContain('Claude Code')
     expect(prefix).not.toContain("Anthropic's official CLI for Claude")
   }

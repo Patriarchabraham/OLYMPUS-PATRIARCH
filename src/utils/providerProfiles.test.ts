@@ -2,13 +2,20 @@
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+import * as semver from 'semver'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import type { ProviderProfile } from './config.js'
 
+// Keep the npm semver module available after vi.resetModules() clears the
+// module cache.  Without this, re-imported modules that depend on `require('semver')`
+// (e.g. ./semver.js) fail because the fresh module resolution can't find the package
+// in the Vitest worker's temp directory.
+vi.mock('semver', () => semver)
+
 async function importFreshProvidersModule() {
 	vi.resetModules()
-	return vi.importActual('./model/providers.ts')
+	return vi.importActual<typeof import('./model/providers.js')>('./model/providers.ts')
 }
 
 const originalEnv = { ...process.env }
@@ -119,7 +126,7 @@ afterEach(() => {
 async function importFreshProviderProfileModules() {
 	vi.restoreAllMocks()
 	vi.resetModules()
-	const actualConfig = (await vi.importActual('./config.js')) as Record<string, unknown>
+	const actualConfig = await vi.importActual<typeof import('./config.js')>('./config.js')
 	vi.mock('./config.js', () => ({
 		...actualConfig,
 		getGlobalConfig: () => mockConfigState,
@@ -130,11 +137,8 @@ async function importFreshProviderProfileModules() {
 	const registry = await import('../integrations/registry.js')
 	registry._clearRegistryForTesting()
 	await vi.importActual('../integrations/index.js')
-	const providers = (await vi.importActual('./model/providers.js')) as Record<string, unknown>
-	const providerProfiles = (await vi.importActual('./providerProfiles.js')) as Record<
-		string,
-		unknown
-	>
+	const providers = await vi.importActual<typeof import('./model/providers.js')>('./model/providers.js')
+	const providerProfiles = await vi.importActual<typeof import('./providerProfiles.js')>('./providerProfiles.js')
 
 	return {
 		...providers,
@@ -1664,7 +1668,7 @@ describe('setActiveProviderProfile model cache', () => {
 		setActiveProviderProfile('multi_provider')
 
 		const cache = getActiveOpenAIModelOptionsCache()
-		const cacheValues = cache.map((opt: { value: string }) => opt.value)
+		const cacheValues = (cache as any[]).map((opt: { value: string }) => opt.value)
 		expect(cacheValues).toContain('glm-4.7')
 		expect(cacheValues).toContain('glm-4.7-flash')
 		expect(cacheValues).toContain('glm-4.7-plus')

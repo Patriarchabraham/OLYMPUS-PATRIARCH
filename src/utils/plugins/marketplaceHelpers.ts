@@ -91,7 +91,7 @@ export async function loadMarketplacesWithGracefulDegradation(
       continue
     }
 
-    let data = null
+    let data: any = null
     try {
       data = await getMarketplace(name)
     } catch (err) {

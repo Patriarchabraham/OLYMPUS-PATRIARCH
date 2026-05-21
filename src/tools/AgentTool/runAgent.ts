@@ -774,7 +774,7 @@ export async function* runAgent({
       // so TTFT/OTPS update during subagent execution.
       if (
         message.type === 'stream_event' &&
-        message.event.type === 'message_start' &&
+        (message as any).event.type === 'message_start' &&
         message.ttftMs != null
       ) {
         toolUseContext.pushApiMetricsEntry?.(message.ttftMs)

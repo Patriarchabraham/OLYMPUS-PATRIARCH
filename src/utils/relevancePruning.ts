@@ -51,7 +51,7 @@ function calculateKeywordOverlap(text1: string, text2: string): number {
 }
 
 export function hasToolCalls(message: Message): boolean {
-  const content = message.message?.content
+  const content = (message as any).message?.content
   if (Array.isArray(content)) {
     return content.some(
       block => typeof block === 'object' && 
@@ -65,7 +65,7 @@ export function hasToolCalls(message: Message): boolean {
 }
 
 export function hasErrors(message: Message): boolean {
-  const content = message.message?.content
+  const content = (message as any).message?.content
   if (Array.isArray(content)) {
     return content.some(
       block => typeof block === 'object' && 
@@ -84,8 +84,8 @@ export function calculateRelevance(
   message: Message,
   options: PruningOptions,
 ): number {
-  const content = typeof message.message?.content === 'string'
-    ? message.message.content
+  const content = typeof (message as any).message?.content === 'string'
+    ? (message as any).message.content
     : ''
 
   let score = 0.5
@@ -104,12 +104,12 @@ export function calculateRelevance(
     score += 0.3
   }
 
-  const ageHours = (Date.now() - (message.message?.created_at ?? 0)) / (1000 * 60 * 60)
+  const ageHours = (Date.now() - ((message as any).message?.created_at ?? 0)) / (1000 * 60 * 60)
   if (ageHours < 1) {
     score += 0.15
   }
 
-  if (message.message?.role === 'user') {
+  if ((message as any).message?.role === 'user') {
     score += 0.1
   }
 
@@ -169,8 +169,8 @@ export function pruneByRelevance(
 
   scored.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
-    const aTime = a.group[0]?.message?.created_at ?? 0
-    const bTime = b.group[0]?.message?.created_at ?? 0
+    const aTime = (a.group[0] as any)?.message?.created_at ?? 0
+    const bTime = (b.group[0] as any)?.message?.created_at ?? 0
     return bTime - aTime
   })
 
@@ -179,7 +179,7 @@ export function pruneByRelevance(
 
   for (const { group } of scored) {
     const content = group
-      .map(m => (typeof m.message?.content === 'string' ? m.message.content : ''))
+      .map(m => (typeof (m as any).message?.content === 'string' ? (m as any).message.content : ''))
       .join('')
     const tokens = roughTokenCountEstimation(content)
 
@@ -191,7 +191,7 @@ export function pruneByRelevance(
     totalTokens += tokens
   }
 
-  return result.sort((a, b) => (a.message?.created_at ?? 0) - (b.message?.created_at ?? 0))
+  return result.sort((a, b) => ((a as any).message?.created_at ?? 0) - ((b as any).message?.created_at ?? 0))
 }
 
 export function getTopRelevantMessages(

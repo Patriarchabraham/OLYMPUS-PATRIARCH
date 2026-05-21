@@ -25,7 +25,7 @@ import { getDefaultCharacters, type SpinnerMode } from './Spinner/index.js';
 import { SpinnerAnimationRow } from './Spinner/SpinnerAnimationRow.js';
 import { useSettings } from '../hooks/useSettings.js';
 import { isInProcessTeammateTask } from '../tasks/InProcessTeammateTask/types.js';
-import { isBackgroundTask } from '../tasks/types.js';
+import { type TaskState, isBackgroundTask } from '../tasks/types.js';
 import { getAllInProcessTeammateTasks } from '../tasks/InProcessTeammateTask/InProcessTeammateTask.js';
 import { getEffortSuffix } from '../utils/effort.js';
 import { getMainLoopModel } from '../utils/model/model.js';
@@ -46,6 +46,7 @@ type Props = {
   pauseStartTimeRef: React.RefObject<number | null>;
   spinnerTip?: string;
   responseLengthRef: React.RefObject<number>;
+  apiMetricsRef?: React.RefObject<any[] | null> | null;
   overrideColor?: keyof Theme | null;
   overrideShimmerColor?: keyof Theme | null;
   overrideMessage?: string | null;
@@ -222,8 +223,8 @@ function SpinnerWithVerbInner({
   const apiMetricsRef: React.MutableRefObject<any[] | null> | null = null
   const computeTtftText = (_metrics: any[]): string | null => null
   let ttftText: string | null = null;
-  if (("external" as "external" | "ant") === "ant" && apiMetricsRef?.current && apiMetricsRef.current.length > 0) {
-    ttftText = computeTtftText(apiMetricsRef.current);
+  if (("external" as string) === "ant" && apiMetricsRef && (apiMetricsRef as any).current && (apiMetricsRef as any).current.length > 0) {
+    ttftText = computeTtftText((apiMetricsRef as any).current);
   }
 
   // When leader is idle but teammates are running (and we're viewing the leader),
@@ -443,7 +444,7 @@ function BriefSpinner(t0) {
 // working/idle/disconnected. See BriefSpinner's comment for the
 // Notifications overlay coupling.
 function _temp6(s_0) {
-  return count(Object.values(s_0.tasks), isBackgroundTask) + s_0.remoteBackgroundTaskCount;
+  return count(Object.values(s_0.tasks) as TaskState[], isBackgroundTask) + s_0.remoteBackgroundTaskCount;
 }
 function _temp5(s) {
   return s.remoteConnectionStatus;
@@ -502,7 +503,7 @@ export function BriefIdleStatus() {
   return t2;
 }
 function _temp8(s_0) {
-  return count(Object.values(s_0.tasks), isBackgroundTask) + s_0.remoteBackgroundTaskCount;
+  return count(Object.values(s_0.tasks) as TaskState[], isBackgroundTask) + s_0.remoteBackgroundTaskCount;
 }
 function _temp7(s) {
   return s.remoteConnectionStatus;

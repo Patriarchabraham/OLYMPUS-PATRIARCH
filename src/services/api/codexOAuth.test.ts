@@ -1,6 +1,6 @@
 ﻿import { createServer } from 'node:http'
 
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 
 import { CodexOAuthService } from './codexOAuth.js'
 
@@ -9,7 +9,7 @@ const originalCallbackPort = process.env.CODEX_OAUTH_CALLBACK_PORT
 const originalClientId = process.env.CODEX_OAUTH_CLIENT_ID
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
   globalThis.fetch = originalFetch
 
   if (originalCallbackPort === undefined) {
@@ -69,7 +69,7 @@ test('serves updated success copy after a successful Codex OAuth flow', async ()
   process.env.CODEX_OAUTH_CALLBACK_PORT = String(callbackPort)
   process.env.CODEX_OAUTH_CLIENT_ID = 'test-client-id'
 
-  globalThis.fetch = mock(async (input, init) => {
+  globalThis.fetch = vi.fn(async (input, init) => {
     const url = String(input)
     if (url.startsWith('http://localhost:')) {
       return originalFetch(input, init)
@@ -85,7 +85,7 @@ test('serves updated success copy after a successful Codex OAuth flow', async ()
         headers: { 'Content-Type': 'application/json' },
       },
     )
-  }) as typeof fetch
+  }) as unknown as typeof fetch
 
   const service = new CodexOAuthService()
   let callbackResponsePromise!: Promise<Response>
@@ -117,7 +117,7 @@ test('cancellation during token exchange returns a cancelled page and rejects th
     resolveFetchStart = resolve
   })
 
-  globalThis.fetch = mock((input, init) => {
+  globalThis.fetch = vi.fn((input, init) => {
     const url = String(input)
     if (url.startsWith('http://localhost:')) {
       return originalFetch(input, init)
@@ -144,7 +144,7 @@ test('cancellation during token exchange returns a cancelled page and rejects th
         { once: true },
       )
     })
-  }) as typeof fetch
+  }) as unknown as typeof fetch
 
   const service = new CodexOAuthService()
   let callbackResponsePromise!: Promise<Response>

@@ -1,4 +1,4 @@
-export type ReasoningStrategy = 'cot' | 'tot' | 'reflect' | 'auto'
+export type ReasoningStrategy = 'cot' | 'tot' | 'reflect' | 'ensemble' | 'auto'
 
 export interface ReasoningStep {
   id: string
@@ -18,6 +18,7 @@ export interface ReasoningChain {
   confidence: number
   durationMs: number
   timestamp: number
+  metadata?: Record<string, unknown>
 }
 
 export interface TreeOfThoughtPath {

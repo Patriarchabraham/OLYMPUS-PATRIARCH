@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 
 import { SkillTool } from '../../tools/SkillTool/SkillTool.js'
 import {

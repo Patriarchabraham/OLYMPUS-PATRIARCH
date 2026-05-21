@@ -1,6 +1,6 @@
 // src/integrations/registry.test.ts
 
-import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, test } from 'vitest'
 import { ensureIntegrationsLoaded } from './index.js'
 import {
   _clearRegistryForTesting,

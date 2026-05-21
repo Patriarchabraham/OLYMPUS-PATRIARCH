@@ -1,1 +1,1 @@
-export async function environmentRunnerMain(): Promise<void> {}
+export async function environmentRunnerMain(_args?: string[]): Promise<void> {}

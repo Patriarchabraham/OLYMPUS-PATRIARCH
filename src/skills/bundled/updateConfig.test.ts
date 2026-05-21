@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test'
+import { afterEach, expect, test } from 'vitest'
 
 import { clearBundledSkills, getBundledSkills } from '../bundledSkills.js'
 import { registerUpdateConfigSkill } from './updateConfig.js'
@@ -14,7 +14,7 @@ test('update-config skill can generate its prompt without JSON Schema conversion
   expect(skill).toBeDefined()
   expect(skill?.type).toBe('prompt')
 
-  const blocks = await skill!.getPromptForCommand('', {} as never)
+  const blocks = await (skill as any).getPromptForCommand('', {} as never)
   expect(blocks.length).toBeGreaterThan(0)
   expect(blocks[0]).toMatchObject({ type: 'text' })
   expect((blocks[0] as { text: string }).text).toContain(

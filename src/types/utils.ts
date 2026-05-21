@@ -4,11 +4,13 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type DeepImmutable<T> = T extends any[]
-  ? readonly DeepImmutable<T[number]>[]
-  : T extends object
-    ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
-    : T
+export type DeepImmutable<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends any[]
+    ? readonly DeepImmutable<T[number]>[]
+    : T extends object
+      ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
+      : T
 
 export type Permutations<T extends string, U extends string = T> = T extends T
   ? T | `${T}${Permutations<Exclude<U, T>>}`

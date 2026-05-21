@@ -97,7 +97,7 @@ function DistTagsDisplay(t0: { promise: Promise<NpmDistTags> }) {
   }
   return t3;
 }
-export function Doctor(t0) {
+export function Doctor(t0: Props) {
   const $ = _c(84);
   const {
     onDone

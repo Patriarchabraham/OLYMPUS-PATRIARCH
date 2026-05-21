@@ -2,7 +2,7 @@
  * These tests avoid static imports so Bun can mock secureStorage before
  * codexCredentials is first loaded.
  */
-import { afterEach, describe, expect, mock, test } from 'bun:test'
+import { afterEach, describe, expect, vi, test } from 'vitest'
 
 function makeJwt(payload: Record<string, unknown>): string {
   const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' }))
@@ -17,7 +17,7 @@ describe('codexCredentials', () => {
   const originalFetch = globalThis.fetch
 
   afterEach(() => {
-    mock.restore()
+    vi.restoreAllMocks()
     globalThis.fetch = originalFetch
 
     if (originalSimple === undefined) {
@@ -36,10 +36,8 @@ describe('codexCredentials', () => {
   test('save returns failure in bare mode', async () => {
     process.env.CLAUDE_CODE_SIMPLE = '1'
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
-    const { saveCodexCredentials } = await import(
-      './codexCredentials.js?save-bare-mode'
-    )
+    vi.resetModules()
+    const { saveCodexCredentials } = await import('./codexCredentials.js')
 
     const result = saveCodexCredentials({
       accessToken: 'token',
@@ -53,7 +51,7 @@ describe('codexCredentials', () => {
   test('saveCodexCredentials refuses plaintext fallback when native secure storage is unavailable', async () => {
     delete process.env.CLAUDE_CODE_SIMPLE
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: (options?: { allowPlainTextFallback?: boolean }) => {
         expect(options?.allowPlainTextFallback).toBe(false)
         return {
@@ -69,10 +67,8 @@ describe('codexCredentials', () => {
       },
     }))
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
-    const { saveCodexCredentials } = await import(
-      './codexCredentials.js?save-no-plaintext-fallback'
-    )
+    vi.resetModules()
+    const { saveCodexCredentials } = await import('./codexCredentials.js')
 
     const result = saveCodexCredentials({
       accessToken: 'token',
@@ -110,7 +106,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => storageState,
         readAsync: async () => storageState,
@@ -121,7 +117,7 @@ describe('codexCredentials', () => {
       }),
     }))
 
-    globalThis.fetch = mock(
+    globalThis.fetch = vi.fn(
       async (_input, init) => {
         const bodyText =
           typeof init?.body === 'string'
@@ -163,9 +159,8 @@ describe('codexCredentials', () => {
       },
     ) as unknown as typeof fetch
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
     const { refreshCodexAccessTokenIfNeeded, readCodexCredentials } =
-      await import('./codexCredentials.js?refresh-success')
+      await vi.importActual('./codexCredentials.js') as typeof import('./codexCredentials.js')
 
     const result = await refreshCodexAccessTokenIfNeeded()
     expect(result.refreshed).toBe(true)
@@ -194,7 +189,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => storageState,
         readAsync: async () => storageState,
@@ -206,7 +201,7 @@ describe('codexCredentials', () => {
     }))
 
     let refreshAttempts = 0
-    globalThis.fetch = mock(async () => {
+    globalThis.fetch = vi.fn(async () => {
       refreshAttempts += 1
       return new Response(
         JSON.stringify({
@@ -224,9 +219,8 @@ describe('codexCredentials', () => {
       )
     }) as unknown as typeof fetch
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
     const { refreshCodexAccessTokenIfNeeded, readCodexCredentials } =
-      await import('./codexCredentials.js?refresh-cooldown')
+      await vi.importActual('./codexCredentials.js') as typeof import('./codexCredentials.js')
 
     await expect(refreshCodexAccessTokenIfNeeded()).rejects.toThrow(
       'Codex token refresh failed (invalid_grant): refresh token expired',
@@ -269,7 +263,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => storageState,
         readAsync: async () => storageState,
@@ -280,7 +274,7 @@ describe('codexCredentials', () => {
       }),
     }))
 
-    globalThis.fetch = mock(
+    globalThis.fetch = vi.fn(
       async (_input, init) => {
         const bodyText =
           typeof init?.body === 'string'
@@ -311,9 +305,8 @@ describe('codexCredentials', () => {
       },
     ) as unknown as typeof fetch
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
     const { refreshCodexAccessTokenIfNeeded, readCodexCredentials } =
-      await import('./codexCredentials.js?refresh-drop-stale-api-key')
+      await vi.importActual('./codexCredentials.js') as typeof import('./codexCredentials.js')
 
     const result = await refreshCodexAccessTokenIfNeeded()
     expect(result.refreshed).toBe(true)
@@ -352,7 +345,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => storageState,
         readAsync: async () => storageState,
@@ -369,7 +362,7 @@ describe('codexCredentials', () => {
       releaseRefresh = resolve
     })
 
-    globalThis.fetch = mock(async (_input, init) => {
+    globalThis.fetch = vi.fn(async (_input, init) => {
       const bodyText =
         typeof init?.body === 'string'
           ? init.body
@@ -408,10 +401,8 @@ describe('codexCredentials', () => {
       )
     }) as unknown as typeof fetch
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
-    const { refreshCodexAccessTokenIfNeeded } = await import(
-      './codexCredentials.js?refresh-dedupe'
-    )
+    vi.resetModules()
+    const { refreshCodexAccessTokenIfNeeded } = await import('./codexCredentials.js')
 
     const firstRefresh = refreshCodexAccessTokenIfNeeded()
     const secondRefresh = refreshCodexAccessTokenIfNeeded()
@@ -440,7 +431,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => storageState,
         readAsync: async () => storageState,
@@ -451,10 +442,8 @@ describe('codexCredentials', () => {
       }),
     }))
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
-    const { readCodexCredentials, saveCodexCredentials } = await import(
-      './codexCredentials.js?preserve-profile-id'
-    )
+    vi.resetModules()
+    const { readCodexCredentials, saveCodexCredentials } = await import('./codexCredentials.js')
 
     const saved = saveCodexCredentials({
       accessToken: 'access-new',
@@ -477,7 +466,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => storageState,
         readAsync: async () => storageState,
@@ -488,11 +477,11 @@ describe('codexCredentials', () => {
       }),
     }))
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
+    vi.resetModules()
     const {
       attachCodexProfileIdToStoredCredentials,
       readCodexCredentials,
-    } = await import('./codexCredentials.js?attach-profile-id')
+    } = await import('./codexCredentials.js')
 
     const result =
       attachCodexProfileIdToStoredCredentials('profile_codex_oauth')
@@ -518,7 +507,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => {
           throw new Error(
@@ -533,10 +522,8 @@ describe('codexCredentials', () => {
       }),
     }))
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
-    const { refreshCodexAccessTokenIfNeeded } = await import(
-      './codexCredentials.js?refresh-async-read'
-    )
+    vi.resetModules()
+    const { refreshCodexAccessTokenIfNeeded } = await import('./codexCredentials.js')
 
     const result = await refreshCodexAccessTokenIfNeeded()
     expect(result.refreshed).toBe(false)
@@ -560,7 +547,7 @@ describe('codexCredentials', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => storageState,
         readAsync: async () => storageState,
@@ -572,7 +559,7 @@ describe('codexCredentials', () => {
     }))
 
     let refreshAttempts = 0
-    globalThis.fetch = mock(async () => {
+    globalThis.fetch = vi.fn(async () => {
       refreshAttempts += 1
       return new Response(
         JSON.stringify({
@@ -590,10 +577,8 @@ describe('codexCredentials', () => {
       )
     }) as unknown as typeof fetch
 
-    // @ts-expect-error cache-busting query string for Bun module mocks
-    const { refreshCodexAccessTokenIfNeeded } = await import(
-      './codexCredentials.js?refresh-memory-cooldown'
-    )
+    vi.resetModules()
+    const { refreshCodexAccessTokenIfNeeded } = await import('./codexCredentials.js')
 
     await expect(refreshCodexAccessTokenIfNeeded()).rejects.toThrow(
       'Codex token refresh failed (invalid_grant): refresh token expired',

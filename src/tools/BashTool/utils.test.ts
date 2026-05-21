@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import {
   stripEmptyLines,
   isImageOutput,
@@ -180,7 +180,7 @@ describe('createContentSummary', () => {
     const content = [
       { type: 'image' as const, data: 'base64data', mimeType: 'image/png' },
     ]
-    const result = createContentSummary(content)
+    const result = createContentSummary(content as any)
     expect(result).toContain('1 image')
   })
 
@@ -190,7 +190,7 @@ describe('createContentSummary', () => {
       { type: 'image' as const, data: 'base64data', mimeType: 'image/png' },
       { type: 'text' as const, text: 'More text' },
     ]
-    const result = createContentSummary(content)
+    const result = createContentSummary(content as any)
     expect(result).toContain('1 image')
     expect(result).toContain('2 text blocks')
   })

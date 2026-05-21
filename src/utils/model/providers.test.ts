@@ -32,7 +32,7 @@ afterEach(() => {
 
 async function importFreshProvidersModule() {
 	vi.resetModules()
-	return vi.importActual('./providers.js')
+	return vi.importActual<typeof import('./providers.js')>('./providers.js')
 }
 
 function clearProviderEnv(): void {

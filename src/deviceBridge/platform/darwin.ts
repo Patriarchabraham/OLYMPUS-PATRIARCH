@@ -2,13 +2,14 @@
  * macOS-specific device introspection stubs.
  * TODO: Implement using system_profiler, ioreg, and sysctl.
  */
+import os from 'node:os'
 import type {
   CPUInfo, MemoryInfo, GPUInfo, DiskInfo, NetworkInfo,
   ProcessInfo, PeripheralInfo, ServiceInfo, SoftwareInfo,
 } from '../types.js'
 
 export async function getCPUInfo(): Promise<CPUInfo> {
-  const cpus = require('os').cpus()
+  const cpus = os.cpus()
   return {
     model: cpus[0]?.model ?? 'Unknown', manufacturer: 'Apple',
     cores: cpus.length, logicalProcessors: cpus.length,
@@ -18,7 +19,6 @@ export async function getCPUInfo(): Promise<CPUInfo> {
 }
 
 export async function getMemoryInfo(): Promise<MemoryInfo> {
-  const os = require('os')
   const total = os.totalmem()
   const free = os.freemem()
   return {

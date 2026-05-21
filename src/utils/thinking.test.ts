@@ -51,10 +51,8 @@ async function importFreshThinkingModule() {
 	vi.mock('./model/providers.js', () => ({
 		getAPIProvider: () => 'openai',
 	}))
-	const nonce = `${Date.now()}-${Math.random()}`
-	void nonce
 	vi.resetModules()
-	return vi.importActual('./thinking.js')
+	return vi.importActual<typeof import('./thinking.js')>('./thinking.js')
 }
 
 describe('modelSupportsThinking — Z.AI GLM', () => {

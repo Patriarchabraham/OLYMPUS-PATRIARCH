@@ -5,7 +5,7 @@
  * label padding, conditional N/A footnote, recent-rows cap) which can
  * silently regress — these snapshot tests keep it honest.
  */
-import { beforeEach, describe, expect, test } from 'bun:test'
+import { beforeEach, describe, expect, test } from 'vitest'
 import type { CacheMetrics } from '../../services/api/cacheMetrics.js'
 import {
   _setHistoryCapForTesting,

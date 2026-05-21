@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 
 describe('DuckDuckGo SafeSearchType', () => {
   test('SafeSearchType.STRICT === 0 (matches previous raw value)', async () => {

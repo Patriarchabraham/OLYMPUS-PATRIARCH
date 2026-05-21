@@ -35,8 +35,9 @@ export type NotebookCell = {
   id?: string
   cell_type: NotebookCellType
   source: string | string[]
-  execution_count?: number
+  execution_count?: number | null
   outputs?: NotebookCellOutput[]
+  metadata?: Record<string, unknown>
 }
 
 export type NotebookContent = {
@@ -45,5 +46,7 @@ export type NotebookContent = {
       name: string
     }
   }
+  nbformat: number
+  nbformat_minor: number
   cells: NotebookCell[]
 }

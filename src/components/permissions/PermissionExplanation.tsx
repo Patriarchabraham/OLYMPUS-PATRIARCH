@@ -100,7 +100,7 @@ export function usePermissionExplainerUI(props) {
   }
   const enabled = t0;
   const [visible, setVisible] = useState(false);
-  const [promise, setPromise] = useState(null);
+  const [promise, setPromise] = useState<Promise<PermissionExplanationType | null> | null>(null);
   let t1;
   if ($[1] !== promise || $[2] !== props || $[3] !== visible) {
     t1 = () => {
@@ -158,7 +158,7 @@ function ExplanationResult(t0) {
   const {
     promise
   } = t0;
-  const explanation = use(promise);
+  const explanation = use(promise) as PermissionExplanationType | null;
   if (!explanation) {
     let t1;
     if ($[0] === Symbol.for("react.memo_cache_sentinel")) {

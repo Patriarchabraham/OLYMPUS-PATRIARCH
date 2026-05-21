@@ -2,6 +2,10 @@ import { DIAMOND_FILLED, DIAMOND_OPEN } from '../constants/figures.js'
 import { count } from '../utils/array.js'
 import type { BackgroundTaskState } from './types.js'
 
+type LocalShellBg = Extract<BackgroundTaskState, { type: 'local_bash' }>
+type InProcessTeammateBg = Extract<BackgroundTaskState, { type: 'in_process_teammate' }>
+type RemoteAgentBg = Extract<BackgroundTaskState, { type: 'remote_agent' }>
+
 /**
  * Produces the compact footer-pill label for a set of background tasks.
  * Used by both the footer pill and the turn-duration transcript line so the
@@ -15,7 +19,7 @@ export function getPillLabel(tasks: BackgroundTaskState[]): string {
     switch (tasks[0]!.type) {
       case 'local_bash': {
         const monitors = count(
-          tasks,
+          tasks as LocalShellBg[],
           t => t.type === 'local_bash' && t.kind === 'monitor',
         )
         const shells = n - monitors
@@ -28,7 +32,7 @@ export function getPillLabel(tasks: BackgroundTaskState[]): string {
       }
       case 'in_process_teammate': {
         const teamCount = new Set(
-          tasks.map(t =>
+          (tasks as InProcessTeammateBg[]).map(t =>
             t.type === 'in_process_teammate' ? t.identity.teamName : '',
           ),
         ).size
@@ -37,7 +41,7 @@ export function getPillLabel(tasks: BackgroundTaskState[]): string {
       case 'local_agent':
         return n === 1 ? '1 local agent' : `${n} local agents`
       case 'remote_agent': {
-        const first = tasks[0]!
+        const first = tasks[0]! as RemoteAgentBg
         // Per design mockup: ◇ open diamond while running/needs-input,
         // ◆ filled once ExitPlanMode is awaiting approval.
         if (n === 1 && first.type === 'remote_agent' && first.isUltraplan) {
@@ -76,7 +80,7 @@ export function pillNeedsCta(tasks: BackgroundTaskState[]): boolean {
   const t = tasks[0]!
   return (
     t.type === 'remote_agent' &&
-    t.isUltraplan === true &&
-    t.ultraplanPhase !== undefined
+    (t as RemoteAgentBg).isUltraplan === true &&
+    (t as RemoteAgentBg).ultraplanPhase !== undefined
   )
 }

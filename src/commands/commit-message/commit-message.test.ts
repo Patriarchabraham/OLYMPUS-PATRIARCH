@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'bun:test'
+﻿import { describe, expect, it } from 'vitest'
 import {
   formatCoAuthorTrailer,
   parseCoAuthor,
@@ -8,24 +8,24 @@ import {
 
 describe('commit-message command helpers', () => {
   it('parses quoted co-author names with a plain email', () => {
-    expect(parseCoAuthor('"GPT 5.5" noreply@Mythos Patriarch.dev')).toEqual({
+    expect(parseCoAuthor('"GPT 5.5" noreply@mythospatriarch.dev')).toEqual({
       name: 'GPT 5.5',
-      email: 'noreply@Mythos Patriarch.dev',
+      email: 'noreply@mythospatriarch.dev',
     })
   })
 
   it('parses co-author trailers with angle-bracket emails', () => {
-    expect(parseCoAuthor('Mythos Patriarch (gpt-5.5) <noreply@Mythos Patriarch.dev>')).toEqual(
+    expect(parseCoAuthor('Mythos Patriarch (gpt-5.5) <noreply@mythospatriarch.dev>')).toEqual(
       {
         name: 'Mythos Patriarch (gpt-5.5)',
-        email: 'noreply@Mythos Patriarch.dev',
+        email: 'noreply@mythospatriarch.dev',
       },
     )
   })
 
   it('rejects co-author trailers with empty sanitized names', () => {
-    expect(parseCoAuthor('"  " noreply@Mythos Patriarch.dev')).toBeNull()
-    expect(parseCoAuthor('"  " <noreply@Mythos Patriarch.dev>')).toBeNull()
+    expect(parseCoAuthor('"  " noreply@mythospatriarch.dev')).toBeNull()
+    expect(parseCoAuthor('"  " <noreply@mythospatriarch.dev>')).toBeNull()
   })
 
   it('strips one pair of matching quotes from custom attribution text', () => {

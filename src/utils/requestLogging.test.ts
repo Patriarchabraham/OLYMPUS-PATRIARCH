@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'bun:test'
+import { describe, expect, it, beforeEach } from 'vitest'
 import {
   createCorrelationId,
   logApiCallStart,
@@ -77,8 +77,9 @@ describe('requestLogging', () => {
           100,
           50,
           true,
+          10,
+          5,
           'error message',
-          { provider: 'openai' },
         ),
       ).not.toThrow()
     })

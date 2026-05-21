@@ -568,7 +568,7 @@ async function _executeApiKeyHelper(
     const hasTrust = checkHasTrustDialogAccepted()
     if (!hasTrust && !isNonInteractiveSession) {
       const error = new Error(
-        `Security: apiKeyHelper executed before workspace trust is confirmed. If you see this message, post in ${MACRO.FEEDBACK_CHANNEL}.`,
+        `Security: apiKeyHelper executed before workspace trust is confirmed. If you see this message, post in ${'#briarpatch-cc'}.`,
       )
       logAntError('apiKeyHelper invoked before trust check', error)
       logEvent('tengu_apiKeyHelper_missing_trust11', {})
@@ -643,7 +643,7 @@ async function runAwsAuthRefresh(): Promise<boolean> {
     const hasTrust = checkHasTrustDialogAccepted()
     if (!hasTrust && !getIsNonInteractiveSession()) {
       const error = new Error(
-        `Security: awsAuthRefresh executed before workspace trust is confirmed. If you see this message, post in ${MACRO.FEEDBACK_CHANNEL}.`,
+        `Security: awsAuthRefresh executed before workspace trust is confirmed. If you see this message, post in ${'#briarpatch-cc'}.`,
       )
       logAntError('awsAuthRefresh invoked before trust check', error)
       logEvent('tengu_awsAuthRefresh_missing_trust', {})
@@ -740,7 +740,7 @@ async function getAwsCredsFromCredentialExport(): Promise<{
     const hasTrust = checkHasTrustDialogAccepted()
     if (!hasTrust && !getIsNonInteractiveSession()) {
       const error = new Error(
-        `Security: awsCredentialExport executed before workspace trust is confirmed. If you see this message, post in ${MACRO.FEEDBACK_CHANNEL}.`,
+        `Security: awsCredentialExport executed before workspace trust is confirmed. If you see this message, post in ${'#briarpatch-cc'}.`,
       )
       logAntError('awsCredentialExport invoked before trust check', error)
       logEvent('tengu_awsCredentialExport_missing_trust', {})
@@ -907,7 +907,7 @@ async function runGcpAuthRefresh(): Promise<boolean> {
     const hasTrust = checkHasTrustDialogAccepted()
     if (!hasTrust && !getIsNonInteractiveSession()) {
       const error = new Error(
-        `Security: gcpAuthRefresh executed before workspace trust is confirmed. If you see this message, post in ${MACRO.FEEDBACK_CHANNEL}.`,
+        `Security: gcpAuthRefresh executed before workspace trust is confirmed. If you see this message, post in ${'#briarpatch-cc'}.`,
       )
       logAntError('gcpAuthRefresh invoked before trust check', error)
       logEvent('tengu_gcpAuthRefresh_missing_trust', {})
@@ -1282,8 +1282,8 @@ export const getClaudeAIOAuthTokens = memoize((): OAuthTokens | null => {
     // Return an inference-only token (unknown refresh and expiry)
     return {
       accessToken: process.env.CLAUDE_CODE_OAUTH_TOKEN,
-      refreshToken: null,
-      expiresAt: null,
+      refreshToken: '',
+      expiresAt: 0,
       scopes: ['user:inference'],
       subscriptionType: null,
       rateLimitTier: null,
@@ -1296,8 +1296,8 @@ export const getClaudeAIOAuthTokens = memoize((): OAuthTokens | null => {
     // Return an inference-only token (unknown refresh and expiry)
     return {
       accessToken: oauthTokenFromFd,
-      refreshToken: null,
-      expiresAt: null,
+      refreshToken: '',
+      expiresAt: 0,
       scopes: ['user:inference'],
       subscriptionType: null,
       rateLimitTier: null,
@@ -1313,7 +1313,7 @@ export const getClaudeAIOAuthTokens = memoize((): OAuthTokens | null => {
       return null
     }
 
-    return oauthData
+    return oauthData as unknown as OAuthTokens
   } catch (error) {
     logError(error)
     return null
@@ -1435,7 +1435,7 @@ export async function getClaudeAIOAuthTokensAsync(): Promise<OAuthTokens | null>
     if (!oauthData?.accessToken) {
       return null
     }
-    return oauthData
+    return oauthData as unknown as OAuthTokens
   } catch (error) {
     logError(error)
     return null
@@ -1683,7 +1683,7 @@ export function hasOpusAccess(): boolean {
 export function getSubscriptionType(): SubscriptionType | null {
   // Check for mock subscription type first (ANT-only testing)
   if (shouldUseMockSubscription()) {
-    return getMockSubscriptionType()
+    return getMockSubscriptionType() as SubscriptionType | null
   }
 
   if (!isAnthropicAuthEnabled()) {
@@ -1694,7 +1694,7 @@ export function getSubscriptionType(): SubscriptionType | null {
     return null
   }
 
-  return oauthTokens.subscriptionType ?? null
+  return (oauthTokens.subscriptionType as SubscriptionType | null) ?? null
 }
 
 export function isMaxSubscriber(): boolean {

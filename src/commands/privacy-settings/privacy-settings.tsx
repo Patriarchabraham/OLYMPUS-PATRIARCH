@@ -49,7 +49,7 @@ export async function call(onDone: LocalJSXCommandOnDone): Promise<React.ReactNo
   // Show privacy settings directly if the user has already accepted the
   // terms.
   if (settings.grove_enabled !== null) {
-    return <PrivacySettingsDialog settings={settings} domainExcluded={config?.domain_excluded} onDone={onDoneWithSettingsCheck}></PrivacySettingsDialog>;
+    return <PrivacySettingsDialog settings={settings} domainExcluded={config?.domain_excluded} onDone={onDoneWithSettingsCheck} {...{} as any}></PrivacySettingsDialog>;
   }
 
   // Show the GroveDialog for users who haven't accepted terms yet

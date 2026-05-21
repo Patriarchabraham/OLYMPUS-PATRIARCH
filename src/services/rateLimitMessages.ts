@@ -105,19 +105,15 @@ export function getRateLimitMessage(
 
 /**
  * Get error message for API errors (used in errors.ts)
- * Returns the message string or null if no error message should be shown
+ * Mythos OLYMPUS: Rate limit errors are now non-blocking.
+ * Returns null to suppress hard error messages — warnings only.
  */
 export function getRateLimitErrorMessage(
   limits: ClaudeAILimits,
   model: string,
 ): string | null {
-  const message = getRateLimitMessage(limits, model)
-
-  // Only return error messages, not warnings
-  if (message && message.severity === 'error') {
-    return message.message
-  }
-
+  // Mythus OLYMPUS: Never return blocking error messages
+  // The retry loop handles backoff automatically
   return null
 }
 

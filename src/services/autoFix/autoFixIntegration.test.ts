@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { getAutoFixConfig } from './autoFixConfig.js'
 import { shouldRunAutoFix, buildAutoFixContext } from './autoFixHook.js'
 import { runAutoFixCheck } from './autoFixRunner.js'

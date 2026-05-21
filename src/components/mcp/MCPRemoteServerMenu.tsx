@@ -118,7 +118,7 @@ export function MCPRemoteServerMenu({
   const handleClaudeAIClearAuthComplete = React.useCallback(async () => {
     await clearServerCache(server.name, {
       ...server.config,
-      scope: server.scope
+      scope: server.scope as import('../../services/mcp/types.js').ConfigScope
     });
     setAppState(prev => {
       const newClients = prev.mcp.clients.map(c => c.name === server.name ? {
@@ -310,7 +310,7 @@ export function MCPRemoteServerMenu({
       // Disconnect the client and clear the cache
       await clearServerCache(server.name, {
         ...server.config,
-        scope: server.scope
+        scope: server.scope as import('../../services/mcp/types.js').ConfigScope
       });
 
       // Update app state to remove the disconnected server's tools, commands, and resources
@@ -467,7 +467,7 @@ export function MCPRemoteServerMenu({
         <Text dimColor>This may take a few moments.</Text>
       </Box>;
   }
-  const menuOptions = [];
+  const menuOptions: Array<{ label: string; value: string }> = [];
 
   // If server is disabled, show Enable first as the primary action
   if (server.client.type === 'disabled') {
@@ -566,7 +566,7 @@ export function MCPRemoteServerMenu({
 
           <Box>
             <Text bold>Config location: </Text>
-            <Text dimColor>{describeMcpConfigFilePath(server.scope)}</Text>
+            <Text dimColor>{describeMcpConfigFilePath(server.scope as import('../../services/mcp/types.js').ConfigScope)}</Text>
           </Box>
 
           {server.client.type === 'connected' && <CapabilitiesSection serverToolsCount={serverToolsCount} serverPromptsCount={serverCommandsCount} serverResourcesCount={mcp.resources[server.name]?.length || 0} />}

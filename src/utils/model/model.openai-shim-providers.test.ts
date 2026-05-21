@@ -31,10 +31,8 @@ async function importFreshModelModule() {
 			return 'firstParty'
 		},
 	}))
-	const nonce = `${Date.now()}-${Math.random()}`
-	void nonce
 	vi.resetModules()
-	return vi.importActual('./model.js')
+	return vi.importActual<typeof import('./model.js')>('./model.js')
 }
 
 const SAVED_ENV = {

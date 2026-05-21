@@ -1,6 +1,6 @@
 ﻿import { PassThrough } from 'node:stream'
 
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
@@ -26,9 +26,10 @@ const ORIGINAL_CHATGPT_ACCOUNT_ID = process.env.CHATGPT_ACCOUNT_ID
 const ORIGINAL_CODEX_ACCOUNT_ID = process.env.CODEX_ACCOUNT_ID
 
 async function importFreshProviderProfileModule(
-  suffix: string,
+  _suffix: string,
 ): Promise<typeof import('../../utils/providerProfile.js')> {
-  return import(`../../utils/providerProfile.js?${suffix}`) as Promise<
+  vi.resetModules()
+  return vi.importActual('../../utils/providerProfile.js') as Promise<
     typeof import('../../utils/providerProfile.js')
   >
 }
@@ -157,7 +158,7 @@ function createTestStreams(): {
 }
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 
   if (ORIGINAL_SIMPLE_ENV === undefined) {
     delete process.env.CLAUDE_CODE_SIMPLE
@@ -446,7 +447,7 @@ test('buildCodexOAuthProfileEnv uses the fresh OAuth account id without persisti
 test('buildCodexProfileEnv derives oauth source from secure storage when no explicit source is provided', async () => {
   const actualProviderConfig = await import('../../services/api/providerConfig.js')
 
-  mock.module('../../services/api/providerConfig.js', () => ({
+  vi.mock('../../services/api/providerConfig.js', () => ({
     ...actualProviderConfig,
     resolveCodexApiCredentials: () => ({
       apiKey: 'stored-access-token',

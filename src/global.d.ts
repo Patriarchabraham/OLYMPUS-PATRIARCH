@@ -14,6 +14,7 @@ declare const MACRO: {
   PACKAGE_URL: string
   NATIVE_PACKAGE_URL: string | undefined
   VERSION_CHANGELOG: string
+  FEEDBACK_CHANNEL: string
 }
 
 // PromiseWithResolvers polyfill for Node < 20
@@ -34,38 +35,75 @@ declare type PromiseWithResolvers<T> = {
 // ---------------------------------------------------------------------------
 
 declare module '@ant/claude-for-chrome-mcp' {
-  const _: any
-  export default _
-  export {}
+  export function createClaudeForChromeMcpServer(context: any): any
+  export const BROWSER_TOOLS: any
 }
 
 declare module '@ant/computer-use-input' {
   const _: any
   export default _
+  export type ComputerUseInput = any
+  export type ComputerUseInputAPI = any
   export {}
 }
 
 declare module '@ant/computer-use-mcp' {
   const _: any
   export default _
-  export {}
+  export const ComputerExecutor: any
+  export const DisplayGeometry: any
+  export const FrontmostApp: any
+  export const InstalledApp: any
+  export const ResolvePrepareCaptureResult: any
+  export const RunningApp: any
+  export const ScreenshotResult: any
+  export const API_RESIZE_PARAMS: any
+  export const targetImageSize: any
+  export const bindSessionContext: any
+  export const ComputerUseSessionContext: any
+  export const CuCallToolResult: any
+  export const CuPermissionRequest: any
+  export const CuPermissionResponse: any
+  export const DEFAULT_GRANT_FLAGS: any
+  export const ScreenshotDims: any
+  export function buildComputerUseTools(...args: any[]): any
+  export function createComputerUseMcpServer(...args: any[]): any
+  export type ComputerExecutor = any
+  export type DisplayGeometry = any
+  export type FrontmostApp = any
+  export type InstalledApp = any
+  export type ResolvePrepareCaptureResult = any
+  export type RunningApp = any
+  export type ScreenshotResult = any
+  export type ComputerUseSessionContext = any
+  export type CuCallToolResult = any
+  export type CuPermissionRequest = any
+  export type CuPermissionResponse = any
+  export type ScreenshotDims = any
 }
 
 declare module '@ant/computer-use-mcp/sentinelApps' {
   const _: any
   export default _
-  export {}
+  export function getSentinelCategory(...args: any[]): any
 }
 
 declare module '@ant/computer-use-mcp/types' {
   const _: any
   export default _
-  export {}
+  export type CoordinateMode = any
+  export type CuSubGates = any
+  export type ComputerUseHostAdapter = any
+  export type Logger = any
+  export type CuPermissionRequest = any
+  export type CuPermissionResponse = any
+  export const DEFAULT_GRANT_FLAGS: any
 }
 
 declare module '@ant/computer-use-swift' {
   const _: any
   export default _
+  export type ComputerUseAPI = any
   export {}
 }
 
@@ -78,30 +116,33 @@ declare module '@anthropic-ai/claude-agent-sdk' {
 declare module '@anthropic-ai/mcpb' {
   const _: any
   export default _
+  export type McpbManifest = any
+  export type McpbUserConfigurationOption = any
+  export const McpbManifestSchema: any
+  export function getMcpConfigForManifest(...args: any[]): any
   export {}
 }
 
 declare module '@aws-sdk/client-bedrock' {
-  const _: any
-  export default _
+  export class BedrockClient { constructor(config?: any) }
   export {}
 }
 
 declare module '@aws-sdk/client-bedrock-runtime' {
-  const _: any
-  export default _
+  export class BedrockRuntimeClient { constructor(config?: any) }
+  export class CountTokensCommand { constructor(input?: any) }
+  export type CountTokensCommandInput = any
   export {}
 }
 
 declare module '@aws-sdk/client-sts' {
-  const _: any
-  export default _
+  export class STSClient { constructor(config?: any) }
+  export class GetCallerIdentityCommand { constructor(input?: any) }
   export {}
 }
 
 declare module '@aws-sdk/credential-providers' {
-  const _: any
-  export default _
+  export function fromIni(config?: any): any
   export {}
 }
 
@@ -118,20 +159,23 @@ declare module 'asciichart' {
 }
 
 declare module 'audio-capture-napi' {
-  const _: any
-  export default _
-  export {}
+  export function isNativeAudioAvailable(): boolean
+  export function isNativeRecordingActive(): boolean
+  export function startNativeRecording(
+    onData: (data: Buffer) => void,
+    onSilence?: () => void,
+  ): boolean
+  export function stopNativeRecording(): void
 }
 
 declare module 'cacache' {
-  const _: any
-  export default _
+  export function ls(cache: string, key?: string): Promise<any>
+  export function rm(cache: string, key: string): Promise<any>
   export {}
 }
 
 declare module 'image-processor-napi' {
-  const _: any
-  export default _
+  export function getNativeModule(...args: any[]): any
   export {}
 }
 
@@ -141,8 +185,7 @@ declare module 'plist' {
 }
 
 declare module 'url-handler-napi' {
-  const _: any
-  export default _
+  export function waitForUrlEvent(...args: any[]): any
   export {}
 }
 
@@ -305,3 +348,6 @@ declare module '*?clear-bare-mode' {
   const mod: any
   export default mod
 }
+
+// Ink custom JSX intrinsic elements moved to src/ink-jsx.d.ts
+// (must be in a module file so `declare module 'react'` augments rather than replaces @types/react)

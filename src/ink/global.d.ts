@@ -5,5 +5,7 @@ declare namespace JSX {
     'ink-text': Record<string, unknown>
     'ink-root': Record<string, unknown>
     'ink-virtual-text': Record<string, unknown>
+    'ink-link': Record<string, unknown>
+    'ink-newline': Record<string, unknown>
   }
 }

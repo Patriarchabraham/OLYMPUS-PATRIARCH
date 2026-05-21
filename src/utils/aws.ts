@@ -51,7 +51,7 @@ export async function checkStsCallerIdentity(): Promise<void> {
   const { STSClient, GetCallerIdentityCommand } = await import(
     '@aws-sdk/client-sts'
   )
-  await new STSClient().send(new GetCallerIdentityCommand({}))
+  await (new STSClient() as any).send(new GetCallerIdentityCommand({}))
 }
 
 /**

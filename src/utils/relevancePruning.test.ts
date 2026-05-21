@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'vitest'
 import {
   pruneByRelevance,
   getTopRelevantMessages,
@@ -50,7 +50,7 @@ describe('relevancePruning', () => {
       const result = pruneByRelevance(messages, { targetTokens: 500 })
 
       // Either both msg1 messages are kept or neither (not partial)
-      const msg1Msgs = result.filter(m => m.message?.id === 'msg1')
+      const msg1Msgs = result.filter(m => (m as any).message?.id === 'msg1')
       // If any msg1 is kept, all should be kept
       if (msg1Msgs.length > 0) {
         expect(msg1Msgs.length).toBe(2)
@@ -69,9 +69,9 @@ describe('relevancePruning', () => {
 
       const result = pruneByRelevance(messages, { targetTokens: 200, preserveRecent: 1 })
 
-      const round1Msgs = result.filter(m => m.message?.id === 'api-round-1')
+      const round1Msgs = result.filter(m => (m as any).message?.id === 'api-round-1')
       const toolResultForTu1 = result.filter(m => 
-        m.message?.content?.[0]?.type === 'tool_result' && m.message.content[0].tool_use_id === 'tu1'
+        (m as any).message?.content?.[0]?.type === 'tool_result' && (m as any).message.content[0].tool_use_id === 'tu1'
       )
 
       // Both tool_use and its tool_result should be kept together or neither

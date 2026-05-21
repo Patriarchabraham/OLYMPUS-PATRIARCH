@@ -56,7 +56,7 @@ function extractImage(
   return undefined
 }
 
-function processOutput(output: NotebookCellOutput) {
+function processOutput(output: NotebookCellOutput): NotebookCellSourceOutput {
   switch (output.output_type) {
     case 'stream':
       return {
@@ -74,9 +74,11 @@ function processOutput(output: NotebookCellOutput) {
       return {
         output_type: output.output_type,
         text: processOutputText(
-          `${output.ename}: ${output.evalue}\n${output.traceback.join('\n')}`,
+          `${output.ename}: ${output.evalue}\n${(output.traceback ?? []).join('\n')}`,
         ),
       }
+    default:
+      return { output_type: output.output_type, text: '' }
   }
 }
 
@@ -117,7 +119,7 @@ function processCell(
 }
 
 function cellContentToToolResult(cell: NotebookCellSource): TextBlockParam {
-  const metadata = []
+  const metadata: string[] = []
   if (cell.cellType !== 'code') {
     metadata.push(`<cell_type>${cell.cellType}</cell_type>`)
   }
@@ -144,7 +146,7 @@ function cellOutputToToolResult(output: NotebookCellSourceOutput) {
       type: 'image',
       source: {
         data: output.image.image_data,
-        media_type: output.image.media_type,
+        media_type: output.image.media_type as 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp',
         type: 'base64',
       },
     })

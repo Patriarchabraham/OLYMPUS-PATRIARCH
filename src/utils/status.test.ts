@@ -31,8 +31,6 @@ async function readPropertyValue(
 		isFirstPartyAnthropicBaseUrl: () => true,
 		isGithubNativeAnthropicMode: () => false,
 	}))
-	const nonce = `${Date.now()}-${Math.random()}`
-	void nonce
 	vi.resetModules()
 	const mod = (await vi.importActual('./status.js')) as any
 	const { buildAPIProviderProperties } = mod

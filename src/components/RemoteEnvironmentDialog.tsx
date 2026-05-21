@@ -23,12 +23,12 @@ type Props = {
   onDone: (message?: string) => void;
 };
 type LoadingState = 'loading' | 'updating' | null;
-export function RemoteEnvironmentDialog(t0) {
+export function RemoteEnvironmentDialog(t0: Props) {
   const $ = _c(27);
   const {
     onDone
   } = t0;
-  const [loadingState, setLoadingState] = useState("loading");
+  const [loadingState, setLoadingState] = useState<string | null>("loading");
   let t1;
   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
     t1 = [];
@@ -36,10 +36,10 @@ export function RemoteEnvironmentDialog(t0) {
   } else {
     t1 = $[0];
   }
-  const [environments, setEnvironments] = useState(t1);
-  const [selectedEnvironment, setSelectedEnvironment] = useState(null);
-  const [selectedEnvironmentSource, setSelectedEnvironmentSource] = useState(null);
-  const [error, setError] = useState(null);
+  const [environments, setEnvironments] = useState<EnvironmentResource[]>(t1);
+  const [selectedEnvironment, setSelectedEnvironment] = useState<EnvironmentResource | null>(null);
+  const [selectedEnvironmentSource, setSelectedEnvironmentSource] = useState<SettingSource | null>(null);
+  const [error, setError] = useState<string | null>(null);
   let t2;
   let t3;
   if ($[1] === Symbol.for("react.memo_cache_sentinel")) {

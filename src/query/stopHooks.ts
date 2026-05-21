@@ -118,7 +118,7 @@ export async function* handleStopHooks(
       (m): m is AssistantMessage => m.type === 'assistant',
     )
     const p = jobClassifierModule!
-      .classifyAndWriteState(process.env.CLAUDE_JOB_DIR, turnAssistantMessages)
+      .classifyAndWriteState({ jobDir: process.env.CLAUDE_JOB_DIR, messages: turnAssistantMessages })
       .catch(err => {
         logForDebugging(`[job] classifier error: ${errorMessage(err)}`, {
           level: 'error',
@@ -173,7 +173,7 @@ export async function* handleStopHooks(
   }
 
   try {
-    const blockingErrors = []
+    const blockingErrors: Message[] = []
     const appState = toolUseContext.getAppState()
     const permissionMode = appState.toolPermissionContext.mode
 
@@ -208,6 +208,7 @@ export async function* handleStopHooks(
           const progressData = result.message.data as HookProgress
           if (progressData.command) {
             hookInfos.push({
+              hookName: progressData.command,
               command: progressData.command,
               promptText: progressData.promptText,
             })

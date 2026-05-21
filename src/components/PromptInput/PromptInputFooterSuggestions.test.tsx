@@ -1,10 +1,14 @@
 import figures from 'figures'
-import { describe, expect, it } from 'bun:test'
+import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from '../../utils/staticRender.js'
 import {
   PromptInputFooterSuggestions,
   type SuggestionItem,
 } from './PromptInputFooterSuggestions.js'
+
+vi.mock('../../hooks/useTerminalSize.js', () => ({
+  useTerminalSize: () => ({ columns: 80, rows: 24 }),
+}))
 
 describe('PromptInputFooterSuggestions', () => {
   it('renders a visible marker for the selected suggestion', async () => {

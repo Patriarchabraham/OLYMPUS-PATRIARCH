@@ -68,9 +68,9 @@ export function addMessageToTurn(message: Message): void {
   turn.messages.push(message)
   
   // Update token estimate
-  const content = typeof message.message.content === 'string' 
-    ? message.message.content 
-    : JSON.stringify(message.message.content)
+  const content = typeof (message as any).message.content === 'string' 
+    ? (message as any).message.content 
+    : JSON.stringify((message as any).message.content)
   turn.tokens += roughTokenCountEstimation(content)
 }
 

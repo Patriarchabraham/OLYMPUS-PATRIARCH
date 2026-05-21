@@ -4,3 +4,6 @@ export function loadCollapsedSpans(): any[] {
 }
 export function saveCollapsedSpans(): void {}
 export function clearPersistedSpans(): void {}
+export function restoreFromEntries(_entries: any[]): any {
+  return { messages: [] }
+}

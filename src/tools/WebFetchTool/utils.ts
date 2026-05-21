@@ -336,7 +336,7 @@ export async function getWithPermittedRedirects(
           data: new Uint8Array(arrayBuffer),
           status: fetchResponse.status,
           statusText: fetchResponse.statusText,
-          headers: Object.fromEntries(fetchResponse.headers.entries()),
+          headers: Object.fromEntries(fetchResponse.headers as unknown as IterableIterator<[string, string]>),
           config: axiosConfig,
           request: undefined,
         } as unknown as AxiosResponse<ArrayBuffer>

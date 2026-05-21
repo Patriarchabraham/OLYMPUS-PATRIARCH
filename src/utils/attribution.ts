@@ -235,7 +235,7 @@ function countUserPromptsFromEntries(entries: ReadonlyArray<Entry>): number {
     entry =>
       entry.type === 'user' && !('isSidechain' in entry && entry.isSidechain),
   )
-  return countUserPromptsInMessages(nonSidechain)
+  return countUserPromptsInMessages(nonSidechain as any)
 }
 
 /**
@@ -446,7 +446,7 @@ export async function getEnhancedPRAttribution(
   if (feature('COMMIT_ATTRIBUTION') && isInternal && attributionData) {
     const { buildPRTrailers } = await import('./attributionTrailer.js')
     const trailers = buildPRTrailers(attributionData, appState.attribution)
-    const result = `${summary}\n\n${trailers.join('\n')}`
+    const result = `${summary}\n\n${(trailers as unknown as string[]).join('\n')}`
     logForDebugging(`PR Attribution: returning with trailers: ${result}`)
     return result
   }

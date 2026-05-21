@@ -739,7 +739,7 @@ test('clearPersistedCodexOAuthProfile removes only persisted Codex OAuth profile
 
 	try {
 		const providerProfileModule = await import(
-			`./providerProfile.js?ts=${Date.now()}-${Math.random()}`
+			'./providerProfile.js'
 		)
 		const {
 			PROFILE_FILE_NAME,

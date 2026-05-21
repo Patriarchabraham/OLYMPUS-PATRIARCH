@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import type { ProviderOutput } from './providers/types.js'
 import { __test } from './WebSearchTool.js'
 

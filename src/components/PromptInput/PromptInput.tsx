@@ -403,7 +403,7 @@ function PromptInput({
   // exist. When only local_agent tasks are running (coordinator/fork mode), the
   // pill is absent, so the -1 sentinel would leave nothing visually selected.
   // In that case, skip -1 and treat 0 as the minimum selectable index.
-  const hasBgTaskPill = useMemo(() => Object.values(tasks).some(t => isBackgroundTask(t) && !(("external" as "external" | "ant") === "ant" && isPanelAgentTask(t))), [tasks]);
+  const hasBgTaskPill = useMemo(() => Object.values(tasks).some(t => isBackgroundTask(t as any) && !(("external" as "external" | "ant") === "ant" && isPanelAgentTask(t as any))), [tasks]);
   const minCoordinatorIndex = hasBgTaskPill ? -1 : 0;
   // Clamp index when tasks complete and the list shrinks beneath the cursor
   useEffect(() => {
@@ -450,7 +450,7 @@ function PromptInput({
     if (!teamContext) {
       return [];
     }
-    const teammateCount = count(Object.values(teamContext.teammates), t => t.name !== 'team-lead');
+    const teammateCount = count(Object.values(teamContext.teammates), (t: any) => t.name !== 'team-lead');
     return [{
       name: teamContext.teamName,
       memberCount: teammateCount,
@@ -463,7 +463,7 @@ function PromptInput({
   // Which pills render below the input box. Order here IS the nav order
   // (down/right = forward, up/left = back). Selection lives in AppState so
   // pills rendered outside PromptInput (CompanionSprite) can read focus.
-  const runningTaskCount = useMemo(() => count(Object.values(tasks), t => t.status === 'running'), [tasks]);
+  const runningTaskCount = useMemo(() => count(Object.values(tasks), (t: any) => t.status === 'running'), [tasks]);
   // Panel shows retained-completed agents too (getVisibleAgentTasks), so the
   // pill must stay navigable whenever the panel has rows — not just when
   // something is running.
@@ -576,7 +576,7 @@ function PromptInput({
       const name = match[2];
 
       // Check if this name matches a team member
-      const member = memberValues.find(t => t.name === name);
+      const member = memberValues.find((t: any) => t.name === name) as any;
       if (member?.color) {
         const themeColor = AGENT_COLOR_TO_THEME_COLOR[member.color as AgentColorName];
         if (themeColor) {

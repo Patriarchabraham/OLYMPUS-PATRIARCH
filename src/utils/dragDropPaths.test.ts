@@ -1,7 +1,8 @@
-import { afterAll, describe, expect, test } from 'bun:test'
+import { afterAll, describe, expect, test } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import { fileURLToPath } from 'url'
 import { extractDraggedFilePaths } from './dragDropPaths.js'
 
 function escapeFinderDraggedPath(filePath: string): string {
@@ -9,9 +10,9 @@ function escapeFinderDraggedPath(filePath: string): string {
 }
 
 describe('extractDraggedFilePaths', () => {
-  // Paths that exist on any system.
-  const thisFile = import.meta.path
-  const packageJson = `${process.cwd()}/package.json`
+  // Paths that exist on any system — use fileURLToPath for Windows compat.
+  const thisFile = fileURLToPath(import.meta.url)
+  const packageJson = join(process.cwd(), 'package.json')
 
   // Fixtures created synchronously at describe-load time (not in
   // `beforeAll`) so their paths are available to `test.each` tables,

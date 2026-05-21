@@ -74,11 +74,11 @@ export function execSyncWithDefaults_DEPRECATED(
       maxBuffer: 1_000_000,
       timeout: finalTimeout,
       cwd: getCwd(),
-      stdio,
+      stdio: stdio as any,
       shell: true, // execSync typically runs shell commands
       reject: false, // Don't throw on non-zero exit codes
       input,
-    })
+    }) as any
     if (!result.stdout) {
       return null
     }

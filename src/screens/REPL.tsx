@@ -42,6 +42,7 @@ import { registerSandboxPermissionCallback } from '../hooks/useSwarmPermissionPo
 import { getTeamName, getAgentName } from '../utils/teammate.js';
 import { WorkerPendingPermission } from '../components/permissions/WorkerPendingPermission.js';
 import { injectUserMessageToTeammate, getAllInProcessTeammateTasks } from '../tasks/InProcessTeammateTask/InProcessTeammateTask.js';
+import type { TaskStateBase } from '../Task.js';
 import { isLocalAgentTask, queuePendingMessage, appendMessageToLocalAgent, type LocalAgentTaskState } from '../tasks/LocalAgentTask/LocalAgentTask.js';
 import { registerLeaderToolUseConfirmQueue, unregisterLeaderToolUseConfirmQueue, registerLeaderSetToolPermissionContext, unregisterLeaderSetToolPermissionContext } from '../utils/swarm/leaderPermissionBridge.js';
 import { endInteractionSpan } from '../utils/telemetry/sessionTracing.js';
@@ -230,6 +231,7 @@ import { activityManager } from '../utils/activityManager.js';
 import { createAbortController } from '../utils/abortController.js';
 import { MCPConnectionManager } from 'src/services/mcp/MCPConnectionManager.js';
 import { useFeedbackSurvey } from 'src/components/FeedbackSurvey/useFeedbackSurvey.js';
+import type { FeedbackSurveyResponse } from 'src/components/FeedbackSurvey/utils.js';
 import { useMemorySurvey } from 'src/components/FeedbackSurvey/useMemorySurvey.js';
 import { usePostCompactSurvey } from 'src/components/FeedbackSurvey/usePostCompactSurvey.js';
 import { FeedbackSurvey } from 'src/components/FeedbackSurvey/FeedbackSurvey.js';
@@ -1727,7 +1729,7 @@ export function REPL({
   // Wrap feedback survey handler to trigger auto-run /issue
   const feedbackSurvey = useMemo(() => ({
     ...feedbackSurveyOriginal,
-    handleSelect: (selected: 'dismissed' | 'bad' | 'fine' | 'good') => {
+    handleSelect: (selected: FeedbackSurveyResponse) => {
       // Reset the ref when a new survey response comes in
       didAutoRunIssueRef.current = false;
       const showedTranscriptPrompt = feedbackSurveyOriginal.handleSelect(selected);
@@ -1751,7 +1753,7 @@ export function REPL({
   });
 
   // Frustration detection: show transcript sharing prompt after detecting frustrated messages
-  const frustrationDetection = useFrustrationDetection(messages, isLoading, hasActivePrompt, feedbackSurvey.state !== 'closed' || postCompactSurvey.state !== 'closed' || memorySurvey.state !== 'closed');
+  const frustrationDetection = useFrustrationDetection() as ReturnType<typeof useFrustrationDetection> & { state: any };
 
   // Initialize IDE integration
   useIDEIntegration({
@@ -2679,9 +2681,9 @@ export function REPL({
       // spinner animation) and apiMetricsRef (endResponseLength/lastTokenTime
       // for OTPS). No separate metrics update needed here.
       setResponseLength(length => length + newContent.length);
-    }, setStreamMode, setStreamingToolUses, tombstonedMessage => {
-      setMessages(oldMessages => oldMessages.filter(m => m !== tombstonedMessage));
-      void removeTranscriptMessage(tombstonedMessage.uuid);
+    }, setStreamMode, setStreamingToolUses, (tombstonedUuid: string) => {
+      setMessages(oldMessages => oldMessages.filter(m => (m as any).uuid !== tombstonedUuid));
+      void removeTranscriptMessage(tombstonedUuid as any);
     }, setStreamingThinking, metrics => {
       const now = Date.now();
       const baseline = responseLengthRef.current;
@@ -3015,7 +3017,7 @@ export function REPL({
         // Defer if swarm teammates are still running (show when they finish)
         const turnDurationMs = Date.now() - loadingStartTimeRef.current - totalPausedMsRef.current;
         if ((turnDurationMs > 30000 || budgetInfo !== undefined) && !abortController.signal.aborted && !proactiveActive) {
-          const hasRunningSwarmAgents = getAllInProcessTeammateTasks(store.getState().tasks).some(t => t.status === 'running');
+          const hasRunningSwarmAgents = getAllInProcessTeammateTasks(store.getState().tasks as Record<string, TaskStateBase>).some(t => t.status === 'running');
           if (hasRunningSwarmAgents) {
             // Only record start time on the first deferred turn
             if (swarmStartTimeRef.current === null) {
@@ -4941,7 +4943,7 @@ export function REPL({
               signal: createAbortController().signal,
               disconnectedBridge: opts?.disconnectedBridge,
               onSessionReady: appendWhenIdle
-            }).then(appendStdout).catch(logError);
+            }).then((result: unknown) => { if (typeof result === 'string') appendStdout(result) }).catch(logError);
           }} /> : null}
 
           {mrRender()}

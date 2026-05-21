@@ -263,7 +263,7 @@ function isBeingDebugged() {
 }
 
 // Exit if we detect node debugging or inspection
-if ("external" !== 'ant' && isBeingDebugged()) {
+if (("external" as string) !== 'ant' && isBeingDebugged()) {
   // Use process.exit directly here since we're in the top-level code before imports
   // and gracefulShutdown is not yet available
   // eslint-disable-next-line custom-rules/no-top-level-side-effects
@@ -3235,7 +3235,7 @@ async function run(): Promise<CommanderCommand> {
         setCwdState(sshSession.remoteCwd);
         setDirectConnectServerUrl(_pendingSSH.local ? 'local' : _pendingSSH.host);
       } catch (err) {
-        return await exitWithError(root, err instanceof SSHSessionError ? err.message : String(err), () => gracefulShutdown(1));
+        return await exitWithError(root, err instanceof Error ? err.message : String(err), () => gracefulShutdown(1));
       }
       const sshInfoMessage = createSystemMessage(_pendingSSH.local ? `Local ssh-proxy test session\ncwd: ${sshSession.remoteCwd}\nAuth: unix socket → local proxy` : `SSH session to ${_pendingSSH.host}\nRemote cwd: ${sshSession.remoteCwd}\nAuth: unix socket -R → local proxy`, 'info');
       await launchRepl(root, {
@@ -3325,8 +3325,8 @@ async function run(): Promise<CommanderCommand> {
       setKairosActive(true);
       setUserMsgOptIn(true);
       setIsRemoteMode(true);
-      const remoteSessionConfig = createRemoteSessionConfig(targetSessionId, getAccessToken, apiCreds.orgUUID, /* hasInitialPrompt */false, /* viewerOnly */true);
-      const infoMessage = createSystemMessage(`Attached to assistant session ${targetSessionId.slice(0, 8)}…`, 'info');
+      const remoteSessionConfig = createRemoteSessionConfig(targetSessionId ?? '', getAccessToken, apiCreds.orgUUID, /* hasInitialPrompt */false, /* viewerOnly */true);
+      const infoMessage = createSystemMessage(`Attached to assistant session ${(targetSessionId ?? '').slice(0, 8)}…`, 'info');
       const assistantInitialState: AppState = {
         ...initialState,
         isBriefOnly: true,

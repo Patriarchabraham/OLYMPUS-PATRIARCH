@@ -99,7 +99,7 @@ type ProcessedMessage = {
  */
 function processProgressMessages(messages: ProgressMessage<Progress>[], tools: Tools, isAgentRunning: boolean): ProcessedMessage[] {
   // Only process for ants
-  if ("external" !== 'ant') {
+  if (("external" as string) !== 'ant') {
     return messages.filter((m): m is ProgressMessage<AgentToolProgress> => hasProgressMessage(m.data) && m.data.message.type !== 'user').map(m => ({
       type: 'original',
       message: m
@@ -539,7 +539,7 @@ export function renderToolUseProgressMessage(progressMessages: ProgressMessage<P
   const {
     lookups: subagentLookups,
     inProgressToolUseIDs: collapsedInProgressIDs
-  } = buildSubagentLookups(progressMessages.filter((pm): pm is ProgressMessage<AgentToolProgress> => hasProgressMessage(pm.data)).map(pm => pm.data));
+  } = buildSubagentLookups(progressMessages.filter((pm): pm is ProgressMessage<AgentToolProgress> => hasProgressMessage(pm.data)).map(pm => pm.data) as unknown as Parameters<typeof buildSubagentLookups>[0]);
   return <MessageResponse>
       <Box flexDirection="column">
         <SubAgentProvider>

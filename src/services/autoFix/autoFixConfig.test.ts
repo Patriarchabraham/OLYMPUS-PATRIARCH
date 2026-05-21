@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { AutoFixConfigSchema, getAutoFixConfig, type AutoFixConfig } from './autoFixConfig.js'
 
 describe('AutoFixConfigSchema', () => {

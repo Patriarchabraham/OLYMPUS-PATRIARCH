@@ -937,7 +937,7 @@ export const connectToServer = memoize(
         const context = createChromeContext(serverRef.env)
         inProcessServer = createClaudeForChromeMcpServer(context)
         const [clientTransport, serverTransport] = createLinkedTransportPair()
-        await inProcessServer.connect(serverTransport)
+        await inProcessServer!.connect(serverTransport)
         transport = clientTransport
         logMCPDebug(name, `In-process Chrome MCP server started`)
       } else if (
@@ -956,7 +956,7 @@ export const connectToServer = memoize(
         )
         inProcessServer = await createComputerUseMcpServerForCli()
         const [clientTransport, serverTransport] = createLinkedTransportPair()
-        await inProcessServer.connect(serverTransport)
+        await inProcessServer!.connect(serverTransport)
         transport = clientTransport
         logMCPDebug(name, `In-process Computer Use MCP server started`)
       } else if (serverRef.type === 'stdio' || !serverRef.type) {

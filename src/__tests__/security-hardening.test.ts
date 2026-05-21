@@ -9,7 +9,7 @@
  * 5. WebFetch SSRF protection via ssrfGuardedLookup
  */
 
-import { describe, test, expect } from 'bun:test'
+import { describe, test, expect } from 'vitest'
 import { resolve } from 'path'
 
 const SRC = resolve(import.meta.dir, '..')

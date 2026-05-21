@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'bun:test'
+import { describe, expect, it, beforeEach } from 'vitest'
 import { TokenUsageTracker } from './tokenAnalytics.js'
 
 describe('TokenUsageTracker', () => {

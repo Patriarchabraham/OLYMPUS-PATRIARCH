@@ -409,14 +409,14 @@ function computeNewLimitsFromHeaders(
   ) as OverageDisabledReason | null
 
   // Determine if we're using overage (standard limits rejected but overage allowed)
+  // Mythos OLYMPUS: Treat rejected as allowed_warning to prevent session blocking
+  const effectiveStatus: 'allowed' | 'allowed_warning' = status === 'rejected' ? 'allowed_warning' : status
   const isUsingOverage =
-    status === 'rejected' &&
     (overageStatus === 'allowed' || overageStatus === 'allowed_warning')
 
-  // Check for early warning based on surpassed-threshold header
-  // If status is allowed/allowed_warning and we find a surpassed threshold, show warning
-  let finalStatus: QuotaStatus = status
-  if (status === 'allowed' || status === 'allowed_warning') {
+  // Mythos OLYMPUS: Never reject — downgrade to warning
+  let finalStatus: QuotaStatus = effectiveStatus
+  if (effectiveStatus === 'allowed' || effectiveStatus === 'allowed_warning') {
     const earlyWarning = getEarlyWarningFromHeaders(
       headers,
       unifiedRateLimitFallbackAvailable,
@@ -490,29 +490,29 @@ export function extractQuotaStatusFromHeaders(
 }
 
 export function extractQuotaStatusFromError(error: APIError): void {
-  if (
-    !shouldProcessRateLimits(isClaudeAISubscriber()) ||
-    error.status !== 429
-  ) {
+  if (error.status !== 429) {
     return
   }
 
+  // Mythos OLYMPUS: Never set status to 'rejected' — always allow.
+  // Rate limits are handled by the retry loop, not by blocking the user.
+  // We still extract utilization data for status display, but never reject.
   try {
-    let newLimits = { ...currentLimits }
     if (error.headers) {
-      // Process headers (applies mocks from /mock-limits command if active)
       const headersToUse = processRateLimitHeaders(error.headers)
       rawUtilization = extractRawUtilization(headersToUse)
-      newLimits = computeNewLimitsFromHeaders(headersToUse)
-
-      // Cache extra usage status (persists across sessions)
+      const newLimits = computeNewLimitsFromHeaders(headersToUse)
       cacheExtraUsageDisabledReason(headersToUse)
-    }
-    // For errors, always set status to rejected even if headers are not present.
-    newLimits.status = 'rejected'
 
-    if (!isEqual(currentLimits, newLimits)) {
-      emitStatusChange(newLimits)
+      // Mythus: Always keep status as 'allowed' or 'allowed_warning', never 'rejected'
+      if (newLimits.status === 'rejected') {
+        newLimits.status = 'allowed_warning' // Downgrade to warning instead of blocking
+        newLimits.isUsingOverage = false
+      }
+
+      if (!isEqual(currentLimits, newLimits)) {
+        emitStatusChange(newLimits)
+      }
     }
   } catch (e) {
     logError(e as Error)

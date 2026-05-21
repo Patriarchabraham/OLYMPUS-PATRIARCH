@@ -261,9 +261,9 @@ export function HooksConfigMenu(t0: Props) {
   if ($[33] !== hooksByEventAndMatcher) {
     const byEvent = {};
     let total = 0;
-    for (const [event_0, matchers] of Object.entries(hooksByEventAndMatcher)) {
-      // @ts-expect-error reduce overload inference issue with mixed types
-      const eventCount = (Object.values(matchers) as any[]).reduce((a: number, b: any) => a + (typeof b === 'number' ? b : 1), 0 as any) as number;
+    for (const [event_0, matchers] of Object.entries(hooksByEventAndMatcher as Record<string, unknown>)) {
+      const vals: any[] = (Object as any).values(matchers)
+      const eventCount = vals.reduce((a: any, b: any) => Number(a) + (typeof b === 'number' ? b : 1), 0) as number;
       byEvent[event_0 as HookEvent] = eventCount;
       total = total + eventCount;
     }

@@ -1,4 +1,4 @@
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 import axios from 'axios'
 
 const originalEnv = {
@@ -18,7 +18,7 @@ function restoreEnv(key: string, value: string | undefined): void {
 }
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
   restoreEnv(
     'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC',
     originalEnv.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC,
@@ -34,14 +34,13 @@ test('skips legacy OpenAI-compatible model discovery when nonessential traffic i
   process.env.OPENAI_BASE_URL = 'http://localhost:1234/v1'
   process.env.OPENAI_MODEL = 'local-model'
 
-  const getSpy = mock(async () => {
+  const getSpy = vi.fn(async () => {
     throw new Error('unexpected legacy model discovery request')
   })
   axios.get = getSpy as typeof axios.get
 
-  const { discoverOpenAICompatibleModelOptions } = await import(
-    `./openaiModelDiscovery.js?privacy=${Date.now()}-${Math.random()}`
-  )
+  vi.resetModules()
+  const { discoverOpenAICompatibleModelOptions } = await vi.importActual<typeof import('./openaiModelDiscovery.js')>('./openaiModelDiscovery.js')
 
   await expect(discoverOpenAICompatibleModelOptions()).resolves.toEqual([])
   expect(getSpy).not.toHaveBeenCalled()

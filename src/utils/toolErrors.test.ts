@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import { ShellError, AbortError } from './errors.js'
 import { formatError, getErrorParts } from './toolErrors.js'
 

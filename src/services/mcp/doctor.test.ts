@@ -20,7 +20,7 @@ function stdioConfig(scope: 'local' | 'project' | 'user' | 'enterprise', command
   }
 }
 
-function makeDependencies(overrides: Partial<McpDoctorDependencies> = {}): McpDoctorDependencies {
+function makeDependencies(overrides: Record<string, unknown> = {}): McpDoctorDependencies {
   return {
     getAllMcpConfigs: async () => ({ servers: {}, errors: [] }),
     getMcpConfigsByScope: () => ({ servers: {}, errors: [] }),
@@ -36,7 +36,7 @@ function makeDependencies(overrides: Partial<McpDoctorDependencies> = {}): McpDo
       cleanup: async () => {},
     }),
     ...overrides,
-  }
+  } as unknown as McpDoctorDependencies
 }
 
 test('buildEmptyDoctorReport returns zeroed summary', () => {

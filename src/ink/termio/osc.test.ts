@@ -1,29 +1,36 @@
-﻿import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, vi, test } from 'vitest'
 import { join } from 'node:path'
 
 const originalEnv = { ...process.env }
 const originalPlatform = process.platform
 const mockedClipboardPath = join(process.cwd(), 'Mythos Patriarch-clipboard.txt')
 
-const generateTempFilePathMock = mock(() => mockedClipboardPath)
+const generateTempFilePathMock = vi.fn(() => mockedClipboardPath)
 
-const execFileNoThrowMock = mock(
+type ExecResult = { code: number; stdout: string; stderr: string }
+type ExecFileCall = [cmd: string, args: string[], options: Record<string, unknown>]
+const execFileNoThrowMock = vi.fn<(...args: unknown[]) => Promise<ExecResult>>(
   async () => ({ code: 0, stdout: '', stderr: '' }),
 )
 
+function getCalls(): ExecFileCall[] {
+  return execFileNoThrowMock.mock.calls as ExecFileCall[]
+}
+
 function installOscMocks(): void {
-  mock.module('../../utils/execFileNoThrow.js', () => ({
+  vi.doMock('../../utils/execFileNoThrow.js', () => ({
     execFileNoThrow: execFileNoThrowMock,
     execFileNoThrowWithCwd: execFileNoThrowMock,
   }))
 
-  mock.module('../../utils/tempfile.js', () => ({
+  vi.doMock('../../utils/tempfile.js', () => ({
     generateTempFilePath: generateTempFilePathMock,
   }))
 }
 
 async function importFreshOscModule() {
-  return import(`./osc.ts?ts=${Date.now()}-${Math.random()}`)
+  vi.resetModules()
+  return vi.importActual<typeof import('./osc')>('./osc.ts')
 }
 
 async function flushClipboardCopy(): Promise<void> {
@@ -33,9 +40,9 @@ async function flushClipboardCopy(): Promise<void> {
 async function waitForExecCall(
   command: string,
   attempts = 20,
-): Promise<(typeof execFileNoThrowMock.mock.calls)[number] | undefined> {
+): Promise<ExecFileCall | undefined> {
   for (let attempt = 0; attempt < attempts; attempt++) {
-    const call = execFileNoThrowMock.mock.calls.find(([cmd]) => cmd === command)
+    const call = getCalls().find(([cmd]) => cmd === command)
     if (call) {
       return call
     }
@@ -67,7 +74,7 @@ describe('Windows clipboard fallback', () => {
     await setClipboard('Привет мир')
     const windowsCall = await waitForExecCall('powershell')
 
-    expect(execFileNoThrowMock.mock.calls.some(([cmd]) => cmd === 'clip')).toBe(
+    expect(getCalls().some(([cmd]) => cmd === 'clip')).toBe(
       false,
     )
     expect(windowsCall).toBeDefined()
@@ -132,7 +139,7 @@ describe('clipboard path behavior remains stable', () => {
 
     await setClipboard('Привет мир')
 
-    expect(execFileNoThrowMock.mock.calls.some(([cmd]) => cmd === 'powershell')).toBe(
+    expect(getCalls().some(([cmd]) => cmd === 'powershell')).toBe(
       false,
     )
   })
@@ -143,7 +150,7 @@ describe('clipboard path behavior remains stable', () => {
 
     await setClipboard('hello')
 
-    expect(execFileNoThrowMock.mock.calls.some(([cmd]) => cmd === 'pbcopy')).toBe(
+    expect(getCalls().some(([cmd]) => cmd === 'pbcopy')).toBe(
       true,
     )
   })

@@ -3,6 +3,7 @@
  * Provides typed wrappers for common WMI/CIM queries using the NativeCallBridge.
  */
 
+import os from 'node:os'
 import { getNativeCallBridge } from '../nativeCallBridge.js'
 import type {
   CPUInfo,
@@ -250,7 +251,7 @@ export async function getInstalledSoftware(): Promise<SoftwareInfo[]> {
 
 // Fallbacks using Node.js built-in os module
 function getFallbackCPUInfo(): CPUInfo {
-  const cpus = require('os').cpus()
+  const cpus = os.cpus()
   return {
     model: cpus[0]?.model ?? 'Unknown',
     manufacturer: 'Unknown',
@@ -266,7 +267,6 @@ function getFallbackCPUInfo(): CPUInfo {
 }
 
 function getFallbackMemoryInfo(): MemoryInfo {
-  const os = require('os')
   const total = os.totalmem()
   const free = os.freemem()
   return {

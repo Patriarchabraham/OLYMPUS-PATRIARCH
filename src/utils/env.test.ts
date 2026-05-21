@@ -39,7 +39,7 @@ afterEach(() => {
 
 async function importFreshEnvModule() {
 	vi.resetModules()
-	return vi.importActual('./env.js')
+	return vi.importActual<typeof import('./env.js')>('./env.js')
 }
 
 // getGlobalClaudeFile — default path plus explicit override compatibility

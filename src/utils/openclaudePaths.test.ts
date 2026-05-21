@@ -1,4 +1,4 @@
-﻿import { afterEach, describe, expect, mock, test } from 'bun:test'
+﻿import { afterEach, describe, expect, vi, test } from 'vitest'
 import {
   existsSync,
   mkdirSync,
@@ -15,25 +15,29 @@ const originalEnv = { ...process.env }
 const originalArgv = [...process.argv]
 
 async function importFreshEnvUtils() {
-  return import(`./envUtils.ts?ts=${Date.now()}-${Math.random()}`)
+  vi.resetModules()
+  return vi.importActual<typeof import('./envUtils')>('./envUtils.ts')
 }
 
 async function importFreshSettings() {
-  return import(`./settings/settings.ts?ts=${Date.now()}-${Math.random()}`)
+  vi.resetModules()
+  return vi.importActual<typeof import('./settings/settings')>('./settings/settings.ts')
 }
 
 async function importFreshLocalInstaller() {
-  return import(`./localInstaller.ts?ts=${Date.now()}-${Math.random()}`)
+  vi.resetModules()
+  return vi.importActual<typeof import('./localInstaller')>('./localInstaller.ts')
 }
 
 async function importFreshPlans() {
-  return import(`./plans.ts?ts=${Date.now()}-${Math.random()}`)
+  vi.resetModules()
+  return vi.importActual<typeof import('./plans')>('./plans.ts')
 }
 
 afterEach(() => {
   process.env = { ...originalEnv }
   process.argv = [...originalArgv]
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 describe('Mythos Patriarch paths', () => {
@@ -184,7 +188,7 @@ describe('Mythos Patriarch paths', () => {
     try {
       writeFileSync(join(tempHome, '.openclaude'), 'not a directory')
       mkdirSync(join(tempHome, '.claude'), { recursive: true })
-      mock.module('os', () => ({
+      vi.mock('os', () => ({
         homedir: () => tempHome,
         tmpdir,
       }))
@@ -303,7 +307,7 @@ describe('Mythos Patriarch paths', () => {
   })
 
   test('legacy local installs are detected when they still expose the claude binary', async () => {
-    mock.module('fs/promises', () => ({
+    vi.mock('fs/promises', () => ({
       ...fsPromises,
       access: async (path: string) => {
         if (

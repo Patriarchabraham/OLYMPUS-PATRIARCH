@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, mock, test } from 'bun:test'
+import { afterEach, beforeEach, expect, vi, test } from 'vitest'
 import { compressToolHistory, getTiers } from './compressToolHistory.js'
 
 // Mock the two dependencies so tests are deterministic and don't read disk config.
@@ -7,13 +7,13 @@ const mockState = {
   effectiveWindow: 100_000,
 }
 
-mock.module('../../utils/config.js', () => ({
+vi.mock('../../utils/config.js', () => ({
   getGlobalConfig: () => ({
     toolHistoryCompressionEnabled: mockState.enabled,
   }),
 }))
 
-mock.module('../compact/autoCompact.js', () => ({
+vi.mock('../compact/autoCompact.js', () => ({
   getEffectiveContextWindowSize: () => mockState.effectiveWindow,
 }))
 

@@ -22,7 +22,7 @@ async function runBenchmark(
     modelsToBenchmark = [model]
   } else {
     const ollamaModels = getCachedOllamaModelOptions()
-    modelsToBenchmark = ollamaModels.slice(0, 3).map((m) => m.value)
+    modelsToBenchmark = ollamaModels.slice(0, 3).map((m) => m.value as unknown as string)
   }
 
   const results = await benchmarkMultipleModels(

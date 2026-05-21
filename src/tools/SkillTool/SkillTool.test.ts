@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 
 import type { Command } from '../../commands.js'
 import { SkillTool } from './SkillTool.js'

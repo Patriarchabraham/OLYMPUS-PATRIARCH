@@ -1,17 +1,17 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCommandQueue, resetCommandQueue } from './messageQueueManager.js'
 
 describe('handlePromptSubmit', () => {
   beforeEach(() => {
     resetCommandQueue()
-    mock.module('src/services/analytics/index.js', () => ({
+    vi.mock('src/services/analytics/index.js', () => ({
       logEvent: () => {},
     }))
   })
 
   afterEach(() => {
     resetCommandQueue()
-    mock.restore()
+    vi.restoreAllMocks()
   })
 
   it('queues prompt submissions during generation without interrupting the current turn', async () => {

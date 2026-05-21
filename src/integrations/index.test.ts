@@ -1,7 +1,7 @@
 // src/integrations/index.test.ts
 // Integration test: validates the full registry after loading all descriptors.
 
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import {
   getBrandsForVendor,
   getAllGateways,

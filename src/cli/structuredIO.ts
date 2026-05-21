@@ -579,7 +579,7 @@ export class StructuredIO {
           toolUseID,
           input,
           toolUseContext,
-          mainPermissionResult.suggestions,
+          mainPermissionResult.suggestions as Parameters<typeof executePermissionRequestHooksForSDK>[4],
         ).then(decision => ({ source: 'hook' as const, decision }))
 
         // Start the SDK permission prompt immediately (don't wait for hooks)

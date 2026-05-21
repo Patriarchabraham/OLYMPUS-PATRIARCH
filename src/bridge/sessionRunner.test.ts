@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { buildChildEnv } from './sessionRunner.ts'
 
 // Finding #42-1: sessionRunner spreads the full parent process.env into the

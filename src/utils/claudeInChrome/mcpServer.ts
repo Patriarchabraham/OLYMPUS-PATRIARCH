@@ -1,9 +1,14 @@
-import {
-  type ClaudeForChromeContext,
-  createClaudeForChromeMcpServer,
-  type Logger,
-  type PermissionMode,
-} from '@ant/claude-for-chrome-mcp'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type ClaudeForChromeContext = Record<string, any>
+type Logger = { silly(message: string, ...args: unknown[]): void; debug(message: string, ...args: unknown[]): void; info(message: string, ...args: unknown[]): void; warn(message: string, ...args: unknown[]): void; error(message: string, ...args: unknown[]): void }
+type PermissionMode = string
+
+function createClaudeForChromeMcpServer(context: ClaudeForChromeContext): any {
+  // Dynamic require for internal-only package
+  const mod = require('@ant/claude-for-chrome-mcp') as any
+  const fn = mod.createClaudeForChromeMcpServer ?? mod.default
+  return fn(context)
+}
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { format } from 'util'
 import { shutdownDatadog } from '../../services/analytics/datadog.js'

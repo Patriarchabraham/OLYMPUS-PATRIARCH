@@ -60,7 +60,7 @@ function PermissionDecisionInfoItem(t0) {
         case "subcommandResults":
           {
             return <Box flexDirection="column">{Array.from(decisionReason.reasons.entries()).map(t2 => {
-                const [subcommand, result] = t2;
+                const [subcommand, result] = t2 as [string, any];
                 const icon = result.behavior === "allow" ? color("success", theme)(figures.tick) : color("error", theme)(figures.cross);
                 return <Box flexDirection="column" key={subcommand}><Text>{icon} {subcommand}</Text>{result.decisionReason !== undefined && result.decisionReason.type !== "subcommandResults" && <Text><Text dimColor={true}>{"  "}└{"  "}</Text><Ansi>{decisionReasonDisplayString(result.decisionReason)}</Ansi></Text>}{result.behavior === "ask" && <SuggestedRules suggestions={result.suggestions} />}</Box>;
               })}</Box>;
@@ -339,7 +339,7 @@ function _temp3(dir, index_0) {
 function _temp2(rule, index) {
   return <Text key={index}>{figures.bullet} {permissionRuleValueToString(rule)}</Text>;
 }
-export function PermissionDecisionDebugInfo(t0) {
+export function PermissionDecisionDebugInfo(t0: Props) {
   const $ = _c(25);
   const {
     permissionResult,
@@ -398,10 +398,10 @@ export function PermissionDecisionDebugInfo(t0) {
     t3 = $[8];
   }
   let t4;
-  if ($[9] !== permissionResult.behavior || $[10] !== permissionResult.message) {
-    t4 = permissionResult.behavior !== "allow" && <Box flexDirection="row"><Box justifyContent="flex-end" minWidth={10}><Text dimColor={true}>Message </Text></Box><Text>{permissionResult.message}</Text></Box>;
+  if ($[9] !== permissionResult.behavior || $[10] !== (permissionResult as any).message) {
+    t4 = permissionResult.behavior !== "allow" && <Box flexDirection="row"><Box justifyContent="flex-end" minWidth={10}><Text dimColor={true}>Message </Text></Box><Text>{(permissionResult as any).message}</Text></Box>;
     $[9] = permissionResult.behavior;
-    $[10] = permissionResult.message;
+    $[10] = (permissionResult as any).message;
     $[11] = t4;
   } else {
     t4 = $[11];

@@ -211,8 +211,10 @@ function getConfigSignature(config: ScopedMcpServerConfig): string {
       return `${config.scope}:${config.type}:${config.url}`
     case 'sdk':
       return `${config.scope}:${config.type}:${config.name}`
-    default:
-      return `${config.scope}:${config.type ?? 'stdio'}:${config.command}:${JSON.stringify(config.args ?? [])}`
+    default: {
+      const s = config as ScopedMcpServerConfig & { command?: string; args?: string[] }
+      return `${config.scope}:${config.type ?? 'stdio'}:${s.command ?? ''}:${JSON.stringify(s.args ?? [])}`
+    }
   }
 }
 

@@ -216,7 +216,7 @@ export class SessionsWebSocket {
         this.callbacks.onMessage(message)
       } else {
         logForDebugging(
-          `[SessionsWebSocket] Ignoring message type: ${typeof message === 'object' && message !== null && 'type' in message ? String(message.type) : 'unknown'}`,
+          `[SessionsWebSocket] Ignoring non-session message`,
         )
       }
     } catch (error) {

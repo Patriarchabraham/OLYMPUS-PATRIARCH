@@ -1,6 +1,6 @@
 import { PassThrough } from 'node:stream'
 
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
@@ -9,14 +9,14 @@ import { KeybindingSetup } from '../keybindings/KeybindingProviderSetup.js'
 import { AppStateProvider } from '../state/AppState.js'
 import { ThemeProvider } from './design-system/ThemeProvider.js'
 
-mock.module('./StructuredDiff.js', () => ({
+vi.mock('./StructuredDiff.js', () => ({
   StructuredDiff: function StructuredDiffPreview(): React.ReactNode {
     const [theme] = useTheme()
     return <Text>{`Preview theme: ${theme}`}</Text>
   },
 }))
 
-mock.module('./StructuredDiff/colorDiff.js', () => ({
+vi.mock('./StructuredDiff/colorDiff.js', () => ({
   getColorModuleUnavailableReason: () => 'env',
   getSyntaxTheme: () => null,
 }))
@@ -116,7 +116,7 @@ async function waitForFrame(
 }
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 test('updates the preview when keyboard focus moves to another theme', async () => {

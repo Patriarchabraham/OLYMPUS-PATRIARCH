@@ -85,7 +85,7 @@ function ProactiveCountdown() {
       }
       const update = function update() {
         const remaining = Math.max(0, Math.ceil((nextTickAt - Date.now()) / 1000));
-        setRemainingSeconds(remaining);
+        setRemainingSeconds(remaining as any);
       };
       update();
       const interval = setInterval(update, 1000);
@@ -124,7 +124,7 @@ function ProactiveCountdown() {
   }
   return t4;
 }
-export function PromptInputFooterLeftSide(t0) {
+export function PromptInputFooterLeftSide(t0: Props) {
   const $ = _c(27);
   const {
     exitMessage,
@@ -274,7 +274,7 @@ function ModeIndicator({
   const selGetState = useSelection().getState;
   const hasNextTick = nextTickAt !== null;
   const isCoordinator = feature('COORDINATOR_MODE') ? coordinatorModule?.isCoordinatorMode() === true : false;
-  const runningTaskCount = useMemo(() => count(Object.values(tasks), t => isBackgroundTask(t) && !(("external" as "external" | "ant") === "ant" && isPanelAgentTask(t))), [tasks]);
+  const runningTaskCount = useMemo(() => count(Object.values(tasks), t => isBackgroundTask(t as any) && !(("external" as "external" | "ant") === "ant" && isPanelAgentTask(t as any))), [tasks]);
   const tasksV2 = useTasksV2();
   const hasTaskItems = tasksV2 !== undefined && tasksV2.length > 0;
   const escShortcut = useShortcutDisplay('chat:cancel', 'Chat', 'esc').toLowerCase();
@@ -313,7 +313,7 @@ function ModeIndicator({
   // Derive team info from teamContext (no filesystem I/O needed)
   // Match the same logic as TeamStatus to avoid trailing separator
   // In-process mode uses Shift+Down/Up navigation, not footer teams menu
-  const hasTeams = isAgentSwarmsEnabled() && !isInProcessEnabled() && teamContext !== undefined && count(Object.values(teamContext.teammates), t_0 => t_0.name !== 'team-lead') > 0;
+  const hasTeams = isAgentSwarmsEnabled() && !isInProcessEnabled() && teamContext !== undefined && count(Object.values(teamContext.teammates), (t_0: any) => t_0.name !== 'team-lead') > 0;
   if (mode === 'bash') {
     return <Text color="bashBorder">! for bash mode</Text>;
   }
@@ -338,7 +338,7 @@ function ModeIndicator({
 
   // Check if we have in-process teammates (showing pills)
   // In spinner-tree mode, pills are disabled - teammates appear in the spinner tree instead
-  const hasInProcessTeammates = !showSpinnerTree && hasBackgroundTasks && Object.values(tasks).some(t_1 => t_1.type === 'in_process_teammate');
+  const hasInProcessTeammates = !showSpinnerTree && hasBackgroundTasks && Object.values(tasks).some((t_1: any) => t_1.type === 'in_process_teammate');
   const hasTeammatePills = hasInProcessTeammates || !showSpinnerTree && isViewingTeammate;
 
   // In remote mode (`claude assistant`, --teleport) the agent runs elsewhere;
@@ -368,8 +368,8 @@ function ModeIndicator({
   ...(("external" as "external" | "ant") === "ant" && hasTmuxSession ? [<TungstenPill key="tmux" selected={tmuxSelected} />] : []), ...(isAgentSwarmsEnabled() && hasTeams ? [<TeamStatus key="teams" teamsSelected={teamsSelected} showHint={showHint && !hasBackgroundTasks} />] : []), ...(shouldShowPrStatus ? [<PrBadge key="pr-status" number={prStatus.number!} url={prStatus.url!} reviewState={prStatus.reviewState!} />] : [])];
 
   // Check if any in-process teammates exist (for hint text cycling)
-  const hasAnyInProcessTeammates = Object.values(tasks).some(t_2 => t_2.type === 'in_process_teammate' && t_2.status === 'running');
-  const hasRunningAgentTasks = Object.values(tasks).some(t_3 => t_3.type === 'local_agent' && t_3.status === 'running');
+  const hasAnyInProcessTeammates = Object.values(tasks).some((t_2: any) => t_2.type === 'in_process_teammate' && t_2.status === 'running');
+  const hasRunningAgentTasks = Object.values(tasks).some((t_3: any) => t_3.type === 'local_agent' && t_3.status === 'running');
 
   // Get hint parts separately for potential second-line rendering
   const hintParts = showHint ? getSpinnerHintParts(isLoading, escShortcut, todosShortcut, killAgentsShortcut, hasTaskItems, expandedView, hasAnyInProcessTeammates, hasRunningAgentTasks, isKillAgentsConfirmShowing) : [];

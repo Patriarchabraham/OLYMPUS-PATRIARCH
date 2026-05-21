@@ -24,7 +24,7 @@ async function importFreshModule() {
 	}))
 
 	vi.resetModules()
-	return vi.importActual('./geminiCredentials.ts')
+	return vi.importActual<typeof import('./geminiCredentials')>('./geminiCredentials.ts')
 }
 
 beforeEach(() => {

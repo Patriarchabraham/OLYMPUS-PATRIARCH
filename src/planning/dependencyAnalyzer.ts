@@ -179,7 +179,7 @@ export async function analyzeDependencies(codebasePath: string): Promise<Depende
 }
 
 export function detectCircularDependencies(
-  analysis: Pick<DependencyAnalysis, 'nodes' | 'edges'>,
+  analysis: Pick<DependencyAnalysis, 'nodes' | 'edges' | 'orphans' | 'cycles' | 'hotspots'>,
 ): string[][] {
   const adjacency = new Map<string, string[]>()
   for (const edge of analysis.edges) {

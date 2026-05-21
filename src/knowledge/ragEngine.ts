@@ -3,7 +3,7 @@ import { join } from 'path'
 import { mkdir } from 'fs/promises'
 import { getVectorStore } from './vectorStore.js'
 import { generateEmbeddings, getEmbeddingProvider, setEmbeddingProvider } from './embeddings.js'
-import type { TfidfEmbeddingProvider } from './embeddings.js'
+import type { SearchResult } from './types.js'
 import { ingestDirectory, ingestFile } from './documentIngester.js'
 import { hybridSearch, registerChunks, clearChunkCache } from './semanticSearch.js'
 import { buildGraph, extractEntities, queryGraph, findRelated, findPath } from './knowledgeGraph.js'
@@ -189,7 +189,7 @@ export class RAGEngine {
 
   private buildAugmentedPrompt(
     query: string,
-    results: typeof results,
+    results: SearchResult[],
     maxTokens: number,
   ): string {
     const parts: string[] = [`## Relevant context for: "${query}"\n`]

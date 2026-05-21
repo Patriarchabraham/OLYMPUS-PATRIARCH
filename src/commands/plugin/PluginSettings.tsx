@@ -341,7 +341,7 @@ function removeExtraMarketplace(name: string, sources: Array<{
       };
       for (const pluginId in updatedPlugins) {
         if (pluginId.endsWith(suffix)) {
-          updatedPlugins[pluginId] = undefined;
+          delete updatedPlugins[pluginId];
           removedPlugins = true;
         }
       }
@@ -642,7 +642,7 @@ function getInitialViewState(parsedCommand: ParsedCommand): ViewState {
     case 'validate':
       return {
         type: 'validate',
-        path: parsedCommand.path
+        path: parsedCommand.path!
       };
     case 'install':
       if (parsedCommand.marketplace) {

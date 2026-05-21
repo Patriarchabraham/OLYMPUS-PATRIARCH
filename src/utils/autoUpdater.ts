@@ -277,7 +277,7 @@ async function releaseLock(): Promise<void> {
 async function getInstallationPrefix(): Promise<string | null> {
   // Run from home directory to avoid reading project-level .npmrc/.bunfig.toml
   const isBun = env.isRunningWithBun()
-  let prefixResult = null
+  let prefixResult: { stdout: string; stderr: string; code: number; error?: string } | null = null
   if (isBun) {
     prefixResult = await execFileNoThrowWithCwd('bun', ['pm', 'bin', '-g'], {
       cwd: homedir(),
@@ -289,7 +289,7 @@ async function getInstallationPrefix(): Promise<string | null> {
       { cwd: homedir() },
     )
   }
-  if (prefixResult.code !== 0) {
+  if (!prefixResult || prefixResult.code !== 0) {
     logError(new Error(`Failed to check ${isBun ? 'bun' : 'npm'} permissions`))
     return null
   }

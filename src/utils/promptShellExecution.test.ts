@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test'
+import { afterEach, expect, test } from 'vitest'
 import { getEmptyToolPermissionContext } from '../Tool.js'
 import { BashTool } from '../tools/BashTool/BashTool.js'
 import { executeShellCommandsInPrompt } from './promptShellExecution.js'

@@ -3,7 +3,7 @@
  * conversationRecovery so Bun's mock.module can replace sessionStart before
  * that module is first loaded.
  */
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -45,8 +45,8 @@ async function writeJsonl(entry: unknown): Promise<string> {
 }
 
 afterEach(async () => {
-  mock.restore()
-  mock.module('./model/providers.js', () => ({
+  vi.restoreAllMocks()
+  vi.doMock('./model/providers.js', () => ({
     getAPIProvider: () => 'firstParty',
   }))
   process.env = { ...originalEnv }
@@ -57,9 +57,9 @@ test('loadConversationForResume rejects oversized transcripts before resume hook
   delete process.env.CLAUDE_CODE_SIMPLE
   const hugeContent = 'x'.repeat(8 * 1024 * 1024 + 32 * 1024)
   const path = await writeJsonl(user(id(3), hugeContent))
-  const hookSpy = mock(() => Promise.resolve([{ type: 'hook' }]))
+  const hookSpy = vi.fn(() => Promise.resolve([{ type: 'hook' }]))
 
-  mock.module('./sessionStart.js', () => ({
+  vi.doMock('./sessionStart.js', () => ({
     processSessionStartHooks: hookSpy,
   }))
 
@@ -108,11 +108,11 @@ test('deserializeMessagesWithInterruptDetection strips thinking blocks only for 
     user(id(13), 'follow up'),
   ]
 
-  mock.module('./model/providers.js', () => ({
+  vi.doMock('./model/providers.js', () => ({
     getAPIProvider: () => 'openai',
   }))
 
-  const openaiModule = await import(`./conversationRecovery.ts?provider=openai-${Date.now()}`)
+  const openaiModule = await vi.importActual('./conversationRecovery.ts') as typeof import('./conversationRecovery.ts')
   const thirdParty = openaiModule.deserializeMessagesWithInterruptDetection(serializedMessages as never[])
   const thirdPartyAssistantMessages = thirdParty.messages.filter(
     message => message.type === 'assistant',
@@ -129,11 +129,11 @@ test('deserializeMessagesWithInterruptDetection strips thinking blocks only for 
     JSON.stringify(thirdPartyAssistantMessages.map(message => message.message?.content)),
   ).not.toContain('only hidden reasoning')
 
-  mock.module('./model/providers.js', () => ({
+  vi.doMock('./model/providers.js', () => ({
     getAPIProvider: () => 'bedrock',
   }))
 
-  const bedrockModule = await import(`./conversationRecovery.ts?provider=bedrock-${Date.now()}`)
+  const bedrockModule = await vi.importActual('./conversationRecovery.ts') as typeof import('./conversationRecovery.ts')
   const anthropicCompatible = bedrockModule.deserializeMessagesWithInterruptDetection(serializedMessages as never[])
   const anthropicAssistantMessages = anthropicCompatible.messages.filter(
     message => message.type === 'assistant',

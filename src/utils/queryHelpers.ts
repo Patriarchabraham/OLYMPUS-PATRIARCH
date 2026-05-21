@@ -4,7 +4,7 @@ import {
   getSessionId,
   isSessionPersistenceDisabled,
 } from 'src/bootstrap/state.js'
-import type { SDKMessage } from 'src/entrypoints/agentSdkTypes.js'
+import type { SDKMessage, SDKAssistantMessage } from 'src/entrypoints/agentSdkTypes.js'
 import type { CanUseToolFn } from '../hooks/useCanUseTool.js'
 import { runTools } from '../services/tools/toolOrchestration.js'
 import { findToolByName, type Tool, type Tools } from '../Tool.js'
@@ -28,6 +28,7 @@ import {
   type FileStateCache,
 } from './fileStateCache.js'
 import { isNotEmptyMessage, normalizeMessages } from './messages.js'
+import type { NormalizedAssistantMessage, NormalizedUserMessage } from '../types/message.js'
 import { expandPath } from './path.js'
 import type {
   inputSchema as permissionToolInputSchema,
@@ -109,11 +110,11 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
         }
         yield {
           type: 'assistant',
-          message: _.message,
+          message: _.message as unknown as SDKAssistantMessage['message'],
           parent_tool_use_id: null,
           session_id: getSessionId(),
           uuid: _.uuid,
-          error: _.error,
+          error: _.error as unknown as SDKAssistantMessage['error'],
         }
       }
       return
@@ -122,7 +123,7 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
         message.data.type === 'agent_progress' ||
         message.data.type === 'skill_progress'
       ) {
-        for (const _ of normalizeMessages([message.data.message])) {
+        for (const _ of normalizeMessages([message.data.message]) as (NormalizedAssistantMessage | NormalizedUserMessage)[]) {
           switch (_.type) {
             case 'assistant':
               // Skip empty messages (e.g., "(no content)") that shouldn't be output to SDK
@@ -131,11 +132,11 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
               }
               yield {
                 type: 'assistant',
-                message: _.message,
+                message: _.message as unknown as SDKAssistantMessage['message'],
                 parent_tool_use_id: message.parentToolUseID,
                 session_id: getSessionId(),
                 uuid: _.uuid,
-                error: _.error,
+                error: _.error as unknown as SDKAssistantMessage['error'],
               }
               break
             case 'user':
@@ -315,7 +316,7 @@ export async function* handleOrphanedPermission(
     ...assistantMessage,
     session_id: getSessionId(),
     parent_tool_use_id: null,
-  } as SDKMessage
+  } as unknown as SDKMessage
   yield sdkAssistantMessage
 
   // Execute the tool - errors are handled internally by runToolUse

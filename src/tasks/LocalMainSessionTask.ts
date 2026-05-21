@@ -438,11 +438,12 @@ export function startBackgroundSession({
         setAppState(prev => {
           const task = prev.tasks[taskId]
           if (!task || task.type !== 'local_agent') return prev
-          const prevProgress = task.progress
+          const localTask = task as LocalAgentTaskState
+          const prevProgress = localTask.progress
           if (
             prevProgress?.tokenCount === tokenCount &&
             prevProgress.toolUseCount === toolCount &&
-            task.messages === bgMessages
+            localTask.messages === bgMessages
           ) {
             return prev
           }

@@ -1,8 +1,9 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, vi, test } from 'vitest'
 
 async function importFreshModule() {
-  mock.restore()
-  return import(`./githubModelsCredentials.ts?ts=${Date.now()}-${Math.random()}`)
+  vi.restoreAllMocks()
+  vi.resetModules()
+  return vi.importActual<typeof import('./githubModelsCredentials')>('./githubModelsCredentials.ts')
 }
 
 describe('refreshGithubModelsTokenIfNeeded', () => {
@@ -14,7 +15,7 @@ describe('refreshGithubModelsTokenIfNeeded', () => {
   }
 
   beforeEach(() => {
-    mock.restore()
+    vi.restoreAllMocks()
   })
 
   afterEach(() => {
@@ -41,7 +42,7 @@ describe('refreshGithubModelsTokenIfNeeded', () => {
       },
     }
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => store,
         update: (next: Record<string, unknown>) => {
@@ -51,7 +52,7 @@ describe('refreshGithubModelsTokenIfNeeded', () => {
       }),
     }))
 
-    mock.module('../services/github/deviceFlow.js', () => ({
+    vi.doMock('../services/github/deviceFlow.js', () => ({
       DEFAULT_GITHUB_DEVICE_SCOPE: 'read:user',
       exchangeForCopilotToken: async () => ({
         token: `tid=fresh;exp=${futureExp};sku=free`,
@@ -65,7 +66,7 @@ describe('refreshGithubModelsTokenIfNeeded', () => {
 
     const refreshed = await refreshGithubModelsTokenIfNeeded()
     expect(refreshed).toBe(true)
-    expect(process.env.GITHUB_TOKEN?.startsWith('tid=fresh;exp=')).toBe(true)
+    expect((process.env.GITHUB_TOKEN as string | undefined)?.startsWith('tid=fresh;exp=')).toBe(true)
 
     const githubModels = (store.githubModels ?? {}) as {
       accessToken?: string
@@ -82,14 +83,14 @@ describe('refreshGithubModelsTokenIfNeeded', () => {
     delete process.env.GH_TOKEN
 
     const futureExp = Math.floor(Date.now() / 1000) + 3600
-    const exchangeSpy = mock(async () => ({
+    const exchangeSpy = vi.fn(async () => ({
       token: `tid=unexpected;exp=${futureExp};sku=free`,
       expires_at: futureExp,
       refresh_in: 1500,
       endpoints: { api: 'https://api.githubcopilot.com' },
     }))
 
-    mock.module('./secureStorage/index.js', () => ({
+    vi.doMock('./secureStorage/index.js', () => ({
       getSecureStorage: () => ({
         read: () => ({
           githubModels: {
@@ -101,7 +102,7 @@ describe('refreshGithubModelsTokenIfNeeded', () => {
       }),
     }))
 
-    mock.module('../services/github/deviceFlow.js', () => ({
+    vi.doMock('../services/github/deviceFlow.js', () => ({
       DEFAULT_GITHUB_DEVICE_SCOPE: 'read:user',
       exchangeForCopilotToken: exchangeSpy,
     }))
@@ -111,7 +112,7 @@ describe('refreshGithubModelsTokenIfNeeded', () => {
     const refreshed = await refreshGithubModelsTokenIfNeeded()
     expect(refreshed).toBe(false)
     expect(exchangeSpy).not.toHaveBeenCalled()
-    expect(process.env.GITHUB_TOKEN?.startsWith('tid=already-valid;exp=')).toBe(
+    expect((process.env.GITHUB_TOKEN as string | undefined)?.startsWith('tid=already-valid;exp=')).toBe(
       true,
     )
   })

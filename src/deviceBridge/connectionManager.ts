@@ -2,7 +2,6 @@
  * Connection manager — routes connections to the appropriate bridge.
  */
 import * as androidBridge from './androidBridge.js'
-import * as iosBridge from './iosBridge.js'
 import * as remotePCBridge from './remotePCBridge.js'
 import type { DeviceInfo, ConnectionProtocol, DeviceCommandResult } from './types.js'
 

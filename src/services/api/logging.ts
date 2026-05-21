@@ -29,6 +29,7 @@ import {
   type Span,
 } from 'src/utils/telemetry/sessionTracing.js'
 import type { NonNullableUsage } from '../../entrypoints/sdk/sdkUtilityTypes.js'
+type UsageOrNonNullable = Usage | NonNullableUsage
 import { consumeInvokingRequestId } from '../../utils/agentContext.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -426,9 +427,9 @@ function logAPISuccess({
   preNormalizedModel: string
   messageCount: number
   messageTokens: number
-  usage: Usage
-  durationMs: number
+  usage: UsageOrNonNullable
   durationMsIncludingRetries: number
+  durationMs?: number
   attempt: number
   ttftMs: number | null
   requestId: string | null

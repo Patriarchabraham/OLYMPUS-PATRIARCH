@@ -193,7 +193,7 @@ function stripThinkingBlocks(messages: NormalizedMessage[]): NormalizedMessage[]
       (block: { type?: string }) => block.type !== 'thinking' && block.type !== 'redacted_thinking',
     )
     if (filtered.length === 0) return acc
-    acc.push({ ...msg, message: { ...msg.message, content: filtered } })
+    acc.push({ ...msg, message: { ...msg.message, content: filtered as any } })
     return acc
   }, [])
 }
@@ -255,7 +255,7 @@ export function deserializeMessagesWithInterruptDetection(
     const isAnthropicNativeTransport = usesAnthropicNativeMessageFormat({
       processEnv: process.env,
       model: process.env.OPENAI_MODEL,
-      providerCategory: provider,
+      providerCategory: provider as any,
     })
     const isThirdPartyProvider =
       provider !== 'foundry' && !isAnthropicNativeTransport

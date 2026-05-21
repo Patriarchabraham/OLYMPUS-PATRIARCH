@@ -1032,7 +1032,7 @@ class Project {
           effectiveParentUuid = message.sourceToolAssistantUUID
         }
 
-        const transcriptMessage: TranscriptMessage = {
+        const transcriptMessage = {
           parentUuid: isCompactBoundary ? null : effectiveParentUuid,
           logicalParentUuid: isCompactBoundary ? parentUuid : undefined,
           isSidechain,
@@ -1058,7 +1058,7 @@ class Project {
           gitBranch,
           slug,
         }
-        await this.appendEntry(transcriptMessage)
+        await this.appendEntry(transcriptMessage as Entry)
         if (isChainParticipant(message)) {
           parentUuid = message.uuid
         }
@@ -1874,10 +1874,10 @@ function applyPreservedSegmentRelinks(
   const preservedUuids = new Set<UUID>()
   if (segIsLive) {
     const walkSeen = new Set<UUID>()
-    const tailInTranscript = messages.has(lastSeg.tailUuid!)
-    const headInTranscript = messages.has(lastSeg.headUuid!)
-    const anchorInTranscript = messages.has(lastSeg.anchorUuid!)
-    let cur = messages.get(lastSeg.tailUuid!)
+    const tailInTranscript = messages.has(lastSeg.tailUuid! as UUID)
+    const headInTranscript = messages.has(lastSeg.headUuid! as UUID)
+    const anchorInTranscript = messages.has(lastSeg.anchorUuid! as UUID)
+    let cur = messages.get(lastSeg.tailUuid! as UUID)
     let reachedHead = false
     let failureKind:
       | 'missing_tail'
@@ -1932,10 +1932,10 @@ function applyPreservedSegmentRelinks(
         anchorInTranscript,
         walkSteps: walkSeen.size,
         transcriptSize: messages.size,
-        tailIndex: entryIndex.get(lastSeg.tailUuid!),
-        headIndex: entryIndex.get(lastSeg.headUuid!),
-        anchorIndex: entryIndex.get(lastSeg.anchorUuid!),
-        lastSeenType,
+        tailIndex: entryIndex.get(lastSeg.tailUuid! as UUID),
+        headIndex: entryIndex.get(lastSeg.headUuid! as UUID),
+        anchorIndex: entryIndex.get(lastSeg.anchorUuid! as UUID),
+        lastSeenType: lastSeenType as unknown as number | boolean | undefined,
         breakParentInTranscript: Boolean(
           breakParentUuid && messages.has(breakParentUuid),
         ),
@@ -1956,18 +1956,18 @@ function applyPreservedSegmentRelinks(
   }
 
   if (segIsLive && !relinkFailed) {
-    const head = messages.get(lastSeg.headUuid)
+    const head = messages.get(lastSeg.headUuid! as UUID)
     if (head) {
-      messages.set(lastSeg.headUuid, {
+      messages.set(lastSeg.headUuid! as UUID, {
         ...head,
-        parentUuid: lastSeg.anchorUuid,
+        parentUuid: lastSeg.anchorUuid! as UUID,
       })
     }
     // Tail-splice: anchor's other children → tail. No-op if already pointing
     // at tail (the useLogMessages race case).
     for (const [uuid, msg] of messages) {
-      if (msg.parentUuid === lastSeg.anchorUuid && uuid !== lastSeg.headUuid) {
-        messages.set(uuid, { ...msg, parentUuid: lastSeg.tailUuid })
+      if (msg.parentUuid === (lastSeg.anchorUuid! as UUID) && uuid !== (lastSeg.headUuid! as UUID)) {
+        messages.set(uuid, { ...msg, parentUuid: lastSeg.tailUuid! as UUID })
       }
     }
     // Zero stale usage: on-disk input_tokens reflect pre-compact context
@@ -4734,7 +4734,7 @@ export async function findUnresolvedToolUse(
     const transcriptPath = getTranscriptPath()
     const { messages } = await loadTranscriptFile(transcriptPath)
 
-    let toolUseMessage = null
+    let toolUseMessage: TranscriptMessage | null = null
 
     // Find the tool use but make sure there's not also a result
     for (const message of messages.values()) {

@@ -1,16 +1,16 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, vi, test } from 'vitest'
 
 const actualSettings = await import('../utils/settings/settings.js')
 
 beforeAll(() => {
-  mock.module('../utils/settings/settings.js', () => ({
+  vi.mock('../utils/settings/settings.js', () => ({
     ...actualSettings,
     getSettings_DEPRECATED: () => ({}),
   }))
 })
 
 afterAll(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 import stripAnsi from 'strip-ansi'

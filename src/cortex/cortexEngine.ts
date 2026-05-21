@@ -181,7 +181,7 @@ export class CortexEngine {
    * This feeds back into the confidence calibrator so it learns
    * which query types benefit most from deep analysis.
    */
-  recordOutcome(query: string, success: boolean, durationMs: number): void {
+  recordOutcome(_query: string, success: boolean, _durationMs: number): void {
     // Update strategy effectiveness based on outcome
     if (this.state.recentAnalyses.length > 0) {
       const lastAnalysis = this.state.recentAnalyses[this.state.recentAnalyses.length - 1]

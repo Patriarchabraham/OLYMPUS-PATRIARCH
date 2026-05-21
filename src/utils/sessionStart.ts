@@ -139,7 +139,7 @@ export async function processSessionStartHooks(
     forceSyncExecution,
   )) {
     if (hookResult.message) {
-      hookMessages.push(hookResult.message)
+      hookMessages.push(hookResult.message as any)
     }
     if (
       hookResult.additionalContexts &&
@@ -207,7 +207,7 @@ export async function processSetupHooks(
     forceSyncExecution,
   )) {
     if (hookResult.message) {
-      hookMessages.push(hookResult.message)
+      hookMessages.push(hookResult.message as any)
     }
     if (
       hookResult.additionalContexts &&

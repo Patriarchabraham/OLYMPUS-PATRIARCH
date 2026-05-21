@@ -59,7 +59,7 @@ async function importFreshWithRetryModule(
 		getAPIProviderForStatsig: () => provider,
 	}))
 	vi.resetModules()
-	return vi.importActual('./withRetry.js')
+	return vi.importActual<typeof import('./withRetry.js')>('./withRetry.js')
 }
 
 // --- parseOpenAIDuration ---

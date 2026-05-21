@@ -1,4 +1,4 @@
-﻿import { beforeEach, describe, expect, mock, test } from 'bun:test'
+﻿import { beforeEach, describe, expect, vi, test } from 'vitest'
 
 type TestGlobalConfig = {
   officialMarketplaceAutoInstallAttempted?: boolean
@@ -15,61 +15,72 @@ type TestGlobalConfig = {
 
 let config: TestGlobalConfig = {}
 let knownMarketplaces: Record<string, unknown> = {}
-const saveGlobalConfig = mock(
-  (updater: (current: TestGlobalConfig) => TestGlobalConfig) => {
-    config = updater(config)
-  },
-)
-const saveKnownMarketplacesConfig = mock(
-  async (next: Record<string, unknown>) => {
-    knownMarketplaces = next
-  },
-)
-const fetchOfficialMarketplaceFromGcs = mock(async () => 'sha')
-const addMarketplaceSource = mock(async () => ({
-  name: 'claude-plugins-official',
-  alreadyMaterialized: false,
-  resolvedSource: {},
-}))
+const {
+  saveGlobalConfig,
+  saveKnownMarketplacesConfig,
+  fetchOfficialMarketplaceFromGcs,
+  addMarketplaceSource,
+} = vi.hoisted(() => {
+  let _config: TestGlobalConfig = {}
+  let _known: Record<string, unknown> = {}
+  return {
+    saveGlobalConfig: vi.fn(
+      (updater: (current: TestGlobalConfig) => TestGlobalConfig) => {
+        _config = updater(_config)
+      },
+    ),
+    saveKnownMarketplacesConfig: vi.fn(
+      async (next: Record<string, unknown>) => {
+        _known = next
+      },
+    ),
+    fetchOfficialMarketplaceFromGcs: vi.fn(async () => 'sha'),
+    addMarketplaceSource: vi.fn(async () => ({
+      name: 'claude-plugins-official',
+      alreadyMaterialized: false,
+      resolvedSource: {},
+    })),
+  }
+})
 
-mock.module('../../services/analytics/growthbook.js', () => ({
+vi.mock('../../services/analytics/growthbook.js', () => ({
   getFeatureValue_CACHED_MAY_BE_STALE: () => true,
 }))
 
-mock.module('../../services/analytics/index.js', () => ({
-  logEvent: mock(() => {}),
+vi.mock('../../services/analytics/index.js', () => ({
+  logEvent: vi.fn(() => {}),
 }))
 
-mock.module('../config.js', () => ({
+vi.mock('../config.js', () => ({
   getGlobalConfig: () => config,
   saveGlobalConfig,
 }))
 
-mock.module('../debug.js', () => ({
-  logForDebugging: mock(() => {}),
+vi.mock('../debug.js', () => ({
+  logForDebugging: vi.fn(() => {}),
 }))
 
-mock.module('../log.js', () => ({
-  logError: mock(() => {}),
+vi.mock('../log.js', () => ({
+  logError: vi.fn(() => {}),
 }))
 
-mock.module('./gitAvailability.js', () => ({
+vi.mock('./gitAvailability.js', () => ({
   checkGitAvailable: async () => true,
-  markGitUnavailable: mock(() => {}),
+  markGitUnavailable: vi.fn(() => {}),
 }))
 
-mock.module('./marketplaceHelpers.js', () => ({
+vi.mock('./marketplaceHelpers.js', () => ({
   isSourceAllowedByPolicy: () => true,
 }))
 
-mock.module('./marketplaceManager.js', () => ({
+vi.mock('./marketplaceManager.js', () => ({
   addMarketplaceSource,
   getMarketplacesCacheDir: () => '/tmp/Mythos Patriarch-marketplaces',
   loadKnownMarketplacesConfig: async () => knownMarketplaces,
   saveKnownMarketplacesConfig,
 }))
 
-mock.module('./officialMarketplaceGcs.js', () => ({
+vi.mock('./officialMarketplaceGcs.js', () => ({
   fetchOfficialMarketplaceFromGcs,
 }))
 

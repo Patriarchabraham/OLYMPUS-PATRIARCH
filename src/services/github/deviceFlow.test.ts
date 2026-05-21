@@ -5,7 +5,7 @@ import { DEFAULT_GITHUB_DEVICE_SCOPE, requestDeviceCode } from './deviceFlow.js'
 async function importFreshModule() {
 	vi.restoreAllMocks()
 	vi.resetModules()
-	return vi.importActual('./deviceFlow.ts')
+	return vi.importActual<typeof import('./deviceFlow')>('./deviceFlow.ts')
 }
 
 afterEach(() => {

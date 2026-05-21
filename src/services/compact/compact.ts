@@ -266,7 +266,7 @@ export function truncateHeadForPTLRetry(
     let acc = 0
     dropCount = 0
     for (const g of groups) {
-      acc += roughTokenCountEstimationForMessages(g)
+      acc += roughTokenCountEstimationForMessages(g as readonly { type: string; message?: { content?: unknown }; attachment?: import('../../utils/attachments.js').Attachment }[])
       dropCount++
       if (acc >= tokenGap) break
     }
@@ -1213,17 +1213,18 @@ async function streamCompactSummary({
           // Skip success logging for PTL error text — it's returned so the
           // caller's retry loop catches it, but it's not a successful summary.
           if (!assistantText.startsWith(PROMPT_TOO_LONG_ERROR_MESSAGE)) {
+            const cacheReadInputTokens = result.totalUsage.cache_read_input_tokens ?? 0
+            const cacheCreationInputTokens = result.totalUsage.cache_creation_input_tokens ?? 0
             logEvent('tengu_compact_cache_sharing_success', {
               preCompactTokenCount,
               outputTokens: result.totalUsage.output_tokens,
-              cacheReadInputTokens: result.totalUsage.cache_read_input_tokens,
-              cacheCreationInputTokens:
-                result.totalUsage.cache_creation_input_tokens,
+              cacheReadInputTokens,
+              cacheCreationInputTokens,
               cacheHitRate:
-                result.totalUsage.cache_read_input_tokens > 0
-                  ? result.totalUsage.cache_read_input_tokens /
-                    (result.totalUsage.cache_read_input_tokens +
-                      result.totalUsage.cache_creation_input_tokens +
+                cacheReadInputTokens > 0
+                  ? cacheReadInputTokens /
+                    (cacheReadInputTokens +
+                      cacheCreationInputTokens +
                       result.totalUsage.input_tokens)
                   : 0,
             })
@@ -1332,11 +1333,12 @@ async function streamCompactSummary({
       while (!next.done) {
         const event = next.value
 
+        const ev = event as any;
         if (
           !hasStartedStreaming &&
           event.type === 'stream_event' &&
-          event.event.type === 'content_block_start' &&
-          event.event.content_block.type === 'text'
+          ev.event.type === 'content_block_start' &&
+          ev.event.content_block.type === 'text'
         ) {
           hasStartedStreaming = true
           context.setStreamMode?.('responding')
@@ -1344,10 +1346,10 @@ async function streamCompactSummary({
 
         if (
           event.type === 'stream_event' &&
-          event.event.type === 'content_block_delta' &&
-          event.event.delta.type === 'text_delta'
+          ev.event.type === 'content_block_delta' &&
+          ev.event.delta.type === 'text_delta'
         ) {
-          const charactersStreamed = event.event.delta.text.length
+          const charactersStreamed = ev.event.delta.text.length
           context.setResponseLength?.(length => length + charactersStreamed)
         }
 

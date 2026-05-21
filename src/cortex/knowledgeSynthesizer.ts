@@ -55,10 +55,10 @@ async function collectSources(query: string, depth: number): Promise<KnowledgeSo
     const ragModule = await import('../knowledge/ragEngine.js')
     const ragEngine = ragModule.getRAGEngine?.()
     if (ragEngine) {
-      const results = await ragEngine.query(query, { maxResults: depth >= 2 ? 10 : 5 })
+      const results = await ragEngine.query(query, { topK: depth >= 2 ? 10 : 5 })
       sources.push({
         name: 'rag',
-        insights: results.map((r: { content: string }) => r.content),
+        insights: (results as any).map?.((r: { content: string }) => r.content) ?? [],
         available: true,
       })
     } else {
@@ -71,10 +71,10 @@ async function collectSources(query: string, depth: number): Promise<KnowledgeSo
   // Try WebIntel
   try {
     const webintelModule = await import('../webintel/deepResearch.js')
-    const research = await webintelModule.deepResearch(query, { maxDepth: depth })
+    const research = await webintelModule.research(query, depth)
     sources.push({
       name: 'web',
-      insights: research.insights ?? [],
+      insights: research.keyFindings ?? [],
       available: true,
     })
   } catch {
@@ -84,12 +84,11 @@ async function collectSources(query: string, depth: number): Promise<KnowledgeSo
   // Try Knowledge Graph
   try {
     const graphModule = await import('../knowledge/knowledgeGraph.js')
-    const graph = graphModule.getKnowledgeGraph?.()
-    if (graph) {
-      const related = graph.queryRelated(query, { maxDepth: depth })
+    const relatedNodes = graphModule.queryGraph?.(graphModule.buildGraph([]), query)
+    if (relatedNodes && relatedNodes.length > 0) {
       sources.push({
         name: 'graph',
-        insights: related.map((r: { fact: string }) => r.fact),
+        insights: relatedNodes.map((r: { name: string; type: string }) => `${r.type}: ${r.name}`),
         available: true,
       })
     } else {

@@ -11,6 +11,8 @@ export type GroveDecision = 'accept_opt_in' | 'accept_opt_out' | 'defer' | 'esca
 type Props = {
   showIfAlreadyViewed: boolean;
   location: 'settings' | 'policy_update_modal' | 'onboarding';
+  settings?: any;
+  domainExcluded?: boolean;
   onDone(decision: GroveDecision): void;
 };
 const NEW_TERMS_ASCII = ` _____________
@@ -141,7 +143,7 @@ function PostGracePeriodContentBody() {
   }
   return t6;
 }
-export function GroveDialog(t0) {
+export function GroveDialog(t0: Props) {
   const $ = _c(34);
   const {
     showIfAlreadyViewed,
@@ -354,7 +356,7 @@ type PrivacySettingsDialogProps = {
   domainExcluded?: boolean;
   onDone(): void;
 };
-export function PrivacySettingsDialog(t0) {
+export function PrivacySettingsDialog(t0: Props) {
   const $ = _c(17);
   const {
     settings,

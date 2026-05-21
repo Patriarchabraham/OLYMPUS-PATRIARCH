@@ -222,10 +222,10 @@ function EditRejectionBody(t0) {
     patch,
     firstLine,
     fileContent
-  } = use(promise);
+  } = use(promise) as { patch: string; firstLine: string; fileContent: string };
   let t1;
   if ($[0] !== fileContent || $[1] !== filePath || $[2] !== firstLine || $[3] !== patch || $[4] !== style || $[5] !== verbose) {
-    t1 = <FileEditToolUseRejectedMessage file_path={filePath} operation="update" patch={patch} firstLine={firstLine} fileContent={fileContent} style={style} verbose={verbose} />;
+    t1 = <FileEditToolUseRejectedMessage file_path={filePath} operation="update" patch={patch as unknown as import('diff').StructuredPatchHunk[]} firstLine={firstLine} fileContent={fileContent} style={style} verbose={verbose} />;
     $[0] = fileContent;
     $[1] = filePath;
     $[2] = firstLine;

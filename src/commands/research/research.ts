@@ -42,7 +42,7 @@ const webFetchFn: FetchFn = async (url: string): Promise<string> => {
     if ('type' in result && result.type === 'redirect') {
       return ''
     }
-    return result.content
+    return ('content' in result ? result.content : '') as string
   } catch {
     return ''
   }

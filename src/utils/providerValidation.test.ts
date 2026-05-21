@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, expect, test } from 'bun:test'
+import { afterEach, beforeAll, beforeEach, expect, test } from 'vitest'
 import { ensureIntegrationsLoaded, getAllGateways } from '../integrations/index.js'
 
 import {

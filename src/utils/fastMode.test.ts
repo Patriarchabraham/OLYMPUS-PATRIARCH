@@ -4,7 +4,7 @@ const originalEnv = { ...process.env }
 
 async function importFreshFastModeModule() {
 	vi.resetModules()
-	return vi.importActual('./fastMode.ts')
+	return vi.importActual<typeof import('./fastMode')>('./fastMode.ts')
 }
 
 function installCommonMocks(options?: {

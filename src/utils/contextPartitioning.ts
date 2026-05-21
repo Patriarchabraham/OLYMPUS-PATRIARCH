@@ -1,6 +1,6 @@
 /**
  * Context Window Partitioning - Production Grade
- * 
+ *
  * Splits context into priority zones with different retention policies.
  * Used for intelligent context management when context window is tight.
  */
@@ -38,12 +38,20 @@ const DEFAULT_ZONES: ZoneConfig[] = [
   { name: 'system', maxTokens: 8000, retentionPolicy: 'keep_all', priority: 1 },
 ]
 
-function classifyMessage(message: Message, isRecent?: boolean): PriorityZone {
-  const content = typeof message.message?.content === 'string'
-    ? message.message.content
-    : ''
+function getMessageContent(msg: Message): { content: string; role?: string } {
+  if (!('message' in msg)) return { content: '' }
+  const m = (msg as { message?: { content?: unknown; role?: string } }).message
+  if (!m) return { content: '' }
+  return {
+    content: typeof m.content === 'string' ? m.content : '',
+    role: m.role,
+  }
+}
 
-  if (message.message?.role === 'system') {
+function classifyMessage(message: Message, isRecent?: boolean): PriorityZone {
+  const { content, role } = getMessageContent(message)
+
+  if (role === 'system') {
     return 'system'
   }
 
@@ -83,7 +91,7 @@ export function partitionContext(
     const zone = classifyMessage(msg, true)
     zones.get(zone)!.push(msg)
     zoneTokens.set(zone, zoneTokens.get(zone)! + roughTokenCountEstimation(
-      typeof msg.message?.content === 'string' ? msg.message.content : ''
+      getMessageContent(msg).content
     ))
   }
 
@@ -94,17 +102,17 @@ export function partitionContext(
     if (zone === 'system') {
       currentZone.push(msg)
       zoneTokens.set('system', zoneTokens.get('system')! + roughTokenCountEstimation(
-        typeof msg.message?.content === 'string' ? msg.message.content : ''
+        getMessageContent(msg).content
       ))
     } else if (zone === 'important' && zoneTokens.get('important')! < 30000) {
       currentZone.push(msg)
       zoneTokens.set('important', zoneTokens.get('important')! + roughTokenCountEstimation(
-        typeof msg.message?.content === 'string' ? msg.message.content : ''
+        getMessageContent(msg).content
       ))
     } else if (zone === 'background' && zoneTokens.get('background')! < 10000) {
       currentZone.push(msg)
       zoneTokens.set('background', zoneTokens.get('background')! + roughTokenCountEstimation(
-        typeof msg.message?.content === 'string' ? msg.message.content : ''
+        getMessageContent(msg).content
       ))
     }
   }
@@ -128,7 +136,7 @@ export function getAllMessages(context: PartitionedContext): Message[] {
     if (zoneName === 'system') continue
     messages.push(...zoneMessages)
   }
-  return messages.sort((a, b) => (a.message?.created_at ?? 0) - (b.message?.created_at ?? 0))
+  return messages
 }
 
 export function getAvailableSpace(context: PartitionedContext, contextWindow: number): number {

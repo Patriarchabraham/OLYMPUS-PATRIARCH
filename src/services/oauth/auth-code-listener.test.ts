@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test'
+import { afterEach, expect, test } from 'vitest'
 
 import { AuthCodeListener } from './auth-code-listener.js'
 

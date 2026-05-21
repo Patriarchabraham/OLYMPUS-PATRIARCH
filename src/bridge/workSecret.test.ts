@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { buildSdkUrl } from './workSecret.ts'
 
 // Finding #42-5: buildSdkUrl uses string.includes() on the full URL,

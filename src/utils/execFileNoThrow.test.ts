@@ -5,7 +5,7 @@ import { expect, test, vi } from 'vitest'
 
 async function importFreshExecFileNoThrowModule() {
 	vi.resetModules()
-	return vi.importActual('./execFileNoThrow.ts')
+	return vi.importActual<typeof import('./execFileNoThrow')>('./execFileNoThrow.ts')
 }
 
 test('execFileNoThrowWithCwd rejects shell-like executable names', async () => {

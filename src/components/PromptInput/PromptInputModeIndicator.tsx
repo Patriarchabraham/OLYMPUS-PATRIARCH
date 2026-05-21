@@ -60,7 +60,7 @@ function PromptChar(t0) {
   }
   return t1;
 }
-export function PromptInputModeIndicator(t0) {
+export function PromptInputModeIndicator(t0: Props) {
   const $ = _c(6);
   const {
     mode,

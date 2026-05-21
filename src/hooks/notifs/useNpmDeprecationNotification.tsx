@@ -4,7 +4,7 @@ import { isEnvTruthy } from 'src/utils/envUtils.js';
 import { useStartupNotification } from './useStartupNotification.js';
 const NPM_DEPRECATION_MESSAGE = 'Mythos Patriarch has switched from npm to the native installer. Run `Mythos Patriarch install` or see https://github.com/Gitlawb/Mythos Patriarch#quick-start for more options.';
 export function useNpmDeprecationNotification() {
-  useStartupNotification(_temp);
+  useStartupNotification(_temp as () => Promise<import('../../context/notifications.js').Notification | null>);
 }
 async function _temp() {
   if (isInBundledMode() || isEnvTruthy(process.env.DISABLE_INSTALLATION_CHECKS)) {
@@ -18,7 +18,7 @@ async function _temp() {
     timeoutMs: 15000,
     key: "npm-deprecation-warning",
     text: NPM_DEPRECATION_MESSAGE,
-    color: "warning",
-    priority: "high"
+    color: "warning" as const,
+    priority: "high" as const
   };
 }

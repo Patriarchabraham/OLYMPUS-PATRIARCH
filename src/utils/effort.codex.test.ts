@@ -1,7 +1,7 @@
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 // Import the real auth.js and providerConfig.js up front so we can spread
-// their export surfaces into mock factories. `mock.module()` is process-global
-// in bun:test and `mock.restore()` does not undo it (see user.test.ts), so
+// their export surfaces into mock factories. `vi.mock()` is process-global
+// in bun:test and `vi.restoreAllMocks()` does not undo it (see user.test.ts), so
 // any module we mock here needs to keep the full original export shape — or
 // downstream tests that load it via openaiShim/client/codexShim crash with
 // "Export named 'X' not found in module".
@@ -13,42 +13,43 @@ import * as actualProviders from './model/providers.js'
 import * as actualModelSupportOverrides from './model/modelSupportOverrides.js'
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 async function importFreshEffortModule(options: {
   provider: 'codex' | 'openai'
   supportsCodexReasoningEffort: boolean
 }) {
-  mock.module('./model/providers.js', () => ({
+  vi.mock('./model/providers.js', () => ({
     ...actualProviders,
     getAPIProvider: () => options.provider,
   }))
-  mock.module('./model/modelSupportOverrides.js', () => ({
+  vi.mock('./model/modelSupportOverrides.js', () => ({
     ...actualModelSupportOverrides,
     get3PModelCapabilityOverride: () => undefined,
   }))
-  mock.module('../services/api/providerConfig.js', () => ({
+  vi.mock('../services/api/providerConfig.js', () => ({
     ...actualProviderConfig,
     supportsCodexReasoningEffort: () => options.supportsCodexReasoningEffort,
   }))
-  mock.module('./auth.js', () => ({
+  vi.mock('./auth.js', () => ({
     ...actualAuth,
     isProSubscriber: () => false,
     isMaxSubscriber: () => false,
     isTeamSubscriber: () => false,
   }))
-  mock.module('./thinking.js', () => ({
+  vi.mock('./thinking.js', () => ({
     ...actualThinking,
     isUltrathinkEnabled: () => false,
   }))
-  mock.module('src/services/analytics/growthbook.js', () => ({
+  vi.mock('src/services/analytics/growthbook.js', () => ({
     ...actualGrowthbook,
     getFeatureValue_CACHED_MAY_BE_STALE: (_key: string, fallback: unknown) =>
       fallback,
   }))
 
-  return import(`./effort.js?ts=${Date.now()}-${Math.random()}`)
+  vi.resetModules()
+  return vi.importActual<typeof import('./effort.js')>('./effort.js')
 }
 
 test('gpt-5.4 on the ChatGPT Codex backend supports effort selection', async () => {
@@ -100,7 +101,7 @@ test('toPersistableEffort normalizes xhigh to max so it survives settings write'
     supportsCodexReasoningEffort: true,
   })
 
-  expect(toPersistableEffort('xhigh')).toBe('max')
+  expect(toPersistableEffort('xhigh' as any)).toBe('max')
   expect(toPersistableEffort('max')).toBe('max')
   expect(toPersistableEffort('high')).toBe('high')
   expect(toPersistableEffort('medium')).toBe('medium')
@@ -132,7 +133,7 @@ test('e2e: xhigh → persisted max → resolveAppliedEffort → wire xhigh on Op
   })
 
   // Picker writes the OpenAI-shaped value; toPersistableEffort normalizes.
-  const persisted = toPersistableEffort('xhigh')
+  const persisted = toPersistableEffort('xhigh' as any)
   expect(persisted).toBe('max')
 
   // App state holds 'max'. Non-Opus 'max' must NOT be downgraded to 'high'

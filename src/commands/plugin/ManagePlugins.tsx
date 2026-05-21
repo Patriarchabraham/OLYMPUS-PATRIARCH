@@ -37,6 +37,7 @@ import { isMcpbSource, loadMcpbFile, type McpbNeedsConfigResult, type UserConfig
 import { getPluginDataDirSize, pluginDataDirPath } from '../../utils/plugins/pluginDirectories.js';
 import { getFlaggedPlugins, markFlaggedPluginsSeen, removeFlaggedPlugin } from '../../utils/plugins/pluginFlagging.js';
 import { type PersistablePluginScope, parsePluginIdentifier } from '../../utils/plugins/pluginIdentifier.js';
+import type { PluginScope } from '../../utils/plugins/schemas.js';
 import { loadAllPlugins } from '../../utils/plugins/pluginLoader.js';
 import { loadPluginOptions, type PluginOptionSchema, savePluginOptions } from '../../utils/plugins/pluginOptionsStorage.js';
 import { isPluginBlockedByPolicy } from '../../utils/plugins/pluginPolicy.js';
@@ -236,7 +237,7 @@ function PluginComponentsDisplay({
         const pluginEntry = marketplaceData.plugins.find(p => p.name === plugin.name);
         if (pluginEntry) {
           // Combine commands from both sources
-          const commandPathList = [];
+          const commandPathList: string[] = [];
           if (plugin.commandsPath) {
             commandPathList.push(plugin.commandsPath);
           }
@@ -255,7 +256,7 @@ function PluginComponentsDisplay({
           }
 
           // Combine agents from both sources
-          const agentPathList = [];
+          const agentPathList: string[] = [];
           if (plugin.agentsPath) {
             agentPathList.push(plugin.agentsPath);
           }
@@ -274,7 +275,7 @@ function PluginComponentsDisplay({
           }
 
           // Combine skills from both sources
-          const skillPathList = [];
+          const skillPathList: string[] = [];
           if (plugin.skillsPath) {
             skillPathList.push(plugin.skillsPath);
           }
@@ -294,7 +295,7 @@ function PluginComponentsDisplay({
           }
 
           // Combine hooks from both sources
-          const hooksList = [];
+          const hooksList: unknown[] = [];
           if (plugin.hooksConfig) {
             hooksList.push(Object.keys(plugin.hooksConfig));
           }
@@ -303,7 +304,7 @@ function PluginComponentsDisplay({
           }
 
           // Combine MCP servers from both sources
-          const mcpServersList = [];
+          const mcpServersList: unknown[] = [];
           if (plugin.mcpServers) {
             mcpServersList.push(Object.keys(plugin.mcpServers));
           }
@@ -971,13 +972,13 @@ export function ManagePlugins({
       const failedItem = unifiedItems.find(item_6 => item_6.type === 'failed-plugin' && item_6.name === targetName);
       if (failedItem && failedItem.type === 'failed-plugin') {
         setViewState({
-          type: 'failed-plugin-details',
+          type: 'failed-plugin-details' as const,
           plugin: {
             id: failedItem.id,
             name: failedItem.name,
             marketplace: failedItem.marketplace,
             errors: failedItem.errors,
-            scope: failedItem.scope
+            scope: failedItem.scope as PersistablePluginScope
           }
         });
         hasAutoNavigated.current = true;
@@ -1167,7 +1168,7 @@ export function ManagePlugins({
       const isEnabled_0 = mergedSettings_0?.enabledPlugins?.[pluginId_4] !== false;
       const pluginScope_0 = item_7.scope;
       const isBuiltin_0 = pluginScope_0 === 'builtin';
-      if (isBuiltin_0 || isInstallableScope(pluginScope_0)) {
+      if (isBuiltin_0 || isInstallableScope(pluginScope_0 as PluginScope)) {
         const newPending = new Map(pendingToggles);
         // Omit scope — see handleSingleOperation's enable/disable comment.
         if (currentPending) {
@@ -1234,13 +1235,13 @@ export function ManagePlugins({
       setProcessError(null);
     } else if (item_8?.type === 'failed-plugin') {
       setViewState({
-        type: 'failed-plugin-details',
+        type: 'failed-plugin-details' as const,
         plugin: {
           id: item_8.id,
           name: item_8.name,
           marketplace: item_8.marketplace,
           errors: item_8.errors,
-          scope: item_8.scope
+          scope: item_8.scope as PersistablePluginScope
         }
       });
       setDetailsMenuIndex(0);
@@ -1472,7 +1473,7 @@ export function ManagePlugins({
                   enabledPlugins: {
                     ...settings.enabledPlugins,
                     [pluginId_7]: undefined
-                  }
+                  } as Record<string, boolean | string[]>
                 });
                 success = true;
               }

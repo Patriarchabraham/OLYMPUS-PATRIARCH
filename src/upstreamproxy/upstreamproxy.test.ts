@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { isValidPemContent } from './upstreamproxy.ts'
 
 // Finding #42-6: The CA cert downloaded from the upstream proxy is written

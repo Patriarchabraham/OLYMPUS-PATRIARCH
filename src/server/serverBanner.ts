@@ -1,1 +1,1 @@
-export function printBanner(_config: any): void {}
+export function printBanner(_config: any, _authToken?: string, _port?: number): void {}

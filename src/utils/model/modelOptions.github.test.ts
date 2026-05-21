@@ -13,10 +13,8 @@ async function importFreshModelOptionsModule() {
 		isGithubNativeAnthropicMode: () => false,
 		usesAnthropicAccountFlow: () => false,
 	}))
-	const nonce = `${Date.now()}-${Math.random()}`
-	void nonce
 	vi.resetModules()
-	return vi.importActual('./modelOptions.js')
+	return vi.importActual<typeof import('./modelOptions.js')>('./modelOptions.js')
 }
 
 const originalEnv = {

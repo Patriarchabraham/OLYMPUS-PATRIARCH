@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test'
+import { afterEach, expect, test } from 'vitest'
 
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
 import { BashTool } from './BashTool.js'

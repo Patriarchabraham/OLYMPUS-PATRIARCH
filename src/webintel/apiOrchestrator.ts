@@ -196,7 +196,7 @@ export class APIOrchestrator {
       }) => {
         const chunks: Buffer[] = []
 
-        res.on('data', (chunk: Buffer) => chunks.push(chunk))
+        res.on('data', (chunk?: Buffer) => { if (chunk) chunks.push(chunk) })
         res.on('end', () => {
           const body = Buffer.concat(chunks).toString('utf-8')
           const statusCode = res.statusCode ?? 0

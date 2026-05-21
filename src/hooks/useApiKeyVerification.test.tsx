@@ -1,6 +1,6 @@
 import { PassThrough } from 'node:stream'
 
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 import React from 'react'
 import { createRoot, Text } from '../ink.js'
 
@@ -54,7 +54,7 @@ async function waitForCondition(
 }
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 test('useApiKeyVerification resets stale missing status when the session switches to a third-party provider', async () => {
@@ -64,7 +64,7 @@ test('useApiKeyVerification resets stale missing status when the session switche
   }
   const seenStatuses: string[] = []
 
-  mock.module('../utils/auth.js', () => ({
+  vi.mock('../utils/auth.js', () => ({
     getAnthropicApiKeyWithSource: () => ({
       key: authState.key,
       source: authState.source,
@@ -74,11 +74,11 @@ test('useApiKeyVerification resets stale missing status when the session switche
     isClaudeAISubscriber: () => authState.claudeSubscriber,
   }))
 
-  mock.module('../bootstrap/state.js', () => ({
+  vi.mock('../bootstrap/state.js', () => ({
     getIsNonInteractiveSession: () => false,
   }))
 
-  mock.module('../services/api/claude.js', () => ({
+  vi.mock('../services/api/claude.js', () => ({
     verifyApiKey: async () => true,
   }))
 

@@ -1,1 +1,1 @@
-export async function daemonMain(): Promise<void> {}
+export async function daemonMain(_args?: string[]): Promise<void> {}

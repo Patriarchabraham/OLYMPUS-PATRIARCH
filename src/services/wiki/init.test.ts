@@ -1,4 +1,4 @@
-﻿import { afterEach, expect, test } from 'bun:test'
+﻿import { afterEach, expect, test } from 'vitest'
 import { mkdtemp, readFile, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'

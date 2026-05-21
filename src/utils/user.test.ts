@@ -4,7 +4,7 @@ const originalEnv = { ...process.env }
 
 async function importFreshUserModule() {
 	vi.resetModules()
-	return vi.importActual('./user.ts')
+	return vi.importActual<typeof import('./user')>('./user.ts')
 }
 
 function installCommonMocks(options?: { oauthEmail?: string; gitEmail?: string }) {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'vitest'
 import {
   splitContext,
   applyHybridStrategy,
@@ -168,10 +168,10 @@ describe('hybridContextStrategy', () => {
       })
 
       const hasToolUse = result.selectedMessages.some(
-        m => Array.isArray(m.message?.content) && m.message.content.some((b: any) => b.type === 'tool_use')
+        m => Array.isArray((m as any).message?.content) && (m as any).message.content.some((b: any) => b.type === 'tool_use')
       )
       const hasToolResult = result.selectedMessages.some(
-        m => Array.isArray(m.message?.content) && m.message.content.some((b: any) => b.type === 'tool_result')
+        m => Array.isArray((m as any).message?.content) && (m as any).message.content.some((b: any) => b.type === 'tool_result')
       )
 
       expect(hasToolUse).toBe(true)

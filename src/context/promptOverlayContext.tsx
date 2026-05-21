@@ -36,8 +36,8 @@ export function PromptOverlayProvider(t0) {
   const {
     children
   } = t0;
-  const [data, setData] = useState(null);
-  const [dialog, setDialog] = useState(null);
+  const [data, setData] = useState<PromptOverlayData | null>(null);
+  const [dialog, setDialog] = useState<ReactNode | null>(null);
   let t1;
   if ($[0] !== children || $[1] !== dialog) {
     t1 = <DialogContext.Provider value={dialog}>{children}</DialogContext.Provider>;
@@ -49,7 +49,7 @@ export function PromptOverlayProvider(t0) {
   }
   let t2;
   if ($[3] !== data || $[4] !== t1) {
-    t2 = <SetContext.Provider value={setData}><SetDialogContext.Provider value={setDialog}><DataContext.Provider value={data}>{t1}</DataContext.Provider></SetDialogContext.Provider></SetContext.Provider>;
+    t2 = <SetContext.Provider value={setData as Setter<PromptOverlayData>}><SetDialogContext.Provider value={setDialog as Setter<ReactNode>}><DataContext.Provider value={data}>{t1}</DataContext.Provider></SetDialogContext.Provider></SetContext.Provider>;
     $[3] = data;
     $[4] = t1;
     $[5] = t2;

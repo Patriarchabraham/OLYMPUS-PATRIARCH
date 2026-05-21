@@ -1,5 +1,5 @@
 import { APIError } from '@anthropic-ai/sdk'
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 
 import { getAssistantMessageFromError } from './errors.js'
 

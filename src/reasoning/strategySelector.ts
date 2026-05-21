@@ -106,5 +106,5 @@ export function resolveStrategy(
   query: string,
 ): Exclude<ReasoningStrategy, 'auto'> {
   if (strategy !== 'auto') return strategy
-  return selectStrategy(query).strategy
+  return selectStrategy(query).strategy as Exclude<ReasoningStrategy, 'auto'>
 }

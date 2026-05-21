@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 
 import { createUserMessage } from './messages.ts'
 import { applyToolResultReplacementsToMessages } from './toolResultStorage.ts'
@@ -31,10 +31,10 @@ test('applyToolResultReplacementsToMessages replaces matching tool results and p
   expect(next).not.toBe(messages)
   expect(next[0]).toBe(unrelated)
   expect(next[1]).not.toBe(oversizedResult)
-  expect((next[1]!.message.content as Array<{ content: string }>)[0]!.content).toBe(
+  expect(((next[1] as any).message.content as Array<{ content: string }>)[0]!.content).toBe(
     replacement,
   )
-  expect(next[1]!.toolUseResult).toBeUndefined()
+  expect((next[1] as any).toolUseResult).toBeUndefined()
 })
 
 test('applyToolResultReplacementsToMessages is idempotent when messages are already hydrated', () => {

@@ -166,7 +166,7 @@ function resolveImportReferences(graph: KnowledgeGraph): void {
     const importName = dep.name
     // Try to find a matching file or module
     for (const file of graph.nodes.values()) {
-      if (file.type === 'file' && (file.path.endsWith(importName) || file.path.includes(importName))) {
+      if (file.type === 'file' && (file.name.endsWith(importName) || file.name.includes(importName))) {
         graph.edges.push({
           sourceId: dep.id,
           targetId: file.id,

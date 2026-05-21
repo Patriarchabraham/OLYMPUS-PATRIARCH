@@ -556,12 +556,13 @@ export async function runForkedAgent({
     })) {
       // Extract real usage from message_delta stream events (final usage per API call)
       if (message.type === 'stream_event') {
+        const streamEvent = message as { event?: { type?: string; usage?: any } }
         if (
           'event' in message &&
-          message.event?.type === 'message_delta' &&
-          message.event.usage
+          streamEvent.event?.type === 'message_delta' &&
+          streamEvent.event.usage
         ) {
-          const turnUsage = updateUsage({ ...EMPTY_USAGE }, message.event.usage)
+          const turnUsage = updateUsage({ ...EMPTY_USAGE }, streamEvent.event.usage)
           totalUsage = accumulateUsage(totalUsage, turnUsage)
         }
         continue
@@ -646,11 +647,11 @@ function logForkAgentQueryEvent({
   // Calculate cache hit rate
   const totalInputTokens =
     totalUsage.input_tokens +
-    totalUsage.cache_creation_input_tokens +
-    totalUsage.cache_read_input_tokens
+    (totalUsage.cache_creation_input_tokens ?? 0) +
+    (totalUsage.cache_read_input_tokens ?? 0)
   const cacheHitRate =
     totalInputTokens > 0
-      ? totalUsage.cache_read_input_tokens / totalInputTokens
+      ? (totalUsage.cache_read_input_tokens ?? 0) / totalInputTokens
       : 0
 
   logEvent('tengu_fork_agent_query', {
@@ -670,9 +671,9 @@ function logForkAgentQueryEvent({
     serviceTier:
       totalUsage.service_tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     cacheCreationEphemeral1hTokens:
-      totalUsage.cache_creation.ephemeral_1h_input_tokens,
+      totalUsage.cache_creation?.ephemeral_1h_input_tokens ?? 0,
     cacheCreationEphemeral5mTokens:
-      totalUsage.cache_creation.ephemeral_5m_input_tokens,
+      totalUsage.cache_creation?.ephemeral_5m_input_tokens ?? 0,
 
     // Derived metrics
     cacheHitRate,

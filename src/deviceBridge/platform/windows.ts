@@ -1,6 +1,7 @@
 /**
  * Windows-specific device introspection via NativeCallBridge + PowerShell.
  */
+import os from 'node:os'
 import { getNativeCallBridge } from '../../nativeCore/nativeCallBridge.js'
 import type {
   CPUInfo,
@@ -225,7 +226,7 @@ export async function getInstalledSoftware(): Promise<SoftwareInfo[]> {
 }
 
 function fallbackCPU(): CPUInfo {
-  const cpus = require('os').cpus()
+  const cpus = os.cpus()
   return {
     model: cpus[0]?.model ?? 'Unknown',
     manufacturer: 'Unknown',
@@ -238,7 +239,6 @@ function fallbackCPU(): CPUInfo {
 }
 
 function fallbackMemory(): MemoryInfo {
-  const os = require('os')
   const total = os.totalmem()
   const free = os.freemem()
   return {

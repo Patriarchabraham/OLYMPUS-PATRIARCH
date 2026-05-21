@@ -1,4 +1,4 @@
-﻿import { expect, test } from 'bun:test'
+﻿import { expect, test } from 'vitest'
 import { isAntEmployee } from './buildConfig.ts'
 
 // Finding #42-2: process.env.USER_TYPE === 'ant' is checked directly in multiple

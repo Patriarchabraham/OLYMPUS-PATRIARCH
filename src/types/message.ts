@@ -23,7 +23,7 @@ import type { PermissionMode } from './permissions.js'
 
 // ─── Supporting types ────────────────────────────────────────────
 
-export type SystemMessageLevel = 'info' | 'warning' | 'error'
+export type SystemMessageLevel = 'info' | 'warning' | 'error' | 'suggestion'
 
 export type MessageOrigin = 'human' | 'auto' | 'tool' | 'system' | 'hook' | { kind: string; server?: string }
 
@@ -31,6 +31,8 @@ export type PartialCompactDirection = 'forward' | 'backward' | 'from' | 'up_to'
 
 export interface StopHookInfo {
   hookName: string
+  command?: string
+  promptText?: string
   durationMs?: number
   success?: boolean
 }
@@ -56,6 +58,7 @@ export interface CompactMetadata {
   preTokens: number
   userContext?: string
   messagesSummarized?: number
+  preCompactDiscoveredTools?: string[]
   preservedSegment?: {
     headUuid?: string
     tailUuid?: string
@@ -260,6 +263,7 @@ export interface SystemAwaySummaryMessage extends SystemMessageBase {
 export interface SystemMemorySavedMessage extends SystemMessageBase {
   subtype: 'memory_saved'
   writtenPaths: string[]
+  teamCount?: number
 }
 
 export interface SystemAgentsKilledMessage extends SystemMessageBase {

@@ -1,4 +1,4 @@
-﻿import { beforeEach, describe, expect, mock, test } from 'bun:test'
+﻿import { beforeEach, describe, expect, vi, test } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -50,7 +50,7 @@ let candidates: Array<{
   installed: boolean
 }> = []
 
-const installPluginOp = mock(
+const installPluginOp = vi.fn(
   async (_plugin: string, _scope?: 'user' | 'local' | 'project') => ({
     success: true,
     message: 'Installed plugin',
@@ -59,7 +59,7 @@ const installPluginOp = mock(
   }),
 )
 
-const refreshActivePlugins = mock(async () => ({
+const refreshActivePlugins = vi.fn(async () => ({
   enabled_count: 1,
   disabled_count: 0,
   command_count: 0,
@@ -72,7 +72,7 @@ const refreshActivePlugins = mock(async () => ({
   pluginCommands: [],
 }))
 
-const uninstallPluginOp = mock(
+const uninstallPluginOp = vi.fn(
   async (_plugin: string, _scope?: 'user' | 'local' | 'project') => ({
     success: true,
     message: 'Uninstalled plugin',
@@ -80,9 +80,9 @@ const uninstallPluginOp = mock(
   }),
 )
 
-const reinitializeLspServerManager = mock(() => {})
-const waitForInitialization = mock(async () => {})
-const checkAndInstallOfficialMarketplace = mock(
+const reinitializeLspServerManager = vi.fn(() => {})
+const waitForInitialization = vi.fn(async () => {})
+const checkAndInstallOfficialMarketplace = vi.fn(
   async (): Promise<OfficialMarketplaceCheckResult> => ({
     installed: false,
     skipped: true,
@@ -103,7 +103,7 @@ const EMPTY_CONTEXT = {
   setAppState: () => {},
 } as Parameters<typeof runLspCommand>[1]
 
-const deps = {
+const deps: import('./lsp.js').LspCommandDeps = {
   getInitializationStatus: () => initializationStatus,
   getLspServerManager: () =>
     serverInstances.size > 0
@@ -111,7 +111,7 @@ const deps = {
           getAllServers: () => serverInstances,
         }
       : undefined,
-  getAllLspServers: async () => ({ servers: configuredServers }),
+  getAllLspServers: async () => ({ servers: configuredServers as any }),
   listLspPluginCandidates: async (options: unknown) => {
     candidateCallOptions.push(options)
     return candidates

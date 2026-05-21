@@ -1,6 +1,6 @@
 import { PassThrough } from 'node:stream'
 
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 

@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { BashTool } from './BashTool/BashTool.js'
 import { PowerShellTool } from './PowerShellTool/PowerShellTool.js'
 

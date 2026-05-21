@@ -515,7 +515,7 @@ export function extractAgentMcpServers(
     if (isStdioConfig(config)) {
       result.push({
         name,
-        sourceAgents,
+        sourceAgents: sourceAgents.map(a => ({ name: a })),
         transport: 'stdio',
         command: config.command,
         needsAuth: false,
@@ -523,7 +523,7 @@ export function extractAgentMcpServers(
     } else if (isSSEConfig(config)) {
       result.push({
         name,
-        sourceAgents,
+        sourceAgents: sourceAgents.map(a => ({ name: a })),
         transport: 'sse',
         url: config.url,
         needsAuth: true,
@@ -531,7 +531,7 @@ export function extractAgentMcpServers(
     } else if (isHTTPConfig(config)) {
       result.push({
         name,
-        sourceAgents,
+        sourceAgents: sourceAgents.map(a => ({ name: a })),
         transport: 'http',
         url: config.url,
         needsAuth: true,
@@ -539,7 +539,7 @@ export function extractAgentMcpServers(
     } else if (isWebSocketConfig(config)) {
       result.push({
         name,
-        sourceAgents,
+        sourceAgents: sourceAgents.map(a => ({ name: a })),
         transport: 'ws',
         url: config.url,
         needsAuth: false,

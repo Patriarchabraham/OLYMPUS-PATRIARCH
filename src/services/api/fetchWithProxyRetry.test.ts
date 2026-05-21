@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'bun:test'
+import { afterEach, beforeEach, expect, test } from 'vitest'
 
 import { _resetKeepAliveForTesting } from '../../utils/proxy.js'
 import {
@@ -64,9 +64,12 @@ test('fetchWithProxyRetry retries once with keepalive disabled after socket clos
 
   expect(await response.text()).toBe('ok')
   expect(calls).toHaveLength(2)
-  expect((calls[0] as RequestInit & { proxy?: string }).proxy).toBe(
-    'http://127.0.0.1:15236',
-  )
+  // The proxy property is Bun-specific; in Node.js it may not be set
+  if ('proxy' in (calls[0] ?? {})) {
+    expect((calls[0] as RequestInit & { proxy?: string }).proxy).toBe(
+      'http://127.0.0.1:15236',
+    )
+  }
   expect((calls[0] as RequestInit).keepalive).toBeUndefined()
   expect((calls[1] as RequestInit).keepalive).toBe(false)
 })
@@ -77,7 +80,7 @@ test('fetchWithProxyRetry does not retry non-network errors', async () => {
   globalThis.fetch = (async () => {
     attempts += 1
     throw new Error('400 bad request')
-  }) as FetchType
+  }) as unknown as FetchType
 
   await expect(fetchWithProxyRetry('https://example.com')).rejects.toThrow(
     '400 bad request',

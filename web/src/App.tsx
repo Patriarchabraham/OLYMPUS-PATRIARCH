@@ -18,7 +18,7 @@ function App() {
     document.documentElement.dataset.theme = theme
     document.documentElement.style.colorScheme = theme
     try {
-      localStorage.setItem('Mythos Patriarch-theme', theme)
+      localStorage.setItem('mythos-theme', theme)
     } catch {
       /* storage unavailable */
     }

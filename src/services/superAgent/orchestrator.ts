@@ -117,7 +117,7 @@ export class SuperAgentOrchestrator {
     // ─── Cortex Intelligence Amplifier ──────────────────────────
     if (this.config.cortexEnabled) {
       try {
-        this.cortexEngine = getCortexEngine(this.config.cortexConfig)
+        this.cortexEngine = getCortexEngine()
         enabled.push('cortex')
       } catch (e) {
         logForDebugging(`[SuperAgent] cortex init failed: ${e}`)

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { wrapSpawn } from './ShellCommand.js'
 import { TaskOutput } from './task/TaskOutput.js'
 

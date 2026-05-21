@@ -1,9 +1,9 @@
-import { describe, expect, it, beforeEach } from 'bun:test'
-import { 
-  initializeArc, 
-  updateArcPhase, 
+import { describe, expect, it, beforeEach } from 'vitest'
+import {
+  initializeArc,
+  updateArcPhase,
   getArcSummary,
-  resetArc 
+  resetArc
 } from './conversationArc.js'
 
 function createMessage(content: string): any {
@@ -13,7 +13,14 @@ function createMessage(content: string): any {
   }
 }
 
-describe('Conversation Arc Performance Benchmarks', () => {
+// Skip when better-sqlite3 is not available (knowledgeGraph depends on it)
+let sqliteAvailable = false
+try {
+  require('better-sqlite3')
+  sqliteAvailable = true
+} catch {}
+
+describe.skipIf(!sqliteAvailable)('Conversation Arc Performance Benchmarks', () => {
   beforeEach(() => {
     resetArc()
     initializeArc()

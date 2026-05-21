@@ -1,1 +1,1 @@
-export async function templatesMain(): Promise<void> {}
+export async function templatesMain(_args?: string[]): Promise<void> {}

@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, describe } from 'bun:test'
+import { beforeEach, expect, test, describe } from 'vitest'
 import {
   _setHistoryCapForTesting,
   getCacheStatsHistory,

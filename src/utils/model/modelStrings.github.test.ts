@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test'
+import { afterEach, expect, test } from 'vitest'
 
 import { resetModelStringsForTestingOnly } from '../../bootstrap/state.js'
 import { parseUserSpecifiedModel } from './model.js'

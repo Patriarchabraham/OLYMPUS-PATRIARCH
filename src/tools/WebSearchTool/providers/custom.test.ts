@@ -1,5 +1,5 @@
-import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
-import { extractHits, customProvider, isPrivateHostname } from './custom.js'
+import { describe, expect, test, beforeEach, afterEach } from 'vitest'
+import { extractHits, customProvider, isPrivateHostname, buildAuthHeadersForPreset } from './custom.js'
 
 // ---------------------------------------------------------------------------
 // extractHits — flexible response parsing
@@ -108,7 +108,6 @@ describe('buildAuthHeadersForPreset auth header behavior', () => {
   // and the auth behavior through the public search() interface
   test('custom provider is configured when WEB_URL_TEMPLATE is set', () => {
     process.env.WEB_URL_TEMPLATE = 'https://example.com/search?q={query}'
-    const { customProvider } = require('./custom.js')
     expect(customProvider.isConfigured()).toBe(true)
     delete process.env.WEB_URL_TEMPLATE
   })
@@ -144,7 +143,6 @@ describe('buildAuthHeadersForPreset direct assertions', () => {
   test('WEB_AUTH_HEADER="" is an explicit opt-out — returns empty headers even with WEB_KEY set', () => {
     process.env.WEB_KEY = 'sk-test-123'
     process.env.WEB_AUTH_HEADER = ''
-    const { buildAuthHeadersForPreset } = require('./custom.js')
     expect(buildAuthHeadersForPreset({ urlTemplate: '', queryParam: 'q', authHeader: 'Authorization' })).toEqual({})
   })
 
@@ -152,7 +150,6 @@ describe('buildAuthHeadersForPreset direct assertions', () => {
     process.env.WEB_KEY = 'sk-test-123'
     process.env.WEB_AUTH_SCHEME = ''
     delete process.env.WEB_AUTH_HEADER
-    const { buildAuthHeadersForPreset } = require('./custom.js')
     const result = buildAuthHeadersForPreset({ urlTemplate: '', queryParam: 'q', authHeader: 'X-Api-Key' })
     // scheme is '' so the header value should be just the key (trimmed)
     expect(result).toEqual({ 'X-Api-Key': 'sk-test-123' })
@@ -162,7 +159,6 @@ describe('buildAuthHeadersForPreset direct assertions', () => {
     process.env.WEB_KEY = 'tok-abc'
     delete process.env.WEB_AUTH_HEADER
     delete process.env.WEB_AUTH_SCHEME
-    const { buildAuthHeadersForPreset } = require('./custom.js')
     const result = buildAuthHeadersForPreset({ urlTemplate: '', queryParam: 'q', authHeader: 'Authorization', authScheme: 'Bearer' })
     expect(result).toEqual({ 'Authorization': 'Bearer tok-abc' })
   })
@@ -171,7 +167,6 @@ describe('buildAuthHeadersForPreset direct assertions', () => {
     delete process.env.WEB_KEY
     delete process.env.WEB_AUTH_HEADER
     delete process.env.WEB_AUTH_SCHEME
-    const { buildAuthHeadersForPreset } = require('./custom.js')
     expect(buildAuthHeadersForPreset({ urlTemplate: '', queryParam: 'q', authHeader: 'Authorization' })).toEqual({})
   })
 
@@ -179,7 +174,6 @@ describe('buildAuthHeadersForPreset direct assertions', () => {
     process.env.WEB_KEY = 'brv-test-123'
     delete process.env.WEB_AUTH_HEADER
     delete process.env.WEB_AUTH_SCHEME
-    const { buildAuthHeadersForPreset } = require('./custom.js')
     const result = buildAuthHeadersForPreset({
       urlTemplate: '',
       queryParam: 'q',
@@ -193,7 +187,6 @@ describe('buildAuthHeadersForPreset direct assertions', () => {
   test('preset authQueryParam suppresses auth headers entirely (Google-style)', () => {
     process.env.WEB_KEY = 'gck-test-123'
     delete process.env.WEB_AUTH_HEADER
-    const { buildAuthHeadersForPreset } = require('./custom.js')
     const result = buildAuthHeadersForPreset({
       urlTemplate: '',
       queryParam: 'q',
@@ -205,7 +198,6 @@ describe('buildAuthHeadersForPreset direct assertions', () => {
   test('explicit WEB_AUTH_HEADER overrides authQueryParam suppression', () => {
     process.env.WEB_KEY = 'gck-test-123'
     process.env.WEB_AUTH_HEADER = 'X-Custom-Auth'
-    const { buildAuthHeadersForPreset } = require('./custom.js')
     const result = buildAuthHeadersForPreset({
       urlTemplate: '',
       queryParam: 'q',
@@ -254,7 +246,6 @@ describe('built-in preset request shapes', () => {
       return new Response(JSON.stringify({ items: [] }), { status: 200 })
     }) as typeof fetch
 
-    const { customProvider } = require('./custom.js')
     await customProvider.search({ query: 'hello world' })
 
     expect(capturedUrl).toContain('https://www.googleapis.com/customsearch/v1')
@@ -269,7 +260,6 @@ describe('built-in preset request shapes', () => {
     process.env.WEB_KEY = 'gck-test-key'
     delete process.env.GOOGLE_CSE_ID
 
-    const { customProvider } = require('./custom.js')
     await expect(customProvider.search({ query: 'q' })).rejects.toThrow(/GOOGLE_CSE_ID/)
   })
 
@@ -278,7 +268,6 @@ describe('built-in preset request shapes', () => {
     process.env.GOOGLE_CSE_ID = 'cse-test-id'
     delete process.env.WEB_KEY
 
-    const { customProvider } = require('./custom.js')
     await expect(customProvider.search({ query: 'q' })).rejects.toThrow(/WEB_KEY/)
   })
 
@@ -294,7 +283,6 @@ describe('built-in preset request shapes', () => {
       return new Response(JSON.stringify({ web: { results: [] } }), { status: 200 })
     }) as typeof fetch
 
-    const { customProvider } = require('./custom.js')
     await customProvider.search({ query: 'q' })
 
     expect(capturedHeaders['X-Subscription-Token']).toBe('brv-test-key')

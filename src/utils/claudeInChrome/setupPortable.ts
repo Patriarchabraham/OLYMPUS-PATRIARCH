@@ -160,12 +160,12 @@ export async function detectExtensionInstallationPortable(
 
   // Check each browser for the extension
   for (const { browser, path: browserBasePath } of browserPaths) {
-    let browserProfileEntries = []
+    let browserProfileEntries: import('fs').Dirent[] = []
 
     try {
       browserProfileEntries = await readdir(browserBasePath, {
         withFileTypes: true,
-      })
+      }) as import('fs').Dirent[]
     } catch (e) {
       // Browser not installed or path doesn't exist, continue to next browser
       if (isFsInaccessible(e)) continue

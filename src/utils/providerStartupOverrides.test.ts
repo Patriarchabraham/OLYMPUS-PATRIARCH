@@ -1,11 +1,11 @@
-import { describe, expect, mock, test } from 'bun:test'
+import { describe, expect, vi, test } from 'vitest'
 
 import { clearStartupProviderOverrides } from './providerStartupOverrides.js'
 
 describe('clearStartupProviderOverrides', () => {
   test('removes stale provider env from user settings and global config env', () => {
-    const updateUserSettings = mock(() => ({ error: null }))
-    const saveConfig = mock((updater: (current: {
+    const updateUserSettings = vi.fn(() => ({ error: null }))
+    const saveConfig = vi.fn((updater: (current: {
       env: Record<string, string>
     }) => { env: Record<string, string> }) =>
       updater({

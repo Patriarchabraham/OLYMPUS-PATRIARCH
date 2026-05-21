@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, beforeEach, afterEach, afterAll } from 'bun:test'
+﻿import { describe, expect, it, beforeEach, afterEach, afterAll } from 'vitest'
 import {
   addGlobalEntity,
   addGlobalRelation,
@@ -76,10 +76,10 @@ describe('KnowledgeGraph Global Persistence & RAG', () => {
     await addGlobalSummary('Orama test summary', ['orama'])
 
     const oramaPath = getOramaPersistencePath(cwd)
-    expect(require('fs').existsSync(oramaPath)).toBe(true)
+    expect(existsSync(oramaPath)).toBe(true)
 
     resetGlobalGraph()
-    expect(require('fs').existsSync(oramaPath)).toBe(false)
+    expect(existsSync(oramaPath)).toBe(false)
   })
 
   describe('Hybrid Architecture: Orama + JSON', () => {

@@ -808,7 +808,7 @@ export async function getAttachments(
                   input,
                   messages ?? [],
                   context,
-                ),
+                ) as Promise<any[]>,
               ),
             ]
           : []),
@@ -1000,7 +1000,7 @@ export async function getAttachments(
     ...userAttachmentResults.flat(),
     ...threadAttachmentResults.flat(),
     ...mainThreadAttachmentResults.flat(),
-  ].filter(a => a !== undefined && a !== null)
+  ].filter((a): a is Attachment => a !== undefined && a !== null)
 }
 
 async function maybe<A>(label: string, f: () => Promise<A[]>): Promise<A[]> {

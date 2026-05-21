@@ -245,13 +245,13 @@ function addCodexSource(
   sourceMap: Map<string, { title: string; url: string }>,
   source: unknown,
 ): void {
-  if (typeof source?.url !== 'string' || !source.url) return
-  sourceMap.set(source.url, {
+  if (typeof source !== 'object' || !source) return
+  const s = source as Record<string, unknown>
+  if (typeof s.url !== 'string' || !s.url) return
+  sourceMap.set(s.url, {
     title:
-      typeof source.title === 'string' && source.title
-        ? source.title
-        : source.url,
-    url: source.url,
+      typeof s.title === 'string' && s.title ? s.title : s.url,
+    url: s.url,
   })
 }
 
@@ -780,7 +780,7 @@ export const WebSearchTool = buildTool({
     })
 
     const allContentBlocks: BetaContentBlock[] = []
-    let currentToolUseId = null
+    let currentToolUseId: string | null = null
     let currentToolUseJson = ''
     let progressCounter = 0
     const toolUseQueries = new Map() // Map of tool_use_id to query
@@ -792,86 +792,83 @@ export const WebSearchTool = buildTool({
       }
 
       // Track tool use ID when server_tool_use starts
-      if (
-        event.type === 'stream_event' &&
-        event.event?.type === 'content_block_start'
-      ) {
-        const contentBlock = event.event.content_block
-        if (contentBlock && contentBlock.type === 'server_tool_use') {
-          currentToolUseId = contentBlock.id
-          currentToolUseJson = ''
-          continue
+      if (event.type === 'stream_event') {
+        const inner = event.event as Record<string, unknown> | undefined
+        if (inner?.type === 'content_block_start') {
+          const contentBlock = inner.content_block as Record<string, unknown> | undefined
+          if (contentBlock && contentBlock.type === 'server_tool_use') {
+            currentToolUseId = contentBlock.id as string
+            currentToolUseJson = ''
+            continue
+          }
         }
       }
 
       // Accumulate JSON for current tool use
-      if (
-        currentToolUseId &&
-        event.type === 'stream_event' &&
-        event.event?.type === 'content_block_delta'
-      ) {
-        const delta = event.event.delta
-        if (delta?.type === 'input_json_delta' && delta.partial_json) {
-          currentToolUseJson += delta.partial_json
+      if (currentToolUseId && event.type === 'stream_event') {
+        const inner = event.event as Record<string, unknown> | undefined
+        if (inner?.type === 'content_block_delta') {
+          const delta = inner.delta as Record<string, unknown> | undefined
+          if (delta?.type === 'input_json_delta' && typeof delta.partial_json === 'string') {
+            currentToolUseJson += delta.partial_json
 
-          // Try to extract query from partial JSON for progress updates
-          try {
-            const queryMatch = currentToolUseJson.match(
-              /"query"\s*:\s*"((?:[^"\\]|\\.)*)"/,
-            )
-            if (queryMatch && queryMatch[1]) {
-              const query = jsonParse('"' + queryMatch[1] + '"')
+            // Try to extract query from partial JSON for progress updates
+            try {
+              const queryMatch = currentToolUseJson.match(
+                /"query"\s*:\s*"((?:[^"\\]|\\.)*)"/,
+              )
+              if (queryMatch && queryMatch[1]) {
+                const query = jsonParse('"' + queryMatch[1] + '"')
 
-              if (
-                !toolUseQueries.has(currentToolUseId) ||
-                toolUseQueries.get(currentToolUseId) !== query
-              ) {
-                toolUseQueries.set(currentToolUseId, query)
-                progressCounter++
-                if (onProgress) {
-                  onProgress({
-                    toolUseID: `search-progress-${progressCounter}`,
-                    data: {
-                      type: 'query_update',
-                      query,
-                    },
-                  })
+                if (
+                  !toolUseQueries.has(currentToolUseId) ||
+                  toolUseQueries.get(currentToolUseId) !== query
+                ) {
+                  toolUseQueries.set(currentToolUseId, query)
+                  progressCounter++
+                  if (onProgress) {
+                    onProgress({
+                      toolUseID: `search-progress-${progressCounter}`,
+                      data: {
+                        type: 'query_update',
+                        query,
+                      },
+                    })
+                  }
                 }
               }
+            } catch {
+              // Ignore parsing errors for partial JSON
             }
-          } catch {
-            // Ignore parsing errors for partial JSON
           }
         }
       }
 
       // Yield progress when search results come in
-      if (
-        event.type === 'stream_event' &&
-        event.event?.type === 'content_block_start'
-      ) {
-        const contentBlock = event.event.content_block
-        if (contentBlock && contentBlock.type === 'web_search_tool_result') {
-          const toolUseId = contentBlock.tool_use_id
-          const actualQuery = toolUseQueries.get(toolUseId) || query
-          const content = contentBlock.content
+      if (event.type === 'stream_event') {
+        const inner = event.event as Record<string, unknown> | undefined
+        if (inner?.type === 'content_block_start') {
+          const contentBlock = inner.content_block as Record<string, unknown> | undefined
+          if (contentBlock && contentBlock.type === 'web_search_tool_result') {
+            const toolUseId = contentBlock.tool_use_id as string | undefined
+            const actualQuery = (toolUseId && toolUseQueries.get(toolUseId)) || query
+            const content = contentBlock.content
 
-          progressCounter++
-          if (onProgress) {
-            onProgress({
-              toolUseID: toolUseId || `search-progress-${progressCounter}`,
-              data: {
-                type: 'search_results_received',
-                resultCount: Array.isArray(content) ? content.length : 0,
-                query: actualQuery,
-              },
-            })
+            progressCounter++
+            if (onProgress) {
+              onProgress({
+                toolUseID: toolUseId || `search-progress-${progressCounter}`,
+                data: {
+                  type: 'search_results_received',
+                  resultCount: Array.isArray(content) ? content.length : 0,
+                  query: actualQuery,
+                },
+              })
+            }
           }
         }
       }
     }
-
-    // Process the final result
     const endTime = performance.now()
     const durationSeconds = (endTime - startTime) / 1000
 

@@ -1,6 +1,7 @@
 /**
  * Device state collector — collects current state from devices.
  */
+import os from 'node:os'
 import { getDeviceRegistry } from './deviceRegistry.js'
 import { execute } from './deviceCommandExecutor.js'
 import type { DeviceCommand } from './types.js'
@@ -63,7 +64,6 @@ export async function collectFromAll(): Promise<Map<string, Record<string, unkno
 }
 
 async function collectLocalState(): Promise<Record<string, unknown>> {
-  const os = require('os')
   return {
     hostname: os.hostname(),
     platform: os.platform(),

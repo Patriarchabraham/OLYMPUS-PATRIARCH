@@ -610,7 +610,7 @@ export function useInboxPoller({
         currentAppState.toolPermissionContext.mode,
       )
       const modeToInherit =
-        leaderExternalMode === 'plan' ? 'default' : leaderExternalMode
+        (leaderExternalMode === 'plan' ? 'default' : leaderExternalMode) as 'default' | 'acceptEdits' | 'bypassPermissions' | 'plan' | 'dontAsk'
 
       for (const m of planApprovalRequests) {
         const parsed = isPlanApprovalRequest(m.text)

@@ -4,6 +4,7 @@ export interface LspServerConfig {
   cwd?: string
   env?: Record<string, string>
   fileExtensions?: string[]
+  extensionToLanguage?: Record<string, string>
   restartOnCrash?: boolean
   shutdownTimeout?: number
   maxRestarts?: number

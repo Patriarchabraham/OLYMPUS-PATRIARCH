@@ -31,10 +31,11 @@ function getMessageHash(messages: readonly Message[]): string {
   if (messages.length === 0) return 'empty'
 
   const fullContent = messages.map(m => {
-    const c = typeof m.message?.content === 'string'
-      ? m.message.content
-      : Array.isArray(m.message?.content)
-        ? JSON.stringify(m.message.content)
+    const msg = 'message' in m ? (m as { message?: { content?: unknown } }).message : undefined
+    const c = typeof msg?.content === 'string'
+      ? msg.content
+      : Array.isArray(msg?.content)
+        ? JSON.stringify(msg.content)
         : ''
     return c
   }).join('|')
@@ -99,14 +100,14 @@ export class IncrementalTokenCounter {
       if (currentPrefixHash === this.lastPrefixHash) {
         const newMessages = messages.slice(this.lastMessageCount)
         const estimated = Math.round(
-          roughTokenCountEstimationForMessages(newMessages) * this.config.estimationMultiplier
+          roughTokenCountEstimationForMessages(newMessages as any) * this.config.estimationMultiplier
         )
         this.lastTokenCount += estimated
       } else {
-        this.lastTokenCount = roughTokenCountEstimationForMessages(messages)
+        this.lastTokenCount = roughTokenCountEstimationForMessages(messages as any)
       }
     } else {
-      this.lastTokenCount = roughTokenCountEstimationForMessages(messages)
+      this.lastTokenCount = roughTokenCountEstimationForMessages(messages as any)
     }
 
     this.lastMessageCount = messages.length
@@ -129,7 +130,7 @@ export class IncrementalTokenCounter {
     if (messages.length === 0) {
       this.lastTokenCount = 0
     } else {
-      this.lastTokenCount = roughTokenCountEstimationForMessages(messages)
+      this.lastTokenCount = roughTokenCountEstimationForMessages(messages as any)
     }
     
     this.stats.totalTokens += this.lastTokenCount
@@ -143,20 +144,21 @@ export class IncrementalTokenCounter {
    * Useful for read-only estimates.
    */
   estimate(messages: readonly Message[]): number {
-    return roughTokenCountEstimationForMessages(messages)
+    return roughTokenCountEstimationForMessages(messages as any)
   }
 
   /**
    * Get token count for a single message.
    */
   estimateMessage(message: Message): number {
-    if (typeof message.message?.content === 'string') {
-      return roughTokenCountEstimation(message.message.content)
+    const msg = ('message' in message ? (message as { message?: { content?: unknown } }).message : undefined)
+    if (typeof msg?.content === 'string') {
+      return roughTokenCountEstimation(msg.content)
     }
-    if (Array.isArray(message.message?.content)) {
-      return message.message.content.reduce((sum, block) => {
-        if ('text' in block) return sum + roughTokenCountEstimation(block.text || '')
-        if ('thinking' in block) return sum + roughTokenCountEstimation(block.thinking || '')
+    if (Array.isArray(msg?.content)) {
+      return (msg!.content as Array<Record<string, unknown>>).reduce((sum: number, block) => {
+        if ('text' in block) return sum + roughTokenCountEstimation((block.text as string) || '')
+        if ('thinking' in block) return sum + roughTokenCountEstimation((block.thinking as string) || '')
         return sum + 100 // Default for other block types
       }, 0)
     }

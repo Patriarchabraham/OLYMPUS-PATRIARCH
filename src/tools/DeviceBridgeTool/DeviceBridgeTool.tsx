@@ -56,7 +56,7 @@ function resolveAdbId(deviceId: string): string | null {
 
 // ---------- Tool definition ----------
 
-export const DeviceBridgeTool = buildTool({
+const _deviceBridgeToolDef = {
   name: DEVICE_BRIDGE_TOOL_NAME,
   searchHint: 'device scan android mobile hardware peripheral usb network',
   maxResultSizeChars: 200_000,
@@ -141,7 +141,7 @@ export const DeviceBridgeTool = buildTool({
     return `${input.action}${input.deviceId ? ` → ${input.deviceId}` : ''}`
   },
 
-  async *call(input) {
+  async call(input) {
     try {
       const manager = getDeviceBridgeManager()
 
@@ -153,7 +153,7 @@ export const DeviceBridgeTool = buildTool({
             scanBluetooth: false,
             networkTimeout: 5000,
           })
-          yield {
+          return {
             data: {
               success: true,
               message: `Found ${devices.length} device(s)`,
@@ -167,12 +167,11 @@ export const DeviceBridgeTool = buildTool({
               })),
             },
           }
-          return
         }
 
         case 'list': {
           const devices = manager.listDevices()
-          yield {
+          return {
             data: {
               success: true,
               message: `${devices.length} device(s) known`,
@@ -185,34 +184,30 @@ export const DeviceBridgeTool = buildTool({
               })),
             },
           }
-          return
         }
 
         case 'info': {
           if (input.deviceId) {
             const info = manager.getDeviceInfo(input.deviceId)
             if (!info) {
-              yield { data: { success: false, error: `Device not found: ${input.deviceId}` } }
-              return
+              return { data: { success: false, error: `Device not found: ${input.deviceId}` } }
             }
             // For Android devices, get detailed info via ADB
             const adbId = resolveAdbId(input.deviceId)
             if (adbId && info.type === 'android') {
               try {
                 const detailed = await androidBridge.getDeviceInfo(adbId)
-                yield { data: { success: true, data: detailed } }
+                return { data: { success: true, data: detailed } }
               } catch (err) {
-                yield { data: { success: true, data: info } }
+                return { data: { success: true, data: info } }
               }
-              return
             }
-            yield { data: { success: true, data: info } }
-            return
+            return { data: { success: true, data: info } }
           }
 
           // Local device snapshot
           const snapshot: LocalDeviceSnapshot = await manager.getLocalSnapshot()
-          yield {
+          return {
             data: {
               success: true,
               message: `Local device: ${snapshot.hostname} (${snapshot.platform} ${snapshot.osVersion})`,
@@ -232,38 +227,33 @@ export const DeviceBridgeTool = buildTool({
               },
             },
           }
-          return
         }
 
         case 'screenshot': {
           if (!input.deviceId) {
-            yield { data: { success: false, error: 'screenshot requires deviceId' } }
-            return
+            return { data: { success: false, error: 'screenshot requires deviceId' } }
           }
           const adbId = resolveAdbId(input.deviceId)
           if (!adbId) {
-            yield { data: { success: false, error: 'Screenshots are only supported for Android devices (adb_* IDs)' } }
-            return
+            return { data: { success: false, error: 'Screenshots are only supported for Android devices (adb_* IDs)' } }
           }
           const pngBuffer = await androidBridge.takeScreenshot(adbId)
           const base64 = pngBuffer.toString('base64')
-          yield {
+          return {
             data: {
               success: true,
               message: `Screenshot captured from ${input.deviceId} (${pngBuffer.length} bytes)`,
               data: { imageBase64: base64 },
             },
           }
-          return
         }
 
         case 'execute': {
           if (!input.deviceId || !input.command) {
-            yield { data: { success: false, error: 'execute requires deviceId and command' } }
-            return
+            return { data: { success: false, error: 'execute requires deviceId and command' } }
           }
           const result = await manager.execute(input.deviceId, input.command)
-          yield {
+          return {
             data: {
               success: result.exitCode === 0,
               message: `Command exited with code ${result.exitCode}`,
@@ -275,72 +265,62 @@ export const DeviceBridgeTool = buildTool({
               },
             },
           }
-          return
         }
 
         case 'apps': {
           if (!input.deviceId) {
-            yield { data: { success: false, error: 'apps requires deviceId of an Android device' } }
-            return
+            return { data: { success: false, error: 'apps requires deviceId of an Android device' } }
           }
           const adbId = resolveAdbId(input.deviceId)
           if (!adbId) {
-            yield { data: { success: false, error: 'apps is only supported for Android devices (adb_* IDs)' } }
-            return
+            return { data: { success: false, error: 'apps is only supported for Android devices (adb_* IDs)' } }
           }
           const apps = await androidBridge.listApps(adbId)
-          yield {
+          return {
             data: {
               success: true,
               message: `${apps.length} third-party apps found`,
               data: apps,
             },
           }
-          return
         }
 
         case 'push': {
           if (!input.deviceId || !input.localPath || !input.remotePath) {
-            yield { data: { success: false, error: 'push requires deviceId, localPath, and remotePath' } }
-            return
+            return { data: { success: false, error: 'push requires deviceId, localPath, and remotePath' } }
           }
           const adbId = resolveAdbId(input.deviceId)
           if (!adbId) {
-            yield { data: { success: false, error: 'push is only supported for Android devices' } }
-            return
+            return { data: { success: false, error: 'push is only supported for Android devices' } }
           }
           await androidBridge.pushFile(adbId, input.localPath, input.remotePath)
-          yield {
+          return {
             data: {
               success: true,
               message: `Pushed ${input.localPath} → ${input.remotePath}`,
             },
           }
-          return
         }
 
         case 'pull': {
           if (!input.deviceId || !input.remotePath || !input.localPath) {
-            yield { data: { success: false, error: 'pull requires deviceId, remotePath, and localPath' } }
-            return
+            return { data: { success: false, error: 'pull requires deviceId, remotePath, and localPath' } }
           }
           const adbId = resolveAdbId(input.deviceId)
           if (!adbId) {
-            yield { data: { success: false, error: 'pull is only supported for Android devices' } }
-            return
+            return { data: { success: false, error: 'pull is only supported for Android devices' } }
           }
           await androidBridge.pullFile(adbId, input.remotePath, input.localPath)
-          yield {
+          return {
             data: {
               success: true,
               message: `Pulled ${input.remotePath} → ${input.localPath}`,
             },
           }
-          return
         }
 
         default:
-          yield {
+          return {
             data: {
               success: false,
               error: `Unknown action: ${input.action}`,
@@ -348,7 +328,7 @@ export const DeviceBridgeTool = buildTool({
           }
       }
     } catch (err) {
-      yield {
+      return {
         data: {
           success: false,
           error: err instanceof Error ? err.message : String(err),
@@ -397,4 +377,6 @@ export const DeviceBridgeTool = buildTool({
     if (typeof output.data === 'string') return output.data
     return output.message ?? ''
   },
-} satisfies ToolDef<InputSchema, DeviceBridgeOutput>)
+} satisfies ToolDef<InputSchema, DeviceBridgeOutput>
+
+export const DeviceBridgeTool = buildTool(_deviceBridgeToolDef as any) as unknown as ToolDef<InputSchema, DeviceBridgeOutput>

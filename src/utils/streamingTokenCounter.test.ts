@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'vitest'
 import { StreamingTokenCounter } from './streamingTokenCounter.js'
 
 describe('StreamingTokenCounter', () => {

@@ -122,7 +122,7 @@ export class GrpcServer {
                   if (reply.toLowerCase() === 'yes' || reply.toLowerCase() === 'y') {
                     resolve({ behavior: 'allow' })
                   } else {
-                    resolve({ behavior: 'deny', reason: 'User denied via gRPC' })
+                    resolve({ behavior: 'deny', message: 'User denied via gRPC', decisionReason: { type: 'mode', mode: 'default' } })
                   }
                 })
               })
@@ -143,32 +143,37 @@ export class GrpcServer {
 
           for await (const msg of generator) {
             if (msg.type === 'stream_event') {
-              if (msg.event.type === 'content_block_delta' && msg.event.delta.type === 'text_delta') {
-                call.write({
-                  text_chunk: {
-                    text: msg.event.delta.text
-                  }
-                })
-                fullText += msg.event.delta.text
+              const evt = msg.event as Record<string, any> | undefined
+              if (evt?.type === 'content_block_delta') {
+                const delta = evt.delta as Record<string, any> | undefined
+                if (delta?.type === 'text_delta' && typeof delta.text === 'string') {
+                  call.write({
+                    text_chunk: {
+                      text: delta.text
+                    }
+                  })
+                  fullText += delta.text
+                }
               }
             } else if (msg.type === 'user') {
               // Extract tool results
               const content = msg.message.content
               if (Array.isArray(content)) {
                 for (const block of content) {
-                  if (block.type === 'tool_result') {
+                  const b = block as Record<string, any>
+                  if (b.type === 'tool_result') {
                     let outputStr = ''
-                    if (typeof block.content === 'string') {
-                      outputStr = block.content
-                    } else if (Array.isArray(block.content)) {
-                      outputStr = block.content.map(c => c.type === 'text' ? c.text : '').join('\n')
+                    if (typeof b.content === 'string') {
+                      outputStr = b.content
+                    } else if (Array.isArray(b.content)) {
+                      outputStr = b.content.map((c: Record<string, any>) => c.type === 'text' ? c.text : '').join('\n')
                     }
                     call.write({
                       tool_result: {
-                        tool_name: toolNameById.get(block.tool_use_id) ?? block.tool_use_id,
-                        tool_use_id: block.tool_use_id,
+                        tool_name: toolNameById.get(b.tool_use_id) ?? b.tool_use_id,
+                        tool_use_id: b.tool_use_id,
                         output: outputStr,
-                        is_error: block.is_error || false
+                        is_error: b.is_error || false
                       }
                     })
                   }
@@ -194,7 +199,7 @@ export class GrpcServer {
             if (sessionId) {
               if (!this.sessions.has(sessionId) && this.sessions.size >= MAX_SESSIONS) {
                 // Evict oldest session (Map preserves insertion order)
-                this.sessions.delete(this.sessions.keys().next().value)
+                this.sessions.delete(this.sessions.keys().next().value as string)
               }
               this.sessions.set(sessionId, previousMessages)
             }

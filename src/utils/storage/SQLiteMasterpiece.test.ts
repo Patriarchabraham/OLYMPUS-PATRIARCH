@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, beforeEach, afterEach, afterAll } from 'bun:test'
+﻿import { describe, expect, it, beforeEach, afterEach, afterAll } from 'vitest'
 import {
   addGlobalEntity,
   resetGlobalGraph,
@@ -15,7 +15,14 @@ import { getProjectsDir } from '../envUtils.js'
 import { sanitizePath } from '../sessionStoragePortable.js'
 import { getFsImplementation } from '../fsOperations.js'
 
-describe('SQLite Masterpiece: Edge Cases & Multi-Project Isolation', () => {
+// Skip entire suite when better-sqlite3 is not available
+let sqliteAvailable = false
+try {
+  require('better-sqlite3')
+  sqliteAvailable = true
+} catch {}
+
+describe.skipIf(!sqliteAvailable)('SQLite Masterpiece: Edge Cases & Multi-Project Isolation', () => {
   const originalConfigDir = process.env.CLAUDE_CONFIG_DIR
   const rootTestDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-masterpiece-'))
   process.env.CLAUDE_CONFIG_DIR = rootTestDir
@@ -109,7 +116,7 @@ describe('SQLite Masterpiece: Edge Cases & Multi-Project Isolation', () => {
     try {
       await addGlobalRelation(e1.id, 'ghost-id', 'links_to')
     } catch (e) {
-      error = e
+      error = e as any
     }
     expect(error).toBeDefined()
   })

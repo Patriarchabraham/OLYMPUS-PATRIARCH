@@ -55,7 +55,7 @@ function getMessageChain(
       allMessagesByUuid.set(uuid, existing)
     }
 
-    const content = msg.message?.content
+    const content = (msg as any).message?.content
     if (Array.isArray(content)) {
       for (const block of content) {
         if (block?.type === 'tool_use' && block?.id) {
@@ -75,7 +75,7 @@ function getMessageChain(
     const chainMessages: Message[] = [...msgs]
 
     for (const msg of messages) {
-      const content = msg.message?.content
+      const content = (msg as any).message?.content
       if (Array.isArray(content)) {
         for (const block of content) {
           if (block?.type === 'tool_result' && block?.tool_use_id === toolUseId) {
@@ -105,13 +105,13 @@ function getMessageChain(
 }
 
 function getCacheAge(message: Message): number {
-  const created = message.message?.created_at ?? 0
+  const created = (message as any).message?.created_at ?? 0
   if (created === 0) return 1000
   return (Date.now() - created) / (1000 * 60 * 60)
 }
 
 function getMessageTokenCount(message: Message): number {
-  const content = message.message?.content
+  const content = (message as any).message?.content
   if (typeof content === 'string') {
     return roughTokenCountEstimation(content)
   }
@@ -150,7 +150,7 @@ function getMessageTokenCount(message: Message): number {
 }
 
 function calculateCacheValue(message: Message): number {
-  const content = typeof message.message?.content === 'string' ? message.message.content : ''
+  const content = typeof (message as any).message?.content === 'string' ? (message as any).message.content : ''
   const age = getCacheAge(message)
 
   let value = 0.5
@@ -163,7 +163,7 @@ function calculateCacheValue(message: Message): number {
   else if (age < 6) value += 0.1
   else value -= 0.2
 
-  if (message.message?.role === 'system') value += 0.1
+  if ((message as any).message?.role === 'system') value += 0.1
 
   return Math.max(0, Math.min(1, value))
 }
@@ -247,7 +247,7 @@ export function applyHybridStrategy(
   const seenUuids = new Set<string>()
   const selectedMessages: Message[] = []
   for (const msg of allSelected) {
-    const uuid = msg.uuid ?? msg.message?.id ?? ''
+    const uuid = msg.uuid ?? (msg as any).message?.id ?? ''
     if (!seenUuids.has(uuid)) {
       seenUuids.add(uuid)
       selectedMessages.push(msg)
@@ -255,7 +255,7 @@ export function applyHybridStrategy(
   }
 
   selectedMessages.sort(
-    (a, b) => (a.message?.created_at ?? 0) - (b.message?.created_at ?? 0)
+    (a, b) => ((a as any).message?.created_at ?? 0) - ((b as any).message?.created_at ?? 0)
   )
 
   let totalTokens = 0

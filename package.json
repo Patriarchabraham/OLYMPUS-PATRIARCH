@@ -24,10 +24,10 @@
     "README.md"
   ],
   "scripts": {
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' bun run scripts/build.ts",
+    "build": "bun run scripts/build.ts",
     "start": "node --max-old-space-size=4096 dist/cli.mjs",
     "dev": "node --max-old-space-size=4096 --import tsx/esm src/entrypoints/cli.tsx",
-    "typecheck": "NODE_OPTIONS='--max-old-space-size=4096' tsc --noEmit",
+    "typecheck": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc --noEmit",
     "smoke": "npm run build && node dist/cli.mjs --version",
     "prepack": "npm run build",
     "test": "vitest run",

@@ -1,4 +1,4 @@
-﻿import { execaSync } from 'execa'
+import { execaSync } from 'execa'
 import { join } from 'path'
 import { getClaudeConfigHomeDir } from '../envUtils.js'
 import { jsonParse, jsonStringify } from '../slowOperations.js'
@@ -48,11 +48,16 @@ function runPowerShell(
   }
 }
 
+function getStdout(result: ReturnType<typeof execaSync> | null): string {
+  if (result?.stdout == null) return ''
+  return typeof result.stdout === 'string' ? result.stdout : String(result.stdout)
+}
+
 function getFailureWarning(
   result: ReturnType<typeof execaSync> | null,
   fallback: string,
 ): string {
-  const stderr = result?.stderr?.trim()
+  const stderr = typeof result?.stderr === 'string' ? result.stderr.trim() : ''
   if (stderr) {
     return stderr
   }
@@ -84,9 +89,10 @@ function readLegacyPasswordVault(): SecureStorageData | null {
   `
 
   const result = runPowerShell(script)
-  if (result?.exitCode === 0 && result.stdout) {
+  const stdout = getStdout(result)
+  if (result?.exitCode === 0 && stdout) {
     try {
-      return jsonParse(result.stdout)
+      return jsonParse(stdout)
     } catch {
       return null
     }
@@ -134,9 +140,10 @@ export const windowsCredentialStorage: SecureStorage = {
     `
 
     const result = runPowerShell(script)
-    if (result?.exitCode === 0 && result.stdout) {
+    const stdout = getStdout(result)
+    if (result?.exitCode === 0 && stdout) {
       try {
-        return jsonParse(result.stdout)
+        return jsonParse(stdout)
       } catch {
         return readLegacyPasswordVault()
       }

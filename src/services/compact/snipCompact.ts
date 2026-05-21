@@ -20,3 +20,7 @@ export function isSnipRuntimeEnabled(): boolean {
 }
 
 export const SNIP_NUDGE_TEXT = ''
+
+export function shouldNudgeForSnips(_messages: Message[]): boolean {
+  return false
+}

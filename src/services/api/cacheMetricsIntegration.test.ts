@@ -20,7 +20,7 @@
  * so this test covers the exact same code that runs in production —
  * no simulator drift possible.
  */
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 import {
   buildAnthropicUsageFromRawUsage,
   extractCacheMetrics,

@@ -1,4 +1,4 @@
-﻿import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
+﻿import { afterEach, beforeEach, describe, expect, vi, test } from 'vitest'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -33,45 +33,45 @@ async function importHookChainsHarness(
   options: ImportHarnessOptions = {},
 ): Promise<{
   mod: HookChainsModule
-  writeToMailboxSpy: ReturnType<typeof mock>
-  agentToolCallSpy: ReturnType<typeof mock>
+  writeToMailboxSpy: ReturnType<typeof vi.fn>
+  agentToolCallSpy: ReturnType<typeof vi.fn>
 }> {
-  mock.restore()
+  vi.restoreAllMocks()
 
   const allowRemoteSessions = options.allowRemoteSessions ?? true
   const teamName = options.teamName ?? 'mesh-team'
   const senderName = options.senderName ?? 'mesh-lead'
   const replBridgeHandle = options.replBridgeHandle ?? null
 
-  const writeToMailboxSpy = mock(async () => {})
-  const agentToolCallSpy = mock(async () => ({
+  const writeToMailboxSpy = vi.fn(async () => {})
+  const agentToolCallSpy = vi.fn(async () => ({
     data: {
       status: 'async_launched',
       agentId: 'agent-fallback-1',
     },
   }))
 
-  mock.module('../services/analytics/index.js', () => ({
+  vi.doMock('../services/analytics/index.js', () => ({
     logEvent: () => {},
   }))
 
-  mock.module('./telemetry/events.js', () => ({
+  vi.doMock('./telemetry/events.js', () => ({
     logOTelEvent: async () => {},
   }))
 
-  mock.module('../services/policyLimits/index.js', () => ({
+  vi.doMock('../services/policyLimits/index.js', () => ({
     isPolicyAllowed: () => allowRemoteSessions,
   }))
 
-  mock.module('./swarm/teamHelpers.js', () => ({
+  vi.doMock('./swarm/teamHelpers.js', () => ({
     readTeamFileAsync: async () => options.teamFile ?? null,
   }))
 
-  mock.module('./teammateMailbox.js', () => ({
+  vi.doMock('./teammateMailbox.js', () => ({
     writeToMailbox: writeToMailboxSpy,
   }))
 
-  mock.module('./teammate.js', () => ({
+  vi.doMock('./teammate.js', () => ({
     getAgentName: () => senderName,
     getTeamName: () => teamName,
     getTeammateColor: () => 'blue',
@@ -84,19 +84,19 @@ async function importHookChainsHarness(
     getParentSessionId: () => undefined,
   }))
 
-  mock.module('../bridge/replBridgeHandle.js', () => ({
+  vi.doMock('../bridge/replBridgeHandle.js', () => ({
     getReplBridgeHandle: () => replBridgeHandle,
   }))
 
   // Integration mock target requested in the task: fallback action can route
   // through this mocked tool launcher from runtime callback wiring.
-  mock.module('../tools/AgentTool/AgentTool.js', () => ({
+  vi.doMock('../tools/AgentTool/AgentTool.js', () => ({
     AgentTool: {
       call: agentToolCallSpy,
     },
   }))
 
-  const mod = await import(`./hookChains.js?integration=${Date.now()}-${Math.random()}`)
+  const mod = await vi.importActual('./hookChains.js') as any
   return { mod, writeToMailboxSpy, agentToolCallSpy }
 }
 
@@ -105,7 +105,7 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  mock.restore()
+  vi.restoreAllMocks()
 
   if (originalHookChainsEnabled === undefined) {
     delete process.env.CLAUDE_CODE_ENABLE_HOOK_CHAINS
@@ -147,8 +147,8 @@ describe('hookChains integration dispatch', () => {
       ],
     })
 
-    const spawnSpy = mock(async () => ({ launched: true, agentId: 'agent-e2e-1' }))
-    const notifySpy = mock(async () => ({ sent: true, recipientCount: 2 }))
+    const spawnSpy = vi.fn(async () => ({ launched: true, agentId: 'agent-e2e-1' }))
+    const notifySpy = vi.fn(async () => ({ sent: true, recipientCount: 2 }))
 
     const result = await mod.dispatchHookChainsForEvent({
       configPathOverride: configPath,

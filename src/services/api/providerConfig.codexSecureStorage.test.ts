@@ -1,4 +1,4 @@
-﻿import { afterEach, describe, expect, mock, test } from 'bun:test'
+﻿import { afterEach, describe, expect, vi, test } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -13,11 +13,11 @@ function makeJwt(payload: Record<string, unknown>): string {
 
 describe('resolveCodexApiCredentials with secure storage', () => {
   afterEach(() => {
-    mock.restore()
+    vi.restoreAllMocks()
   })
 
   test('loads Codex credentials from Mythos Patriarch secure storage', async () => {
-    mock.module('../../utils/codexCredentials.js', () => ({
+    vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => false,
       readCodexCredentials: () => ({
         apiKey: 'codex-api-key-token',
@@ -38,7 +38,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
   })
 
   test('prefers explicit env credentials over secure storage', async () => {
-    mock.module('../../utils/codexCredentials.js', () => ({
+    vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => false,
       readCodexCredentials: () => ({
         accessToken: 'stored-token',
@@ -62,7 +62,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
   })
 
   test('parses nested chatgpt_account_id from a CODEX_API_KEY JWT', async () => {
-    mock.module('../../utils/codexCredentials.js', () => ({
+    vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => false,
       readCodexCredentials: () => undefined,
     }))
@@ -85,7 +85,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
   })
 
   test('parses nested chatgpt_account_id from auth.json tokens', async () => {
-    mock.module('../../utils/codexCredentials.js', () => ({
+    vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => false,
       readCodexCredentials: () => undefined,
     }))
@@ -123,7 +123,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
   })
 
   test('does not read default auth.json when secure storage already has Codex credentials', async () => {
-    mock.module('../../utils/codexCredentials.js', () => ({
+    vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => false,
       readCodexCredentials: () => ({
         apiKey: 'codex-api-key-token',
@@ -155,12 +155,12 @@ describe('resolveCodexApiCredentials with secure storage', () => {
     mkdirSync(join(tempHomeDir, '.codex'), { recursive: true })
     writeFileSync(join(tempHomeDir, '.codex', 'auth.json'), authJson, 'utf8')
 
-    mock.module('node:os', () => ({
+    vi.mock('node:os', () => ({
       ...realOs,
       homedir: () => tempHomeDir,
     }))
 
-    mock.module('../../utils/codexCredentials.js', () => ({
+    vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => true,
       readCodexCredentials: () => ({
         accessToken: 'stored-token',
@@ -193,12 +193,12 @@ describe('resolveCodexApiCredentials with secure storage', () => {
     mkdirSync(join(tempHomeDir, '.codex'), { recursive: true })
     writeFileSync(join(tempHomeDir, '.codex', 'auth.json'), authJson, 'utf8')
 
-    mock.module('node:os', () => ({
+    vi.mock('node:os', () => ({
       ...realOs,
       homedir: () => tempHomeDir,
     }))
 
-    mock.module('../../utils/codexCredentials.js', () => ({
+    vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => true,
       readCodexCredentials: () => ({
         accessToken: 'stored-token',

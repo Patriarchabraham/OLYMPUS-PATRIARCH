@@ -258,7 +258,7 @@ export async function updateArcPhase(messages: Message[]): Promise<void> {
   if (!arc) return
 
   for (const msg of messages.slice(-5).reverse()) {
-    const content = extractTextFromContent(msg.message?.content)
+    const content = extractTextFromContent((msg as any).message?.content)
     if (!content) continue
 
     // Phase detection

@@ -1,9 +1,9 @@
-import { beforeEach, expect, mock, test } from 'bun:test'
+import { beforeEach, expect, vi, test } from 'vitest'
 import { getEmptyToolPermissionContext } from './Tool.js'
 
 let lspConnected = false
 
-mock.module('./services/lsp/manager.js', () => ({
+vi.mock('./services/lsp/manager.js', () => ({
   getInitializationStatus: () => ({ status: 'success' }),
   getLspServerManager: () => undefined,
   isLspConnected: () => lspConnected,

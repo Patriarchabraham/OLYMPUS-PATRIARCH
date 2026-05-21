@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { getEmptyToolPermissionContext } from '../../Tool.js'
 import { checkPermissionMode } from './modeValidation.js'
 

@@ -44,8 +44,8 @@ type ToolOutput = Tool['outputSchema']
 const MCP_COMMANDS: Command[] = [review]
 
 export function getCombinedTools(
-  builtins: InternalTool[],
-  mcpTools: InternalTool[],
+  builtins: readonly InternalTool[],
+  mcpTools: readonly InternalTool[],
 ): InternalTool[] {
   const mcpToolNames = new Set(mcpTools.map(t => t.name))
   const deduplicatedBuiltins = builtins.filter(t => !mcpToolNames.has(t.name))

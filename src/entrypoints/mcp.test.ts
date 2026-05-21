@@ -1,12 +1,14 @@
-import { describe, it, expect, mock } from 'bun:test'
+import { describe, it, expect, vi } from 'vitest'
 import { getCombinedTools, loadReexposedMcpTools } from './mcp.js'
 import type { Tool as InternalTool } from '../Tool.js'
 import type { MCPServerConnection } from '../services/mcp/types.js'
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
 
 // Mock the MCP client service to control the tools and connections returned
-const mockGetMcpToolsCommandsAndResources = mock(async (onConnectionAttempt: any) => {})
-mock.module('../services/mcp/client.js', () => ({
+const { mockGetMcpToolsCommandsAndResources } = vi.hoisted(() => ({
+  mockGetMcpToolsCommandsAndResources: vi.fn(async (onConnectionAttempt: any) => {})
+}))
+vi.mock('../services/mcp/client.js', () => ({
   getMcpToolsCommandsAndResources: mockGetMcpToolsCommandsAndResources
 }))
 

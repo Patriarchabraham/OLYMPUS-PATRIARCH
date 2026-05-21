@@ -9,6 +9,7 @@ import type {
   SDKAssistantMessage,
   SDKCompactBoundaryMessage,
   SDKMessage,
+  SDKUserMessage,
   SDKRateLimitInfo,
 } from 'src/entrypoints/agentSdkTypes.js'
 import type { ClaudeAILimits } from 'src/services/claudeAiLimits.js'
@@ -36,7 +37,7 @@ export function toInternalMessages(
             uuid: message.uuid,
             requestId: undefined,
             timestamp: new Date().toISOString(),
-          } as Message,
+          } as unknown as Message,
         ]
       case 'user':
         return [
@@ -63,7 +64,7 @@ export function toInternalMessages(
               ),
               uuid: message.uuid,
               timestamp: new Date().toISOString(),
-            },
+            } as Message,
           ]
         }
         return []
@@ -82,13 +83,13 @@ export function toSDKCompactMetadata(
   return {
     trigger: meta.trigger,
     pre_tokens: meta.preTokens,
-    ...(seg && {
+    ...(seg && seg.headUuid && seg.anchorUuid && seg.tailUuid ? {
       preserved_segment: {
         head_uuid: seg.headUuid,
         anchor_uuid: seg.anchorUuid,
         tail_uuid: seg.tailUuid,
       },
-    }),
+    } : {}),
   }
 }
 
@@ -119,18 +120,18 @@ export function toSDKMessages(messages: Message[]): SDKMessage[] {
         return [
           {
             type: 'assistant',
-            message: normalizeAssistantMessageForSDK(message),
+            message: normalizeAssistantMessageForSDK(message) as unknown as SDKAssistantMessage['message'],
             session_id: getSessionId(),
             parent_tool_use_id: null,
             uuid: message.uuid,
-            error: message.error,
+            error: message.error as unknown as SDKAssistantMessage['error'],
           },
         ]
       case 'user':
         return [
           {
             type: 'user',
-            message: message.message,
+            message: message.message as unknown as SDKUserMessage['message'],
             session_id: getSessionId(),
             parent_tool_use_id: null,
             uuid: message.uuid,
@@ -207,7 +208,7 @@ export function localCommandOutputToSDKAssistantMessage(
   const synthetic = createAssistantMessage({ content: cleanContent })
   return {
     type: 'assistant',
-    message: synthetic.message,
+    message: synthetic.message as unknown as SDKAssistantMessage['message'],
     parent_tool_use_id: null,
     session_id: getSessionId(),
     uuid,

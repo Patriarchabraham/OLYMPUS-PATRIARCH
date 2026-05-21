@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
+import { describe, expect, test, beforeEach, afterEach } from 'vitest'
 import { getProviderMode, getProviderChain, getAvailableProviders } from './index.js'
 import type { ProviderMode } from './index.js'
 

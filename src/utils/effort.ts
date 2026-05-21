@@ -352,7 +352,7 @@ export function getDefaultEffortForModel(
     if (isDefaultModel && config?.defaultModelEffortLevel) {
       return config.defaultModelEffortLevel
     }
-    const antModel = resolveAntModel(model)
+    const antModel = resolveAntModel(model) as (import('./model/antModels.js').AntModel & { defaultEffortLevel?: EffortLevel; defaultEffortValue?: number }) | undefined
     if (antModel) {
       if (antModel.defaultEffortLevel) {
         return antModel.defaultEffortLevel

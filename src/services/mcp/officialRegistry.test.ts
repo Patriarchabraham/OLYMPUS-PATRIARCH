@@ -1,11 +1,12 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, vi, test } from 'vitest'
 import axios from 'axios'
 
 const originalEnv = { ...process.env }
 
 async function importFreshModule() {
-  mock.restore()
-  return import(`./officialRegistry.ts?ts=${Date.now()}-${Math.random()}`)
+  vi.restoreAllMocks()
+  vi.resetModules()
+  return vi.importActual<typeof import('./officialRegistry')>('./officialRegistry.ts')
 }
 
 beforeEach(() => {
@@ -14,16 +15,16 @@ beforeEach(() => {
 
 afterEach(() => {
   process.env = { ...originalEnv }
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 describe('prefetchOfficialMcpUrls', () => {
   test('does not fetch registry when using OpenAI mode', async () => {
     process.env.CLAUDE_CODE_USE_OPENAI = '1'
-    mock.module('../../utils/model/providers.js', () => ({
+    vi.doMock('../../utils/model/providers.js', () => ({
       getAPIProvider: () => 'openai',
     }))
-    const getSpy = mock(() => Promise.resolve({ data: { servers: [] } }))
+    const getSpy = vi.fn(() => Promise.resolve({ data: { servers: [] } }))
     axios.get = getSpy as typeof axios.get
 
     const { prefetchOfficialMcpUrls } = await importFreshModule()
@@ -34,10 +35,10 @@ describe('prefetchOfficialMcpUrls', () => {
 
   test('does not fetch registry when using Gemini mode', async () => {
     process.env.CLAUDE_CODE_USE_GEMINI = '1'
-    mock.module('../../utils/model/providers.js', () => ({
+    vi.doMock('../../utils/model/providers.js', () => ({
       getAPIProvider: () => 'gemini',
     }))
-    const getSpy = mock(() => Promise.resolve({ data: { servers: [] } }))
+    const getSpy = vi.fn(() => Promise.resolve({ data: { servers: [] } }))
     axios.get = getSpy as typeof axios.get
 
     const { prefetchOfficialMcpUrls } = await importFreshModule()
@@ -51,10 +52,10 @@ describe('prefetchOfficialMcpUrls', () => {
     delete process.env.CLAUDE_CODE_USE_GEMINI
     delete process.env.CLAUDE_CODE_USE_GITHUB
 
-    mock.module('../../utils/model/providers.js', () => ({
+    vi.doMock('../../utils/model/providers.js', () => ({
       getAPIProvider: () => 'firstParty',
     }))
-    const getSpy = mock(() =>
+    const getSpy = vi.fn(() =>
       Promise.resolve({
         data: {
           servers: [{ server: { remotes: [{ url: 'https://example.com/mcp' }] } }],

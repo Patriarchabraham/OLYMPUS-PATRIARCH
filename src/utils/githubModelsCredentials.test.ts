@@ -1,10 +1,10 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test } from 'vitest'
 
 describe('readGithubModelsToken', () => {
   test('returns undefined in bare mode', async () => {
     const { readGithubModelsToken } = await import(
       './githubModelsCredentials.js?read-bare-mode'
-    )
+    ) as any
 
     const prev = process.env.CLAUDE_CODE_SIMPLE
     process.env.CLAUDE_CODE_SIMPLE = '1'
@@ -21,7 +21,7 @@ describe('saveGithubModelsToken / clearGithubModelsToken', () => {
   test('save returns failure in bare mode', async () => {
     const { saveGithubModelsToken } = await import(
       './githubModelsCredentials.js?save-bare-mode'
-    )
+    ) as any
 
     const prev = process.env.CLAUDE_CODE_SIMPLE
     process.env.CLAUDE_CODE_SIMPLE = '1'
@@ -38,7 +38,7 @@ describe('saveGithubModelsToken / clearGithubModelsToken', () => {
   test('clear succeeds in bare mode', async () => {
     const { clearGithubModelsToken } = await import(
       './githubModelsCredentials.js?clear-bare-mode'
-    )
+    ) as any
 
     const prev = process.env.CLAUDE_CODE_SIMPLE
     process.env.CLAUDE_CODE_SIMPLE = '1'
@@ -50,4 +50,3 @@ describe('saveGithubModelsToken / clearGithubModelsToken', () => {
     }
   })
 })
-

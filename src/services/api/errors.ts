@@ -589,6 +589,27 @@ export function getAssistantMessageFromError(
     })
   }
 
+  // Mythos OLYMPUS: Rate limit errors are now non-blocking.
+  // The retry loop handles backoff. When we reach this handler, it means
+  // retries were exhausted (shouldn't happen with unlimited retries),
+  // but we still show a retry-friendly message instead of a hard block.
+  if (
+    error instanceof APIError &&
+    error.status === 429
+  ) {
+    // Extract reset time from error body for any provider (handles Chinese providers etc.)
+    const resetMatch = error.message?.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)
+    const resetHint = resetMatch?.[0]
+      ? ` · resets at ${resetMatch[0]}`
+      : ''
+
+    return createAssistantAPIErrorMessage({
+      content: `${API_ERROR_MESSAGE_PREFIX}: Rate limit reached — retrying automatically${resetHint}. Mythos will keep trying until the limit resets.`,
+      error: 'rate_limit',
+    })
+  }
+
+  // Original rate limit handling (now only reached if somehow bypassed above)
   if (
     error instanceof APIError &&
     error.status === 429 &&

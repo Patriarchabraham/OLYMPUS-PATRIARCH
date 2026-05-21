@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
+import { describe, test, expect, beforeEach, afterEach } from 'vitest'
 import { DiagnosticTrackingService } from './diagnosticTracking.js'
 import type { MCPServerConnection } from './mcp/types.js'
 

@@ -43,8 +43,8 @@ export function analyzeConversationPatterns(messages: Message[]): ConversationPa
     const userMsg = recentMessages[i]
     const assistantMsg = recentMessages[i + 1]
 
-    const userContent = typeof userMsg.message?.content === 'string' ? userMsg.message.content : ''
-    const assistantContent = typeof assistantMsg.message?.content === 'string' ? assistantMsg.message.content : ''
+    const userContent = typeof (userMsg as any).message?.content === 'string' ? (userMsg as any).message.content : ''
+    const assistantContent = typeof (assistantMsg as any).message?.content === 'string' ? (assistantMsg as any).message.content : ''
 
     for (const [category, keywords] of Object.entries(PATTERN_KEYWORDS)) {
       if (keywords.some(k => userContent.toLowerCase().includes(k))) {
@@ -110,19 +110,19 @@ export function preloadContext(
   const priorityTypes = prediction.predictedNeed
 
   const sorted = [...availableContext].sort((a, b) => {
-    const aContent = typeof a.message?.content === 'string' ? a.message.content : ''
-    const bContent = typeof b.message?.content === 'string' ? b.message.content : ''
+    const aContent = typeof (a as any).message?.content === 'string' ? (a as any).message.content : ''
+    const bContent = typeof (b as any).message?.content === 'string' ? (b as any).message.content : ''
 
     const aPriority = priorityTypes.some(t => aContent.includes(t)) ? 1 : 0
     const bPriority = priorityTypes.some(t => bContent.includes(t)) ? 1 : 0
 
     if (bPriority !== aPriority) return bPriority - aPriority
-    return (b.message?.created_at ?? 0) - (a.message?.created_at ?? 0)
+    return ((b as any).message?.created_at ?? 0) - ((a as any).message?.created_at ?? 0)
   })
 
   for (const msg of sorted) {
     const tokens = roughTokenCountEstimation(
-      typeof msg.message?.content === 'string' ? msg.message.content : ''
+      typeof (msg as any).message?.content === 'string' ? (msg as any).message.content : ''
     )
 
     if (usedTokens + tokens > targetTokens) break

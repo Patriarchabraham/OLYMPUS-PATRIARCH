@@ -25,7 +25,7 @@ let tempDir: string
 
 async function loadDiscoveryServiceModule() {
 	vi.resetModules()
-	return vi.importActual('./discoveryService.js')
+	return vi.importActual<typeof import('./discoveryService.js')>('./discoveryService.js')
 }
 
 function setMockFetch(implementation: typeof globalThis.fetch): void {

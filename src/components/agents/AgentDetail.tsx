@@ -19,7 +19,7 @@ type Props = {
   allAgents?: AgentDefinition[];
   onBack: () => void;
 };
-export function AgentDetail(t0) {
+export function AgentDetail(t0: Props) {
   const $ = _c(48);
   const {
     agent,

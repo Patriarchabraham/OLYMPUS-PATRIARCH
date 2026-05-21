@@ -126,12 +126,12 @@ export async function parseCSV(filePath: string, separator: string = ','): Promi
   const lines = content.split('\n').filter(Boolean)
   metadata.pageCount = 1
 
-  const tables: string[][][] = []
+  const rows: string[][] = []
   let currentRow: string[] = []
 
   for (const line of lines) {
     currentRow = parseCSVLine(line, separator)
-    tables.push(currentRow)
+    rows.push(currentRow)
   }
 
   metadata.wordCount = content.split(/\s+/).filter(Boolean).length
@@ -141,7 +141,7 @@ export async function parseCSV(filePath: string, separator: string = ','): Promi
     text: content,
     pages: [content],
     metadata,
-    tables: tables.length > 0 ? [tables] : undefined,
+    tables: rows.length > 0 ? [rows] : undefined,
   }
 }
 

@@ -106,7 +106,7 @@ export async function* runPostToolUseHooks<Input extends AnyObject, Output>(
             result.message.attachment.type === 'hook_blocking_error'
           )
         ) {
-          yield { message: result.message }
+          yield { message: result.message as AttachmentMessage | ProgressMessage<HookProgress> }
         }
 
         if (result.blockingError) {
@@ -222,7 +222,7 @@ export async function* runPostToolUseHooks<Input extends AnyObject, Output>(
         }
       } else {
         try {
-          const cwd = toolUseContext.options?.cwd ?? process.cwd()
+          const cwd = process.cwd()
           const autoFixResult = await runAutoFixCheck({
             lint: autoFixConfig.lint,
             test: autoFixConfig.test,
@@ -318,7 +318,7 @@ export async function* runPostToolUseFailureHooks<Input extends AnyObject>(
             result.message.attachment.type === 'hook_blocking_error'
           )
         ) {
-          yield { message: result.message }
+          yield { message: result.message as AttachmentMessage | ProgressMessage<HookProgress> }
         }
 
         if (result.blockingError) {
@@ -543,7 +543,7 @@ export async function* runPreToolUseHooks(
     )) {
       try {
         if (result.message) {
-          yield { type: 'message', message: { message: result.message } }
+          yield { type: 'message', message: { message: result.message as AttachmentMessage | ProgressMessage<HookProgress> } }
         }
         if (result.blockingError) {
           const denialMessage = getPreToolHookBlockingMessage(

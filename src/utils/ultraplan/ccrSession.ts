@@ -101,7 +101,7 @@ export class ExitPlanModeScanner {
   ingest(newEvents: SDKMessage[]): ScanResult {
     for (const m of newEvents) {
       if (m.type === 'assistant') {
-        for (const block of m.message.content) {
+        for (const block of m.message.content as any[]) {
           if (block.type !== 'tool_use') continue
           const tu = block as ToolUseBlock
           if (tu.name === EXIT_PLAN_MODE_V2_TOOL_NAME) {
@@ -111,7 +111,7 @@ export class ExitPlanModeScanner {
       } else if (m.type === 'user') {
         const content = m.message.content
         if (!Array.isArray(content)) continue
-        for (const block of content) {
+        for (const block of content as any[]) {
           if (block.type === 'tool_result') {
             this.results.set(block.tool_use_id, block)
           }

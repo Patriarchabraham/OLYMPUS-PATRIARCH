@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, mock, test } from 'bun:test'
+import { afterEach, beforeEach, expect, vi, test } from 'vitest'
 import { createOpenAIShimClient } from './openaiShim.js'
 
 type FetchType = typeof globalThis.fetch
@@ -16,14 +16,14 @@ const mockState = {
   effectiveWindow: 100_000, // Copilot gpt-4o tier
 }
 
-mock.module('../../utils/config.js', () => ({
+vi.mock('../../utils/config.js', () => ({
   getGlobalConfig: () => ({
     toolHistoryCompressionEnabled: mockState.enabled,
     autoCompactEnabled: false,
   }),
 }))
 
-mock.module('../compact/autoCompact.js', () => ({
+vi.mock('../compact/autoCompact.js', () => ({
   getEffectiveContextWindowSize: () => mockState.effectiveWindow,
 }))
 

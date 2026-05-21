@@ -8,7 +8,7 @@
  * 4. Web search result count improvements
  */
 
-import { describe, test, expect } from 'bun:test'
+import { describe, test, expect } from 'vitest'
 import { resolve } from 'node:path'
 import {
   clearRegisteredHooks,

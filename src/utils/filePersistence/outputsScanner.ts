@@ -64,12 +64,12 @@ export async function findModifiedFiles(
   outputsDir: string,
 ): Promise<string[]> {
   // Use recursive flag to get all entries in one call
-  let entries: Awaited<ReturnType<typeof fs.readdir>>
+  let entries: any[]
   try {
     entries = await fs.readdir(outputsDir, {
       withFileTypes: true,
       recursive: true,
-    })
+    }) as any[];
   } catch {
     // Directory doesn't exist or is not accessible
     return []
@@ -83,7 +83,7 @@ export async function findModifiedFiles(
     }
     if (entry.isFile()) {
       // entry.parentPath is available in Node 20+, fallback to entry.path for older versions
-      const parentPath = getEntryParentPath(entry, outputsDir)
+      const parentPath = getEntryParentPath(entry, outputsDir) as string
       filePaths.push(path.join(parentPath, entry.name))
     }
   }

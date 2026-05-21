@@ -60,6 +60,8 @@ export function isNavigableMessage(msg: NavigableMessage): boolean {
           return true;
       }
       return false;
+    default:
+      return false;
   }
 }
 type PrimaryInput = {
@@ -421,9 +423,9 @@ export function copyTextOf(msg: NavigableMessage): string {
         return tc ? PRIMARY_INPUT[tc.name]?.extract(tc.input) ?? '' : '';
       }
     case 'grouped_tool_use':
-      return msg.results.map(toolResultText).filter(Boolean).join('\n\n');
+      return (msg.results as NormalizedUserMessage[]).map(toolResultText).filter(Boolean).join('\n\n');
     case 'collapsed_read_search':
-      return msg.messages.flatMap(m => m.type === 'user' ? [toolResultText(m)] : m.type === 'grouped_tool_use' ? m.results.map(toolResultText) : []).filter(Boolean).join('\n\n');
+      return msg.messages.flatMap((m: any) => m.type === 'user' ? [toolResultText(m)] : m.type === 'grouped_tool_use' ? m.results.map(toolResultText) : []).filter(Boolean).join('\n\n');
     case 'system':
       if ('content' in msg) return msg.content;
       if ('error' in msg) return String(msg.error);
@@ -437,6 +439,8 @@ export function copyTextOf(msg: NavigableMessage): string {
         }
         return `[${a.type}]`;
       }
+    default:
+      return '';
   }
 }
 function toolResultText(r: NormalizedUserMessage): string {

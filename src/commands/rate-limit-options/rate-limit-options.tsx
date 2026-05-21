@@ -155,7 +155,7 @@ function RateLimitOptionsMenu(t0) {
         logEvent("tengu_rate_limit_options_menu_select_upgrade", {});
         upgradeCall(onDone, context).then(jsx => {
           if (jsx) {
-            setSubCommandJSX(jsx);
+            setSubCommandJSX(jsx as React.ReactElement);
           }
         });
       } else {
@@ -163,7 +163,7 @@ function RateLimitOptionsMenu(t0) {
           logEvent("tengu_rate_limit_options_menu_select_extra_usage", {});
           extraUsageCall(onDone, context).then(jsx_0 => {
             if (jsx_0) {
-              setSubCommandJSX(jsx_0);
+              setSubCommandJSX(jsx_0 as React.ReactElement);
             }
           });
         } else {
