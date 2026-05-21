@@ -11,7 +11,7 @@ import type { AgentWizardData } from '../types.js';
 type Props = {
   tools: Tools;
 };
-export function ToolsStep(t0) {
+export function ToolsStep(t0: Props) {
   const $ = _c(9);
   const {
     tools
@@ -37,7 +37,7 @@ export function ToolsStep(t0) {
     t1 = $[2];
   }
   const handleComplete = t1;
-  const initialTools = wizardData.selectedTools;
+  const initialTools = wizardData.selectedTools as string[] | undefined;
   let t2;
   if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
     t2 = <Byline><KeyboardShortcutHint shortcut="Enter" action="toggle selection" /><KeyboardShortcutHint shortcut={"\u2191\u2193"} action="navigate" /><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="go back" /></Byline>;

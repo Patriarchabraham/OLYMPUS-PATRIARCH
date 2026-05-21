@@ -18,7 +18,7 @@
  */
 import { PassThrough } from 'node:stream'
 
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 import React, { useEffect } from 'react'
 import stripAnsi from 'strip-ansi'
 
@@ -27,12 +27,12 @@ import { KeybindingSetup } from '../../keybindings/KeybindingProviderSetup.js'
 import { AppStateProvider } from '../../state/AppState.js'
 import { ThemeProvider, usePreviewTheme } from './ThemeProvider.js'
 
-mock.module('../StructuredDiff.js', () => ({
+vi.mock('../StructuredDiff.js', () => ({
   StructuredDiff: function StructuredDiffPreview(): React.ReactNode {
     return <Text>diff</Text>
   },
 }))
-mock.module('../StructuredDiff/colorDiff.js', () => ({
+vi.mock('../StructuredDiff/colorDiff.js', () => ({
   getColorModuleUnavailableReason: () => 'env',
   getSyntaxTheme: () => null,
 }))
@@ -99,7 +99,7 @@ async function waitForFrame(
 }
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 /**
@@ -123,7 +123,7 @@ test('useTheme() reflects updated currentTheme after setThemeSetting call', asyn
     return <Text>current:{theme}</Text>
   }
 
-  let setThemeFn: ((s: string) => void) | null = null
+  let setThemeFn: ((s: string) => void) | null = null as any
   function ThemeSetter() {
     const [, setter] = useTheme()
     useEffect(() => { setThemeFn = setter })

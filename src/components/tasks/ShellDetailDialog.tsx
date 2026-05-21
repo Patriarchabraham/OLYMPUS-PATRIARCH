@@ -46,7 +46,7 @@ async function getTaskOutput(shell: DeepImmutable<LocalShellTaskState>): Promise
     };
   }
 }
-export function ShellDetailDialog(t0) {
+export function ShellDetailDialog(t0: Props) {
   const $ = _c(57);
   const {
     shell,
@@ -310,7 +310,7 @@ function ShellOutputContent(t0) {
   const {
     content,
     bytesTotal
-  } = use(outputPromise);
+  } = use(outputPromise) as { content?: string; bytesTotal?: number };
   if (!content) {
     let t1;
     if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
@@ -324,7 +324,7 @@ function ShellOutputContent(t0) {
   let isIncomplete;
   let rendered;
   if ($[1] !== bytesTotal || $[2] !== content) {
-    const starts = [];
+    const starts: number[] = [];
     let pos = content.length;
     for (let i = 0; i < 10 && pos > 0; i++) {
       const prev = content.lastIndexOf("\n", pos - 1);
@@ -332,7 +332,7 @@ function ShellOutputContent(t0) {
       pos = prev;
     }
     starts.reverse();
-    isIncomplete = bytesTotal > content.length;
+    isIncomplete = (bytesTotal ?? 0) > content.length;
     rendered = [];
     for (let i_0 = 0; i_0 < starts.length; i_0++) {
       const start = starts[i_0];
@@ -371,7 +371,7 @@ function ShellOutputContent(t0) {
   const t4 = `Showing ${rendered.length} lines`;
   let t5;
   if ($[10] !== bytesTotal || $[11] !== isIncomplete) {
-    t5 = isIncomplete ? ` of ${formatFileSize(bytesTotal)}` : "";
+    t5 = isIncomplete ? ` of ${formatFileSize(bytesTotal ?? 0)}` : "";
     $[10] = bytesTotal;
     $[11] = isIncomplete;
     $[12] = t5;

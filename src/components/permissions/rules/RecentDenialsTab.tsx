@@ -16,7 +16,7 @@ type Props = {
     denials: readonly AutoModeDenial[];
   }) => void;
 };
-export function RecentDenialsTab(t0) {
+export function RecentDenialsTab(t0: Props) {
   const $ = _c(30);
   const {
     onHeaderFocusChange,
@@ -43,8 +43,8 @@ export function RecentDenialsTab(t0) {
   }
   useEffect(t1, t2);
   const [denials] = useState(_temp);
-  const [approved, setApproved] = useState(_temp2);
-  const [retry, setRetry] = useState(_temp3);
+  const [approved, setApproved] = useState<Set<number>>(_temp2);
+  const [retry, setRetry] = useState<Set<number>>(_temp3);
   const [focusedIdx, setFocusedIdx] = useState(0);
   let t3;
   let t4;
@@ -195,10 +195,10 @@ export function RecentDenialsTab(t0) {
   }
   return t13;
 }
-function _temp3() {
+function _temp3(): Set<number> {
   return new Set();
 }
-function _temp2() {
+function _temp2(): Set<number> {
   return new Set();
 }
 function _temp() {

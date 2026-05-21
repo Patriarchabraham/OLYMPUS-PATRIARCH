@@ -1,6 +1,6 @@
 import { PassThrough } from 'node:stream'
 
-import { afterEach, expect, mock, test } from 'bun:test'
+import { afterEach, expect, vi, test } from 'vitest'
 import React from 'react'
 
 import { createRoot, Text } from '../ink.js'
@@ -92,13 +92,13 @@ const TOKENS = {
 }
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
 })
 
 test('does not persist credentials when downstream setup rejects', async () => {
-  const saveCodexCredentials = mock(() => ({ success: true }))
-  const cleanup = mock(() => {})
-  const onAuthenticated = mock(async () => {
+  const saveCodexCredentials = vi.fn(() => ({ success: true }))
+  const cleanup = vi.fn(() => {})
+  const onAuthenticated = vi.fn(async () => {
     throw new Error('profile save failed')
   })
   const deps = {
@@ -116,9 +116,8 @@ test('does not persist credentials when downstream setup rejects', async () => {
     isBareMode: () => false,
   }
 
-  const { useCodexOAuthFlow } = await import(
-    `./useCodexOAuthFlow.js?real-reject-${Date.now()}-${Math.random()}`
-  )
+  vi.resetModules()
+  const { useCodexOAuthFlow } = await vi.importActual('./useCodexOAuthFlow.js') as typeof import('./useCodexOAuthFlow.js')
 
   function Harness(): React.ReactNode {
     const handleAuthenticated = React.useCallback(onAuthenticated, [onAuthenticated])
@@ -153,8 +152,8 @@ test('does not persist credentials when downstream setup rejects', async () => {
 })
 
 test('persists credentials with profile linkage after downstream setup succeeds', async () => {
-  const saveCodexCredentials = mock(() => ({ success: true }))
-  const onAuthenticated = mock(
+  const saveCodexCredentials = vi.fn(() => ({ success: true }))
+  const onAuthenticated = vi.fn(
     async (
       _tokens: typeof TOKENS,
       persistCredentials: (options?: { profileId?: string }) => void,
@@ -162,7 +161,7 @@ test('persists credentials with profile linkage after downstream setup succeeds'
       persistCredentials({ profileId: 'profile_codex_oauth' })
     },
   )
-  const cleanup = mock(() => {})
+  const cleanup = vi.fn(() => {})
   const deps = {
     createOAuthService: () => ({
       async startOAuthFlow(
@@ -178,14 +177,13 @@ test('persists credentials with profile linkage after downstream setup succeeds'
     isBareMode: () => false,
   }
 
-  const { useCodexOAuthFlow } = await import(
-    `./useCodexOAuthFlow.js?real-persist-${Date.now()}-${Math.random()}`
-  )
+  vi.resetModules()
+  const { useCodexOAuthFlow } = await vi.importActual('./useCodexOAuthFlow.js') as typeof import('./useCodexOAuthFlow.js')
 
   function Harness(): React.ReactNode {
-    const handleAuthenticated = React.useCallback(onAuthenticated, [onAuthenticated])
+    const handleAuthenticated = React.useCallback(onAuthenticated as any, [onAuthenticated])
     useCodexOAuthFlow({
-      onAuthenticated: handleAuthenticated,
+      onAuthenticated: handleAuthenticated as any,
       deps,
     })
     return <Text>waiting</Text>

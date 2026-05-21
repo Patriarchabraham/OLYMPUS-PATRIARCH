@@ -49,7 +49,7 @@ type ModeState = {
   event: HookEvent;
   hook: IndividualHookConfig;
 };
-export function HooksConfigMenu(t0) {
+export function HooksConfigMenu(t0: Props) {
   const $ = _c(100);
   const {
     toolNames,
@@ -262,7 +262,7 @@ export function HooksConfigMenu(t0) {
     const byEvent = {};
     let total = 0;
     for (const [event_0, matchers] of Object.entries(hooksByEventAndMatcher)) {
-      const eventCount = Object.values(matchers).reduce(_temp5, 0);
+      const eventCount = (Object.values(matchers) as any[]).reduce((_temp5 as any) as (prev: any, cur: any) => number, 0) as number;
       byEvent[event_0 as HookEvent] = eventCount;
       total = total + eventCount;
     }

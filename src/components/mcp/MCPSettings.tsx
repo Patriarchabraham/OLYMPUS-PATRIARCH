@@ -18,7 +18,7 @@ type Props = {
     display?: CommandResultDisplay;
   }) => void;
 };
-export function MCPSettings(t0) {
+export function MCPSettings(t0: Props) {
   const $ = _c(66);
   const {
     onComplete
@@ -73,7 +73,7 @@ export function MCPSettings(t0) {
           const isSSE = client_0.config.type === "sse";
           const isHTTP = client_0.config.type === "http";
           const isClaudeAIProxy = client_0.config.type === "claudeai-proxy";
-          let isAuthenticated = undefined;
+          let isAuthenticated: boolean | undefined = undefined;
           if (isSSE || isHTTP) {
             const authProvider = new ClaudeAuthProvider(client_0.name, client_0.config as McpSSEServerConfig | McpHTTPServerConfig);
             const tokens = await authProvider.tokens();

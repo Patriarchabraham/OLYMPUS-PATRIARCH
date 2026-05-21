@@ -92,7 +92,7 @@ function UltraplanSessionDetail(t0) {
   const elapsedTime = useElapsedTime(session.startTime, running, 1000, 0, session.endTime);
   let spawns = 0;
   let calls = 0;
-  let lastBlock = null;
+  let lastBlock: { name: string; input: any } | null = null;
   for (const msg of session.log) {
     if (msg.type !== "assistant") {
       continue;

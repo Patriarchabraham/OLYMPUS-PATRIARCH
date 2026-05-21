@@ -6,7 +6,7 @@ import type { WizardContextValue, WizardProviderProps } from './types.js';
 // Use any here for the context since it will be cast properly when used
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const WizardContext = createContext<WizardContextValue<any> | null>(null);
-export function WizardProvider<T = any>(t0: WizardProviderProps<T>) {
+export function WizardProvider<T extends Record<string, unknown> = any>(t0: WizardProviderProps<T>) {
   const $ = _c(38);
   const {
     steps,

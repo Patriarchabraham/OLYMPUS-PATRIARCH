@@ -69,7 +69,7 @@ export function ThemeProvider({
         watchSystemTheme
       }) => {
         if (cancelled) return;
-        cleanup = watchSystemTheme(internal_querier, setSystemTheme);
+        cleanup = watchSystemTheme(internal_querier as unknown as { query(text: string): Promise<string> }, setSystemTheme);
       });
       return () => {
         cancelled = true;
