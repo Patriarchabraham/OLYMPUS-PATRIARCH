@@ -11,8 +11,10 @@
 
 import { describe, test, expect } from 'vitest'
 import { resolve } from 'path'
+import { fileURLToPath } from 'url'
 
-const SRC = resolve(import.meta.dir, '..')
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const SRC = resolve(__dirname, '..')
 const file = (relative: string) => Bun.file(resolve(SRC, relative))
 
 // ---------------------------------------------------------------------------

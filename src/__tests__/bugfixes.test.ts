@@ -10,6 +10,7 @@
 
 import { describe, test, expect } from 'vitest'
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   clearRegisteredHooks,
   registerHookCallbacks,
@@ -17,7 +18,8 @@ import {
 import { getMatchingHooks } from '../utils/hooks.js'
 import type { PluginHookMatcher } from '../utils/settings/types.js'
 
-const SRC = resolve(import.meta.dir, '..')
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const SRC = resolve(__dirname, '..')
 const file = (relative: string) => Bun.file(resolve(SRC, relative))
 
 // ---------------------------------------------------------------------------

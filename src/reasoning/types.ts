@@ -1,4 +1,4 @@
-export type ReasoningStrategy = 'cot' | 'tot' | 'reflect' | 'ensemble' | 'auto'
+export type ReasoningStrategy = 'cot' | 'tot' | 'reflect' | 'ensemble' | 'quantum' | 'auto'
 
 export interface ReasoningStep {
   id: string

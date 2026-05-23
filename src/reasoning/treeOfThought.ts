@@ -29,21 +29,44 @@ Expand on this path with the next 2-3 deeper reasoning steps. Format as a JSON a
 const DEFAULT_MAX_BRANCHES = 4
 const PRUNE_THRESHOLD = 0.4
 
-function defaultGenerateFn(_prompt: string): Promise<string> {
-  return Promise.resolve(JSON.stringify([
+/** Template-based fallback that generates branches from the actual query. */
+function defaultGenerateFn(prompt: string): Promise<string> {
+  const problem = extractProblem(prompt)
+  const queryType = detectQueryType(problem)
+
+  const branches = [
     {
-      approach: 'Direct analytical approach: break the problem into sub-problems and solve each systematically',
-      steps: ['Identify core requirements', 'Decompose into sub-problems', 'Solve each sub-problem', 'Combine solutions'],
+      approach: `Systematic ${queryType} approach: decompose into atomic steps and verify each independently`,
+      steps: [`Identify core ${queryType} requirements`, 'Break into independently verifiable sub-tasks', 'Execute each sub-task with validation', 'Integrate results and verify end-to-end'],
     },
     {
-      approach: 'Pattern-matching approach: find similar solved problems and adapt their solutions',
-      steps: ['Search for analogous problems', 'Identify transferable patterns', 'Adapt solution to current context', 'Validate adapted solution'],
+      approach: `Pattern-matching approach: find known ${queryType} patterns and apply proven solutions`,
+      steps: [`Search for analogous ${queryType} scenarios`, 'Extract transferable patterns', 'Adapt to current context', 'Validate adapted solution'],
     },
     {
-      approach: 'Bottom-up approach: start with concrete examples and generalize',
-      steps: ['Generate concrete test cases', 'Observe patterns in examples', 'Formulate general rule', 'Verify against edge cases'],
+      approach: `First-principles approach: reason from ${queryType} fundamentals`,
+      steps: [`Identify fundamental ${queryType} constraints`, 'Build from ground up', 'Verify each abstraction layer', 'Compare with existing approaches'],
     },
-  ]))
+  ]
+
+  return Promise.resolve(JSON.stringify(branches))
+}
+
+function extractProblem(prompt: string): string {
+  const idx = prompt.indexOf('Problem: ')
+  if (idx !== -1) return prompt.slice(idx + 9).trim()
+  const parts = prompt.split('\n\n').filter(Boolean)
+  return parts[parts.length - 1]?.trim() ?? prompt.slice(-500)
+}
+
+function detectQueryType(text: string): string {
+  const lower = text.toLowerCase()
+  if (/\b(bug|error|fix|crash|fail)\b/.test(lower)) return 'debugging'
+  if (/\b(design|architect|plan|system)\b/.test(lower)) return 'architecture'
+  if (/\b(perform|speed|optim|fast)\b/.test(lower)) return 'performance'
+  if (/\b(secur|vulnerab|auth|encrypt)\b/.test(lower)) return 'security'
+  if (/\b(test|verif|valid|assert)\b/.test(lower)) return 'verification'
+  return 'general'
 }
 
 function parseEvaluation(raw: string): number {

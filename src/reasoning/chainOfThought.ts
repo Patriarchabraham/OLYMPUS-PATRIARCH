@@ -24,15 +24,72 @@ And the original problem:
 
 What is the next logical step? Provide a single JSON object with "type", "content", and "confidence" fields.`
 
-function defaultGenerateFn(_prompt: string): Promise<string> {
-  return Promise.resolve(
-    JSON.stringify([
-      { type: 'analysis', content: 'Analyzing the query to identify key components and requirements', confidence: 0.9 },
-      { type: 'decomposition', content: 'Breaking down the problem into manageable sub-problems', confidence: 0.85 },
-      { type: 'hypothesis', content: 'Formulating an approach based on the decomposition', confidence: 0.8 },
-      { type: 'verification', content: 'Validating the approach against the original requirements', confidence: 0.85 },
-    ]) + '\nCONCLUSION: The problem has been analyzed through a structured chain of reasoning.'
-  )
+/** Template-based fallback that analyzes the actual query. */
+function defaultGenerateFn(prompt: string): Promise<string> {
+  // Inline smart template to avoid circular/async import at module load
+  return smartTemplateFallback(prompt)
+}
+
+/**
+ * Smart template-based CoT fallback using actual query content.
+ */
+function smartTemplateFallback(prompt: string): Promise<string> {
+  const problem = extractProblem(prompt)
+  const keywords = extractTopKeywords(problem)
+  const queryType = detectQueryType(problem)
+
+  const steps = [
+    {
+      type: 'analysis',
+      content: `Identified query type as "${queryType}" with key components: ${keywords.slice(0, 5).join(', ') || 'general inquiry'}`,
+      confidence: 0.85,
+    },
+    {
+      type: 'decomposition',
+      content: `Breaking down the ${queryType} problem into core sub-tasks based on identified requirements and constraints`,
+      confidence: 0.80,
+    },
+    {
+      type: 'hypothesis',
+      content: `Formulating approach for ${queryType}: address each component systematically`,
+      confidence: 0.75,
+    },
+    {
+      type: 'verification',
+      content: `Validating approach against original requirements: checking completeness and edge cases`,
+      confidence: 0.80,
+    },
+  ]
+
+  const conclusion = `The ${queryType} problem has been analyzed. Key insight: focus on ${keywords[0] || 'the primary concern'} as the starting point.`
+
+  return Promise.resolve(JSON.stringify(steps) + '\nCONCLUSION: ' + conclusion)
+}
+
+function extractProblem(prompt: string): string {
+  const idx = prompt.indexOf('Problem: ')
+  if (idx !== -1) return prompt.slice(idx + 9).trim()
+  const parts = prompt.split('\n\n').filter(Boolean)
+  return parts[parts.length - 1]?.trim() ?? prompt.slice(-500)
+}
+
+function detectQueryType(text: string): string {
+  const lower = text.toLowerCase()
+  if (/\b(bug|error|fix|crash|fail)\b/.test(lower)) return 'debugging'
+  if (/\b(design|architect|plan|system|structure)\b/.test(lower)) return 'architecture'
+  if (/\b(perform|speed|optim|fast|slow)\b/.test(lower)) return 'performance'
+  if (/\b(secur|vulnerab|auth|encrypt)\b/.test(lower)) return 'security'
+  if (/\b(test|verif|valid|assert)\b/.test(lower)) return 'verification'
+  if (/\b(implement|build|create|add)\b/.test(lower)) return 'implementation'
+  return 'general'
+}
+
+function extractTopKeywords(text: string): string[] {
+  const stopWords = new Set(['the','a','an','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','to','of','in','for','on','with','at','by','from','as','into','through','and','or','if','not','this','that','it','i','me','my','we','our','you','your','but','about'])
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+    .filter(w => w.length > 2 && !stopWords.has(w))
+    .filter((w, i, a) => a.indexOf(w) === i)
+    .slice(0, 10)
 }
 
 function parseSteps(raw: string): { steps: ReasoningStep[]; conclusion: string } {

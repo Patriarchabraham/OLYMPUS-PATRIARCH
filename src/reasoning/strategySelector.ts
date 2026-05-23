@@ -12,6 +12,13 @@ const VERIFICATION_KEYWORDS = [
   'security', 'safety', 'critical', 'important', 'must',
 ]
 
+const QUANTUM_KEYWORDS = [
+  'quantum', 'supreme', 'dimensional', 'superposition', 'entangle',
+  'collapse', 'tunnel', 'multi-dimensional', 'parallel universe',
+  'simultaneous', 'all dimensions', 'across all', 'holistic',
+  'all angles', 'every aspect', 'comprehensive analysis',
+]
+
 const DESIGN_KEYWORDS = [
   'design', 'architect', 'plan', 'system', 'structure', 'refactor',
   'redesign', 'restructure', 'migrate', 'scale', 'infrastructure',
@@ -21,6 +28,17 @@ const DESIGN_KEYWORDS = [
 export function selectStrategy(query: string): StrategyRecommendation {
   const lower = query.toLowerCase()
   const len = query.length
+
+  // Check for quantum keywords first — highest priority
+  const quantumScore = QUANTUM_KEYWORDS.filter(k => lower.includes(k)).length
+  if (quantumScore >= 2) {
+    return {
+      strategy: 'quantum',
+      reason: `Query contains ${quantumScore} quantum/multi-dimensional terms, quantum engine will evaluate across all dimensions simultaneously`,
+      estimatedComplexity: 'high',
+      estimatedSteps: 10,
+    }
+  }
 
   // Check for verification keywords
   const verificationScore = VERIFICATION_KEYWORDS.filter(k => lower.includes(k)).length

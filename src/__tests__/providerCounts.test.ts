@@ -4,8 +4,10 @@
 
 import { describe, test, expect } from 'vitest'
 import { resolve } from 'path'
+import { fileURLToPath } from 'url'
 
-const SRC = resolve(import.meta.dir, '..', 'tools', 'WebSearchTool', 'providers')
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const SRC = resolve(__dirname, '..', 'tools', 'WebSearchTool', 'providers')
 const file = (name: string) => Bun.file(resolve(SRC, name))
 
 describe('Provider result counts', () => {

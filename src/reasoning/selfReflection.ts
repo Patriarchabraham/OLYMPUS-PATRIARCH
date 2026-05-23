@@ -56,12 +56,57 @@ Similarity score (0.0-1.0):`
 const DEFAULT_MAX_ITERATIONS = 3
 const CONVERGENCE_THRESHOLD = 0.9
 
-function defaultGenerateFn(_prompt: string): Promise<string> {
+/** Template-based fallback that generates reflection from the actual query. */
+function defaultGenerateFn(prompt: string): Promise<string> {
+  const problem = extractProblem(prompt)
+  const queryType = detectQueryType(problem)
+
+  // Detect which phase is calling
+  if (prompt.includes('Critique the following response')) {
+    return Promise.resolve(
+      '1. The analysis could benefit from more specific examples or concrete steps\n' +
+      '2. Edge cases and failure modes should be explicitly addressed\n' +
+      '3. Alternative approaches were not fully explored\n' +
+      '4. The reasoning could be strengthened with quantitative evidence'
+    )
+  }
+
+  if (prompt.includes('Based on this critique')) {
+    return Promise.resolve(
+      `Improved analysis for the ${queryType} problem: After considering the critique, the refined approach ` +
+      'addresses gaps by incorporating specific examples, explicitly handling edge cases, ' +
+      'and providing more rigorous validation at each step.'
+    )
+  }
+
+  if (prompt.includes('Rate their similarity')) {
+    return Promise.resolve('0.75')
+  }
+
+  // Initial response
   return Promise.resolve(
-    'Initial analysis of the problem reveals several key considerations. ' +
+    `Analysis of the ${queryType} problem reveals several key considerations. ` +
     'The approach should be systematic, addressing each component in order of priority. ' +
-    'After careful evaluation, the recommended solution balances correctness with practicality.'
+    `Special attention should be paid to ${queryType === 'debugging' ? 'root cause identification' : 'correctness and maintainability'}.`
   )
+}
+
+function extractProblem(prompt: string): string {
+  const markers = ['Original question:\n', 'Problem: ']
+  for (const m of markers) {
+    const idx = prompt.indexOf(m)
+    if (idx !== -1) return prompt.slice(idx + m.length).split('\n')[0]?.trim() ?? ''
+  }
+  return prompt.slice(-300)
+}
+
+function detectQueryType(text: string): string {
+  const lower = text.toLowerCase()
+  if (/\b(bug|error|fix|crash|fail)\b/.test(lower)) return 'debugging'
+  if (/\b(design|architect|plan|system)\b/.test(lower)) return 'architecture'
+  if (/\b(secur|vulnerab|auth|encrypt)\b/.test(lower)) return 'security'
+  if (/\b(test|verif|valid|assert)\b/.test(lower)) return 'verification'
+  return 'general'
 }
 
 function parseSimilarity(raw: string): number {
