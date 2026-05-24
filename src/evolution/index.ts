@@ -15,6 +15,10 @@ import type {
 	ToolUsageStats,
 } from './types.js'
 
+export type { DesignAuditResult, DesignCheck, DesignRecommendation } from './designEvolution.js'
+// Design Evolution — permanent ultra-luxury design quality engine
+export { DESIGN_STANDARDS, DesignEvolutionEngine, designEngine } from './designEvolution.js'
+
 const DEFAULT_CONFIG: EvolutionConfig = {
 	maxInteractions: 5000,
 	minSampleSize: 3,
