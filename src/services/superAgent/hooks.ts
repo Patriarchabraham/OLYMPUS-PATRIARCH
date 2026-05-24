@@ -1,3 +1,4 @@
+import { getSessionContextManager } from '../../cortex/sessionContext.js'
 import type { InteractionRecord } from '../../evolution/types.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { registerPostSamplingHook } from '../../utils/hooks/postSamplingHooks.js'
@@ -118,6 +119,34 @@ export function registerSuperAgentHooks(config?: Partial<SuperAgentConfig>): voi
 					}
 				} catch (e) {
 					logForDebugging(`[SuperAgent] cortex tracking failed: ${e}`)
+				}
+			}
+
+			// ─── Update session context for temporal reasoning (Gap 9) ──
+			try {
+				const activeChain = orchestrator.getActiveReasoningChain()
+				if (activeChain) {
+					const sessionMgr = getSessionContextManager()
+					sessionMgr.updateFromChain(activeChain)
+				}
+			} catch {
+				// Non-critical
+			}
+
+			// ─── Periodic governance scan (every 50 interactions) ────
+			if (orchestrator.isModuleEnabled('governance')) {
+				try {
+					const _report = orchestrator.getGovernanceReport()
+					const interactionCount = orchestrator.getEvolutionReport()?.totalInteractions ?? 0
+					if (interactionCount > 0 && interactionCount % 50 === 0) {
+						// Governance scan runs on the project root (src/)
+						const governanceEngine = orchestrator.getGovernanceEngine()
+						if (governanceEngine) {
+							void governanceEngine.analyzeProject('src/').catch(() => {})
+						}
+					}
+				} catch {
+					// Non-critical
 				}
 			}
 		} catch (e) {

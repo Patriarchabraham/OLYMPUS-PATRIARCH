@@ -3,12 +3,16 @@ import { join } from 'node:path'
 import { type AutonomousRunner, createAutonomousRunner } from '../../autonomous/index.js'
 import { executePipeline, matchOperation } from '../../composition/index.js'
 import type { ToolExecutor as CompositionToolExecutor } from '../../composition/toolChain.js'
+import { runWithEscalation } from '../../cortex/depthEscalator.js'
 import { type CortexEngine, getCortexEngine } from '../../cortex/index.js'
+import { getSessionContextManager } from '../../cortex/sessionContext.js'
 import type { CortexAnalysis } from '../../cortex/types.js'
 import { getDeviceBridgeManager } from '../../deviceBridge/index.js'
 import type { DeviceInfo, LocalDeviceSnapshot } from '../../deviceBridge/types.js'
 import { type EvolutionEngine, getEvolutionEngine } from '../../evolution/index.js'
 import type { InteractionRecord, Pattern, ToolRecommendation } from '../../evolution/types.js'
+import { type GovernanceEngine, getGovernanceEngine } from '../../governance/index.js'
+import type { GovernanceReport } from '../../governance/types.js'
 import { getRAGEngine } from '../../knowledge/ragEngine.js'
 import { getHotPathCache } from '../../nativeCore/hotPathCache.js'
 import { getNativeCallBridge } from '../../nativeCore/nativeCallBridge.js'
@@ -47,6 +51,7 @@ export class SuperAgentOrchestrator {
 	private evolutionEngine: EvolutionEngine | null = null
 	private autonomousRunner: AutonomousRunner | null = null
 	private cortexEngine: CortexEngine | null = null
+	private governanceEngine: GovernanceEngine | null = null
 
 	constructor(config?: Partial<SuperAgentConfig>) {
 		this.config = { ...DEFAULT_SUPER_AGENT_CONFIG, ...config }
@@ -68,6 +73,8 @@ export class SuperAgentOrchestrator {
 			discoveredDevices: [],
 			localDeviceSnapshot: null,
 			performanceReport: null,
+			governanceReport: null,
+			sessionContext: null,
 			enabledModules: [],
 			initialized: false,
 		}
@@ -128,6 +135,15 @@ export class SuperAgentOrchestrator {
 			try {
 				this.cortexEngine = getCortexEngine(dataDir)
 				enabled.push('cortex')
+				// Gap 5: Wire cross-model verification provider
+				try {
+					const { setVerificationProvider } = await import('../../cortex/crossModelVerifier.js')
+					const { createGenerateFn } = await import('../../reasoning/generateFnFactory.js')
+					const generateFn = await createGenerateFn()
+					setVerificationProvider(generateFn)
+				} catch {
+					// Non-critical — verification works in self-verification mode
+				}
 			} catch (e) {
 				logForDebugging(`[SuperAgent] cortex init failed: ${e}`)
 			}
@@ -163,6 +179,40 @@ export class SuperAgentOrchestrator {
 		if (this.config.webintelEnabled) enabled.push('webintel')
 		if (this.config.multimodalEnabled) enabled.push('multimodal')
 
+		// ─── 100x Governance Engine ────────────────────────────────
+		if (this.config.governanceEnabled) {
+			try {
+				this.governanceEngine = await getGovernanceEngine(dataDir)
+				enabled.push('governance')
+			} catch (e) {
+				logForDebugging(`[SuperAgent] governance init failed: ${e}`)
+			}
+		}
+
+		// Gap 6: Wire AI-driven goal decomposition
+		if (this.config.autonomousEnabled) {
+			try {
+				const { setDecomposeFn } = await import('../../autonomous/goalManager.js')
+				const { createGenerateFn } = await import('../../reasoning/generateFnFactory.js')
+				const generateFn = await createGenerateFn()
+				setDecomposeFn(async (description: string) => {
+					const response = await generateFn(
+						`Decompose this goal into 3-7 specific, actionable sub-tasks. Return ONLY a JSON array of strings, no other text:\n\n${description}`,
+					)
+					try {
+						return JSON.parse(response)
+					} catch {
+						return response
+							.split('\n')
+							.filter((l: string) => l.trim().startsWith('-'))
+							.map((l: string) => l.replace(/^-\s*/, ''))
+					}
+				})
+			} catch {
+				// Non-critical — falls back to heuristic decomposition
+			}
+		}
+
 		this.state.enabledModules = enabled
 		this.state.initialized = true
 
@@ -173,6 +223,8 @@ export class SuperAgentOrchestrator {
 
 	/**
 	 * Run a reasoning chain before/alongside the model call.
+	 * Uses depth escalation (Gap 2), evolution feedback (Gap 3),
+	 * and session context (Gap 9) for deeper multi-layered reasoning.
 	 * Returns the reasoning chain for system prompt augmentation.
 	 */
 	async runReasoning(
@@ -184,18 +236,58 @@ export class SuperAgentOrchestrator {
 		if (!this.config.reasoningEnabled) return null
 
 		try {
-			const chain = await runReasoning(
-				query,
-				strategy ?? this.config.defaultStrategy ?? 'auto',
-				context,
-				generateFn,
-			)
+			// Gap 9: Inject session context as additional reasoning context
+			const sessionMgr = getSessionContextManager()
+			const sessionContext = sessionMgr.buildContextString()
+			const enrichedContext = [context, sessionContext].filter(Boolean).join('\n\n') || undefined
+
+			// Gap 2: Use depth escalation for deeper reasoning
+			const resolvedStrategy = strategy ?? this.config.defaultStrategy ?? 'auto'
+
+			let chain: ReasoningChain | null = null
+
+			// Gap 10: Use quantum-cortex bridge for quantum strategy
+			if (resolvedStrategy === 'quantum' && this.cortexEngine) {
+				try {
+					const { quantumWithCortex } = await import('../../quantum/cortexBridge.js')
+					const cortexAnalysis = this.state.activeCortexAnalysis ?? null
+					const result = await quantumWithCortex(query, cortexAnalysis)
+					chain = {
+						id: `quantum-cortex-${Date.now()}`,
+						strategy: 'quantum',
+						query,
+						steps: result.augmentedSteps,
+						conclusion: result.augmentedSteps[result.augmentedSteps.length - 1]?.content ?? '',
+						confidence: result.combinedConfidence,
+						durationMs: 0,
+						timestamp: Date.now(),
+					}
+				} catch {
+					// Fall through to standard reasoning
+				}
+			}
+
+			if (!chain) {
+				chain = await runWithEscalation(
+					query,
+					resolvedStrategy === 'auto' ? 'cot' : resolvedStrategy,
+					async (q: string, s: ReasoningStrategy, genFn?: GenerateFn) =>
+						runReasoning(q, s, enrichedContext, genFn ?? generateFn),
+					{ minConfidence: 0.7, maxEscalations: 3 },
+					generateFn,
+				)
+			}
+
 			this.state.activeReasoningChain = chain
 			this.state.reasoningHistory.push(chain)
 			// Keep last 20 chains
 			if (this.state.reasoningHistory.length > 20) {
 				this.state.reasoningHistory.shift()
 			}
+
+			// Gap 9: Update session context with new chain
+			sessionMgr.updateFromChain(chain)
+
 			return chain
 		} catch (e) {
 			logForDebugging(`[SuperAgent] reasoning failed: ${e}`)
@@ -599,6 +691,37 @@ export class SuperAgentOrchestrator {
 
 	// ─── State ────────────────────────────────────────────────────────
 
+	/**
+	 * Run a full governance scan on a project directory.
+	 * Returns a GovernanceReport with scores, findings, and auto-fixes.
+	 */
+	async runGovernanceScan(rootDir: string): Promise<GovernanceReport | null> {
+		if (!this.config.governanceEnabled || !this.governanceEngine) return null
+
+		try {
+			const report = await this.governanceEngine.analyzeProject(rootDir)
+			this.state.governanceReport = report
+			return report
+		} catch (e) {
+			logForDebugging(`[SuperAgent] governance scan failed: ${e}`)
+			return null
+		}
+	}
+
+	/**
+	 * Get the last governance report.
+	 */
+	getGovernanceReport(): GovernanceReport | null {
+		return this.state.governanceReport
+	}
+
+	/**
+	 * Get the governance engine instance.
+	 */
+	getGovernanceEngine(): GovernanceEngine | null {
+		return this.governanceEngine
+	}
+
 	getState(): Readonly<SuperAgentState> {
 		return this.state
 	}
@@ -621,6 +744,10 @@ export class SuperAgentOrchestrator {
 		// Persist cortex state on shutdown
 		if (this.cortexEngine) {
 			this.cortexEngine.save()
+		}
+		// Persist governance state on shutdown
+		if (this.governanceEngine) {
+			await this.governanceEngine.save()
 		}
 		// Clean up native bridge
 		if (this.config.nativeCoreEnabled) {
