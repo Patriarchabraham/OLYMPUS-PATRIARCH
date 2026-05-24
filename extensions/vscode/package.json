@@ -1,0 +1,120 @@
+{
+  "name": "mythos-patriarch",
+  "displayName": "Mythos Patriarch",
+  "description": "Quantum Supreme AI Coding Agent — multi-provider reasoning with quantum-inspired intelligence",
+  "version": "0.1.0",
+  "publisher": "mythos-patriarch",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning",
+    "Chat",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "coding",
+    "agent",
+    "quantum",
+    "multi-provider",
+    "llm",
+    "assistant"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "mythos.openTerminal",
+        "title": "Mythos: Open Terminal"
+      },
+      {
+        "command": "mythos.sendPrompt",
+        "title": "Mythos: Quick Prompt"
+      },
+      {
+        "command": "mythos.status",
+        "title": "Mythos: Status"
+      },
+      {
+        "command": "mythos.openChat",
+        "title": "Mythos: Open Chat Panel"
+      },
+      {
+        "command": "mythos.switchProvider",
+        "title": "Mythos: Switch Provider"
+      }
+    ],
+    "configuration": {
+      "title": "Mythos Patriarch",
+      "properties": {
+        "mythos.binaryPath": {
+          "type": "string",
+          "default": "mythos",
+          "description": "Path to the mythos CLI binary"
+        },
+        "mythos.defaultProvider": {
+          "type": "string",
+          "default": "",
+          "enum": [
+            "",
+            "anthropic",
+            "openai",
+            "gemini",
+            "deepseek",
+            "ollama"
+          ],
+          "description": "Default LLM provider (empty = auto-detect)"
+        },
+        "mythos.autoStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically start Mythos terminal on VS Code launch"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mythos-container",
+          "title": "Mythos",
+          "icon": "images/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "mythos-container": [
+        {
+          "type": "webview",
+          "id": "mythos.chat",
+          "name": "Chat"
+        }
+      ]
+    },
+    "terminal": {
+      "profiles": [
+        {
+          "id": "mythos.terminal",
+          "title": "Mythos Terminal",
+          "icon": "images/icon.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "echo 'No linter configured'"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  }
+}
