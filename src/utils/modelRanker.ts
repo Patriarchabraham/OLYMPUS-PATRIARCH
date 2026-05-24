@@ -204,6 +204,70 @@ const MODEL_DATABASE: Record<string, ModelCapabilities> = {
     provider: 'xai', reasoning: 7, speed: 8, cost: 7,
     contextWindow: 256_000, toolUse: true, vision: false, extendedThinking: false,
   },
+
+  // --- DeepSeek ---
+  'deepseek-r1': {
+    provider: 'deepseek', reasoning: 9, speed: 4, cost: 8,
+    contextWindow: 128_000, toolUse: true, vision: false, extendedThinking: true,
+  },
+  'deepseek-v3': {
+    provider: 'deepseek', reasoning: 8, speed: 6, cost: 9,
+    contextWindow: 128_000, toolUse: true, vision: false, extendedThinking: false,
+  },
+  'deepseek-coder-v2': {
+    provider: 'deepseek', reasoning: 7, speed: 7, cost: 9,
+    contextWindow: 128_000, toolUse: true, vision: false, extendedThinking: false,
+  },
+
+  // --- Amazon Nova ---
+  'nova-pro': {
+    provider: 'amazon', reasoning: 7, speed: 7, cost: 6,
+    contextWindow: 300_000, toolUse: true, vision: true, extendedThinking: false,
+  },
+  'nova-lite': {
+    provider: 'amazon', reasoning: 5, speed: 10, cost: 10,
+    contextWindow: 300_000, toolUse: true, vision: true, extendedThinking: false,
+  },
+
+  // --- Meta Llama ---
+  'llama-4-maverick': {
+    provider: 'meta', reasoning: 8, speed: 6, cost: 9,
+    contextWindow: 1_000_000, toolUse: true, vision: true, extendedThinking: false,
+  },
+  'llama-4-scout': {
+    provider: 'meta', reasoning: 7, speed: 8, cost: 10,
+    contextWindow: 10_000_000, toolUse: true, vision: true, extendedThinking: false,
+  },
+
+  // --- Cohere ---
+  'command-r-plus': {
+    provider: 'cohere', reasoning: 7, speed: 6, cost: 5,
+    contextWindow: 128_000, toolUse: true, vision: false, extendedThinking: false,
+  },
+  'command-r': {
+    provider: 'cohere', reasoning: 6, speed: 8, cost: 7,
+    contextWindow: 128_000, toolUse: true, vision: false, extendedThinking: false,
+  },
+
+  // --- Qwen ---
+  'qwen3-235b': {
+    provider: 'qwen', reasoning: 8, speed: 6, cost: 8,
+    contextWindow: 128_000, toolUse: true, vision: false, extendedThinking: true,
+  },
+  'qwen3-coder': {
+    provider: 'qwen', reasoning: 7, speed: 7, cost: 9,
+    contextWindow: 128_000, toolUse: true, vision: false, extendedThinking: false,
+  },
+
+  // --- Ollama (local) ---
+  'ollama-codellama': {
+    provider: 'ollama', reasoning: 6, speed: 7, cost: 10,
+    contextWindow: 16_000, toolUse: false, vision: false, extendedThinking: false,
+  },
+  'ollama-deepseek-coder-v2': {
+    provider: 'ollama', reasoning: 7, speed: 6, cost: 10,
+    contextWindow: 128_000, toolUse: false, vision: false, extendedThinking: false,
+  },
 }
 
 // ============================================================
