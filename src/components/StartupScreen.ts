@@ -14,6 +14,7 @@ import { getLocalOpenAICompatibleProviderLabel } from '../utils/providerDiscover
 import { getSettings_DEPRECATED } from '../utils/settings/settings.js'
 import { parseUserSpecifiedModel } from '../utils/model/model.js'
 import { DEFAULT_GEMINI_MODEL } from '../utils/providerProfile.js'
+import { findClosestModel } from '../utils/modelRanker.js'
 import { getGlobalConfig } from '../utils/config.js'
 import { ANSI_DIM, ANSI_RESET, ansiRgb } from '../utils/terminalAnsi.js'
 import {
@@ -215,6 +216,17 @@ export function printStartupScreen(modelOverride?: string): void {
   out.push(boxRow(r, W, l, BORDER))
   const ep = p.baseUrl.length > 38 ? p.baseUrl.slice(0, 35) + '...' : p.baseUrl
   ;[r, l] = lbl('Endpoint', ep)
+  out.push(boxRow(r, W, l, BORDER))
+
+  // Model quality indicator from the model ranking system
+  const caps = findClosestModel(p.model)
+  const tierLabel = caps
+    ? (caps.reasoning >= 9 ? 'Tier 1 — Supreme' : caps.reasoning >= 7 ? 'Tier 2 — Strong' : 'Tier 3 — Fast')
+    : 'Unknown'
+  const tierColor: RGB = caps
+    ? (caps.reasoning >= 9 ? ACCENT : caps.reasoning >= 7 ? CREAM : DIMCOL)
+    : DIMCOL
+  ;[r, l] = lbl('Quality', tierLabel, tierColor)
   out.push(boxRow(r, W, l, BORDER))
 
   out.push(`${ansiRgb(...BORDER)}\u2560${'\u2550'.repeat(W - 2)}\u2563${RESET}`)
