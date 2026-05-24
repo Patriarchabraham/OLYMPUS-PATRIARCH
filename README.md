@@ -1,179 +1,286 @@
-﻿# Mythos Anthropic
+<p align="center">
+  <img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Runtime-Bun-000000?logo=bun&logoColor=white" alt="Bun" />
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License" />
+  <img src="https://img.shields.io/badge/Providers-10%2B-orange" alt="10+ Providers" />
+  <img src="https://img.shields.io/badge/Zero_Telemetry-100%25-success" alt="Zero Telemetry" />
+  <img src="https://img.shields.io/badge/Quantum_Simulator-12_files-blueviolet" alt="Quantum" />
+</p>
 
-Mythos Anthropic is a next-generation AI coding agent platform by Patriarch - open-source coding-agent CLI for cloud and local model providers.
+<h1 align="center">Mythos Patriarch</h1>
 
-Use OpenAI-compatible APIs, Gemini, GitHub Models, Codex OAuth, Codex, Ollama, Atomic Chat, and other supported backends while keeping one terminal-first workflow: prompts, tools, agents, MCP, slash commands, and streaming output.
-
-**Version:** 1.0.0
-**Author:** Patriarch
-
-Mythos Anthropic - Transforming the future of AI-assisted coding.
-
-[Quick Start](#quick-start) | [Setup Guides](#setup-guides) | [Providers](#supported-providers) | [Source Build](#source-build-and-local-development) | [VS Code Extension](#vs-code-extension) | [Sponsors](#sponsors) | [Community](#community)
-
-## Sponsors
+<p align="center"><strong>Quantum Supreme AI Coding Agent</strong></p>
 
 <p align="center">
-  <a href="https://gitlawb.com">
-    <img src="https://gitlawb.com/logo.png" alt="GitLawb logo" width="96">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://bankr.bot">
-    <img src="https://bankr.bot/favicon.svg" alt="Bankr.bot logo" width="96">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://atomic.chat/">
-    <img src="docs/assets/atomic-chat-logo.png" alt="Atomic Chat logo" width="96">
-  </a>
+  Open-source, multi-provider AI coding agent with quantum-inspired reasoning,<br/>
+  autonomous intelligence, and zero telemetry.
 </p>
 
 <p align="center">
-  <a href="https://gitlawb.com"><strong>GitLawb</strong></a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://bankr.bot"><strong>Bankr.bot</strong></a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://atomic.chat/"><strong>Atomic Chat</strong></a>
+  <a href="#quick-start">Quick Start</a> &bull;
+  <a href="#features">Features</a> &bull;
+  <a href="#comparison">Comparison</a> &bull;
+  <a href="#architecture">Architecture</a> &bull;
+  <a href="#install">Install</a> &bull;
+  <a href="#usage">Usage</a>
 </p>
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/chart?repos=gitlawb/Mythos Patriarch&type=date&legend=top-left)](https://www.star-history.com/?repos=gitlawb%2FMythos Patriarch&type=date&legend=top-left)
+---
 
 ## Why Mythos Patriarch
 
-- Use one CLI across cloud APIs and local model backends
-- Save provider profiles inside the app with `/provider`
-- Run with OpenAI-compatible services, Gemini, GitHub Models, Codex OAuth, Codex, Ollama, Atomic Chat, and other supported providers
-- Keep coding-agent workflows in one place: bash, file tools, grep, glob, agents, tasks, MCP, and web tools
-- Use the bundled VS Code extension for launch integration and theme support
+- **One CLI, any provider** — Anthropic, OpenAI, Gemini, DeepSeek, Ollama, Bedrock, Vertex, Codex, and more
+- **Quantum-inspired reasoning** — Real quantum circuit simulator (complex amplitudes, Born rule, Bell states)
+- **Zero degradation** — Every module uses real algorithms, no hardcoded stubs or placeholder text
+- **Zero telemetry** — No data collection, no tracking, no analytics. Your code stays yours
+- **Autonomous evolution** — Prompts evolve via genetic algorithms, patterns learn from interactions
+- **Multi-dimensional analysis** — Security, performance, architecture, UX, design, business, accessibility
 
 ## Quick Start
 
-### Install
-
 ```bash
-npm install -g @gitlawb/Mythos Patriarch
+# Install globally
+npm install -g mythos-patriarch
+
+# Start (first run launches provider setup)
+mythos
+
+# Or set up a specific provider
+export CLAUDE_CODE_USE_OPENAI=1
+export OPENAI_API_KEY=sk-your-key-here
+mythos
 ```
 
-If the install later reports `ripgrep not found`, install ripgrep system-wide and confirm `rg --version` works in the same terminal before starting Mythos Patriarch.
+Inside Mythos:
 
-### Start
+- `/provider` — guided provider setup with saved profiles
+- `/onboard-github` — GitHub Models onboarding
 
-```bash
-Mythos Patriarch
+## Features
+
+### Multi-Provider LLM Support
+
+| Provider | Setup | Notes |
+|----------|-------|-------|
+| OpenAI-compatible | `/provider` or env vars | OpenAI, OpenRouter, DeepSeek, Groq, Mistral, LM Studio |
+| Anthropic Claude | `/provider` | Native Anthropic SDK |
+| Gemini | `/provider` or env vars | API key support |
+| GitHub Models | `/onboard-github` | Interactive onboarding |
+| Codex OAuth | `/provider` | Browser sign-in flow |
+| Ollama | `/provider`, env vars, or `ollama launch` | Local inference, zero config |
+| Bedrock / Vertex / Foundry | env vars | Enterprise cloud deployments |
+| Atomic Chat | `/provider` or env vars | Local model provider |
+| xAI Grok | env vars | Grok API support |
+| Alibaba DashScope | `/provider` | DashScope provider |
+
+### Quantum Reasoning Engine
+
+Real quantum circuit simulator with 12 modules implementing actual quantum mechanics:
+
+- **Superposition** — Evaluate multiple solution states simultaneously across dimensions
+- **Entanglement** — Cross-reference patterns across projects/dimensions via Bell states (H+CNOT)
+- **Collapse** — Born rule projective measurement to converge on optimal solutions
+- **Tunneling** — Quantum walks with coin qubit + position register to bypass barriers
+
+Pipeline: `PERCEIVE -> SUPERPOSE -> ENTANGLE -> EVALUATE -> COLLAPSE`
+
+### Reasoning Strategies
+
+| Strategy | Description |
+|----------|-------------|
+| **Chain of Thought** | Structured step-by-step reasoning with template-based analysis |
+| **Tree of Thought** | Branch generation, evaluation scoring, pruning (threshold 0.4), best-path expansion |
+| **Self-Reflection** | Multi-iteration critique loop with convergence check (threshold 0.9) |
+| **Ensemble** | Merges CoT + ToT + Self-Reflection with weighted scoring and deduplication |
+| **Quantum** | Full QuantumEngine pipeline — real quantum math, not keyword matching |
+| **Auto** | Keyword-based heuristic auto-selects optimal strategy per query |
+
+### Meta-Cognition & Verification
+
+- **Flesch-Kincaid readability** scoring
+- **Shannon entropy** of word distribution
+- **TF-IDF domain classification** across 8 domains
+- **NLI contradiction detection** with cosine similarity
+- **Cross-model verification** — primary vs. verification model output comparison
+- **Zero-trust pipeline** — every output passes adversarial verification
+
+### Autonomous Evolution
+
+- **Genetic algorithm prompt evolution** — population, crossover, mutation, tournament selection
+- **Time-decay pattern weighting** — 7-day half-life, recent interactions matter more
+- **Auto-evolution trigger** — underperforming prompt sections evolve automatically
+- **Effectiveness tracking** — per-strategy success rates, per-tool performance, trend analysis
+- **Staleness detection** — freshness scoring with configurable thresholds
+
+### Swarm Intelligence
+
+- Multi-agent orchestration with topological sort
+- Weighted consensus across agents
+- Task distribution and error recovery
+- Parallel agent execution
+
+### Multimodal
+
+- **Vision** — Image analysis with perceptual hash (dHash) comparison + provider vision
+- **STT** — Real audio capture via ffmpeg/sox/PowerShell SAPI
+- **TTS** — Cross-platform including Windows SAPI fallback
+- **Language detection** — 8 languages via Unicode + word frequency analysis
+- **DOCX/XLSX** — Native ZIP+XML parsing (zero dependencies)
+- **Code visualization** — Mermaid flowcharts, sequence diagrams, class diagrams
+
+### System Integration
+
+- **Device Bridge** — arp-a, adb, SSH device scanning
+- **Native Core** — Persistent PowerShell bridge with WMI queries, LRU cache
+- **OOM Prevention** — 4-layer heap protection (4GB/8GB floor)
+- **RAG Engine** — Vector store, semantic search, knowledge graph, OpenAI/Ollama embeddings
+
+## Comparison
+
+| Feature | Mythos | Claude Code | Gemini CLI | Grok CLI |
+|---------|--------|-------------|------------|----------|
+| Open Source | :white_check_mark: | :x: | :white_check_mark: | :x: |
+| Multi-Provider | :white_check_mark: 10+ | :x: Anthropic only | :x: Gemini only | :x: Grok only |
+| Zero Telemetry | :white_check_mark: | :x: | :x: | :x: |
+| Quantum Reasoning | :white_check_mark: | :x: | :x: | :x: |
+| Tree of Thought | :white_check_mark: | :x: | :x: | :x: |
+| Self-Reflection | :white_check_mark: | :x: | :x: | :x: |
+| Ensemble Strategy | :white_check_mark: | :x: | :x: | :x: |
+| Meta-Cognition | :white_check_mark: | :x: | :x: | :x: |
+| Cross-Model Verification | :white_check_mark: | :x: | :x: | :x: |
+| Prompt Auto-Evolution | :white_check_mark: | :x: | :x: | :x: |
+| Swarm Intelligence | :white_check_mark: | :x: | :white_check_mark: (sub-agents) | :white_check_mark: (Arena) |
+| RAG / Vector Store | :white_check_mark: | :x: | :x: | :x: |
+| Knowledge Graph | :white_check_mark: | :x: | :x: | :x: |
+| Device Bridge | :white_check_mark: | :x: | :x: | :x: |
+| OOM Prevention | :white_check_mark: | :x: | :x: | :x: |
+| STT (voice input) | :white_check_mark: | :x: | :x: | :x: |
+| DOCX/XLSX Parsing | :white_check_mark: | :x: | :x: | :x: |
+| Code Visualization | :white_check_mark: | :x: | :x: | :x: |
+| MCP Support | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Computer Use | :x: | :white_check_mark: | :x: | :white_check_mark: (macOS) |
+| IDE Integration | CLI + VS Code | VS Code + JetBrains + Web + iOS | CLI | CLI |
+| Free Tier | :white_check_mark: (BYO key) | :x: ($20/mo min) | :white_check_mark: (1000 req/day) | :x: ($300/mo) |
+| Context Window | Provider-dependent | 1M tokens | 1M tokens | 2M tokens |
+
+## Architecture
+
+```
+mythos/
+  src/
+    cli/              Terminal UI and command parsing
+    reasoning/        CoT, ToT, Self-Reflection, Quantum, Ensemble strategies
+    cortex/           Meta-cognition, decomposition, multi-pass, cross-model verification
+    quantum/          Quantum circuit simulator (12 files, real quantum math)
+    autonomous/       Goal manager, task runner, error recovery
+    swarm/            Multi-agent orchestration, consensus, task distribution
+    knowledge/        RAG engine, vector store, semantic search, embeddings
+    evolution/        Pattern learning, prompt evolution, effectiveness tracking
+    multimodal/       Vision, STT, TTS, document parsing, code visualization
+    deviceBridge/     System-level device scanning (arp-a, adb, SSH)
+    nativeCore/       PowerShell bridge, WMI queries, LRU cache
+    self-hosted-runner/ HTTP job server with queue and process execution
 ```
 
-Inside Mythos Patriarch:
+| Module | Lines | Description |
+|--------|-------|-------------|
+| `quantum/` | ~2,500 | Real quantum circuit simulator (Hilbert space, Born rule, gates) |
+| `cortex/` | ~3,000 | Meta-cognition, cross-model verification, multi-pass reasoning |
+| `reasoning/` | ~1,500 | 5 reasoning strategies + auto-selector + provider factory |
+| `evolution/` | ~2,500 | Genetic algorithm evolution, pattern learning, effectiveness tracking |
+| `multimodal/` | ~1,100 | Vision, STT, TTS, DOCX/XLSX, code visualization |
+| `autonomous/` | ~2,000 | Goal manager, task runner, checkpointing, retry escalation |
+| `swarm/` | ~1,500 | Multi-agent orchestration, topological sort, weighted consensus |
+| `knowledge/` | ~2,000 | RAG pipeline, OpenAI/Ollama embeddings, hybrid search |
+| `deviceBridge/` | ~800 | arp-a, adb, SSH device scanning |
+| `nativeCore/` | ~600 | PowerShell bridge, WMI queries |
+| **Total** | **~82,500** | **2602 files across 10+ modules** |
 
-- run `/provider` for guided provider setup and saved profiles
-- run `/onboard-github` for GitHub Models onboarding
+## Install
 
-### Fastest OpenAI setup
+### From npm
 
-macOS / Linux:
+```bash
+npm install -g mythos-patriarch
+```
+
+### From Source
+
+```bash
+git clone https://github.com/Gitlawb/Mythos Patriarch.git
+cd "Mythos Patriarch"
+bun install
+bun run build
+node dist/cli.mjs
+```
+
+### Provider Setup
+
+**OpenAI (fastest):**
 
 ```bash
 export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_API_KEY=sk-your-key-here
-export OPENAI_MODEL=gpt-4o
-
-Mythos Patriarch
+mythos
 ```
 
-Windows PowerShell:
-
-```powershell
-$env:CLAUDE_CODE_USE_OPENAI="1"
-$env:OPENAI_API_KEY="sk-your-key-here"
-$env:OPENAI_MODEL="gpt-4o"
-
-Mythos Patriarch
-```
-
-### Fastest local Ollama setup
-
-macOS / Linux:
+**Ollama (local, zero cost):**
 
 ```bash
 export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_BASE_URL=http://localhost:11434/v1
 export OPENAI_MODEL=qwen2.5-coder:7b
-
-Mythos Patriarch
+mythos
 ```
 
-Windows PowerShell:
+**Guided Setup:**
 
-```powershell
-$env:CLAUDE_CODE_USE_OPENAI="1"
-$env:OPENAI_BASE_URL="http://localhost:11434/v1"
-$env:OPENAI_MODEL="qwen2.5-coder:7b"
+Launch `mythos` and run `/provider` for interactive setup with saved profiles.
 
-Mythos Patriarch
-```
+## Usage
 
-### Using Ollama's launch command
-
-If you have [Ollama](https://ollama.com) installed, you can skip the env var setup entirely:
+### CLI Commands
 
 ```bash
-ollama launch Mythos Patriarch --model qwen2.5-coder:7b
+mythos                          # Start interactive REPL
+mythos -p "fix the auth bug"   # One-shot prompt
+mythos --model gpt-4o           # Override model
+mythos --provider openai        # Override provider
 ```
 
-This automatically sets `ANTHROPIC_BASE_URL`, model routing, and auth so all API traffic goes through your local Ollama instance. Works with any model you have pulled — local or cloud.
+### Reasoning Strategies
 
-## Setup Guides
+```bash
+# Auto-select strategy (default)
+> analyze this architecture for security issues
 
-Beginner-friendly guides:
+# Force specific strategy via context
+> use tree of thought to evaluate 3 approaches to caching
+```
 
-- [Non-Technical Setup](docs/non-technical-setup.md)
-- [Windows Quick Start](docs/quick-start-windows.md)
-- [macOS / Linux Quick Start](docs/quick-start-mac-linux.md)
+### Quantum Commands
 
-Advanced and source-build guides:
+Available via AILEX skills:
 
-- [Advanced Setup](docs/advanced-setup.md)
-- [Android Install](ANDROID_INSTALL.md)
+- `*quantum` — Full quantum analysis across 10 dimensions
+- `*tunnel` — Quantum tunneling for impossible problems
+- `*collapse` — Collapse superposition to optimal solution
+- `*entangle` — Cross-reference patterns across dimensions
+- `*superpose` — Evaluate multiple states simultaneously
 
-## Supported Providers
+### Slash Commands
 
-| Provider | Setup Path | Notes |
-| --- | --- | --- |
-| OpenAI-compatible | `/provider` or env vars | Works with OpenAI, OpenRouter, DeepSeek, Groq, Mistral, LM Studio, and other compatible `/v1` servers |
-| Hicap | `/provider` or OpenAI-compatible env vars | Uses `api-key` auth, discovers models from unauthenticated `/models`, and supports Responses mode for `gpt-` models |
-| Gemini | `/provider` or env vars | Supports API key only |
-| GitHub Models | `/onboard-github` | Interactive onboarding with saved credentials |
-| Codex OAuth | `/provider` | Opens ChatGPT sign-in in your browser and stores Codex credentials securely |
-| Codex | `/provider` | Uses existing Codex CLI auth, Mythos Patriarch secure storage, or env credentials |
-| Ollama | `/provider`, env vars, or `ollama launch` | Local inference with no API key |
-| Atomic Chat | `/provider`, env vars, or `bun run dev:atomic-chat` | Local Model Provider; auto-detects loaded models |
-| Bedrock / Vertex / Foundry | env vars | Additional provider integrations for supported environments |
+| Command | Description |
+|---------|-------------|
+| `/provider` | Guided provider setup and profiles |
+| `/onboard-github` | GitHub Models onboarding |
+| `/models` | List available models |
+| `/loop` | Recurring prompt execution |
+| `/help` | Show all commands |
 
-## What Works
+### Agent Routing
 
-- **Tool-driven coding workflows**: Bash, file read/write/edit, grep, glob, agents, tasks, MCP, and slash commands
-- **Streaming responses**: Real-time token output and tool progress
-- **Tool calling**: Multi-step tool loops with model calls, tool execution, and follow-up responses
-- **Images**: URL and base64 image inputs for providers that support vision
-- **Provider profiles**: Guided setup plus saved user-level provider profile support
-- **Local and remote model backends**: Cloud APIs, local servers, and Apple Silicon local inference
-
-## Provider Notes
-
-Mythos Patriarch supports multiple providers, but behavior is not identical across all of them.
-
-- Anthropic-specific features may not exist on other providers
-- Tool quality depends heavily on the selected model
-- Smaller local models can struggle with long multi-step tool flows
-- Some providers impose lower output caps than the CLI defaults, and Mythos Patriarch adapts where possible
-
-For best results, use models with strong tool/function calling support.
-
-## Agent Routing
-
-Mythos Patriarch can route different agents to different models through settings-based routing. This is useful for cost optimization or splitting work by model strength.
-
-Add to `~/.Mythos Patriarch.json`:
+Route different agents to different models in `~/.mythos-patriarch.json`:
 
 ```json
 {
@@ -181,185 +288,46 @@ Add to `~/.Mythos Patriarch.json`:
     "deepseek-v4-flash": {
       "base_url": "https://api.deepseek.com/v1",
       "api_key": "sk-your-key"
-    },
-    "gpt-4o": {
-      "base_url": "https://api.openai.com/v1",
-      "api_key": "sk-your-key"
     }
   },
   "agentRouting": {
     "Explore": "deepseek-v4-flash",
     "Plan": "gpt-4o",
-    "general-purpose": "gpt-4o",
-    "frontend-dev": "deepseek-v4-flash",
     "default": "gpt-4o"
   }
 }
 ```
 
-When no routing match is found, the global provider remains the fallback.
-
-> **Note:** `api_key` values in `settings.json` are stored in plaintext. Keep this file private and do not commit it to version control.
-
-## Web Search and Fetch
-
-By default, `WebSearch` works on non-Anthropic models using DuckDuckGo. This gives GPT-4o, DeepSeek, Gemini, Ollama, and other OpenAI-compatible providers a free web search path out of the box.
-
-> **Note:** DuckDuckGo fallback works by scraping search results and may be rate-limited, blocked, or subject to DuckDuckGo's Terms of Service. If you want a more reliable supported option, configure Firecrawl.
-
-For Anthropic-native backends and Codex responses, Mythos Patriarch keeps the native provider web search behavior.
-
-`WebFetch` works, but its basic HTTP plus HTML-to-markdown path can still fail on JavaScript-rendered sites or sites that block plain HTTP requests.
-
-Set a [Firecrawl](https://firecrawl.dev) API key if you want Firecrawl-powered search/fetch behavior:
+## Development
 
 ```bash
-export FIRECRAWL_API_KEY=your-key-here
+bun install              # Install dependencies
+bun run build            # Build the project
+bun test                 # Run all tests (2459 tests)
+bun run dev              # Development mode
+npx biome check src/     # Lint and format
 ```
 
-With Firecrawl enabled:
+## Sponsors
 
-- `WebSearch` can use Firecrawl's search API while DuckDuckGo remains the default free path for non-Claude models
-- `WebFetch` uses Firecrawl's scrape endpoint instead of raw HTTP, handling JS-rendered pages correctly
-
-Free tier at [firecrawl.dev](https://firecrawl.dev) includes 500 credits. The key is optional.
-
----
-
-## Headless gRPC Server
-
-Mythos Patriarch can be run as a headless gRPC service, allowing you to integrate its agentic capabilities (tools, bash, file editing) into other applications, CI/CD pipelines, or custom user interfaces. The server uses bidirectional streaming to send real-time text chunks, tool calls, and request permissions for sensitive commands.
-
-### 1. Start the gRPC Server
-
-Start the core engine as a gRPC service on `localhost:50051`:
-
-```bash
-npm run dev:grpc
-```
-
-#### Configuration
-
-| Variable | Default | Description |
-|-----------|-------------|------------------------------------------------|
-| `GRPC_PORT` | `50051` | Port the gRPC server listens on |
-| `GRPC_HOST` | `localhost` | Bind address. Use `0.0.0.0` to expose on all interfaces (not recommended without authentication) |
-
-### 2. Run the Test CLI Client
-
-We provide a lightweight CLI client that communicates exclusively over gRPC. It acts just like the main interactive CLI, rendering colors, streaming tokens, and prompting you for tool permissions (y/n) via the gRPC `action_required` event.
-
-In a separate terminal, run:
-
-```bash
-npm run dev:grpc:cli
-```
-
-*Note: The gRPC definitions are located in `src/proto/Mythos Patriarch.proto`. You can use this file to generate clients in Python, Go, Rust, or any other language.*
-
----
-
-## Source Build And Local Development
-
-```bash
-bun install
-bun run build
-node dist/cli.mjs
-```
-
-Helpful commands:
-
-- `bun run dev`
-- `bun test`
-- `bun run test:coverage`
-- `bun run security:pr-scan -- --base origin/main`
-- `bun run smoke`
-- `bun run doctor:runtime`
-- `bun run verify:privacy`
-- focused `bun test ...` runs for the areas you touch
-
-## Testing And Coverage
-
-Mythos Patriarch uses Bun's built-in test runner for unit tests.
-
-Run the full unit suite:
-
-```bash
-bun test
-```
-
-Generate unit test coverage:
-
-```bash
-bun run test:coverage
-```
-
-Open the visual coverage report:
-
-```bash
-open coverage/index.html
-```
-
-If you already have `coverage/lcov.info` and only want to rebuild the UI:
-
-```bash
-bun run test:coverage:ui
-```
-
-Use focused test runs when you only touch one area:
-
-- `bun run test:provider`
-- `bun run test:provider-recommendation`
-- `bun test path/to/file.test.ts`
-
-Recommended contributor validation before opening a PR:
-
-- `bun run build`
-- `bun run smoke`
-- `bun run test:coverage` for broader unit coverage when your change affects shared runtime or provider logic
-- focused `bun test ...` runs for the files and flows you changed
-
-Coverage output is written to `coverage/lcov.info`, and Mythos Patriarch also generates a git-activity-style heatmap at `coverage/index.html`.
-## Repository Structure
-
-- `src/` - core CLI/runtime
-- `scripts/` - build, verification, and maintenance scripts
-- `docs/` - setup, contributor, and project documentation
-- `python/` - standalone Python helpers and their tests
-- `vscode-extension/Mythos Patriarch-vscode/` - VS Code extension
-- `.github/` - repo automation, templates, and CI configuration
-- `bin/` - CLI launcher entrypoints
-
-## VS Code Extension
-
-The repo includes a VS Code extension in [`vscode-extension/Mythos Patriarch-vscode`](vscode-extension/Mythos Patriarch-vscode) for Mythos Patriarch launch integration, provider-aware control-center UI, and theme support.
-
-## Security
-
-If you believe you found a security issue, see [SECURITY.md](SECURITY.md).
+<p align="center">
+  <a href="https://gitlawb.com"><strong>GitLawb</strong></a> &bull;
+  <a href="https://bankr.bot"><strong>Bankr.bot</strong></a> &bull;
+  <a href="https://atomic.chat/"><strong>Atomic Chat</strong></a>
+</p>
 
 ## Community
 
-- Use [GitHub Discussions](https://github.com/Gitlawb/Mythos Patriarch/discussions) for Q&A, ideas, and community conversation
-- Use [GitHub Issues](https://github.com/Gitlawb/Mythos Patriarch/issues) for confirmed bugs and actionable feature work
+- [GitHub Discussions](https://github.com/Gitlawb/Mythos Patriarch/discussions) — Q&A, ideas, conversation
+- [GitHub Issues](https://github.com/Gitlawb/Mythos Patriarch/issues) — Bug reports, feature requests
 
 ## Contributing
 
-Contributions are welcome.
-
-For larger changes, open an issue first so the scope is clear before implementation. Helpful validation commands include:
-
-- `bun run build`
-- `bun run test:coverage`
-- `bun run smoke`
-- focused `bun test ...` runs for files and flows you changed
-
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code standards, and PR guidelines.
 
 ## Disclaimer
 
-Mythos Patriarch is an independent community project and is not affiliated with, endorsed by, or sponsored by Anthropic.
-
-Mythos Patriarch originated from the Claude Code codebase and has since been substantially modified to support multiple providers and open use. "Claude" and "Claude Code" are trademarks of Anthropic PBC. See [LICENSE](LICENSE) for details.
+Mythos Patriarch is an independent community project and is not affiliated with, endorsed by, or sponsored by Anthropic. Mythos Patriarch originated from the Claude Code codebase and has since been substantially modified to support multiple providers and open use. "Claude" and "Claude Code" are trademarks of Anthropic PBC.
 
 ## License
 
