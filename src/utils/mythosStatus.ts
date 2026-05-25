@@ -7,7 +7,7 @@
  * @module mythosStatus
  */
 
-import type { Property } from "./status.js"
+import type { Property } from './status.js'
 
 /** Status of the quantum processing engine */
 export interface QuantumEngineStatus {
@@ -59,15 +59,21 @@ export function buildMythosEngineProperties(): Property[] {
 	const evolutionStatus = getEvolutionStatus()
 
 	return [
-		{ label: "Quantum Engine", value: quantumStatus.initialized ? "Ready" : "Not loaded" },
-		{ label: "Quantum Max Qubits", value: String(quantumStatus.maxQubits) },
-		{ label: "Reasoning Strategy", value: reasoningStatus.activeStrategy },
-		{ label: "LLM GenerateFn", value: reasoningStatus.llmConnected ? "Connected" : "Template fallback" },
-		{ label: "Reasoning Modes", value: reasoningStatus.strategiesAvailable.join(", ") },
-		{ label: "Patterns Learned", value: String(evolutionStatus.patternsLearned) },
-		{ label: "Prompts Evolved", value: String(evolutionStatus.promptsEvolved) },
-		{ label: "Auto-Evolution", value: evolutionStatus.autoEvolutionEnabled ? "Active" : "Disabled" },
-		{ label: "Effectiveness", value: `${(evolutionStatus.effectiveness * 100).toFixed(1)}%` },
+		{ label: 'Quantum Engine', value: quantumStatus.initialized ? 'Ready' : 'Not loaded' },
+		{ label: 'Quantum Max Qubits', value: String(quantumStatus.maxQubits) },
+		{ label: 'Reasoning Strategy', value: reasoningStatus.activeStrategy },
+		{
+			label: 'LLM GenerateFn',
+			value: reasoningStatus.llmConnected ? 'Connected' : 'Template fallback',
+		},
+		{ label: 'Reasoning Modes', value: reasoningStatus.strategiesAvailable.join(', ') },
+		{ label: 'Patterns Learned', value: String(evolutionStatus.patternsLearned) },
+		{ label: 'Prompts Evolved', value: String(evolutionStatus.promptsEvolved) },
+		{
+			label: 'Auto-Evolution',
+			value: evolutionStatus.autoEvolutionEnabled ? 'Active' : 'Disabled',
+		},
+		{ label: 'Effectiveness', value: `${(evolutionStatus.effectiveness * 100).toFixed(1)}%` },
 	]
 }
 
@@ -78,13 +84,14 @@ export function buildMythosEngineProperties(): Property[] {
 function getQuantumStatus(): QuantumEngineStatus {
 	try {
 		// Dynamic import check — quantum module may not be loaded yet
-		const quantumModule = require("../../quantum/index.js") as typeof import("../../quantum/index.js")
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const quantumModule: Record<string, unknown> = require('../../quantum/index')
 		if (quantumModule?.QuantumEngine) {
 			return {
 				initialized: true,
 				maxQubits: 10,
 				operationsPerformed: 0,
-				lastOperation: "none",
+				lastOperation: 'none',
 			}
 		}
 	} catch {
@@ -94,7 +101,7 @@ function getQuantumStatus(): QuantumEngineStatus {
 		initialized: false,
 		maxQubits: 0,
 		operationsPerformed: 0,
-		lastOperation: "none",
+		lastOperation: 'none',
 	}
 }
 
@@ -104,9 +111,9 @@ function getQuantumStatus(): QuantumEngineStatus {
  */
 function getReasoningStatus(): ReasoningEngineStatus {
 	return {
-		activeStrategy: "auto",
+		activeStrategy: 'auto',
 		llmConnected: false,
-		strategiesAvailable: ["cot", "tot", "reflect", "ensemble", "quantum"],
+		strategiesAvailable: ['cot', 'tot', 'reflect', 'ensemble', 'quantum'],
 		operationsPerformed: 0,
 	}
 }
@@ -137,12 +144,14 @@ export function formatQuantumProgress(
 	currentPhase: string,
 	completedPhases: ReadonlyArray<string>,
 ): string {
-	const allPhases = ["PERCEIVE", "SUPERPOSE", "ENTANGLE", "EVALUATE", "COLLAPSE"]
-	const phaseDisplay = allPhases.map((phase) => {
-		if (completedPhases.includes(phase)) return `\x1b[32m${phase}\x1b[0m`
-		if (phase === currentPhase) return `\x1b[33m${phase}\x1b[0m`
-		return `\x1b[2m${phase}\x1b[0m`
-	}).join(" → ")
+	const allPhases = ['PERCEIVE', 'SUPERPOSE', 'ENTANGLE', 'EVALUATE', 'COLLAPSE']
+	const phaseDisplay = allPhases
+		.map((phase) => {
+			if (completedPhases.includes(phase)) return `\x1b[32m${phase}\x1b[0m`
+			if (phase === currentPhase) return `\x1b[33m${phase}\x1b[0m`
+			return `\x1b[2m${phase}\x1b[0m`
+		})
+		.join(' → ')
 	return `Quantum: ${phaseDisplay}`
 }
 
