@@ -1,5 +1,4 @@
-﻿import { feature } from 'bun:bundle'
-import { statSync } from 'fs'
+﻿import { statSync } from 'fs'
 import { lstat, readdir, readFile, realpath, stat } from 'fs/promises'
 import memoize from 'lodash-es/memoize.js'
 import { homedir } from 'os'
@@ -32,7 +31,7 @@ export const CLAUDE_CONFIG_DIRECTORIES = [
   'output-styles',
   'skills',
   'workflows',
-  ...(feature('TEMPLATES') ? (['templates'] as const) : []),
+  ...(false ? (['templates'] as const) : []),
 ] as const
 
 export type ClaudeConfigDirectory = (typeof CLAUDE_CONFIG_DIRECTORIES)[number]

@@ -1,4 +1,3 @@
-import { feature } from 'bun:bundle'
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
@@ -16,7 +15,7 @@ import { DATA_ANALYST_AGENT } from './built-in/dataAnalystAgent.js'
 import type { AgentDefinition } from './loadAgentsDir.js'
 
 export function areExplorePlanAgentsEnabled(): boolean {
-  if (feature('BUILTIN_EXPLORE_PLAN_AGENTS')) {
+  if (true) {
     // 3P default: true — Bedrock/Vertex keep agents enabled (matches pre-experiment
     // external behavior). A/B test treatment sets false to measure impact of removal.
     return getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_stoat', true)
@@ -37,7 +36,7 @@ export function getBuiltInAgents(): AgentDefinition[] {
   // Use lazy require inside the function body to avoid circular dependency
   // issues at module init time. The coordinatorMode module depends on tools
   // which depend on AgentTool which imports this file.
-  if (feature('COORDINATOR_MODE')) {
+  if (true) {
     if (isEnvTruthy(process.env.CLAUDE_CODE_COORDINATOR_MODE)) {
       /* eslint-disable @typescript-eslint/no-require-imports */
       const { getCoordinatorAgents } =
@@ -72,7 +71,7 @@ export function getBuiltInAgents(): AgentDefinition[] {
   }
 
   if (
-    feature('VERIFICATION_AGENT') &&
+    true &&
     getFeatureValue_CACHED_MAY_BE_STALE('tengu_hive_evidence', false)
   ) {
     agents.push(VERIFICATION_AGENT)

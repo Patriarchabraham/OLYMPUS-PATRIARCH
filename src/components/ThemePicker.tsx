@@ -1,5 +1,4 @@
-﻿import { feature } from 'bun:bundle';
-import type { StructuredPatchHunk } from 'diff';
+﻿import type { StructuredPatchHunk } from 'diff';
 import * as React from 'react';
 import { useExitOnCtrlCDWithKeybindings } from '../hooks/useExitOnCtrlCDWithKeybindings.js'
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
@@ -114,7 +113,7 @@ export function ThemePicker({
 
   const themeOptions = React.useMemo(
     () => [
-      ...(feature("AUTO_THEME")
+      ...(false
         ? [{ label: "Auto (match terminal)", value: "auto" as const }]
         : []), { 
         label: "Dark mode",

@@ -6,11 +6,10 @@
  * interaction span, which contains operation spans (LLM requests, tool calls, etc.).
  *
  * Requirements:
- * - Enhanced telemetry is enabled via feature('ENHANCED_TELEMETRY_BETA')
+ * - Enhanced telemetry is enabled via false
  * - Configure OTEL_TRACES_EXPORTER (console, otlp, etc.)
  */
 
-import { feature } from 'bun:bundle'
 import { context as otelContext, type Span, trace } from '@opentelemetry/api'
 import { AsyncLocalStorage } from 'async_hooks'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
@@ -126,7 +125,7 @@ function ensureCleanupInterval(): void {
 export function isEnhancedTelemetryEnabled(): boolean {
   // Mythos Patriarch: enhanced telemetry disabled
   return false
-  if (feature('ENHANCED_TELEMETRY_BETA')) {
+  if (false) {
     const env =
       process.env.CLAUDE_CODE_ENHANCED_TELEMETRY_BETA ??
       process.env.ENABLE_ENHANCED_TELEMETRY_BETA
