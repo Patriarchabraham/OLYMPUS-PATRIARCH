@@ -1,7 +1,7 @@
 /**
- * Agent wrapper that interfaces with the Mythos CLI for SWE-bench evaluation.
+ * Agent wrapper that interfaces with the Olympuz CLI for SWE-bench evaluation.
  *
- * Constructs prompts from task descriptions, runs Mythos in headless mode,
+ * Constructs prompts from task descriptions, runs Olympuz in headless mode,
  * and captures the generated diff/patch.
  */
 
@@ -37,7 +37,7 @@ function extractPatch(response: string): string {
 	return diffLines.join("\n");
 }
 
-/** Parses token usage from Mythos JSON output. */
+/** Parses token usage from Olympuz JSON output. */
 function parseTokens(output: string): TokenUsage {
 	try {
 		const data = JSON.parse(output) as Record<string, unknown>;
@@ -75,7 +75,7 @@ function buildPrompt(task: SWEBenchTask): string {
 }
 
 /**
- * Run the Mythos agent on a single SWE-bench task.
+ * Run the Olympuz agent on a single SWE-bench task.
  *
  * @param task - The SWE-bench task to evaluate.
  * @param config - Benchmark configuration.
@@ -83,7 +83,7 @@ function buildPrompt(task: SWEBenchTask): string {
  */
 export async function runAgent(
 	task: SWEBenchTask,
-	config: { mythos_binary: string; model: string; provider: string; task_timeout_ms: number },
+	config: { olympuz_binary: string; model: string; provider: string; task_timeout_ms: number },
 ): Promise<AgentResult> {
 	const startTime = Date.now();
 	const prompt = buildPrompt(task);
@@ -105,10 +105,10 @@ export async function runAgent(
 			"--no-input",
 		];
 
-		const { stdout, stderr } = await execAsync(config.mythos_binary, args, {
+		const { stdout, stderr } = await execAsync(config.olympuz_binary, args, {
 			timeout: config.task_timeout_ms,
 			maxBuffer: 50 * 1024 * 1024, // 50 MB
-			env: { ...process.env, MYTHOS_OUTPUT_FILE: outputFile },
+			env: { ...process.env, OLYMPUZ_OUTPUT_FILE: outputFile },
 		});
 
 		const responseText = stdout;
@@ -146,7 +146,7 @@ export async function runAgent(
 }
 
 /**
- * Run the Mythos agent on multiple tasks with bounded concurrency.
+ * Run the Olympuz agent on multiple tasks with bounded concurrency.
  *
  * @param tasks - Tasks to evaluate.
  * @param config - Benchmark configuration.
@@ -155,7 +155,7 @@ export async function runAgent(
  */
 export async function runAgentBatch(
 	tasks: readonly SWEBenchTask[],
-	config: { mythos_binary: string; model: string; provider: string; task_timeout_ms: number; concurrency: number },
+	config: { olympuz_binary: string; model: string; provider: string; task_timeout_ms: number; concurrency: number },
 	onProgress?: (completed: number, total: number, instanceId: string) => void,
 ): Promise<AgentResult[]> {
 	const results: AgentResult[] = [];

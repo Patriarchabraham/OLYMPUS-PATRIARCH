@@ -14,7 +14,7 @@ afterEach(async () => {
 })
 
 async function makeProjectDir(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'Mythos Patriarch-wiki-init-'))
+  const dir = await mkdtemp(join(tmpdir(), 'Olympuz Coder-wiki-init-'))
   tempDirs.push(dir)
   return dir
 }
@@ -32,11 +32,11 @@ test('initializeWiki creates the expected wiki scaffold', async () => {
     join('.openclaude', 'wiki', 'pages', 'architecture.md'),
   ])
   expect(await readFile(paths.schemaFile, 'utf8')).toContain(
-    '# Mythos Patriarch Wiki Schema',
+    '# Olympuz Coder Wiki Schema',
   )
   expect(await readFile(paths.indexFile, 'utf8')).toContain('Wiki')
   expect(await readFile(paths.logFile, 'utf8')).toContain(
-    'Wiki initialized by Mythos Patriarch',
+    'Wiki initialized by Olympuz Coder',
   )
   expect(await readFile(join(paths.pagesDir, 'architecture.md'), 'utf8')).toContain(
     '# Architecture',

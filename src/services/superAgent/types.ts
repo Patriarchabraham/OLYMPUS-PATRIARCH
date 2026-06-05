@@ -7,6 +7,7 @@ import type { EvolutionReport } from '../../evolution/types.js'
 import type { GovernanceConfig, GovernanceReport } from '../../governance/types.js'
 import type { PerformanceReport } from '../../nativeCore/types.js'
 import type { ProjectPlan, Risk } from '../../planning/types.js'
+import type { ProofReport } from '../../proofEngine/types.js'
 import type { ReasoningChain, ReasoningStrategy } from '../../reasoning/types.js'
 import type { SwarmState } from '../../swarm/types.js'
 import type { ResearchResult } from '../../webintel/types.js'
@@ -38,6 +39,22 @@ export type SuperAgentConfig = {
 	nativeCoreEnabled: boolean
 	/** Enable 100x code governance engine */
 	governanceEnabled: boolean
+	/** Enable Olympus Industries company orchestration engine */
+	olympusEnabled: boolean
+	/** Enable proof engine for mathematical/logical verification */
+	proofEnabled: boolean
+	/** Enable SAT solver for path feasibility and constraint solving */
+	satEnabled: boolean
+	/** Enable Design by Contract verification */
+	contractEnabled: boolean
+	/** Enable Abstract Interpretation for NASA-grade static analysis */
+	abstractInterpretationEnabled: boolean
+	/** Enable Fuzzing Engine for crash detection */
+	fuzzingEnabled: boolean
+	/** Enable Symbolic Execution for path-sensitive analysis */
+	symbolicExecutionEnabled: boolean
+	/** Enable Program Slicing for dependency reduction */
+	programSlicingEnabled: boolean
 	/** Directory for persistent state (evolution, checkpoints, ADRs) */
 	dataDir?: string
 	/** Maximum RAG context tokens to inject into system prompt */
@@ -64,6 +81,14 @@ export const DEFAULT_SUPER_AGENT_CONFIG: SuperAgentConfig = {
 	deviceBridgeEnabled: true,
 	nativeCoreEnabled: true,
 	governanceEnabled: true,
+	olympusEnabled: true,
+	proofEnabled: true,
+	satEnabled: true,
+	contractEnabled: true,
+	abstractInterpretationEnabled: true,
+	fuzzingEnabled: true,
+	symbolicExecutionEnabled: true,
+	programSlicingEnabled: true,
 	maxRAGTokens: 2000,
 	defaultStrategy: 'auto',
 }
@@ -99,6 +124,27 @@ export type SuperAgentState = {
 	performanceReport: PerformanceReport | null
 	// Governance
 	governanceReport: GovernanceReport | null
+	// Olympus
+	olympusCompanies: Array<{ companyId: string; agentCount: number; departmentCount: number }>
+	olympusTemplates: string[]
+	// Proof Engine
+	proofReport: ProofReport | null
+	lastProofConfidence: number | null
+	// SAT Solver
+	satPathsChecked: number
+	satInfeasiblePaths: number
+	// Design by Contract
+	contractCompliance: number | null
+	// Abstract Interpretation
+	aiSoundnessScore: number | null
+	aiFindingsCount: number
+	// Fuzzing Engine
+	fuzzCrashesFound: number
+	// Symbolic Execution
+	sePathsExplored: number
+	seFindingsCount: number
+	// Program Slicing
+	sliceReductionAvg: number | null
 	// Session Context (temporal reasoning)
 	sessionContext: SessionContext | null
 	// General

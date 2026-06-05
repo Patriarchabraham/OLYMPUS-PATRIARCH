@@ -262,7 +262,7 @@ export function ConsoleOAuthFlow({
           state: 'success'
         });
         void sendNotification({
-          message: 'Mythos Patriarch login successful',
+          message: 'Olympuz Coder login successful',
           notificationType: 'auth_success'
         }, terminal);
       }
@@ -384,7 +384,7 @@ function OAuthStatusMessage({
     case 'idle': {
       const promptText =
         startingMessage ||
-        'Mythos Patriarch can be used with your Claude subscription or billed based on API usage through your Console account.'
+        'Olympuz Coder can be used with your Claude subscription or billed based on API usage through your Console account.'
 
       const loginOptions = [
         {
@@ -512,7 +512,7 @@ function OAuthStatusMessage({
         <Box flexDirection="column" gap={1}>
           <Box>
             <Spinner />
-            <Text>Creating API key for Mythos Patriarch…</Text>
+            <Text>Creating API key for Olympuz Coder…</Text>
           </Box>
         </Box>
       )

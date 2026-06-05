@@ -17,7 +17,7 @@ export const DEFAULT_CONFIG: BenchmarkConfig = {
 	max_tasks: 0,
 	output_dir: "./benchmark-results",
 	run_docker_tests: true,
-	mythos_binary: "mythos",
+	olympuz_binary: "olympuz",
 };
 
 /** Pre-configured model combinations for evaluation. */

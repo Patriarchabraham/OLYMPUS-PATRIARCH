@@ -6,5 +6,5 @@
  */
 
 export function getClaudeCodeUserAgent(): string {
-  return `mythos-patriarch/${MACRO.VERSION}`
+  return `olympuz-coder/${MACRO.VERSION}`
 }

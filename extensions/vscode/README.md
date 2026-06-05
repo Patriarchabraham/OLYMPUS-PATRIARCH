@@ -1,15 +1,15 @@
-# Mythos Patriarch — VS Code Extension
+# Olympuz Coder — VS Code Extension
 
 Quantum Supreme AI Coding Agent integration for Visual Studio Code.
 
 ## Features
 
-- **Terminal Integration** — Launch Mythos directly in VS Code's integrated terminal
-- **Quick Prompt** — Send prompts to Mythos via command palette or input box
+- **Terminal Integration** — Launch Olympuz directly in VS Code's integrated terminal
+- **Quick Prompt** — Send prompts to Olympuz via command palette or input box
 - **Provider Switching** — Switch between Anthropic, OpenAI, Gemini, DeepSeek, and Ollama
 - **Status Bar** — See current provider at a glance in the status bar
-- **Chat Panel** — Side panel webview for Mythos conversations
-- **Terminal Profile** — Dedicated Mythos terminal profile
+- **Chat Panel** — Side panel webview for Olympuz conversations
+- **Terminal Profile** — Dedicated Olympuz terminal profile
 
 ## Installation
 
@@ -24,7 +24,7 @@ npm run compile
 npx vsce package
 
 # Install
-code --install-install mythos-patriarch-0.1.0.vsix
+code --install-install olympuz-coder-0.1.0.vsix
 ```
 
 ### From Source
@@ -39,24 +39,24 @@ npm run compile
 
 | Command | Description |
 |---------|-------------|
-| `Mythos: Open Terminal` | Opens a terminal running the Mythos CLI |
-| `Mythos: Quick Prompt` | Input box to send a prompt to Mythos |
-| `Mythos: Status` | Shows version, provider, and binary info |
-| `Mythos: Open Chat Panel` | Opens the webview chat panel |
-| `Mythos: Switch Provider` | Quick pick to change LLM provider |
+| `Olympuz: Open Terminal` | Opens a terminal running the Olympuz CLI |
+| `Olympuz: Quick Prompt` | Input box to send a prompt to Olympuz |
+| `Olympuz: Status` | Shows version, provider, and binary info |
+| `Olympuz: Open Chat Panel` | Opens the webview chat panel |
+| `Olympuz: Switch Provider` | Quick pick to change LLM provider |
 
 ## Configuration
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `mythos.binaryPath` | `mythos` | Path to the mythos CLI binary |
-| `mythos.defaultProvider` | `""` (auto) | Default LLM provider |
-| `mythos.autoStart` | `false` | Auto-start Mythos terminal on launch |
+| `olympuz.binaryPath` | `olympuz` | Path to the olympuz CLI binary |
+| `olympuz.defaultProvider` | `""` (auto) | Default LLM provider |
+| `olympuz.autoStart` | `false` | Auto-start Olympuz terminal on launch |
 
 ## Requirements
 
 - VS Code 1.85+
-- Mythos Patriarch CLI installed (`npm install -g mythos-patriarch`)
+- Olympuz Coder CLI installed (`npm install -g olympuz-coder`)
 
 ## Known Issues
 

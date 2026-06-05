@@ -1,10 +1,10 @@
-# Contributing to Mythos Patriarch
+# Contributing to Olympuz Coder
 
-Thanks for contributing to Mythos Patriarch — the open-source, multi-provider AI coding agent with quantum-inspired reasoning.
+Thanks for contributing to Olympuz Coder — the open-source, multi-provider AI coding agent with quantum-inspired reasoning.
 
 ## Before You Start
 
-- Search [existing issues](https://github.com/Gitlawb/Mythos Patriarch/issues) and [discussions](https://github.com/Gitlawb/Mythos Patriarch/discussions) before opening a new thread
+- Search [existing issues](https://github.com/Gitlawb/Olympuz Coder/issues) and [discussions](https://github.com/Gitlawb/Olympuz Coder/discussions) before opening a new thread
 - Use **issues** for confirmed bugs and actionable feature work
 - Use **discussions** for setup help, ideas, and general conversation
 - For larger changes, open an issue first so scope is clear before implementation
@@ -21,8 +21,8 @@ Thanks for contributing to Mythos Patriarch — the open-source, multi-provider 
 ### Install and Build
 
 ```bash
-git clone https://github.com/Gitlawb/Mythos Patriarch.git
-cd "Mythos Patriarch"
+git clone https://github.com/Gitlawb/Olympuz Coder.git
+cd "Olympuz Coder"
 bun install
 bun run build
 ```
@@ -56,7 +56,7 @@ bun run dev
 
 ### Module Standards
 
-Mythos follows the "tudo deve ser real" principle — every module must implement its claimed capability with real algorithms:
+Olympuz follows the "tudo deve ser real" principle — every module must implement its claimed capability with real algorithms:
 
 - No keyword counting dressed as intelligence
 - No `Math.random()` dressed as reasoning

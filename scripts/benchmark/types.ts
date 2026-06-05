@@ -1,5 +1,5 @@
 /**
- * SWE-bench evaluation type definitions for Mythos Patriarch.
+ * SWE-bench evaluation type definitions for Olympuz Coder.
  *
  * Covers the full SWE-bench task format, evaluation results,
  * scoring breakdowns, and benchmark configuration.
@@ -39,7 +39,7 @@ export interface SWEBenchTask {
 
 // ─── Agent Interaction ──────────────────────────────────────────────
 
-/** Result from invoking the Mythos agent on a single task. */
+/** Result from invoking the Olympuz agent on a single task. */
 export interface AgentResult {
 	/** The instance_id this result belongs to. */
 	readonly instance_id: string;
@@ -140,8 +140,8 @@ export interface BenchmarkConfig {
 	readonly output_dir: string;
 	/** Whether to run Docker-based test validation. */
 	readonly run_docker_tests: boolean;
-	/** Path to the Mythos CLI binary. */
-	readonly mythos_binary: string;
+	/** Path to the Olympuz CLI binary. */
+	readonly olympuz_binary: string;
 }
 
 /** Full evaluation result persisted to disk. */

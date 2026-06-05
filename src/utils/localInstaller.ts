@@ -38,7 +38,7 @@ export function getCandidateLocalInstallDirs(options?: {
 
 function getCandidateLocalBinaryPaths(localInstallDir: string): string[] {
   return [
-    join(localInstallDir, 'node_modules', '.bin', 'Mythos Patriarch'),
+    join(localInstallDir, 'node_modules', '.bin', 'Olympuz Coder'),
     join(localInstallDir, 'node_modules', '.bin', 'claude'),
   ]
 }
@@ -52,7 +52,7 @@ export function isManagedLocalInstallationPath(execPath: string): boolean {
 }
 
 export function getLocalClaudePath(): string {
-  return join(getLocalInstallDir(), 'Mythos Patriarch')
+  return join(getLocalInstallDir(), 'Olympuz Coder')
 }
 
 /**
@@ -95,7 +95,7 @@ export async function ensureLocalPackageEnvironment(): Promise<boolean> {
     await writeIfMissing(
       join(localInstallDir, 'package.json'),
       jsonStringify(
-        { name: 'Mythos Patriarch-local', version: '0.0.1', private: true },
+        { name: 'Olympuz Coder-local', version: '0.0.1', private: true },
         null,
         2,
       ),
@@ -105,7 +105,7 @@ export async function ensureLocalPackageEnvironment(): Promise<boolean> {
     const wrapperPath = getLocalClaudePath()
     const created = await writeIfMissing(
       wrapperPath,
-      `#!/bin/sh\nexec "${localInstallDir}/node_modules/.bin/Mythos Patriarch" "$@"`,
+      `#!/bin/sh\nexec "${localInstallDir}/node_modules/.bin/Olympuz Coder" "$@"`,
       0o755,
     )
     if (created) {

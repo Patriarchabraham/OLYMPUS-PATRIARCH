@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile, unlink, readdir } from 'fs/promises'
 import { join } from 'path'
 import type { Checkpoint } from './types.js'
 
-const DEFAULT_CHECKPOINTS_DIR = '.mythos/autonomous/checkpoints'
+const DEFAULT_CHECKPOINTS_DIR = '.olympuz/autonomous/checkpoints'
 
 // Configurable base directory for persistence (set by AutonomousRunner)
 let configuredBaseDir: string | undefined

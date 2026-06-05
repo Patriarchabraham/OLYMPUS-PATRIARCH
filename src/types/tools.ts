@@ -1,5 +1,5 @@
 /**
- * Tool type definitions for the Mythos conversation system.
+ * Tool type definitions for the Olympuz conversation system.
  * Centralized location for tool progress types to break import cycles.
  */
 

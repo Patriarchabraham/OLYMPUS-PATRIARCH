@@ -3,7 +3,7 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "mythos-patriarch",
+      "package-name": "olympuz-coder",
       "bump-minor-pre-major": true,
       "include-v-in-tag": true
     }

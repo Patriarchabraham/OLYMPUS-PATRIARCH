@@ -97,7 +97,7 @@ import type { OutputStyleConfig } from './outputStyles.js'
 import { CYBER_RISK_INSTRUCTION } from './cyberRiskInstruction.js'
 
 export const CLAUDE_CODE_DOCS_MAP_URL =
-  'https://github.com/mythos-patriarch/mythos'
+  'https://github.com/olympuz-coder/olympuz'
 
 /**
  * Boundary marker separating static (cross-org cacheable) content from dynamic content.
@@ -167,7 +167,7 @@ function getSimpleIntroSection(
 ): string {
   // eslint-disable-next-line custom-rules/prompt-spacing
   return `
-You are Mythos Patriarch, a sovereign coding intelligence. You are ${outputStyleConfig !== null ? 'configured with a custom Output Style — follow it precisely.' : 'an elite software engineering agent.'} Use the instructions below and the tools available to you to assist the user.
+You are Olympuz Coder, a sovereign coding intelligence. You are ${outputStyleConfig !== null ? 'configured with a custom Output Style — follow it precisely.' : 'an elite software engineering agent.'} Use the instructions below and the tools available to you to assist the user.
 
 You possess deep expertise across all programming languages, frameworks, architectures, and DevOps practices. You reason from first principles, identify root causes rather than symptoms, and write production-grade code by default. You think in systems, not just lines of code.
 
@@ -206,7 +206,7 @@ function getSimpleDoingTasksSection(): string {
   ]
 
   const userHelpSubitems = [
-    `/help: Get help with using Mythos Patriarch`,
+    `/help: Get help with using Olympuz Coder`,
     `To give feedback, users should ${MACRO.ISSUES_EXPLAINER}`,
   ]
 
@@ -234,7 +234,7 @@ function getSimpleDoingTasksSection(): string {
       : []),
     ...(process.env.USER_TYPE === 'ant'
       ? [
-          `If the user reports a bug, slowness, or unexpected behavior with Mythos Patriarch itself (as opposed to asking you to fix their own code), recommend the appropriate slash command: /issue for model-related problems (odd outputs, wrong tool choices, hallucinations, refusals), or /share to upload the full session transcript for product bugs, crashes, slowness, or general issues. Only recommend these when the user is describing a problem with Mythos Patriarch.`,
+          `If the user reports a bug, slowness, or unexpected behavior with Olympuz Coder itself (as opposed to asking you to fix their own code), recommend the appropriate slash command: /issue for model-related problems (odd outputs, wrong tool choices, hallucinations, refusals), or /share to upload the full session transcript for product bugs, crashes, slowness, or general issues. Only recommend these when the user is describing a problem with Olympuz Coder.`,
         ]
       : []),
     `If the user asks for help or wants to give feedback inform them of the following:`,
@@ -445,7 +445,7 @@ export async function getSystemPrompt(
 ): Promise<string[]> {
   if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
     return [
-      `You are Mythos Patriarch, an advanced coding agent and CLI.\n\nCWD: ${getCwd()}\nDate: ${getSessionStartDate()}`,
+      `You are Olympuz Coder, an advanced coding agent and CLI.\n\nCWD: ${getCwd()}\nDate: ${getSessionStartDate()}`,
     ]
   }
 
@@ -689,10 +689,10 @@ export async function computeSimpleEnvInfo(
     knowledgeCutoffMessage,
     process.env.USER_TYPE === 'ant' && isUndercover()
       ? null
-      : `Mythos Patriarch is available as a CLI in the terminal and can be used across local development environments and IDE workflows.`,
+      : `Olympuz Coder is available as a CLI in the terminal and can be used across local development environments and IDE workflows.`,
     process.env.USER_TYPE === 'ant' && isUndercover()
       ? null
-      : `Fast mode for Mythos Patriarch uses the same ${FRONTIER_MODEL_NAME} model with faster output. It does NOT switch to a different model. It can be toggled with /fast.`,
+      : `Fast mode for Olympuz Coder uses the same ${FRONTIER_MODEL_NAME} model with faster output. It does NOT switch to a different model. It can be toggled with /fast.`,
   ].filter(item => item !== null)
 
   return [
@@ -748,7 +748,7 @@ export function getUnameSR(): string {
   return `${osType()} ${osRelease()}`
 }
 
-export const DEFAULT_AGENT_PROMPT = `You are an agent for Mythos Patriarch, a sovereign coding intelligence. Given the user's message, use the tools available to complete the task thoroughly. Deliver complete, working solutions — don't gold-plate, but don't leave it half-done either. When finished, respond with a concise report covering what was done, any key findings, and potential improvements — the caller will relay this to the user, so it only needs the essentials.`
+export const DEFAULT_AGENT_PROMPT = `You are an agent for Olympuz Coder, a sovereign coding intelligence. Given the user's message, use the tools available to complete the task thoroughly. Deliver complete, working solutions — don't gold-plate, but don't leave it half-done either. When finished, respond with a concise report covering what was done, any key findings, and potential improvements — the caller will relay this to the user, so it only needs the essentials.`
 
 export async function enhanceSystemPromptWithEnvDetails(
   existingSystemPrompt: string[],

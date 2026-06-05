@@ -1,5 +1,5 @@
 /**
- * SWE-bench evaluation runner for Mythos Patriarch.
+ * SWE-bench evaluation runner for Olympuz Coder.
  *
  * Orchestrates the full evaluation pipeline:
  * dataset loading → task filtering → agent execution → scoring → reporting.
@@ -124,7 +124,7 @@ interface ParsedArgs {
 	difficultyFilter?: string[];
 	languageFilter?: string[];
 	noDocker?: boolean;
-	mythosBinary?: string;
+	olympuzBinary?: string;
 }
 
 /** Parse CLI arguments from process.argv. */
@@ -149,7 +149,7 @@ function parseArgs(): ParsedArgs {
 			case "--difficulty-filter": parsed.difficultyFilter = next()?.split(","); break;
 			case "--language-filter": parsed.languageFilter = next()?.split(","); break;
 			case "--no-docker": parsed.noDocker = true; break;
-			case "--mythos-binary": parsed.mythosBinary = next(); break;
+			case "--olympuz-binary": parsed.olympuzBinary = next(); break;
 			case "--help":
 				console.log(HELP_TEXT);
 				process.exit(0);
@@ -160,7 +160,7 @@ function parseArgs(): ParsedArgs {
 }
 
 const HELP_TEXT = `
-SWE-bench Evaluation Runner for Mythos Patriarch
+SWE-bench Evaluation Runner for Olympuz Coder
 
 Usage: bun run scripts/benchmark/runner.ts [options]
 
@@ -177,7 +177,7 @@ Options:
   --difficulty-filter <d>   Comma-separated difficulty levels
   --language-filter <l>     Comma-separated languages
   --no-docker               Skip Docker-based test validation
-  --mythos-binary <path>    Path to mythos binary (default: mythos)
+  --olympuz-binary <path>    Path to olympuz binary (default: olympuz)
   --help                    Show this help
 `;
 
@@ -210,10 +210,10 @@ async function main(): Promise<void> {
 		max_tasks: parsed.maxTasks ?? DEFAULT_CONFIG.max_tasks,
 		output_dir: parsed.outputDir ?? DEFAULT_CONFIG.output_dir,
 		run_docker_tests: parsed.noDocker ? false : DEFAULT_CONFIG.run_docker_tests,
-		mythos_binary: parsed.mythosBinary ?? DEFAULT_CONFIG.mythos_binary,
+		olympuz_binary: parsed.olympuzBinary ?? DEFAULT_CONFIG.olympuz_binary,
 	});
 
-	console.log("=== Mythos Patriarch SWE-bench Evaluation ===");
+	console.log("=== Olympuz Coder SWE-bench Evaluation ===");
 	console.log(`Model: ${config.model} (${config.provider})`);
 	console.log(`Dataset: ${config.dataset}`);
 	console.log(`Concurrency: ${config.concurrency}`);

@@ -1,5 +1,5 @@
 /**
- * Message type definitions for the Mythos conversation system.
+ * Message type definitions for the Olympuz conversation system.
  *
  * These types form a discriminated union based on the `type` field.
  * Each message variant carries specific payload fields. The constructors
@@ -84,7 +84,7 @@ export interface SummarizeMetadata {
 
 /**
  * Assistant message from the API. Wraps the Anthropic BetaMessage
- * with Mythos-specific metadata.
+ * with Olympuz-specific metadata.
  */
 export interface AssistantMessage {
   type: 'assistant'

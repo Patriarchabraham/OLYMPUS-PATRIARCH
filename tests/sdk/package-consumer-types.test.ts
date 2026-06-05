@@ -52,8 +52,8 @@ function setupConsumerProject(name: string): string {
     ),
   )
 
-  // Simulate node_modules/@gitlawb/Mythos Patriarch structure
-  const pkgDir = join(tmpDir, 'node_modules', '@gitlawb', 'Mythos Patriarch')
+  // Simulate node_modules/@gitlawb/Olympuz Coder structure
+  const pkgDir = join(tmpDir, 'node_modules', '@gitlawb', 'Olympuz Coder')
   mkdirSync(pkgDir, { recursive: true })
   mkdirSync(join(pkgDir, 'src', 'entrypoints', 'sdk'), { recursive: true })
   mkdirSync(join(pkgDir, 'dist'), { recursive: true })
@@ -63,7 +63,7 @@ function setupConsumerProject(name: string): string {
     join(pkgDir, 'package.json'),
     JSON.stringify(
       {
-        name: '@gitlawb/Mythos Patriarch',
+        name: '@gitlawb/Olympuz Coder',
         version: '0.0.0-test',
         type: 'module',
         exports: {
@@ -137,7 +137,7 @@ describe('package consumer types', () => {
         `  SDKRateLimitError,`,
         `  QueryOptions,`,
         `  SDKSession,`,
-        `} from '@gitlawb/Mythos Patriarch/sdk'`,
+        `} from '@gitlawb/Olympuz Coder/sdk'`,
         ``,
         `// Use the types so they're not unused-imports-eliminated`,
         `type _Msg = SDKMessage`,
@@ -164,7 +164,7 @@ describe('package consumer types', () => {
     writeFileSync(
       join(tmpDir, 'consumer.ts'),
       [
-        `import type { SDKMessage, SDKUserMessage, SDKResultMessage } from '@gitlawb/Mythos Patriarch/sdk'`,
+        `import type { SDKMessage, SDKUserMessage, SDKResultMessage } from '@gitlawb/Olympuz Coder/sdk'`,
         ``,
         `// Discriminated union check — if types are broken, this won't compile`,
         `function handle(msg: SDKMessage) {`,
@@ -189,7 +189,7 @@ describe('package consumer types', () => {
     writeFileSync(
       join(tmpDir, 'consumer.ts'),
       [
-        `import { SDKRateLimitError } from '@gitlawb/Mythos Patriarch/sdk'`,
+        `import { SDKRateLimitError } from '@gitlawb/Olympuz Coder/sdk'`,
         ``,
         `// Constructor should accept (message?, resetsAt?, rateLimitType?)`,
         `const err = new SDKRateLimitError('rate limited', 12345, 'requests')`,

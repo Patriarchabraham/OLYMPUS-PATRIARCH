@@ -45,7 +45,7 @@ async function importFreshProviderProfileModule() {
 	return import('./providerProfile.js')
 }
 
-const missingCodexAuthPath = join(tmpdir(), 'Mythos Patriarch-missing-codex-auth.json')
+const missingCodexAuthPath = join(tmpdir(), 'Olympuz Coder-missing-codex-auth.json')
 
 test('matching persisted ollama env is reused for ollama launch', async () => {
 	const env = await buildLaunchEnv({
@@ -397,7 +397,7 @@ test('codex launch ignores placeholder codex env keys', async () => {
 })
 
 test('codex launch prefers auth account id over stale persisted value', async () => {
-	const codexHome = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-codex-'))
+	const codexHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-codex-'))
 	try {
 		writeFileSync(
 			join(codexHome, 'auth.json'),
@@ -559,7 +559,7 @@ test('gemini profiles require a key', () => {
 })
 
 test('saveProfileFile writes a profile that loadProfileFile can read back', () => {
-	const cwd = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-profile-file-'))
+	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-profile-file-'))
 
 	try {
 		const persisted = createProfileFile('openai', {
@@ -578,8 +578,8 @@ test('saveProfileFile writes a profile that loadProfileFile can read back', () =
 })
 
 test('saveProfileFile defaults to user config instead of the working directory', () => {
-	const cwd = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-workspace-profile-'))
-	const configRoot = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-config-profile-'))
+	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-workspace-profile-'))
+	const configRoot = mkdtempSync(join(tmpdir(), 'Olympuz Coder-config-profile-'))
 	const configDir = join(configRoot, 'config')
 	const previousConfigDir = process.env.CLAUDE_CONFIG_DIR
 	const previousCwd = process.cwd()
@@ -613,8 +613,8 @@ test('saveProfileFile defaults to user config instead of the working directory',
 })
 
 test('loadProfileFile keeps project-local files as a legacy fallback', () => {
-	const cwd = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-legacy-profile-'))
-	const configDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-empty-config-profile-'))
+	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-legacy-profile-'))
+	const configDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-empty-config-profile-'))
 	const previousConfigDir = process.env.CLAUDE_CONFIG_DIR
 	const previousCwd = process.cwd()
 
@@ -642,8 +642,8 @@ test('loadProfileFile keeps project-local files as a legacy fallback', () => {
 })
 
 test('loadProfileFile does not fall back when user config profile is invalid', () => {
-	const cwd = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-invalid-profile-'))
-	const configDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-invalid-config-profile-'))
+	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-invalid-profile-'))
+	const configDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-invalid-config-profile-'))
 	const previousConfigDir = process.env.CLAUDE_CONFIG_DIR
 	const previousCwd = process.cwd()
 
@@ -672,8 +672,8 @@ test('loadProfileFile does not fall back when user config profile is invalid', (
 })
 
 test('deleteProfileFile clears the default profile and legacy workspace fallback', () => {
-	const cwd = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-delete-profile-'))
-	const configDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-delete-config-profile-'))
+	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-delete-profile-'))
+	const configDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-delete-config-profile-'))
 	const previousConfigDir = process.env.CLAUDE_CONFIG_DIR
 	const previousCwd = process.cwd()
 
@@ -735,7 +735,7 @@ test('buildCodexProfileEnv tags OAuth-saved profiles so logout can remove them s
 })
 
 test('clearPersistedCodexOAuthProfile removes only persisted Codex OAuth profiles', async () => {
-	const cwd = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-codex-oauth-profile-'))
+	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-codex-oauth-profile-'))
 
 	try {
 		const providerProfileModule = await import(
@@ -777,8 +777,8 @@ test('clearPersistedCodexOAuthProfile removes only persisted Codex OAuth profile
 })
 
 test('clearPersistedCodexOAuthProfile clears both default and legacy OAuth profiles', () => {
-	const cwd = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-clear-oauth-profile-'))
-	const configDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-clear-oauth-config-'))
+	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-clear-oauth-profile-'))
+	const configDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-clear-oauth-config-'))
 	const previousConfigDir = process.env.CLAUDE_CONFIG_DIR
 	const previousCwd = process.cwd()
 
@@ -886,7 +886,7 @@ test('buildStartupEnvFromProfile leaves explicit provider selections untouched',
 })
 
 test('legacy openai saved profiles still deserialize and rebuild startup env', async () => {
-	const tempDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-provider-'))
+	const tempDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-provider-'))
 
 	try {
 		saveProfileFile(
@@ -917,7 +917,7 @@ test('legacy openai saved profiles still deserialize and rebuild startup env', a
 })
 
 test('legacy anthropic saved profiles still deserialize and rebuild startup env', async () => {
-	const tempDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-provider-'))
+	const tempDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-provider-'))
 
 	try {
 		saveProfileFile(
@@ -948,7 +948,7 @@ test('legacy anthropic saved profiles still deserialize and rebuild startup env'
 })
 
 test('bedrock persisted profiles load and rebuild the dedicated startup env', async () => {
-	const tempDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-provider-'))
+	const tempDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-provider-'))
 
 	try {
 		saveProfileFile(

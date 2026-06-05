@@ -308,7 +308,7 @@ test('buildProfileSaveMessage maps provider fields without echoing secrets', () 
       OPENAI_MODEL: 'gpt-4o',
       OPENAI_BASE_URL: 'https://api.openai.com/v1',
     },
-    'D:/codings/Opensource/Mythos Patriarch/.openclaude-profile.json',
+    'D:/codings/Opensource/Olympuz Coder/.openclaude-profile.json',
   )
 
   expect(message).toContain('Saved OpenAI profile.')
@@ -325,7 +325,7 @@ test('buildProfileSaveMessage labels local openai-compatible profiles consistent
       OPENAI_MODEL: 'gpt-5.4',
       OPENAI_BASE_URL: 'http://127.0.0.1:8080/v1',
     },
-    'D:/codings/Opensource/Mythos Patriarch/.openclaude-profile.json',
+    'D:/codings/Opensource/Olympuz Coder/.openclaude-profile.json',
   )
 
   expect(message).toContain('Saved Local OpenAI-compatible profile.')
@@ -341,7 +341,7 @@ test('buildProfileSaveMessage labels descriptor-backed gateway profiles consiste
       OPENAI_MODEL: 'openai/gpt-5-mini',
       OPENAI_BASE_URL: 'https://openrouter.ai/api/v1',
     },
-    'D:/codings/Opensource/Mythos Patriarch/.openclaude-profile.json',
+    'D:/codings/Opensource/Olympuz Coder/.openclaude-profile.json',
   )
 
   expect(message).toContain('Saved OpenRouter profile.')
@@ -360,7 +360,7 @@ test('buildProfileSaveMessage labels descriptor-backed Venice profiles consisten
       OPENAI_MODEL: 'venice-uncensored',
       OPENAI_BASE_URL: 'https://api.venice.ai/api/v1',
     },
-    'D:/codings/Opensource/Mythos Patriarch/.openclaude-profile.json',
+    'D:/codings/Opensource/Olympuz Coder/.openclaude-profile.json',
   )
 
   expect(message).toContain('Saved Venice profile.')
@@ -378,7 +378,7 @@ test('buildProfileSaveMessage describes Gemini access token / ADC mode clearly',
       GEMINI_MODEL: 'gemini-2.5-flash',
       GEMINI_BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/openai',
     },
-    'D:/codings/Opensource/Mythos Patriarch/.openclaude-profile.json',
+    'D:/codings/Opensource/Olympuz Coder/.openclaude-profile.json',
   )
 
   expect(message).toContain('Saved Google Gemini profile.')
@@ -395,15 +395,15 @@ test('buildProfileSaveMessage reflects immediate Codex activation for existing c
       OPENAI_BASE_URL: 'https://chatgpt.com/backend-api/codex',
       CHATGPT_ACCOUNT_ID: 'acct_codex',
     },
-    'D:/codings/Opensource/Mythos Patriarch/.openclaude-profile.json',
+    'D:/codings/Opensource/Olympuz Coder/.openclaude-profile.json',
     {
       activatedInSession: true,
     },
   )
 
   expect(message).toContain('Saved Codex profile.')
-  expect(message).toContain('Mythos Patriarch switched to it for this session.')
-  expect(message).not.toContain('Restart Mythos Patriarch to use it.')
+  expect(message).toContain('Olympuz Coder switched to it for this session.')
+  expect(message).not.toContain('Restart Olympuz Coder to use it.')
 })
 
 test('buildProfileSaveMessage reflects immediate Codex OAuth activation when the session switched successfully', () => {
@@ -415,15 +415,15 @@ test('buildProfileSaveMessage reflects immediate Codex OAuth activation when the
       CHATGPT_ACCOUNT_ID: 'acct_codex',
       CODEX_CREDENTIAL_SOURCE: 'oauth',
     },
-    'D:/codings/Opensource/Mythos Patriarch/.openclaude-profile.json',
+    'D:/codings/Opensource/Olympuz Coder/.openclaude-profile.json',
     {
       activatedInSession: true,
     },
   )
 
   expect(message).toContain('Saved Codex profile.')
-  expect(message).toContain('Mythos Patriarch switched to it for this session.')
-  expect(message).not.toContain('Restart Mythos Patriarch to use it.')
+  expect(message).toContain('Olympuz Coder switched to it for this session.')
+  expect(message).not.toContain('Restart Olympuz Coder to use it.')
 })
 
 test('buildCodexOAuthProfileEnv uses the fresh OAuth account id without persisting an API key', () => {

@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { execFile } from "child_process";
 
-/** Active Mythos terminal instance. */
-let mythosTerminal: vscode.Terminal | undefined;
+/** Active Olympuz terminal instance. */
+let olympuzTerminal: vscode.Terminal | undefined;
 
 /** Status bar item showing the current provider. */
 let statusBarItem: vscode.StatusBarItem;
@@ -11,7 +11,7 @@ let statusBarItem: vscode.StatusBarItem;
 let chatPanel: vscode.WebviewPanel | undefined;
 
 /**
- * Activates the Mythos Patriarch VS Code extension.
+ * Activates the Olympuz Coder VS Code extension.
  * Registers commands, terminal profile provider, and status bar.
  */
 export function activate(context: vscode.ExtensionContext): void {
@@ -20,32 +20,32 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.StatusBarAlignment.Left,
     50,
   );
-  statusBarItem.text = "$(hubot) Mythos";
-  statusBarItem.tooltip = "Mythos Patriarch — Click to switch provider";
-  statusBarItem.command = "mythos.switchProvider";
+  statusBarItem.text = "$(hubot) Olympuz";
+  statusBarItem.tooltip = "Olympuz Coder — Click to switch provider";
+  statusBarItem.command = "olympuz.switchProvider";
   statusBarItem.show();
   context.subscriptions.push(statusBarItem);
 
   // Commands
   context.subscriptions.push(
-    vscode.commands.registerCommand("mythos.openTerminal", openTerminal),
-    vscode.commands.registerCommand("mythos.sendPrompt", sendQuickPrompt),
-    vscode.commands.registerCommand("mythos.status", showStatus),
-    vscode.commands.registerCommand("mythos.openChat", openChat),
-    vscode.commands.registerCommand("mythos.switchProvider", switchProvider),
+    vscode.commands.registerCommand("olympuz.openTerminal", openTerminal),
+    vscode.commands.registerCommand("olympuz.sendPrompt", sendQuickPrompt),
+    vscode.commands.registerCommand("olympuz.status", showStatus),
+    vscode.commands.registerCommand("olympuz.openChat", openChat),
+    vscode.commands.registerCommand("olympuz.switchProvider", switchProvider),
   );
 
   // Terminal profile provider
-  const terminalProvider = new MythosTerminalProfileProvider();
+  const terminalProvider = new OlympuzTerminalProfileProvider();
   context.subscriptions.push(
     vscode.window.registerTerminalProfileProvider(
-      "mythos.terminal",
+      "olympuz.terminal",
       terminalProvider,
     ),
   );
 
   // Auto-start if configured
-  const config = vscode.workspace.getConfiguration("mythos");
+  const config = vscode.workspace.getConfiguration("olympuz");
   if (config.get<boolean>("autoStart")) {
     openTerminal();
   }
@@ -58,37 +58,37 @@ export function activate(context: vscode.ExtensionContext): void {
  * Deactivates the extension. Cleans up resources.
  */
 export function deactivate(): void {
-  mythosTerminal?.dispose();
+  olympuzTerminal?.dispose();
   chatPanel?.dispose();
   statusBarItem?.dispose();
 }
 
 /**
- * Opens a VS Code terminal running the Mythos CLI.
+ * Opens a VS Code terminal running the Olympuz CLI.
  * Reuses existing terminal if one is already open.
  */
 function openTerminal(): void {
-  if (mythosTerminal && !mythosTerminal.exitStatus) {
-    mythosTerminal.show();
+  if (olympuzTerminal && !olympuzTerminal.exitStatus) {
+    olympuzTerminal.show();
     return;
   }
 
   const binaryPath = getBinaryPath();
-  mythosTerminal = vscode.window.createTerminal({
-    name: "Mythos Patriarch",
+  olympuzTerminal = vscode.window.createTerminal({
+    name: "Olympuz Coder",
     shellPath: binaryPath,
     iconPath: new vscode.ThemeIcon("hubot"),
   });
-  mythosTerminal.show();
+  olympuzTerminal.show();
 }
 
 /**
- * Shows an input box for a quick prompt and sends it to Mythos.
+ * Shows an input box for a quick prompt and sends it to Olympuz.
  * Opens a terminal if one is not already active.
  */
 async function sendQuickPrompt(): Promise<void> {
   const prompt = await vscode.window.showInputBox({
-    prompt: "Enter a prompt for Mythos",
+    prompt: "Enter a prompt for Olympuz",
     placeHolder: "e.g., Refactor the authentication module",
     ignoreFocusOut: true,
   });
@@ -97,17 +97,17 @@ async function sendQuickPrompt(): Promise<void> {
     return;
   }
 
-  if (!mythosTerminal || mythosTerminal.exitStatus) {
+  if (!olympuzTerminal || olympuzTerminal.exitStatus) {
     openTerminal();
     // Small delay to ensure terminal is ready
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
-  mythosTerminal?.sendText(prompt);
+  olympuzTerminal?.sendText(prompt);
 }
 
 /**
- * Shows the current Mythos status: provider, model, version.
+ * Shows the current Olympuz status: provider, model, version.
  */
 async function showStatus(): Promise<void> {
   const binaryPath = getBinaryPath();
@@ -118,11 +118,11 @@ async function showStatus(): Promise<void> {
     version = "not installed";
   }
 
-  const config = vscode.workspace.getConfiguration("mythos");
+  const config = vscode.workspace.getConfiguration("olympuz");
   const provider = config.get<string>("defaultProvider") || "auto-detect";
 
   const message = [
-    `Mythos Patriarch v${version.trim()}`,
+    `Olympuz Coder v${version.trim()}`,
     `Provider: ${provider}`,
     `Binary: ${binaryPath}`,
   ].join("\n");
@@ -131,7 +131,7 @@ async function showStatus(): Promise<void> {
 }
 
 /**
- * Opens the Mythos chat webview panel.
+ * Opens the Olympuz chat webview panel.
  */
 function openChat(): void {
   if (chatPanel) {
@@ -140,8 +140,8 @@ function openChat(): void {
   }
 
   chatPanel = vscode.window.createWebviewPanel(
-    "mythos.chat",
-    "Mythos Chat",
+    "olympuz.chat",
+    "Olympuz Chat",
     vscode.ViewColumn.Beside,
     {
       enableScripts: true,
@@ -158,15 +158,15 @@ function openChat(): void {
   chatPanel.webview.onDidReceiveMessage(async (message) => {
     if (message.command === "sendPrompt") {
       // Forward to terminal
-      if (!mythosTerminal || mythosTerminal.exitStatus) {
+      if (!olympuzTerminal || olympuzTerminal.exitStatus) {
         openTerminal();
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
-      mythosTerminal?.sendText(message.text);
+      olympuzTerminal?.sendText(message.text);
       // Echo back to webview
       chatPanel?.webview.postMessage({
         command: "response",
-        text: `Sent to Mythos terminal: ${message.text}`,
+        text: `Sent to Olympuz terminal: ${message.text}`,
       });
     }
   });
@@ -194,7 +194,7 @@ async function switchProvider(): Promise<void> {
     return;
   }
 
-  const config = vscode.workspace.getConfiguration("mythos");
+  const config = vscode.workspace.getConfiguration("olympuz");
   await config.update(
     "defaultProvider",
     selected.description,
@@ -203,7 +203,7 @@ async function switchProvider(): Promise<void> {
 
   refreshStatusBar();
   vscode.window.showInformationMessage(
-    `Mythos: Provider switched to ${selected.label}`,
+    `Olympuz: Provider switched to ${selected.label}`,
   );
 }
 
@@ -211,18 +211,18 @@ async function switchProvider(): Promise<void> {
  * Refreshes the status bar text with current provider info.
  */
 function refreshStatusBar(): void {
-  const config = vscode.workspace.getConfiguration("mythos");
+  const config = vscode.workspace.getConfiguration("olympuz");
   const provider = config.get<string>("defaultProvider") || "auto";
-  const label = provider === "auto" ? "Mythos" : `Mythos (${provider})`;
+  const label = provider === "auto" ? "Olympuz" : `Olympuz (${provider})`;
   statusBarItem.text = `$(hubot) ${label}`;
 }
 
 /**
- * Returns the configured binary path for the Mythos CLI.
+ * Returns the configured binary path for the Olympuz CLI.
  */
 function getBinaryPath(): string {
-  const config = vscode.workspace.getConfiguration("mythos");
-  return config.get<string>("binaryPath") || "mythos";
+  const config = vscode.workspace.getConfiguration("olympuz");
+  return config.get<string>("binaryPath") || "olympuz";
 }
 
 /**
@@ -251,7 +251,7 @@ function getChatWebviewHtml(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mythos Chat</title>
+  <title>Olympuz Chat</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -327,11 +327,11 @@ function getChatWebviewHtml(): string {
 <body>
   <div class="header">
     <span class="dot"></span>
-    Mythos Patriarch — Quantum Supreme
+    Olympuz Coder — Quantum Supreme
   </div>
   <div id="messages"></div>
   <div id="input-area">
-    <input id="prompt-input" placeholder="Ask Mythos anything..." autofocus />
+    <input id="prompt-input" placeholder="Ask Olympuz anything..." autofocus />
     <button id="send-btn">Send</button>
   </div>
   <script>
@@ -376,15 +376,15 @@ function getChatWebviewHtml(): string {
 }
 
 /**
- * Terminal profile provider that creates Mythos terminals.
+ * Terminal profile provider that creates Olympuz terminals.
  */
-class MythosTerminalProfileProvider {
+class OlympuzTerminalProfileProvider {
   /**
-   * Provides a terminal profile for the Mythos CLI.
+   * Provides a terminal profile for the Olympuz CLI.
    */
   public provideTerminalProfile(): vscode.ProviderResult<vscode.TerminalProfile> {
     return new vscode.TerminalProfile({
-      name: "Mythos Patriarch",
+      name: "Olympuz Coder",
       shellPath: getBinaryPath(),
       iconPath: new vscode.ThemeIcon("hubot"),
     });

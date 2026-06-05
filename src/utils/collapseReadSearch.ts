@@ -32,16 +32,19 @@ import {
   isShellCommandTargetingMemory,
 } from './memoryFileDetection.js'
 
-/* eslint-disable @typescript-eslint/no-require-imports */
-const teamMemOps = true
-  ? (require('./teamMemoryOps.js') as typeof import('./teamMemoryOps.js'))
-  : null
-const SNIP_TOOL_NAME = false
-  ? (
-      require('../tools/SnipTool/prompt.js') as typeof import('../tools/SnipTool/prompt.js')
-    ).SNIP_TOOL_NAME
-  : null
-/* eslint-enable @typescript-eslint/no-require-imports */
+// Lazy-loaded modules via require() — works in Bun runtime.
+// In Vitest/Node.js, require() of .ts is not supported, so we catch gracefully.
+let _teamMemOps: typeof import('./teamMemoryOps.js') | null = null
+function getTeamMemOps(): typeof import('./teamMemoryOps.js') | null {
+  if (!_teamMemOps) {
+    try {
+      _teamMemOps = require('./teamMemoryOps.ts') as typeof import('./teamMemoryOps.js')
+    } catch {
+      return null
+    }
+  }
+  return _teamMemOps
+}
 
 /**
  * Result of checking if a tool use is a search or read operation.
@@ -180,7 +183,6 @@ export function getToolSearchOrReadInfo(
   // (lazy tool schema loading). Neither should break a collapse group or
   // contribute to its count, but both stay visible in verbose mode.
   if (
-    (false && toolName === SNIP_TOOL_NAME) ||
     (isFullscreenEnvEnabled() && toolName === TOOL_SEARCH_TOOL_NAME)
   ) {
     return {
@@ -791,7 +793,7 @@ export function collapseReadSearchGroups(
         const count = countToolUses(msg)
         if (
           true &&
-          teamMemOps?.isTeamMemoryWriteOrEdit(toolInfo.name, toolInfo.input)
+          getTeamMemOps()?.isTeamMemoryWriteOrEdit(toolInfo.name, toolInfo.input)
         ) {
           currentGroup.teamMemoryWriteCount =
             (currentGroup.teamMemoryWriteCount ?? 0) + count
@@ -845,7 +847,7 @@ export function collapseReadSearchGroups(
         // Check if the search targets memory files (via path or glob pattern)
         if (
           true &&
-          teamMemOps?.isTeamMemorySearch(toolInfo.input)
+          getTeamMemOps()?.isTeamMemorySearch(toolInfo.input)
         ) {
           currentGroup.teamMemorySearchCount =
             (currentGroup.teamMemorySearchCount ?? 0) + count
@@ -864,7 +866,7 @@ export function collapseReadSearchGroups(
         const filePaths = getFilePathsFromReadMessage(msg)
         for (const filePath of filePaths) {
           currentGroup.readFilePaths.add(filePath)
-          if (true && teamMemOps?.isTeamMemFile(filePath)) {
+          if (true && getTeamMemOps()?.isTeamMemFile(filePath)) {
             currentGroup.teamMemoryReadFilePaths?.add(filePath)
           } else if (isAutoManagedMemoryFile(filePath)) {
             currentGroup.memoryReadFilePaths.add(filePath)
@@ -1019,8 +1021,9 @@ export function getSearchReadSummaryText(
       )
     }
     // Team memory operations
-    if (true && teamMemOps) {
-      teamMemOps.appendTeamMemorySummaryParts(memoryCounts, isActive, parts)
+    if (true) {
+      const ops = getTeamMemOps()
+      if (ops) ops.appendTeamMemorySummaryParts(memoryCounts, isActive, parts)
     }
   }
 

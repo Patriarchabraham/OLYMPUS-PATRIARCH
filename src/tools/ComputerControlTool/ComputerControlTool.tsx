@@ -10,7 +10,7 @@ import { getAccessibilityTree } from './accessibility.js'
 import { COMPUTER_CONTROL_TOOL_NAME, getPrompt } from './prompt.js'
 
 /** Environment variable to enable the ComputerControl tool. */
-const ENV_COMPUTER_CONTROL_ENABLED = 'MYTHOS_COMPUTER_CONTROL'
+const ENV_COMPUTER_CONTROL_ENABLED = 'OLYMPUZ_COMPUTER_CONTROL'
 
 // ---------- Input schema ----------
 

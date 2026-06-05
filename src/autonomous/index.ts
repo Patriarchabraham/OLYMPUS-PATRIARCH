@@ -1,4 +1,4 @@
-// Autonomous execution system for Mythos Patriarch
+// Autonomous execution system for Olympuz Coder
 // Provides long-running task management with checkpointing, error recovery,
 // progress tracking, and goal management.
 
@@ -87,7 +87,7 @@ export class AutonomousRunner {
 		this.config = { ...DEFAULT_CONFIG, ...config }
 		this.callbacks = callbacks ?? {}
 
-		// Wire up filesystem persistence: use .mythos/autonomous under cwd
+		// Wire up filesystem persistence: use .olympuz/autonomous under cwd
 		const cwd = process.cwd()
 		setDataDir(cwd)
 		setCheckpointsBaseDir(cwd)

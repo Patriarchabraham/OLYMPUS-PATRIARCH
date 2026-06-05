@@ -1,4 +1,4 @@
-// Multimodal capabilities for Mythos Patriarch
+// Multimodal capabilities for Olympuz Coder
 // Image analysis, voice interface, document parsing, and code visualization
 
 export type {

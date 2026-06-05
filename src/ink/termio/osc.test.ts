@@ -3,7 +3,7 @@ import { join } from 'node:path'
 
 const originalEnv = { ...process.env }
 const originalPlatform = process.platform
-const mockedClipboardPath = join(process.cwd(), 'Mythos Patriarch-clipboard.txt')
+const mockedClipboardPath = join(process.cwd(), 'Olympuz Coder-clipboard.txt')
 
 const generateTempFilePathMock = vi.fn(() => mockedClipboardPath)
 

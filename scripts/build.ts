@@ -1,5 +1,5 @@
 ﻿/**
- * Mythos Patriarch build script — bundles the TypeScript source into a single
+ * Olympuz Coder build script — bundles the TypeScript source into a single
  * distributable JS file using Bun's bundler.
  *
  * Handles:
@@ -141,10 +141,10 @@ result = await Bun.build({
     'MACRO.DISPLAY_VERSION': JSON.stringify(version),
     'MACRO.BUILD_TIME': JSON.stringify(new Date().toISOString()),
     'MACRO.ISSUES_EXPLAINER':
-      JSON.stringify('report the issue at https://github.com/Gitlawb/Mythos Patriarch/issues'),
+      JSON.stringify('report the issue at https://github.com/Gitlawb/Olympuz Coder/issues'),
     'MACRO.FEEDBACK_CHANNEL':
-      JSON.stringify('https://github.com/Gitlawb/Mythos Patriarch/issues'),
-    'MACRO.PACKAGE_URL': JSON.stringify('@gitlawb/Mythos Patriarch'),
+      JSON.stringify('https://github.com/Gitlawb/Olympuz Coder/issues'),
+    'MACRO.PACKAGE_URL': JSON.stringify('@gitlawb/Olympuz Coder'),
     'MACRO.NATIVE_PACKAGE_URL': 'undefined',
   },
   plugins: [
@@ -458,7 +458,7 @@ if (!result.success) {
   }
   process.exitCode = 1
 } else {
-  console.log(`✓ Built Mythos Patriarch v${version} → dist/cli.mjs`)
+  console.log(`✓ Built Olympuz Coder v${version} → dist/cli.mjs`)
 }
 
 // ── SDK Bundle Build ──────────────────────────────────────────────────────
@@ -479,10 +479,10 @@ sdkResult = await Bun.build({
     'MACRO.DISPLAY_VERSION': JSON.stringify(version),
     'MACRO.BUILD_TIME': JSON.stringify(new Date().toISOString()),
     'MACRO.ISSUES_EXPLAINER':
-      JSON.stringify('report the issue at https://github.com/Gitlawb/Mythos Patriarch/issues'),
+      JSON.stringify('report the issue at https://github.com/Gitlawb/Olympuz Coder/issues'),
     'MACRO.FEEDBACK_CHANNEL':
-      JSON.stringify('https://github.com/Gitlawb/Mythos Patriarch/issues'),
-    'MACRO.PACKAGE_URL': JSON.stringify('@gitlawb/Mythos Patriarch'),
+      JSON.stringify('https://github.com/Gitlawb/Olympuz Coder/issues'),
+    'MACRO.PACKAGE_URL': JSON.stringify('@gitlawb/Olympuz Coder'),
     'MACRO.NATIVE_PACKAGE_URL': 'undefined',
   },
   // External: everything TUI-related + native modules

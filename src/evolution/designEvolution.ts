@@ -1,5 +1,5 @@
 /**
- * Mythos Design Evolution Engine
+ * Olympuz Design Evolution Engine
  *
  * Permanently monitors and evolves the visual design quality of projects.
  * Detects outdated technology, deprecated patterns, and suboptimal aesthetics.
@@ -516,7 +516,7 @@ export class DesignEvolutionEngine {
 					category: check.name,
 					title: `Fix: ${check.name}`,
 					description: check.message,
-					implementation: 'Run Mythos design evolution engine with --fix flag',
+					implementation: 'Run Olympuz design evolution engine with --fix flag',
 					impact: 'Required for minimum quality standard',
 				})
 			} else if (check.status === 'warning') {

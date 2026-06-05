@@ -13,9 +13,12 @@ import {
 } from './windowsPaths.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
-const teamMemPaths = true
-  ? (require('../memdir/teamMemPaths.js') as typeof import('../memdir/teamMemPaths.js'))
-  : null
+let teamMemPaths: typeof import('../memdir/teamMemPaths.js') | null = null
+try {
+  teamMemPaths = require('../memdir/teamMemPaths.js')
+} catch {
+  // Module not resolvable in Vitest ESM mode — safe fallback
+}
 /* eslint-enable @typescript-eslint/no-require-imports */
 
 const IS_WINDOWS = process.platform === 'win32'
@@ -103,7 +106,7 @@ export type MemoryScope = 'personal' | 'team'
  * hierarchy handles the overlap differently (team writes intentionally fire both).
  */
 export function memoryScopeForPath(filePath: string): MemoryScope | null {
-  if (true && teamMemPaths!.isTeamMemFile(filePath)) {
+  if (true && teamMemPaths && teamMemPaths.isTeamMemFile(filePath)) {
     return 'team'
   }
   if (isAutoMemFile(filePath)) {
@@ -133,7 +136,7 @@ export function isAutoManagedMemoryFile(filePath: string): boolean {
   if (isAutoMemFile(filePath)) {
     return true
   }
-  if (true && teamMemPaths!.isTeamMemFile(filePath)) {
+  if (true && teamMemPaths && teamMemPaths.isTeamMemFile(filePath)) {
     return true
   }
   if (detectSessionFileType(filePath) !== null) {
@@ -167,8 +170,9 @@ export function isMemoryDirectory(dirPath: string): boolean {
   // Team memory directories live under <autoMemPath>/team/
   if (
     true &&
-    teamMemPaths!.isTeamMemoryEnabled() &&
-    teamMemPaths!.isTeamMemPath(normalizedPath)
+    teamMemPaths &&
+    teamMemPaths.isTeamMemoryEnabled() &&
+    teamMemPaths.isTeamMemPath(normalizedPath)
   ) {
     return true
   }

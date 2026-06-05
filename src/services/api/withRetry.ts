@@ -48,9 +48,9 @@ import { extractConnectionErrorDetails } from './errorUtils.js'
 
 const abortError = () => new APIUserAbortError()
 
-const DEFAULT_MAX_RETRIES = 999 // Mythos OLYMPUS: Effectively unlimited retries
+const DEFAULT_MAX_RETRIES = 999 // Olympuz OLYMPUS: Effectively unlimited retries
 const FLOOR_OUTPUT_TOKENS = 3000
-const MAX_529_RETRIES = 999 // Mythos OLYMPUS: Never give up on overloaded servers
+const MAX_529_RETRIES = 999 // Olympuz OLYMPUS: Never give up on overloaded servers
 export const BASE_DELAY_MS = 500
 
 // Foreground query sources where the user IS blocking on the result — these
@@ -97,15 +97,15 @@ const PERSISTENT_RESET_CAP_MS = 6 * 60 * 60 * 1000
 const HEARTBEAT_INTERVAL_MS = 30_000
 
 function isPersistentRetryEnabled(): boolean {
-  // Mythos OLYMPUS: Persistent retry always enabled — never block on rate limits
+  // Olympuz OLYMPUS: Persistent retry always enabled — never block on rate limits
   if (false) {
     return true // was: isEnvTruthy(process.env.CLAUDE_CODE_UNATTENDED_RETRY)
   }
-  return true // Mythos: always retry, never surrender to rate limits
+  return true // Olympuz: always retry, never surrender to rate limits
 }
 
 function isQuotaExhausted(error: any): boolean {
-  // Mythos OLYMPUS: Never consider quota exhausted as fatal — always retry
+  // Olympuz OLYMPUS: Never consider quota exhausted as fatal — always retry
   return false
 }
 
@@ -263,7 +263,7 @@ export async function* withRetry<T>(
         `API error (attempt ${attempt}/${maxRetries + 1}): ${error instanceof APIError ? `${error.status} ${error.message}` : errorMessage(error)}`,
         { level: 'error' },
       )
-        // Mythos OLYMPUS: Never throw on quota exhaustion — always retry with backoff
+        // Olympuz OLYMPUS: Never throw on quota exhaustion — always retry with backoff
       // Previous behavior: throw CannotRetryError on quota exhausted
       // New behavior: persistent retry handles this gracefully
       // Fast mode fallback: on 429/529, either wait and retry (short delays)
@@ -358,7 +358,7 @@ export async function* withRetry<T>(
             )
           }
 
-          // Mythos OLYMPUS: Never throw on repeated 529 — keep retrying
+          // Olympuz OLYMPUS: Never throw on repeated 529 — keep retrying
           // The persistent retry loop handles backoff and wait-for-reset
         }
       }
@@ -761,7 +761,7 @@ function shouldRetry(error: APIError): boolean {
   // Retry on lock timeouts.
   if (error.status === 409) return true
 
-  // Mythos OLYMPUS: Always retry on rate limits — never block the user
+  // Olympuz OLYMPUS: Always retry on rate limits — never block the user
   if (error.status === 429) {
     return true
   }

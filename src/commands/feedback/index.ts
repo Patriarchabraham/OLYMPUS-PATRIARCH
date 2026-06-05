@@ -3,7 +3,7 @@ const feedback = {
   aliases: ['bug'],
   type: 'local-jsx',
   name: 'feedback',
-  description: `Submit feedback about Mythos Patriarch`,
+  description: `Submit feedback about Olympuz Coder`,
   argumentHint: '[report]',
   isEnabled: () => false,
   load: () => import('./feedback.js'),

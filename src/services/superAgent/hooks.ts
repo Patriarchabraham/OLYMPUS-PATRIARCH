@@ -7,7 +7,7 @@ import { getSuperAgentOrchestrator } from './orchestrator.js'
 import type { SuperAgentConfig } from './types.js'
 
 /**
- * Register super-agent hooks into the Mythos lifecycle.
+ * Register super-agent hooks into the Olympuz lifecycle.
  * This wires:
  * - Evolution tracking (post-sampling)
  * - Periodic evolution cycles
@@ -147,6 +147,130 @@ export function registerSuperAgentHooks(config?: Partial<SuperAgentConfig>): voi
 					}
 				} catch {
 					// Non-critical
+				}
+			}
+
+			// ─── Periodic Olympus performance pruning (every 100 interactions) ──
+			if (orchestrator.isModuleEnabled('olympus')) {
+				try {
+					const interactionCount = orchestrator.getEvolutionReport()?.totalInteractions ?? 0
+					if (interactionCount > 0 && interactionCount % 100 === 0) {
+						const olympusEngine = orchestrator.getOlympusEngineInstance()
+						if (olympusEngine) {
+							olympusEngine.prunePerformance()
+						}
+					}
+				} catch {
+					// Non-critical
+				}
+			}
+
+			// ─── Proof Engine Verification ───────────────────────────
+			if (orchestrator.isModuleEnabled('proof')) {
+				try {
+					const proofEngine = orchestrator.getProofEngine()
+					if (proofEngine && lastAssistantMsg?.type === 'assistant') {
+						const content = lastAssistantMsg.message.content
+						if (typeof content === 'string' && content.length > 50) {
+							const proofResult = await proofEngine.prove(content, 'generated-code')
+							const tokenEstimate = Math.ceil(content.length / 4)
+							proofEngine.recordTokenUsage(proofResult, tokenEstimate)
+							orchestrator.setLastProofConfidence(proofResult.overallConfidence)
+						}
+					}
+				} catch (e) {
+					logForDebugging(`[SuperAgent] proof verification failed: ${e}`)
+				}
+			}
+
+			// ─── SAT Path Feasibility Check ──────────────────────────
+			if (orchestrator.isModuleEnabled('sat')) {
+				try {
+					if (lastAssistantMsg?.type === 'assistant') {
+						const content = lastAssistantMsg.message.content
+						if (typeof content === 'string' && content.length > 50) {
+							const { extractPathConstraints, checkPathFeasibility } = await import('../../satSolver/dpll.js')
+							const constraints = extractPathConstraints(content, 'generated-code')
+							if (constraints.length > 0) {
+								const result = checkPathFeasibility(constraints)
+								orchestrator.incrementSATStats(1, result.feasible ? 0 : 1)
+							}
+						}
+					}
+				} catch (e) {
+					logForDebugging(`[SuperAgent] SAT path check failed: ${e}`)
+				}
+			}
+
+			// ─── Design by Contract Verification ─────────────────────
+			if (orchestrator.isModuleEnabled('contract')) {
+				try {
+					if (lastAssistantMsg?.type === 'assistant') {
+						const content = lastAssistantMsg.message.content
+						if (typeof content === 'string' && content.length > 50) {
+							const { parseContracts } = await import('../../contractProgramming/contractParser.js')
+							const { verifyContracts } = await import('../../contractProgramming/contractVerifier.js')
+							const clauses = parseContracts(content, 'generated-code')
+							if (clauses.length > 0) {
+								const report = verifyContracts(clauses, content)
+								orchestrator.setContractCompliance(report.complianceScore)
+							}
+						}
+					}
+				} catch (e) {
+					logForDebugging(`[SuperAgent] contract verification failed: ${e}`)
+				}
+			}
+
+			// ─── Abstract Interpretation Check ────────────────────────
+			if (orchestrator.isModuleEnabled('abstract-interpretation')) {
+				try {
+					if (lastAssistantMsg?.type === 'assistant') {
+						const content = lastAssistantMsg.message.content
+						if (typeof content === 'string' && content.length > 50) {
+							const { analyzeAbstractly } = await import('../../abstractInterpretation/abstractInterpreter.js')
+							const result = analyzeAbstractly(content, 'generated-code')
+							orchestrator.setAISoundnessScore(result.soundnessScore, result.findings.length)
+						}
+					}
+				} catch (e) {
+					logForDebugging(`[SuperAgent] abstract interpretation failed: ${e}`)
+				}
+			}
+
+			// ─── Symbolic Execution Path Analysis (Phase 4) ────────
+			if (orchestrator.isModuleEnabled('symbolic-execution')) {
+				try {
+					if (lastAssistantMsg?.type === 'assistant') {
+						const content = lastAssistantMsg.message.content
+						if (typeof content === 'string' && content.length > 50) {
+							const { executeSymbolically } = await import('../../symbolicExecution/symbolicEngine.js')
+							const result = executeSymbolically(content, 'generated-code')
+							orchestrator.setSEStats(result.totalPaths, result.findings.length)
+						}
+					}
+				} catch (e) {
+					logForDebugging(`[SuperAgent] symbolic execution failed: ${e}`)
+				}
+			}
+
+			// ─── Program Slicing Reduction (Phase 4) ────────────────
+			if (orchestrator.isModuleEnabled('program-slicing')) {
+				try {
+					if (lastAssistantMsg?.type === 'assistant') {
+						const content = lastAssistantMsg.message.content
+						if (typeof content === 'string' && content.length > 50) {
+							const { computeSlice } = await import('../../programSlicing/slicer.js')
+							const result = computeSlice(content, {
+								variableName: 'result',
+								lineNumber: 1,
+								direction: 'backward',
+							})
+							orchestrator.setSliceReductionAvg(result.reductionPercent)
+						}
+					}
+				} catch (e) {
+					logForDebugging(`[SuperAgent] program slicing failed: ${e}`)
 				}
 			}
 		} catch (e) {

@@ -40,7 +40,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('Mythos Patriarch paths', () => {
+describe('Olympuz Coder paths', () => {
   test('defaults user config home to ~/.openclaude', async () => {
     delete process.env.CLAUDE_CONFIG_DIR
     const { resolveClaudeConfigHomeDir } = await importFreshEnvUtils()
@@ -64,7 +64,7 @@ describe('Mythos Patriarch paths', () => {
   })
 
   test('migrates legacy config home and global config files to .openclaude', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-paths-test-'))
+    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
     try {
       mkdirSync(join(tempHome, '.claude', 'skills', 'legacy-skill'), {
         recursive: true,
@@ -104,7 +104,7 @@ describe('Mythos Patriarch paths', () => {
   })
 
   test('migration preserves existing .openclaude data while copying missing legacy data', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-paths-test-'))
+    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
     try {
       mkdirSync(join(tempHome, '.claude', 'skills', 'legacy-skill'), {
         recursive: true,
@@ -135,7 +135,7 @@ describe('Mythos Patriarch paths', () => {
   })
 
   test('migration skips explicit CLAUDE_CONFIG_DIR overrides', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-paths-test-'))
+    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
     try {
       mkdirSync(join(tempHome, '.claude'), { recursive: true })
       writeFileSync(join(tempHome, '.claude', 'settings.json'), 'legacy')
@@ -155,7 +155,7 @@ describe('Mythos Patriarch paths', () => {
   })
 
   test('migration fails closed when .openclaude collides with a non-directory', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-paths-test-'))
+    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
     try {
       writeFileSync(join(tempHome, '.openclaude'), 'not a directory')
       mkdirSync(join(tempHome, '.claude'), { recursive: true })
@@ -170,7 +170,7 @@ describe('Mythos Patriarch paths', () => {
   })
 
   test('migration ignores non-directory legacy config homes', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-paths-test-'))
+    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
     try {
       writeFileSync(join(tempHome, '.claude'), 'not a directory')
 
@@ -184,7 +184,7 @@ describe('Mythos Patriarch paths', () => {
   })
 
   test('config home falls back to legacy when migration fails on a non-directory .openclaude collision', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-paths-test-'))
+    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
     try {
       writeFileSync(join(tempHome, '.openclaude'), 'not a directory')
       mkdirSync(join(tempHome, '.claude'), { recursive: true })
@@ -215,8 +215,8 @@ describe('Mythos Patriarch paths', () => {
     const { getDefaultPlansDirectory } = await importFreshPlans()
 
     expect(
-      getDefaultPlansDirectory({ configDirEnv: '/tmp/custom-Mythos Patriarch' }),
-    ).toBe(join('/tmp/custom-Mythos Patriarch', 'plans'))
+      getDefaultPlansDirectory({ configDirEnv: '/tmp/custom-Olympuz Coder' }),
+    ).toBe(join('/tmp/custom-Olympuz Coder', 'plans'))
   })
 
   test('default plans directory normalizes generated path to NFC', async () => {
@@ -231,21 +231,21 @@ describe('Mythos Patriarch paths', () => {
     const { getDefaultPlansDirectory } = await importFreshPlans()
 
     expect(
-      getDefaultPlansDirectory({ configDirEnv: '/tmp/cafe\u0301-Mythos Patriarch' }),
-    ).toBe(join('/tmp/caf\u00e9-Mythos Patriarch', 'plans'))
+      getDefaultPlansDirectory({ configDirEnv: '/tmp/cafe\u0301-Olympuz Coder' }),
+    ).toBe(join('/tmp/caf\u00e9-Olympuz Coder', 'plans'))
   })
 
   test('uses CLAUDE_CONFIG_DIR override when provided', async () => {
-    process.env.CLAUDE_CONFIG_DIR = '/tmp/custom-Mythos Patriarch'
+    process.env.CLAUDE_CONFIG_DIR = '/tmp/custom-Olympuz Coder'
     const { getClaudeConfigHomeDir, resolveClaudeConfigHomeDir } =
       await importFreshEnvUtils()
 
-    expect(getClaudeConfigHomeDir()).toBe('/tmp/custom-Mythos Patriarch')
+    expect(getClaudeConfigHomeDir()).toBe('/tmp/custom-Olympuz Coder')
     expect(
       resolveClaudeConfigHomeDir({
-        configDirEnv: '/tmp/custom-Mythos Patriarch',
+        configDirEnv: '/tmp/custom-Olympuz Coder',
       }),
-    ).toBe('/tmp/custom-Mythos Patriarch')
+    ).toBe('/tmp/custom-Olympuz Coder')
   })
 
   test('project and local settings paths use .openclaude', async () => {
@@ -259,14 +259,14 @@ describe('Mythos Patriarch paths', () => {
     )
   })
 
-  test('local installer uses Mythos Patriarch wrapper path', async () => {
+  test('local installer uses Olympuz Coder wrapper path', async () => {
     // Force .openclaude config home so the test doesn't fall back to
     // ~/.claude when ~/.openclaude doesn't exist on this machine.
     process.env.CLAUDE_CONFIG_DIR = join(homedir(), '.openclaude')
     const { getLocalClaudePath } = await importFreshLocalInstaller()
 
     expect(getLocalClaudePath()).toBe(
-      join(homedir(), '.openclaude', 'local', 'Mythos Patriarch'),
+      join(homedir(), '.openclaude', 'local', 'Olympuz Coder'),
     )
   })
 
@@ -276,7 +276,7 @@ describe('Mythos Patriarch paths', () => {
 
     expect(
       isManagedLocalInstallationPath(
-        `${join(homedir(), '.openclaude', 'local')}/node_modules/.bin/Mythos Patriarch`,
+        `${join(homedir(), '.openclaude', 'local')}/node_modules/.bin/Olympuz Coder`,
       ),
     ).toBe(true)
   })
@@ -287,12 +287,12 @@ describe('Mythos Patriarch paths', () => {
 
     expect(
       isManagedLocalInstallationPath(
-        `${join(homedir(), '.claude', 'local')}/node_modules/.bin/Mythos Patriarch`,
+        `${join(homedir(), '.claude', 'local')}/node_modules/.bin/Olympuz Coder`,
       ),
     ).toBe(true)
   })
 
-  test('candidate local install dirs include both Mythos Patriarch and legacy claude paths', async () => {
+  test('candidate local install dirs include both Olympuz Coder and legacy claude paths', async () => {
     const { getCandidateLocalInstallDirs } = await importFreshLocalInstaller()
 
     expect(

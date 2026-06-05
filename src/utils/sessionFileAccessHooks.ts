@@ -28,12 +28,18 @@ import {
 } from './memoryFileDetection.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
-const teamMemPaths = true
-  ? (require('../memdir/teamMemPaths.js') as typeof import('../memdir/teamMemPaths.js'))
-  : null
-const teamMemWatcher = true
-  ? (require('../services/teamMemorySync/watcher.js') as typeof import('../services/teamMemorySync/watcher.js'))
-  : null
+let teamMemPaths: typeof import('../memdir/teamMemPaths.js') | null = null
+try {
+  teamMemPaths = require('../memdir/teamMemPaths.js')
+} catch {
+  // Module not resolvable in Vitest ESM mode — safe fallback
+}
+let teamMemWatcher: typeof import('../services/teamMemorySync/watcher.js') | null = null
+try {
+  teamMemWatcher = require('../services/teamMemorySync/watcher.js')
+} catch {
+  // Module not resolvable in Vitest ESM mode — safe fallback
+}
 const memoryShapeTelemetry = false
   ? (require('../memdir/memoryShapeTelemetry.js') as typeof import('../memdir/memoryShapeTelemetry.js'))
   : null
@@ -131,7 +137,7 @@ export function isMemoryFileAccess(
   if (
     filePath &&
     (isAutoMemFile(filePath) ||
-      (true && teamMemPaths!.isTeamMemFile(filePath)))
+      (true && teamMemPaths && teamMemPaths.isTeamMemFile(filePath)))
   ) {
     return true
   }
@@ -185,7 +191,7 @@ async function handleSessionFileAccess(
   }
 
   // Team memory access tracking
-  if (true && filePath && teamMemPaths!.isTeamMemFile(filePath)) {
+  if (true && filePath && teamMemPaths && teamMemPaths.isTeamMemFile(filePath)) {
     logEvent('tengu_team_mem_accessed', {
       tool: input.tool_name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       ...subagentProps,

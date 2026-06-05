@@ -16,7 +16,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
     vi.restoreAllMocks()
   })
 
-  test('loads Codex credentials from Mythos Patriarch secure storage', async () => {
+  test('loads Codex credentials from Olympuz Coder secure storage', async () => {
     vi.mock('../../utils/codexCredentials.js', () => ({
       isCodexRefreshFailureCoolingDown: () => false,
       readCodexCredentials: () => ({
@@ -90,7 +90,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
       readCodexCredentials: () => undefined,
     }))
 
-    const tempDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-codex-auth-'))
+    const tempDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-codex-auth-'))
     const authPath = join(tempDir, 'auth.json')
 
     writeFileSync(
@@ -144,7 +144,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
   })
 
   test('falls back to the default auth.json when stored Codex refresh is cooling down', async () => {
-    const tempHomeDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-codex-home-'))
+    const tempHomeDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-codex-home-'))
     const authJson = JSON.stringify({
       openai_api_key: makeJwt({
         'https://api.openai.com/auth': {
@@ -186,7 +186,7 @@ describe('resolveCodexApiCredentials with secure storage', () => {
   })
 
   test('preserves the stored account id when auth.json fallback lacks one', async () => {
-    const tempHomeDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-codex-home-'))
+    const tempHomeDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-codex-home-'))
     const authJson = JSON.stringify({
       openai_api_key: 'auth-json-access-token',
     })

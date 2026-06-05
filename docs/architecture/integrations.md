@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Mythos Patriarch's provider system is now descriptor-first:
+Olympuz Coder's provider system is now descriptor-first:
 
 - descriptors under `src/integrations/` define vendors, gateways, brands,
   shared model metadata, validation hints, discovery strategy, and supported

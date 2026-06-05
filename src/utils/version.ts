@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url'
 import { coerce } from 'semver'
 
 export const OPENCLAUDE_RELEASES_URL =
-  'https://github.com/Gitlawb/Mythos Patriarch/releases'
+  'https://github.com/Gitlawb/Olympuz Coder/releases'
 
 export function normalizePublicVersion(version: string): string {
   const trimmedVersion = version.trim()

@@ -772,7 +772,7 @@ function PromptInput({
     if (false && ultraplanTriggers.length) {
       addNotification({
         key: 'ultraplan-active',
-        text: 'This prompt will launch an ultraplan session in Mythos Patriarch on the web',
+        text: 'This prompt will launch an ultraplan session in Olympuz Coder on the web',
         priority: 'immediate',
         timeoutMs: 5000
       });

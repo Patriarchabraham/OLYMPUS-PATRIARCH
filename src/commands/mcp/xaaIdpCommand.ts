@@ -170,7 +170,7 @@ export function registerMcpXaaIdpCommand(mcp: Command): void {
       const idp = getXaaIdpSettings()
       if (!idp) {
         return cliError(
-          "Error: no XAA IdP connection. Run 'Mythos Patriarch mcp xaa setup' first.",
+          "Error: no XAA IdP connection. Run 'Olympuz Coder mcp xaa setup' first.",
         )
       }
 
@@ -235,7 +235,7 @@ export function registerMcpXaaIdpCommand(mcp: Command): void {
         `Client secret: ${hasSecret ? '(stored in keychain)' : '(not set — PKCE-only)'}\n`,
       )
       process.stdout.write(
-        `Logged in:     ${hasIdToken ? 'yes (id_token cached)' : "no — run 'Mythos Patriarch mcp xaa login'"}\n`,
+        `Logged in:     ${hasIdToken ? 'yes (id_token cached)' : "no — run 'Olympuz Coder mcp xaa login'"}\n`,
       )
       cliOk()
     })

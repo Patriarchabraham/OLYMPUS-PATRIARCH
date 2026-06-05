@@ -6,12 +6,12 @@ Object.assign(globalThis, {
   MACRO: {
     VERSION: '0.1.7',
     DISPLAY_VERSION: '0.1.7',
-    PACKAGE_URL: '@gitlawb/Mythos Patriarch',
+    PACKAGE_URL: '@gitlawb/Olympuz Coder',
   }
 })
 
 async function main() {
-  console.log('Starting Mythos Patriarch gRPC Server...')
+  console.log('Starting Olympuz Coder gRPC Server...')
   await init()
 
   // Mirror CLI bootstrap: hydrate secure tokens and resolve provider profile

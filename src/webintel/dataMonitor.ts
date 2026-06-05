@@ -155,7 +155,7 @@ export class DataMonitor {
         path: url.pathname + url.search,
         method: 'GET',
         headers: {
-          'User-Agent': 'Mythos-WebIntel/1.0',
+          'User-Agent': 'Olympuz-WebIntel/1.0',
           'Accept': target.type === 'json-endpoint' ? 'application/json' : '*/*',
         },
         timeout: 10000,

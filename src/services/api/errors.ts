@@ -308,7 +308,7 @@ export function getRequestTooLargeErrorMessage(): string {
     : `Request too large (${limits}). Double press esc to go back and try with a smaller file.`
 }
 export const OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE =
-  'Your account does not have access to Mythos Patriarch. Please run /login.'
+  'Your account does not have access to Olympuz Coder. Please run /login.'
 
 export function getTokenRevokedErrorMessage(): string {
   return getIsNonInteractiveSession()
@@ -589,7 +589,7 @@ export function getAssistantMessageFromError(
     })
   }
 
-  // Mythos OLYMPUS: Rate limit errors are now non-blocking.
+  // Olympuz OLYMPUS: Rate limit errors are now non-blocking.
   // The retry loop handles backoff. When we reach this handler, it means
   // retries were exhausted (shouldn't happen with unlimited retries),
   // but we still show a retry-friendly message instead of a hard block.
@@ -604,7 +604,7 @@ export function getAssistantMessageFromError(
       : ''
 
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: Rate limit reached — retrying automatically${resetHint}. Mythos will keep trying until the limit resets.`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: Rate limit reached — retrying automatically${resetHint}. Olympuz will keep trying until the limit resets.`,
       error: 'rate_limit',
     })
   }
@@ -1374,8 +1374,8 @@ export function getErrorMessageIfRefusal(
       : "your provider's acceptable use policy"
 
   const baseMessage = getIsNonInteractiveSession()
-    ? `${API_ERROR_MESSAGE_PREFIX}: Mythos Patriarch is unable to respond to this request, which appears to violate our Usage Policy (${usagePolicyUrl}). Try rephrasing the request or attempting a different approach.`
-    : `${API_ERROR_MESSAGE_PREFIX}: Mythos Patriarch is unable to respond to this request, which appears to violate our Usage Policy (${usagePolicyUrl}). Please double press esc to edit your last message or start a new session for Mythos Patriarch to assist with a different task.`
+    ? `${API_ERROR_MESSAGE_PREFIX}: Olympuz Coder is unable to respond to this request, which appears to violate our Usage Policy (${usagePolicyUrl}). Try rephrasing the request or attempting a different approach.`
+    : `${API_ERROR_MESSAGE_PREFIX}: Olympuz Coder is unable to respond to this request, which appears to violate our Usage Policy (${usagePolicyUrl}). Please double press esc to edit your last message or start a new session for Olympuz Coder to assist with a different task.`
 
   const modelSuggestion =
     model !== 'claude-sonnet-4-20250514'

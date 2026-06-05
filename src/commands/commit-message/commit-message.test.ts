@@ -8,42 +8,42 @@ import {
 
 describe('commit-message command helpers', () => {
   it('parses quoted co-author names with a plain email', () => {
-    expect(parseCoAuthor('"GPT 5.5" noreply@mythospatriarch.dev')).toEqual({
+    expect(parseCoAuthor('"GPT 5.5" noreply@olympuzpatriarch.dev')).toEqual({
       name: 'GPT 5.5',
-      email: 'noreply@mythospatriarch.dev',
+      email: 'noreply@olympuzpatriarch.dev',
     })
   })
 
   it('parses co-author trailers with angle-bracket emails', () => {
-    expect(parseCoAuthor('Mythos Patriarch (gpt-5.5) <noreply@mythospatriarch.dev>')).toEqual(
+    expect(parseCoAuthor('Olympuz Coder (gpt-5.5) <noreply@olympuzpatriarch.dev>')).toEqual(
       {
-        name: 'Mythos Patriarch (gpt-5.5)',
-        email: 'noreply@mythospatriarch.dev',
+        name: 'Olympuz Coder (gpt-5.5)',
+        email: 'noreply@olympuzpatriarch.dev',
       },
     )
   })
 
   it('rejects co-author trailers with empty sanitized names', () => {
-    expect(parseCoAuthor('"  " noreply@mythospatriarch.dev')).toBeNull()
-    expect(parseCoAuthor('"  " <noreply@mythospatriarch.dev>')).toBeNull()
+    expect(parseCoAuthor('"  " noreply@olympuzpatriarch.dev')).toBeNull()
+    expect(parseCoAuthor('"  " <noreply@olympuzpatriarch.dev>')).toBeNull()
   })
 
   it('strips one pair of matching quotes from custom attribution text', () => {
-    expect(stripMatchingQuotes('"Generated with Mythos Patriarch"')).toBe(
-      'Generated with Mythos Patriarch',
+    expect(stripMatchingQuotes('"Generated with Olympuz Coder"')).toBe(
+      'Generated with Olympuz Coder',
     )
-    expect(stripMatchingQuotes("'Generated with Mythos Patriarch'")).toBe(
-      'Generated with Mythos Patriarch',
+    expect(stripMatchingQuotes("'Generated with Olympuz Coder'")).toBe(
+      'Generated with Olympuz Coder',
     )
-    expect(stripMatchingQuotes('"Generated with Mythos Patriarch')).toBe(
-      '"Generated with Mythos Patriarch',
+    expect(stripMatchingQuotes('"Generated with Olympuz Coder')).toBe(
+      '"Generated with Olympuz Coder',
     )
   })
 
   it('formats a sanitized co-author trailer', () => {
     expect(
-      formatCoAuthorTrailer('Mythos Patriarch <gpt>\n', '<noreply@Mythos Patriarch.dev>'),
-    ).toBe('Co-Authored-By: Mythos Patriarch gpt <noreply@Mythos Patriarch.dev>')
+      formatCoAuthorTrailer('Olympuz Coder <gpt>\n', '<noreply@Olympuz Coder.dev>'),
+    ).toBe('Co-Authored-By: Olympuz Coder gpt <noreply@Olympuz Coder.dev>')
   })
 
   it('makes set scope explicit with example text', () => {
@@ -51,7 +51,7 @@ describe('commit-message command helpers', () => {
       'Controls only the attribution text appended after /commit messages.',
     )
     expect(USAGE).toContain(
-      '/commit-message set "Generated with Mythos Patriarch using GPT-5.5"',
+      '/commit-message set "Generated with Olympuz Coder using GPT-5.5"',
     )
     expect(USAGE).not.toContain('/commit-message set-attribution')
   })

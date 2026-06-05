@@ -1057,7 +1057,7 @@ export async function executeWarmRemoteCapacityAction(args: {
       action.createDefaultEnvironmentIfMissing === true
     ) {
       const created = await envApi.createDefaultCloudEnvironment(
-        'Mythos Patriarch Self-Healing Warmup',
+        'Olympuz Coder Self-Healing Warmup',
       )
       selection = {
         availableEnvironments: [created],

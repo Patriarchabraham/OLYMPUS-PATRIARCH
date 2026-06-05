@@ -1138,7 +1138,7 @@ export function REPL({
   // session from mid-conversation context.
   const haikuTitleAttemptedRef = useRef((initialMessages?.length ?? 0) > 0);
   const agentTitle = mainThreadAgentDefinition?.agentType;
-  const terminalTitle = sessionTitle ?? agentTitle ?? haikuTitle ?? 'Mythos Patriarch';
+  const terminalTitle = sessionTitle ?? agentTitle ?? haikuTitle ?? 'Olympuz Coder';
   const isWaitingForApproval = toolUseConfirmQueue.length > 0 || promptQueue.length > 0 || pendingWorkerRequest || pendingSandboxRequest;
   // Local-jsx commands (like /plugin, /config) show user-facing dialogs that
   // wait for input. Require jsx != null — if the flag is stuck true but jsx
@@ -4179,7 +4179,7 @@ export function REPL({
   useEffect(() => {
     const handleSuspend = () => {
       // Print suspension instructions
-      process.stdout.write(`\nMythos Patriarch has been suspended. Run \`fg\` to bring Mythos Patriarch back.\nNote: ctrl + z now suspends Mythos Patriarch, ctrl + _ undoes input.\n`);
+      process.stdout.write(`\nOlympuz Coder has been suspended. Run \`fg\` to bring Olympuz Coder back.\nNote: ctrl + z now suspends Olympuz Coder, ctrl + _ undoes input.\n`);
     };
     const handleResume = () => {
       // Force complete component tree replacement instead of terminal clear

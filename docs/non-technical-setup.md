@@ -1,4 +1,4 @@
-﻿# Mythos Patriarch for Non-Technical Users
+﻿# Olympuz Coder for Non-Technical Users
 
 This guide is for people who want the easiest setup path.
 
@@ -6,9 +6,9 @@ You do not need to build from source. You do not need Bun. You do not need to un
 
 If you can copy and paste commands into a terminal, you can set this up.
 
-## What Mythos Patriarch Does
+## What Olympuz Coder Does
 
-Mythos Patriarch lets you use an AI coding assistant with different model providers such as:
+Olympuz Coder lets you use an AI coding assistant with different model providers such as:
 
 - OpenAI
 - DeepSeek
@@ -28,9 +28,9 @@ You need:
 
 ## Fastest Path
 
-1. Install Mythos Patriarch with npm
+1. Install Olympuz Coder with npm
 2. Set 3 environment variables
-3. Run `Mythos Patriarch`
+3. Run `Olympuz Coder`
 
 ## Choose Your Operating System
 
@@ -62,7 +62,7 @@ Choose this if:
 
 ## What Success Looks Like
 
-After you run `Mythos Patriarch`, the CLI should start and wait for your prompt.
+After you run `Olympuz Coder`, the CLI should start and wait for your prompt.
 
 At that point, you can ask it to:
 
@@ -73,7 +73,7 @@ At that point, you can ask it to:
 
 ## Common Problems
 
-### `Mythos Patriarch` command not found
+### `Olympuz Coder` command not found
 
 Cause:
 
@@ -83,7 +83,7 @@ Fix:
 
 1. Close the terminal
 2. Open a new terminal
-3. Run `Mythos Patriarch` again
+3. Run `Olympuz Coder` again
 
 ### Invalid API key
 
@@ -95,7 +95,7 @@ Fix:
 
 1. Get a fresh key from your provider
 2. Paste it again carefully
-3. Re-run `Mythos Patriarch`
+3. Re-run `Olympuz Coder`
 
 ### Ollama not working
 

@@ -69,7 +69,7 @@ export async function setup(
     // biome-ignore lint/suspicious/noConsole: intentional console output
     console.error(
       chalk.bold.red(
-        'Error: Mythos Patriarch requires Node.js version 18 or higher.',
+        'Error: Olympuz Coder requires Node.js version 18 or higher.',
       ),
     )
     process.exit(1)

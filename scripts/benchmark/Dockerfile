@@ -14,10 +14,10 @@ ENV PATH="/root/.bun/bin:${PATH}"
 # Install SWE-bench evaluation harness
 RUN pip install --no-cache-dir swebench
 
-# Install Mythos CLI
+# Install Olympuz CLI
 # Adjust the method based on your distribution
-COPY . /opt/mythos
-WORKDIR /opt/mythos
+COPY . /opt/olympuz
+WORKDIR /opt/olympuz
 RUN bun install && bun run build
 
 # Create evaluation workspace
@@ -26,4 +26,4 @@ RUN mkdir -p /eval/workspace
 WORKDIR /eval
 
 # Default entrypoint runs the evaluation
-ENTRYPOINT ["bun", "run", "/opt/mythos/scripts/benchmark/runner.ts"]
+ENTRYPOINT ["bun", "run", "/opt/olympuz/scripts/benchmark/runner.ts"]

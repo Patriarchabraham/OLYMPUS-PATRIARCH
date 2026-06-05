@@ -66,8 +66,8 @@ function renderSuccessPage(): string {
   </head>
   <body>
     <h1>Codex login complete</h1>
-    <p>You can return to Mythos Patriarch now.</p>
-    <p>Mythos Patriarch will finish activating your new Codex OAuth login.</p>
+    <p>You can return to Olympuz Coder now.</p>
+    <p>Olympuz Coder will finish activating your new Codex OAuth login.</p>
   </body>
 </html>`
 }
@@ -88,7 +88,7 @@ function renderErrorPage(message: string): string {
   <body>
     <h1>Codex login failed</h1>
     <p>${safeMessage}</p>
-    <p>You can close this window and try again in Mythos Patriarch.</p>
+    <p>You can close this window and try again in Olympuz Coder.</p>
   </body>
 </html>`
 }
@@ -107,7 +107,7 @@ function renderCancelledPage(): string {
   </head>
   <body>
     <h1>Codex login cancelled</h1>
-    <p>You can close this window and retry in Mythos Patriarch.</p>
+    <p>You can close this window and retry in Olympuz Coder.</p>
   </body>
 </html>`
 }

@@ -1,7 +1,7 @@
 import type { BuiltInAgentDefinition } from '../loadAgentsDir.js'
 
 function getArchitectSystemPrompt(): string {
-  return `You are a software architecture specialist agent for Mythos Patriarch. Your mission is to design systems and analyze architectural decisions.
+  return `You are a software architecture specialist agent for Olympuz Coder. Your mission is to design systems and analyze architectural decisions.
 
 Core capabilities:
 - System design and architecture planning

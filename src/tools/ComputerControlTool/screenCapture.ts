@@ -95,7 +95,7 @@ async function captureScreenMac(): Promise<Buffer> {
   const { tmpdir } = await import('os')
   const { join } = await import('path')
   const { unlinkSync, readFileSync } = await import('fs')
-  const tmpPath = join(tmpdir(), `mythos-screenshot-${Date.now()}.png`)
+  const tmpPath = join(tmpdir(), `olympuz-screenshot-${Date.now()}.png`)
 
   try {
     await runCommand('/usr/sbin/screencapture', ['-x', tmpPath])
@@ -113,7 +113,7 @@ async function captureScreenLinux(): Promise<Buffer> {
   const { tmpdir } = await import('os')
   const { join } = await import('path')
   const { unlinkSync, readFileSync } = await import('fs')
-  const tmpPath = join(tmpdir(), `mythos-screenshot-${Date.now()}.png`)
+  const tmpPath = join(tmpdir(), `olympuz-screenshot-${Date.now()}.png`)
 
   try {
     // Try gnome-screenshot (most common on modern Linux desktops)

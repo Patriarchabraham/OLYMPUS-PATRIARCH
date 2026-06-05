@@ -105,7 +105,7 @@ export function getRateLimitMessage(
 
 /**
  * Get error message for API errors (used in errors.ts)
- * Mythos OLYMPUS: Rate limit errors are now non-blocking.
+ * Olympuz OLYMPUS: Rate limit errors are now non-blocking.
  * Returns null to suppress hard error messages — warnings only.
  */
 export function getRateLimitErrorMessage(
@@ -275,7 +275,7 @@ function getWarningUpsellText(
 
     // Pro/Max users: prompt to upgrade
     if (subscriptionType === 'pro' || subscriptionType === 'max') {
-      return '/upgrade to keep using Mythos Patriarch'
+      return '/upgrade to keep using Olympuz Coder'
     }
   }
 

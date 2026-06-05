@@ -59,7 +59,7 @@ function hasCommand(cmd: string): boolean {
  * Returns the path to the recorded WAV file.
  */
 async function recordAudioWav(durationMs: number, config: VoiceConfig): Promise<string> {
-  const outPath = join(tmpdir(), `mythos-stt-${Date.now()}.wav`)
+  const outPath = join(tmpdir(), `olympuz-stt-${Date.now()}.wav`)
   const durationSec = Math.max(1, Math.round(durationMs / 1000))
 
   // Try ffmpeg first (cross-platform)

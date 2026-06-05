@@ -53,7 +53,7 @@ export function generateMarkdown(result: EvaluationResult): string {
 	lines.push("");
 	lines.push("| Tool | pass@1 | Source |");
 	lines.push("|------|--------|--------|");
-	lines.push(`| **Mythos (${config.model})** | **${(aggregate.pass_at_1 * 100).toFixed(1)}%** | This run |`);
+	lines.push(`| **Olympuz (${config.model})** | **${(aggregate.pass_at_1 * 100).toFixed(1)}%** | This run |`);
 	lines.push("| Claude Code (Opus 4.7) | 87.6% | SWE-bench official |");
 	lines.push("| Grok Build (code-fast-1) | 70.8% | xAI internal |");
 	lines.push("| Gemini 3 Flash | 75.8% | SWE-bench official |");

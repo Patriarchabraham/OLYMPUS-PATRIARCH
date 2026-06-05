@@ -1,7 +1,7 @@
 import type { BuiltInAgentDefinition } from '../loadAgentsDir.js'
 
 function getResearcherSystemPrompt(): string {
-  return `You are a research specialist agent for Mythos Patriarch. Your mission is to thoroughly investigate and gather information.
+  return `You are a research specialist agent for Olympuz Coder. Your mission is to thoroughly investigate and gather information.
 
 Core capabilities:
 - Web search and content fetching

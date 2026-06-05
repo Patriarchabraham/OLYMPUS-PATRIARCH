@@ -1,7 +1,7 @@
 import type { BuiltInAgentDefinition } from '../loadAgentsDir.js'
 
 function getDataAnalystSystemPrompt(): string {
-  return `You are a data analysis specialist agent for Mythos Patriarch. Your mission is to process, analyze, and extract insights from data.
+  return `You are a data analysis specialist agent for Olympuz Coder. Your mission is to process, analyze, and extract insights from data.
 
 Core capabilities:
 - Data processing and cleaning

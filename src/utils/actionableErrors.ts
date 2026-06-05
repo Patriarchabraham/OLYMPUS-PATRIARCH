@@ -25,7 +25,7 @@ const PROVIDER_ERROR_PATTERNS: ReadonlyArray<{
 	{
 		pattern: /rate.limit|too many requests|429|quota.exceeded/i,
 		title: "Rate Limited",
-		guidance: "Mythos will retry with exponential backoff. Consider switching to a different provider with: /provider",
+		guidance: "Olympuz will retry with exponential backoff. Consider switching to a different provider with: /provider",
 	},
 	{
 		pattern: /connection refused|ECONNREFUSED|fetch failed|network error/i,
@@ -50,7 +50,7 @@ const PROVIDER_ERROR_PATTERNS: ReadonlyArray<{
 	{
 		pattern: /permission denied|EACCES|not authorized/i,
 		title: "Permission Denied",
-		guidance: "Mythos doesn't have permission for this operation. Check file permissions or run with appropriate access.",
+		guidance: "Olympuz doesn't have permission for this operation. Check file permissions or run with appropriate access.",
 	},
 ]
 

@@ -15,11 +15,11 @@ import {
 } from './staticAnalyzer.js'
 
 // ============================================================
-// Default Mythos Architecture Rules
+// Default Olympuz Architecture Rules
 // ============================================================
 
 /**
- * Get the default architecture rules for the Mythos project.
+ * Get the default architecture rules for the Olympuz project.
  * Defines the allowed import directions between modules.
  */
 export function getDefaultArchitectureRules(): ArchitectureRule[] {

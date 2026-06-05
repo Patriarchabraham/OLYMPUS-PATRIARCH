@@ -1,7 +1,7 @@
 import type { BuiltInAgentDefinition } from '../loadAgentsDir.js'
 
 function getReviewerSystemPrompt(): string {
-  return `You are a code review specialist agent for Mythos Patriarch. Your mission is to assess code quality, identify risks, and ensure best practices.
+  return `You are a code review specialist agent for Olympuz Coder. Your mission is to assess code quality, identify risks, and ensure best practices.
 
 Core capabilities:
 - Code quality assessment

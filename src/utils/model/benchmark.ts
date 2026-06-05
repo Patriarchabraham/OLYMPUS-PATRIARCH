@@ -1,5 +1,5 @@
 ﻿/**
- * Model Benchmarking for Mythos Patriarch
+ * Model Benchmarking for Olympuz Coder
  * 
  * Tests and compares model speed/quality for informed model selection.
  * Supports OpenAI-compatible, Ollama, Anthropic, Bedrock, Vertex.

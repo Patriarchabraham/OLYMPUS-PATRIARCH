@@ -35,7 +35,7 @@ export async function sendNotification(
   })
 }
 
-const DEFAULT_TITLE = 'Mythos Patriarch'
+const DEFAULT_TITLE = 'Olympuz Coder'
 
 async function sendToChannel(
   channel: string,

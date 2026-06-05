@@ -63,12 +63,12 @@ test('keeps embedded mode for Bun-compiled standalone executables', () => {
     bundledMode: true,
     builtinCommand: null,
     systemExecutablePath: '/usr/bin/rg',
-    processExecPath: '/opt/Mythos Patriarch/bin/Mythos Patriarch',
+    processExecPath: '/opt/Olympuz Coder/bin/Olympuz Coder',
   })
 
   expect(config).toMatchObject({
     mode: 'embedded',
-    command: '/opt/Mythos Patriarch/bin/Mythos Patriarch',
+    command: '/opt/Olympuz Coder/bin/Olympuz Coder',
     args: ['--no-config'],
     argv0: 'rg',
   })

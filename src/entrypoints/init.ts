@@ -87,7 +87,7 @@ export const init = memoize(async (): Promise<void> => {
     setupGracefulShutdown()
     profileCheckpoint('init_after_graceful_shutdown')
 
-    // Mythos Patriarch: 1P event logging disabled
+    // Olympuz Coder: 1P event logging disabled
     // void Promise.all([
     //   import('../services/analytics/firstPartyEventLogger.js'),
     //   import('../services/analytics/growthbook.js'),
@@ -239,7 +239,7 @@ export const init = memoize(async (): Promise<void> => {
  * This should only be called once, after the trust dialog has been accepted.
  */
 export function initializeTelemetryAfterTrust(): void {
-  // Mythos Patriarch: telemetry initialization disabled
+  // Olympuz Coder: telemetry initialization disabled
 }
 
 async function doInitializeTelemetry(): Promise<void> {

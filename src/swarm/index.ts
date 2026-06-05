@@ -1,4 +1,4 @@
-// Public API for the Mythos Patriarch Swarm System
+// Public API for the Olympuz Coder Swarm System
 
 export type {
   AgentRole,

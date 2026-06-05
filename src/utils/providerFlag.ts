@@ -5,11 +5,11 @@
  * that the rest of the codebase uses for provider detection.
  *
  * Usage:
- *   Mythos Patriarch --provider openai --model gpt-4o
- *   Mythos Patriarch --provider gemini --model gemini-2.0-flash
- *   Mythos Patriarch --provider mistral --model ministral-3b-latest
- *   Mythos Patriarch --provider ollama --model llama3.2
- *   Mythos Patriarch --provider anthropic   (default, no-op)
+ *   Olympuz Coder --provider openai --model gpt-4o
+ *   Olympuz Coder --provider gemini --model gemini-2.0-flash
+ *   Olympuz Coder --provider mistral --model ministral-3b-latest
+ *   Olympuz Coder --provider ollama --model llama3.2
+ *   Olympuz Coder --provider anthropic   (default, no-op)
  */
 
 import '../integrations/index.js'
@@ -124,7 +124,7 @@ function getRouteDefaults(provider: string): {
 /**
  * Apply --model (without --provider) to process.env for the current process only.
  *
- * Issue #808: `Mythos Patriarch --model <name>` should work standalone so users can
+ * Issue #808: `Olympuz Coder --model <name>` should work standalone so users can
  * override the session model without reconfiguring a profile or polluting the
  * shell with OPENAI_MODEL=... Must run before the startup banner so the
  * displayed model matches the flag, and before resolution paths that read the

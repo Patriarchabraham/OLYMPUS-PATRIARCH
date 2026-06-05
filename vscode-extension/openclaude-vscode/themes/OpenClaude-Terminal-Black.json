@@ -1,6 +1,6 @@
 ﻿{
   "$schema": "vscode://schemas/color-theme",
-  "name": "Mythos Patriarch Terminal Black",
+  "name": "Olympuz Coder Terminal Black",
   "type": "dark",
   "colors": {
     "editor.background": "#090B10",

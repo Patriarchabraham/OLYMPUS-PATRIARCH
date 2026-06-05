@@ -60,7 +60,7 @@ async function main(): Promise<void> {
   const argBaseUrl = parseArg('--base-url')
   const argApiKey = parseArg('--api-key')
   const goal = normalizeRecommendationGoal(
-    parseArg('--goal') || process.env.Mythos Patriarch_PROFILE_GOAL,
+    parseArg('--goal') || process.env.Olympuz Coder_PROFILE_GOAL,
   )
 
   let selected: ProviderProfile

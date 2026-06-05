@@ -351,7 +351,7 @@ async function checkBaseUrlReachability(): Promise<CheckResult> {
         headers['chatgpt-account-id'] = credentials.accountId
       }
       headers['Content-Type'] = 'application/json'
-      headers.originator = 'Mythos Patriarch'
+      headers.originator = 'Olympuz Coder'
       method = 'POST'
       body = JSON.stringify({
         model: request.resolvedModel,

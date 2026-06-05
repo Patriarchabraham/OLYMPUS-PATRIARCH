@@ -90,7 +90,7 @@ const apiKeyConflictNotice: StatusNoticeDefinition = {
         <Text color="warning">{figures.warning}</Text>
         <Text color="warning">
           Auth conflict: Using {apiKeySource} instead of Anthropic Console key.
-          Either unset {apiKeySource}, or run `Mythos Patriarch /logout`.
+          Either unset {apiKeySource}, or run `Olympuz Coder /logout`.
         </Text>
       </Box>;
   }

@@ -22,6 +22,6 @@ function isAgentTeamsFlagSet(): boolean {
  * 2. GrowthBook gate 'tengu_amber_flint' enabled (killswitch)
  */
 export function isAgentSwarmsEnabled(): boolean {
-  // Mythos: swarm is always enabled
+  // Olympuz: swarm is always enabled
   return true
 }

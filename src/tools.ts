@@ -144,13 +144,13 @@ const getPowerShellTool = () => {
     require('./tools/PowerShellTool/PowerShellTool.js') as typeof import('./tools/PowerShellTool/PowerShellTool.js')
   ).PowerShellTool
 }
-const ComputerControlTool = isEnvTruthy(process.env.MYTHOS_COMPUTER_CONTROL)
+const ComputerControlTool = isEnvTruthy(process.env.OLYMPUZ_COMPUTER_CONTROL)
   ? require('./tools/ComputerControlTool/ComputerControlTool.js').ComputerControlTool
   : null
-const DeviceBridgeTool = isEnvTruthy(process.env.MYTHOS_DEVICE_BRIDGE)
+const DeviceBridgeTool = isEnvTruthy(process.env.OLYMPUZ_DEVICE_BRIDGE)
   ? require('./tools/DeviceBridgeTool/DeviceBridgeTool.js').DeviceBridgeTool
   : null
-const NativeCoreTool = isEnvTruthy(process.env.MYTHOS_NATIVE_CORE)
+const NativeCoreTool = isEnvTruthy(process.env.OLYMPUZ_NATIVE_CORE)
   ? require('./tools/NativeCoreTool/NativeCoreTool.js').NativeCoreTool
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */

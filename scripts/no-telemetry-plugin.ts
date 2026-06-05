@@ -1,5 +1,5 @@
 ﻿/**
- * No-Telemetry Build Plugin for Mythos Patriarch
+ * No-Telemetry Build Plugin for Olympuz Coder
  *
  * Replaces all analytics, telemetry, and phone-home modules with no-op stubs
  * at compile time. Zero runtime cost, zero network calls to Anthropic.
@@ -348,7 +348,7 @@ export async function assertMinVersion() {}
 export async function getMaxVersion() { return undefined; }
 export async function getMaxVersionMessage() { return undefined; }
 export function shouldSkipVersion() { return true; }
-export function getLockFilePath() { return '/tmp/Mythos Patriarch-update.lock'; }
+export function getLockFilePath() { return '/tmp/Olympuz Coder-update.lock'; }
 export async function checkGlobalInstallPermissions() { return { hasPermissions: false, npmPrefix: null }; }
 export async function getLatestVersion() { return null; }
 export async function getNpmDistTags() { return { latest: null, stable: null }; }

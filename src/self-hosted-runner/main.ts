@@ -1,5 +1,5 @@
 /**
- * Self-Hosted Runner — Real job execution server for Mythos Patriarch.
+ * Self-Hosted Runner — Real job execution server for Olympuz Coder.
  *
  * Accepts build/test/lint jobs via HTTP, queues them, executes in isolated
  * child processes with timeouts, streams output, and reports results.

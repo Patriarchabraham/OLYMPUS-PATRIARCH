@@ -1179,7 +1179,7 @@ test('ProviderManager first-run Codex OAuth switches the current session after l
     expect.objectContaining({
       action: 'saved',
       message:
-        'Codex OAuth configured. Mythos Patriarch switched to it for this session.',
+        'Codex OAuth configured. Olympuz Coder switched to it for this session.',
     }),
   )
 

@@ -19,7 +19,7 @@ const originalEnv = {
 let tempDir: string
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'Mythos Patriarch-agents-test-'))
+  tempDir = await mkdtemp(join(tmpdir(), 'Olympuz Coder-agents-test-'))
   process.env.CLAUDE_CONFIG_DIR = join(tempDir, '.openclaude')
   process.env.CLAUDE_CODE_USE_NATIVE_FILE_SEARCH = '1'
   delete process.env.CLAUDE_CODE_SIMPLE
@@ -64,7 +64,7 @@ ${prompt}
 }
 
 describe('agent definition loading', () => {
-  test('loads user agents from the Mythos Patriarch config dir in simple mode', async () => {
+  test('loads user agents from the Olympuz Coder config dir in simple mode', async () => {
     await writeAgent(
       join(process.env.CLAUDE_CONFIG_DIR!, 'agents', 'user-agent.md'),
       'user-agent',
@@ -105,12 +105,12 @@ describe('agent definition loading', () => {
     await writeAgent(
       join(projectDir, '.openclaude', 'agents', 'shared-agent.md'),
       'shared-agent',
-      'Mythos Patriarch prompt',
+      'Olympuz Coder prompt',
     )
 
     const { activeAgents } = await getAgentDefinitionsWithOverrides(projectDir)
     const agent = activeAgents.find(agent => agent.agentType === 'shared-agent')
 
-    expect((agent as CustomAgentDefinition)?.getSystemPrompt()).toBe('Mythos Patriarch prompt')
+    expect((agent as CustomAgentDefinition)?.getSystemPrompt()).toBe('Olympuz Coder prompt')
   })
 })

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SWE-bench Evaluation Runner for Mythos Patriarch
+# SWE-bench Evaluation Runner for Olympuz Coder
 #
 # Usage:
 #   ./run-eval.sh --dataset lite --model claude-opus-4-7 --parallel 4
@@ -20,12 +20,12 @@ TIMEOUT=600000
 MAX_TASKS=0
 OUTPUT_DIR="./benchmark-results"
 NO_DOCKER=false
-MYTHOS_BINARY="mythos"
+OLYMPUZ_BINARY="olympuz"
 USE_CONTAINER=false
 
 usage() {
     cat <<EOF
-SWE-bench Evaluation Runner for Mythos Patriarch
+SWE-bench Evaluation Runner for Olympuz Coder
 
 Usage: $0 [options]
 
@@ -39,7 +39,7 @@ Options:
   --max-tasks <n>                      Limit number of tasks (default: 0 = all)
   --output-dir <path>                  Output directory (default: ./benchmark-results)
   --no-docker                          Skip Docker-based test validation
-  --mythos-binary <path>               Path to mythos binary (default: mythos)
+  --olympuz-binary <path>               Path to olympuz binary (default: olympuz)
   --container                          Run inside Docker container
   --help                               Show this help
 EOF
@@ -57,24 +57,24 @@ while [[ $# -gt 0 ]]; do
         --max-tasks)   MAX_TASKS="$2"; shift 2 ;;
         --output-dir)  OUTPUT_DIR="$2"; shift 2 ;;
         --no-docker)   NO_DOCKER=true; shift ;;
-        --mythos-binary) MYTHOS_BINARY="$2"; shift 2 ;;
+        --olympuz-binary) OLYMPUZ_BINARY="$2"; shift 2 ;;
         --container)   USE_CONTAINER=true; shift ;;
         --help)        usage ;;
         *)             echo "Unknown option: $1"; usage ;;
     esac
 done
 
-echo "=== Mythos Patriarch SWE-bench Evaluation ==="
+echo "=== Olympuz Coder SWE-bench Evaluation ==="
 echo ""
 
 if [ "$USE_CONTAINER" = true ]; then
     echo "Building Docker image..."
-    docker build -t mythos-swebench -f "$SCRIPT_DIR/Dockerfile" "$PROJECT_ROOT"
+    docker build -t olympuz-swebench -f "$SCRIPT_DIR/Dockerfile" "$PROJECT_ROOT"
 
     echo "Running evaluation in Docker..."
     docker run --rm \
         -v "$OUTPUT_DIR:/eval/results" \
-        mythos-swebench \
+        olympuz-swebench \
         --dataset "$DATASET" \
         ${MODEL:+--model "$MODEL"} \
         ${PROVIDER:+--provider "$PROVIDER"} \
@@ -91,7 +91,7 @@ else
         --concurrency "$PARALLEL"
         --timeout "$TIMEOUT"
         --output-dir "$OUTPUT_DIR"
-        --mythos-binary "$MYTHOS_BINARY"
+        --olympuz-binary "$OLYMPUZ_BINARY"
     )
 
     [ -n "$MODEL" ] && ARGS+=(--model "$MODEL")

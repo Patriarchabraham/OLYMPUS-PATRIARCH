@@ -140,7 +140,7 @@ export function HelpV2(t0: Props) {
   const publicBuildVersion = getPublicBuildVersion();
   let t6;
   if ($[31] !== publicBuildVersion || $[32] !== tabs) {
-    t6 = <Tabs title={false ? "/help" : `Mythos Patriarch v${publicBuildVersion}`} color="professionalBlue" defaultTab="general">{tabs}</Tabs>;
+    t6 = <Tabs title={false ? "/help" : `Olympuz Coder v${publicBuildVersion}`} color="professionalBlue" defaultTab="general">{tabs}</Tabs>;
     $[31] = publicBuildVersion;
     $[32] = tabs;
     $[33] = t6;
@@ -149,7 +149,7 @@ export function HelpV2(t0: Props) {
   }
   let t7;
   if ($[34] === Symbol.for("react.memo_cache_sentinel")) {
-    t7 = <Box marginTop={1}><Text>For more help:{" "}<Link url="https://github.com/Gitlawb/Mythos Patriarch" /></Text></Box>;
+    t7 = <Box marginTop={1}><Text>For more help:{" "}<Link url="https://github.com/Gitlawb/Olympuz Coder" /></Text></Box>;
     $[34] = t7;
   } else {
     t7 = $[34];

@@ -1,6 +1,6 @@
 ﻿# Web Search Providers
 
-Mythos Patriarch supports multiple search backends through a provider adapter system.
+Olympuz Coder supports multiple search backends through a provider adapter system.
 
 ## Supported Providers
 

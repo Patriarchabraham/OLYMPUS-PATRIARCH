@@ -76,7 +76,7 @@ const MAX_CONTENT_SIZE = 60 * 1024 // 60KB (Honeycomb limit is 64KB, staying saf
  *   allowlisted via the tengu_trace_lantern GrowthBook gate
  */
 export function isBetaTracingEnabled(): boolean {
-  // Mythos Patriarch: beta tracing disabled
+  // Olympuz Coder: beta tracing disabled
   return false
   const baseEnabled =
     isEnvTruthy(process.env.ENABLE_BETA_TRACING_DETAILED) &&

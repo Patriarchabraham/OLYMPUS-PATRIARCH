@@ -1,10 +1,10 @@
 /**
- * Mythos-specific status properties — extends the existing /status command
+ * Olympuz-specific status properties — extends the existing /status command
  * with quantum engine, reasoning engine, and evolution system status.
- * This module is imported by the Status component to display Mythos-specific
+ * This module is imported by the Status component to display Olympuz-specific
  * information alongside the standard provider/model/session info.
  *
- * @module mythosStatus
+ * @module olympuzStatus
  */
 
 import type { Property } from './status.js'
@@ -48,12 +48,12 @@ export interface EvolutionEngineStatus {
 }
 
 /**
- * Build Mythos-specific status properties for the /status display.
- * These are shown in a dedicated "Mythos Engine" section.
+ * Build Olympuz-specific status properties for the /status display.
+ * These are shown in a dedicated "Olympuz Engine" section.
  *
  * @returns Array of Property objects for the status display
  */
-export function buildMythosEngineProperties(): Property[] {
+export function buildOlympuzEngineProperties(): Property[] {
 	const quantumStatus = getQuantumStatus()
 	const reasoningStatus = getReasoningStatus()
 	const evolutionStatus = getEvolutionStatus()

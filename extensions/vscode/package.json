@@ -1,9 +1,9 @@
 {
-  "name": "mythos-patriarch",
-  "displayName": "Mythos Patriarch",
+  "name": "olympuz-coder",
+  "displayName": "Olympuz Coder",
   "description": "Quantum Supreme AI Coding Agent — multi-provider reasoning with quantum-inspired intelligence",
   "version": "0.1.0",
-  "publisher": "mythos-patriarch",
+  "publisher": "olympuz-coder",
   "license": "MIT",
   "icon": "images/icon.png",
   "engines": {
@@ -31,35 +31,35 @@
   "contributes": {
     "commands": [
       {
-        "command": "mythos.openTerminal",
-        "title": "Mythos: Open Terminal"
+        "command": "olympuz.openTerminal",
+        "title": "Olympuz: Open Terminal"
       },
       {
-        "command": "mythos.sendPrompt",
-        "title": "Mythos: Quick Prompt"
+        "command": "olympuz.sendPrompt",
+        "title": "Olympuz: Quick Prompt"
       },
       {
-        "command": "mythos.status",
-        "title": "Mythos: Status"
+        "command": "olympuz.status",
+        "title": "Olympuz: Status"
       },
       {
-        "command": "mythos.openChat",
-        "title": "Mythos: Open Chat Panel"
+        "command": "olympuz.openChat",
+        "title": "Olympuz: Open Chat Panel"
       },
       {
-        "command": "mythos.switchProvider",
-        "title": "Mythos: Switch Provider"
+        "command": "olympuz.switchProvider",
+        "title": "Olympuz: Switch Provider"
       }
     ],
     "configuration": {
-      "title": "Mythos Patriarch",
+      "title": "Olympuz Coder",
       "properties": {
-        "mythos.binaryPath": {
+        "olympuz.binaryPath": {
           "type": "string",
-          "default": "mythos",
-          "description": "Path to the mythos CLI binary"
+          "default": "olympuz",
+          "description": "Path to the olympuz CLI binary"
         },
-        "mythos.defaultProvider": {
+        "olympuz.defaultProvider": {
           "type": "string",
           "default": "",
           "enum": [
@@ -72,27 +72,27 @@
           ],
           "description": "Default LLM provider (empty = auto-detect)"
         },
-        "mythos.autoStart": {
+        "olympuz.autoStart": {
           "type": "boolean",
           "default": false,
-          "description": "Automatically start Mythos terminal on VS Code launch"
+          "description": "Automatically start Olympuz terminal on VS Code launch"
         }
       }
     },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "mythos-container",
-          "title": "Mythos",
+          "id": "olympuz-container",
+          "title": "Olympuz",
           "icon": "images/icon.svg"
         }
       ]
     },
     "views": {
-      "mythos-container": [
+      "olympuz-container": [
         {
           "type": "webview",
-          "id": "mythos.chat",
+          "id": "olympuz.chat",
           "name": "Chat"
         }
       ]
@@ -100,8 +100,8 @@
     "terminal": {
       "profiles": [
         {
-          "id": "mythos.terminal",
-          "title": "Mythos Terminal",
+          "id": "olympuz.terminal",
+          "title": "Olympuz Terminal",
           "icon": "images/icon.svg"
         }
       ]

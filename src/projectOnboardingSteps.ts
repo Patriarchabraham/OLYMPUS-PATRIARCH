@@ -18,20 +18,20 @@ export type Step = {
 
 /**
  * Check whether the project directory has already been indexed for RAG.
- * Looks for a .mythos/rag-indexed sentinel file.
+ * Looks for a .olympuz/rag-indexed sentinel file.
  */
 function isRAGIndexed(): boolean {
   const cwd = getCwd()
-  return existsSync(join(cwd, '.mythos', 'rag-indexed'))
+  return existsSync(join(cwd, '.olympuz', 'rag-indexed'))
 }
 
 /**
  * Check whether a project plan has been generated during onboarding.
- * Looks for a .mythos/plan.json sentinel file.
+ * Looks for a .olympuz/plan.json sentinel file.
  */
 function isPlanGenerated(): boolean {
   const cwd = getCwd()
-  return existsSync(join(cwd, '.mythos', 'plan.json'))
+  return existsSync(join(cwd, '.olympuz', 'plan.json'))
 }
 
 /**
@@ -61,7 +61,7 @@ export async function runRAGIndexingStep(): Promise<{ documents: number; chunks:
   const orchestrator = getSuperAgentOrchestrator()
   const result = await orchestrator.indexDirectory(getCwd())
   if (result) {
-    const dir = join(getCwd(), '.mythos')
+    const dir = join(getCwd(), '.olympuz')
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, 'rag-indexed'), `${result.documents} docs, ${result.chunks} chunks`, 'utf-8')
   }
@@ -82,7 +82,7 @@ export function runPlanGenerationStep(description?: string): string | null {
 
   try {
     const plan = generatePlanFromDescription(planDescription)
-    const dir = join(cwd, '.mythos')
+    const dir = join(cwd, '.olympuz')
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
 
     // Persist as JSON for machine consumption

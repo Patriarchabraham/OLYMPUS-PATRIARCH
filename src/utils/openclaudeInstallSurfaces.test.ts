@@ -22,17 +22,17 @@ async function importFreshInstaller() {
   return vi.importActual<typeof import('./nativeInstaller/installer')>('./nativeInstaller/installer.ts')
 }
 
-test('install command displays ~/.local/bin/Mythos Patriarch on non-Windows', async () => {
+test('install command displays ~/.local/bin/Olympuz Coder on non-Windows', async () => {
   vi.mock('../utils/env.js', () => ({
     env: { platform: 'darwin' },
   }))
 
   const { getInstallationPath } = await importFreshInstallCommand()
 
-  expect(getInstallationPath()).toBe('~/.local/bin/Mythos Patriarch')
+  expect(getInstallationPath()).toBe('~/.local/bin/Olympuz Coder')
 })
 
-test('install command displays Mythos Patriarch.exe path on Windows', async () => {
+test('install command displays Olympuz Coder.exe path on Windows', async () => {
   vi.mock('../utils/env.js', () => ({
     env: { platform: 'win32' },
   }))
@@ -40,14 +40,14 @@ test('install command displays Mythos Patriarch.exe path on Windows', async () =
   const { getInstallationPath } = await importFreshInstallCommand()
 
   expect(getInstallationPath()).toBe(
-    join(homedir(), '.local', 'bin', 'Mythos Patriarch.exe').replace(/\//g, '\\'),
+    join(homedir(), '.local', 'bin', 'Olympuz Coder.exe').replace(/\//g, '\\'),
   )
 })
 
-test('cleanupNpmInstallations removes both Mythos Patriarch and legacy claude local install dirs', async () => {
+test('cleanupNpmInstallations removes both Olympuz Coder and legacy claude local install dirs', async () => {
   const removedPaths: string[] = []
   ;(globalThis as Record<string, unknown>).MACRO = {
-    PACKAGE_URL: '@gitlawb/Mythos Patriarch',
+    PACKAGE_URL: '@gitlawb/Olympuz Coder',
   }
 
   vi.mock('fs/promises', () => ({

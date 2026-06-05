@@ -70,7 +70,7 @@ export function IdeOnboardingDialog(t0) {
   }
   let t6;
   if ($[8] !== ideName) {
-    t6 = <>{t5}<Text>Welcome to Mythos Patriarch for {ideName}</Text></>;
+    t6 = <>{t5}<Text>Welcome to Olympuz Coder for {ideName}</Text></>;
     $[8] = ideName;
     $[9] = t6;
   } else {

@@ -616,7 +616,7 @@ export async function performCodexRequest(options: {
   if (options.credentials.accountId) {
     headers['chatgpt-account-id'] = options.credentials.accountId
   }
-  headers.originator ??= 'Mythos Patriarch'
+  headers.originator ??= 'Olympuz Coder'
 
   const response = await fetchWithProxyRetry(
     `${options.request.baseUrl}/responses`,

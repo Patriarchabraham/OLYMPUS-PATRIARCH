@@ -22,7 +22,7 @@ async function withFixtureRepo(
   callback: (repoRoot: string) => Promise<void>,
 ): Promise<void> {
   const repoRoot = await mkdtemp(
-    path.join(os.tmpdir(), 'Mythos Patriarch-integration-artifacts-'),
+    path.join(os.tmpdir(), 'Olympuz Coder-integration-artifacts-'),
   )
 
   try {

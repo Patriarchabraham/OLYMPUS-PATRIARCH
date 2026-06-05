@@ -78,8 +78,8 @@ const coordinatorModeModule = true ? require('./coordinator/coordinatorMode.js')
 /* eslint-enable @typescript-eslint/no-require-imports */
 // Dead code elimination: conditional import for KAIROS (assistant mode)
 /* eslint-disable @typescript-eslint/no-require-imports */
-const assistantModule = false ? require('./assistant/index.js') as typeof import('./assistant/index.js') : null;
-const kairosGate = false ? require('./assistant/gate.js') as typeof import('./assistant/gate.js') : null;
+const assistantModule = false ? require('./assistant/index.js') as typeof import('./assistant/index.js') : null as unknown as typeof import('./assistant/index.js');
+const kairosGate = false ? require('./assistant/gate.js') as typeof import('./assistant/gate.js') : null as unknown as typeof import('./assistant/gate.js');
 import { relative, resolve } from 'path';
 import { isAnalyticsDisabled } from 'src/services/analytics/config.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
@@ -276,7 +276,7 @@ if (("external" as string) !== 'ant' && isBeingDebugged()) {
  * call sites here rather than one here + one in QueryEngine.
  */
 function logSessionTelemetry(): void {
-  // Mythos Patriarch: telemetry disabled
+  // Olympuz Coder: telemetry disabled
   return
   const model = parseUserSpecifiedModel(getInitialMainLoopModel() ?? getDefaultMainLoopModel());
   void logSkillsLoaded(getCwd(), getContextWindowForModel(model, getSdkBetas()));
@@ -306,7 +306,7 @@ function getCertEnvVarTelemetry(): Record<string, boolean> {
   return result;
 }
 async function logStartupTelemetry(): Promise<void> {
-  // Mythos Patriarch: startup telemetry disabled
+  // Olympuz Coder: startup telemetry disabled
   return
   if (isAnalyticsDisabled()) return;
   const [isGit, worktreeCount, ghAuthStatus] = await Promise.all([getIsGit(), getWorktreeCount(), getGhAuthStatus()]);
@@ -548,21 +548,21 @@ type PendingConnect = {
   authToken: string | undefined;
   dangerouslySkipPermissions: boolean;
 };
-const _pendingConnect: PendingConnect | undefined = false ? {
+const _pendingConnect: PendingConnect = false ? {
   url: undefined,
   authToken: undefined,
   dangerouslySkipPermissions: false
-} : undefined;
+} : undefined as unknown as PendingConnect;
 
 // Set by early argv processing when `claude assistant [sessionId]` is detected
 type PendingAssistantChat = {
   sessionId?: string;
   discover: boolean;
 };
-const _pendingAssistantChat: PendingAssistantChat | undefined = false ? {
+const _pendingAssistantChat: PendingAssistantChat = false ? {
   sessionId: undefined,
   discover: false
-} : undefined;
+} : undefined as unknown as PendingAssistantChat;
 
 // `claude ssh <host> [dir]` — parsed from argv early (same pattern as
 // DIRECT_CONNECT above) so the main command path can pick it up and hand
@@ -577,14 +577,14 @@ type PendingSSH = {
   /** Extra CLI args to forward to the remote CLI on initial spawn (--resume, -c). */
   extraCliArgs: string[];
 };
-const _pendingSSH: PendingSSH | undefined = false ? {
+const _pendingSSH: PendingSSH = false ? {
   host: undefined,
   cwd: undefined,
   permissionMode: undefined,
   dangerouslySkipPermissions: false,
   local: false,
   extraCliArgs: []
-} : undefined;
+} : undefined as unknown as PendingSSH;
 
 export async function main() {
   profileCheckpoint('main_function_start');
@@ -788,7 +788,7 @@ export async function main() {
       // Headless (-p) mode is not supported with SSH in v1 — reject early
       // so the flag doesn't silently cause local execution.
       if (rest.includes('-p') || rest.includes('--print')) {
-        process.stderr.write('Error: headless (-p/--print) mode is not supported with Mythos Patriarch ssh\n');
+        process.stderr.write('Error: headless (-p/--print) mode is not supported with Olympuz Coder ssh\n');
         gracefulShutdownSync(1);
         return;
       }
@@ -862,7 +862,7 @@ export async function main() {
     logForDebugging(`run() threw: ${message}`, { level: 'error' });
     // Ensure terminal is cleaned up before exit
     if (process.stdout.isTTY) {
-      process.stderr.write(`\nMythos: ${message.slice(0, 500)}\n`);
+      process.stderr.write(`\nOlympuz: ${message.slice(0, 500)}\n`);
     }
     process.exitCode = 1;
   }
@@ -928,7 +928,7 @@ async function run(): Promise<CommanderCommand> {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logForDebugging(`preAction init() failed: ${message}`, { level: 'error' });
-      process.stderr.write(`\nMythos: initialization failed — ${message.slice(0, 500)}\n`);
+      process.stderr.write(`\nOlympuz: initialization failed — ${message.slice(0, 500)}\n`);
       process.exit(1);
     }
     profileCheckpoint('preAction_after_init');
@@ -937,7 +937,7 @@ async function run(): Promise<CommanderCommand> {
     // terminal shell integration may mirror the process name to the tab.
     // After init() so settings.json env can also gate this (gh-4765).
     if (!isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_TERMINAL_TITLE)) {
-      process.title = 'mythos-patriarch';
+      process.title = 'olympuz-coder';
     }
 
     // Attach logging sinks so subcommand handlers can use logEvent/logError.
@@ -982,7 +982,7 @@ async function run(): Promise<CommanderCommand> {
     }
     profileCheckpoint('preAction_after_settings_sync');
   });
-  program.name('mythos').description(`Mythos Patriarch - starts an interactive session by default, use -p/--print for non-interactive output`).argument('[prompt]', 'Your prompt', String)
+  program.name('olympuz').description(`Olympuz Coder - starts an interactive session by default, use -p/--print for non-interactive output`).argument('[prompt]', 'Your prompt', String)
   // Subcommands inherit helpOption via commander's copyInheritedSettings —
   // setting it once here covers mcp, plugin, auth, and all other subcommands.
   .helpOption('-h, --help', 'Display help for command').option('-d, --debug [filter]', 'Enable debug mode with optional category filtering (e.g., "api,hooks" or "!1p,!file")', (_value: string | true) => {
@@ -1036,7 +1036,7 @@ async function run(): Promise<CommanderCommand> {
     if (prompt === 'code') {
       logEvent('tengu_code_prompt_ignored', {});
       // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.warn(chalk.yellow('Tip: You can launch Mythos Patriarch with just `Mythos Patriarch`'));
+      console.warn(chalk.yellow('Tip: You can launch Olympuz Coder with just `Olympuz Coder`'));
       prompt = undefined;
     }
 
@@ -1699,8 +1699,8 @@ async function run(): Promise<CommanderCommand> {
         channels?: string[];
         dangerouslyLoadDevelopmentChannels?: string[];
       };
-      const rawChannels = channelOpts.channels;
-      const rawDev = channelOpts.dangerouslyLoadDevelopmentChannels;
+      const rawChannels: string[] | undefined = channelOpts.channels;
+      const rawDev: string[] | undefined = channelOpts.dangerouslyLoadDevelopmentChannels;
       // Always parse + set. ChannelsNotice reads getAllowedChannels() and
       // renders the appropriate branch (disabled/noAuth/policyBlocked/
       // listening) in the startup screen. gateChannelServer() enforces.
@@ -1708,12 +1708,12 @@ async function run(): Promise<CommanderCommand> {
       // stays interactive-only (requires a confirmation dialog).
       let channelEntries: ChannelEntry[] = [];
       if (rawChannels && rawChannels.length > 0) {
-        channelEntries = parseChannelEntries(rawChannels, '--channels');
+        channelEntries = parseChannelEntries(rawChannels!, '--channels');
         setAllowedChannels(channelEntries);
       }
       if (!isNonInteractiveSession) {
         if (rawDev && rawDev.length > 0) {
-          devChannels = parseChannelEntries(rawDev, '--dangerously-load-development-channels');
+          devChannels = parseChannelEntries(rawDev!, '--dangerously-load-development-channels');
         }
       }
       // Flag-usage telemetry. Plugin identifiers are logged (same tier as
@@ -2269,8 +2269,8 @@ async function run(): Promise<CommanderCommand> {
       }
 
       // Check for pending agent memory snapshot updates (only for --agent mode, internal-only)
-      if (false && mainThreadAgentDefinition && isCustomAgent(mainThreadAgentDefinition) && mainThreadAgentDefinition.memory && mainThreadAgentDefinition.pendingSnapshotUpdate) {
-        const agentDef = mainThreadAgentDefinition;
+      if (false && mainThreadAgentDefinition && isCustomAgent(mainThreadAgentDefinition!) && mainThreadAgentDefinition.memory && mainThreadAgentDefinition.pendingSnapshotUpdate) {
+        const agentDef = mainThreadAgentDefinition!;
         const choice = await launchSnapshotUpdateDialog(root, {
           agentType: agentDef.agentType,
           scope: agentDef.memory!,
@@ -3156,18 +3156,18 @@ async function run(): Promise<CommanderCommand> {
       let directConnectConfig;
       try {
         const session = await createDirectConnectSession({
-          serverUrl: _pendingConnect.url,
-          authToken: _pendingConnect.authToken,
+          serverUrl: _pendingConnect.url!,
+          authToken: _pendingConnect.authToken!,
           cwd: getOriginalCwd(),
           dangerouslySkipPermissions: _pendingConnect.dangerouslySkipPermissions
         });
         if (session.workDir) {
-          setOriginalCwd(session.workDir);
-          setCwdState(session.workDir);
+          setOriginalCwd(session.workDir!);
+          setCwdState(session.workDir!);
         }
-        setDirectConnectServerUrl(_pendingConnect.url);
+        setDirectConnectServerUrl(_pendingConnect.url!);
         directConnectConfig = session.config;
-      } catch (err) {
+      } catch (err: unknown) {
         return await exitWithError(root, err instanceof DirectConnectError ? err.message : String(err), () => gracefulShutdown(1));
       }
       const connectInfoMessage = createSystemMessage(`Connected to server at ${_pendingConnect.url}\nSession: ${directConnectConfig.sessionId}`, 'info');
@@ -3204,8 +3204,8 @@ async function run(): Promise<CommanderCommand> {
         if (_pendingSSH.local) {
           process.stderr.write('Starting local ssh-proxy test session...\n');
           sshSession = createLocalSSHSession({
-            cwd: _pendingSSH.cwd,
-            permissionMode: _pendingSSH.permissionMode,
+            cwd: _pendingSSH.cwd!,
+            permissionMode: _pendingSSH.permissionMode!,
             dangerouslySkipPermissions: _pendingSSH.dangerouslySkipPermissions
           });
         } else {
@@ -3216,10 +3216,10 @@ async function run(): Promise<CommanderCommand> {
           const isTTY = process.stderr.isTTY;
           let hadProgress = false;
           sshSession = await createSSHSession({
-            host: _pendingSSH.host,
-            cwd: _pendingSSH.cwd,
+            host: _pendingSSH.host!,
+            cwd: _pendingSSH.cwd!,
             localVersion: MACRO.VERSION,
-            permissionMode: _pendingSSH.permissionMode,
+            permissionMode: _pendingSSH.permissionMode!,
             dangerouslySkipPermissions: _pendingSSH.dangerouslySkipPermissions,
             extraCliArgs: _pendingSSH.extraCliArgs
           }, isTTY ? {
@@ -3232,11 +3232,11 @@ async function run(): Promise<CommanderCommand> {
         }
         setOriginalCwd(sshSession.remoteCwd);
         setCwdState(sshSession.remoteCwd);
-        setDirectConnectServerUrl(_pendingSSH.local ? 'local' : _pendingSSH.host);
-      } catch (err) {
+        setDirectConnectServerUrl(_pendingSSH.local ? 'local' : _pendingSSH.host!);
+      } catch (err: unknown) {
         return await exitWithError(root, err instanceof Error ? err.message : String(err), () => gracefulShutdown(1));
       }
-      const sshInfoMessage = createSystemMessage(_pendingSSH.local ? `Local ssh-proxy test session\ncwd: ${sshSession.remoteCwd}\nAuth: unix socket → local proxy` : `SSH session to ${_pendingSSH.host}\nRemote cwd: ${sshSession.remoteCwd}\nAuth: unix socket -R → local proxy`, 'info');
+      const sshInfoMessage = createSystemMessage(_pendingSSH.local ? `Local ssh-proxy test session\ncwd: ${sshSession.remoteCwd}\nAuth: unix socket → local proxy` : `SSH session to ${_pendingSSH.host!}\nRemote cwd: ${sshSession.remoteCwd}\nAuth: unix socket -R → local proxy`, 'info');
       await launchRepl(root, {
         getFpsMetrics,
         stats,
@@ -3269,15 +3269,15 @@ async function run(): Promise<CommanderCommand> {
         let sessions;
         try {
           sessions = await discoverAssistantSessions();
-        } catch (e) {
-          return await exitWithError(root, `Failed to discover sessions: ${e instanceof Error ? e.message : e}`, () => gracefulShutdown(1));
+        } catch (e: unknown) {
+          return await exitWithError(root, `Failed to discover sessions: ${e instanceof Error ? e.message : String(e)}`, () => gracefulShutdown(1));
         }
         if (sessions.length === 0) {
           let installedDir: string | null;
           try {
             installedDir = await launchAssistantInstallWizard(root);
-          } catch (e) {
-            return await exitWithError(root, `Assistant installation failed: ${e instanceof Error ? e.message : e}`, () => gracefulShutdown(1));
+          } catch (e: unknown) {
+            return await exitWithError(root, `Assistant installation failed: ${e instanceof Error ? e.message : String(e)}`, () => gracefulShutdown(1));
           }
           if (installedDir === null) {
             await gracefulShutdown(0);
@@ -3285,7 +3285,7 @@ async function run(): Promise<CommanderCommand> {
           }
           // The daemon needs a few seconds to spin up its worker and
           // establish a bridge session before discovery will find it.
-          return await exitWithMessage(root, `Assistant installed in ${installedDir}. The daemon is starting up — run \`Mythos Patriarch assistant\` again in a few seconds to connect.`, {
+          return await exitWithMessage(root, `Assistant installed in ${installedDir}. The daemon is starting up — run \`Olympuz Coder assistant\` again in a few seconds to connect.`, {
             exitCode: 0,
             beforeExit: () => gracefulShutdown(0)
           });
@@ -3300,7 +3300,7 @@ async function run(): Promise<CommanderCommand> {
             await gracefulShutdown(0);
             process.exit(0);
           }
-          targetSessionId = picked;
+          targetSessionId = picked!;
         }
       }
 
@@ -3314,7 +3314,7 @@ async function run(): Promise<CommanderCommand> {
       let apiCreds;
       try {
         apiCreds = await prepareApiRequest();
-      } catch (e) {
+      } catch (e: unknown) {
         return await exitWithError(root, `Error: ${e instanceof Error ? e.message : 'Failed to authenticate'}`, () => gracefulShutdown(1));
       }
       const getAccessToken = (): string => getClaudeAIOAuthTokens()?.accessToken ?? apiCreds.accessToken;
@@ -3411,7 +3411,7 @@ async function run(): Promise<CommanderCommand> {
         // Check if TUI mode is enabled - description is only optional in TUI mode
         const isRemoteTuiEnabled = getFeatureValue_CACHED_MAY_BE_STALE('tengu_remote_backend', false);
         if (!isRemoteTuiEnabled && !hasInitialPrompt) {
-          return await exitWithError(root, 'Error: --remote requires a description.\nUsage: Mythos Patriarch --remote "your task description"', () => gracefulShutdown(1));
+          return await exitWithError(root, 'Error: --remote requires a description.\nUsage: Olympuz Coder --remote "your task description"', () => gracefulShutdown(1));
         }
         logEvent('tengu_remote_create_session', {
           has_initial_prompt: String(hasInitialPrompt) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
@@ -3435,7 +3435,7 @@ async function run(): Promise<CommanderCommand> {
           // Original behavior: print session info and exit
           process.stdout.write(`Created remote session: ${createdSession.title}\n`);
           process.stdout.write(`View: ${getRemoteSessionUrl(createdSession.id)}?m=0\n`);
-          process.stdout.write(`Resume with: Mythos Patriarch --teleport ${createdSession.id}\n`);
+          process.stdout.write(`Resume with: Olympuz Coder --teleport ${createdSession.id}\n`);
           await gracefulShutdown(0);
           process.exit(0);
         }
@@ -3547,7 +3547,7 @@ async function run(): Promise<CommanderCommand> {
                   }
                 } else {
                   // No known paths - show original error
-                  throw new TeleportOperationError(`You must run Mythos Patriarch --teleport ${teleport} from a checkout of ${sessionRepo}.`, chalk.red(`You must run Mythos Patriarch --teleport ${teleport} from a checkout of ${chalk.bold(sessionRepo)}.\n`));
+                  throw new TeleportOperationError(`You must run Olympuz Coder --teleport ${teleport} from a checkout of ${sessionRepo}.`, chalk.red(`You must run Olympuz Coder --teleport ${teleport} from a checkout of ${chalk.bold(sessionRepo)}.\n`));
                 }
               }
             } else if (repoValidation.status === 'error') {
@@ -3782,7 +3782,7 @@ async function run(): Promise<CommanderCommand> {
             cwd: getCwd(),
             prefillLength: options.prefill?.length,
             repo: options.deepLinkRepo,
-            lastFetch: options.deepLinkLastFetch !== undefined ? new Date(options.deepLinkLastFetch) : undefined
+            lastFetch: options.deepLinkLastFetch != null ? new Date(options.deepLinkLastFetch!) : undefined
           }), 'warning');
         } else if (options.prefill) {
           deepLinkBanner = createSystemMessage('Launched with a pre-filled prompt — review it before pressing Enter.', 'warning');
@@ -3799,7 +3799,7 @@ async function run(): Promise<CommanderCommand> {
         pendingHookMessages
       }, renderAndRun);
     }
-  }).version(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (Mythos Patriarch)`, '-v, --version', 'Output the version number');
+  }).version(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (Olympuz Coder)`, '-v, --version', 'Output the version number');
 
   // Worktree flags
   program.option('-w, --worktree [name]', 'Create a new git worktree for this session (optionally specify a name)');
@@ -3886,7 +3886,7 @@ async function run(): Promise<CommanderCommand> {
   // claude mcp
 
   const mcp = program.command('mcp').description('Configure and manage MCP servers').configureHelp(createSortedHelpConfig()).enablePositionalOptions();
-  mcp.command('serve').description(`Start the Mythos Patriarch MCP server`).option('-d, --debug', 'Enable debug mode', () => true).option('--verbose', 'Override verbose mode setting from config', () => true).action(async ({
+  mcp.command('serve').description(`Start the Olympuz Coder MCP server`).option('-d, --debug', 'Enable debug mode', () => true).option('--verbose', 'Override verbose mode setting from config', () => true).action(async ({
     debug,
     verbose
   }: {
@@ -3954,7 +3954,7 @@ async function run(): Promise<CommanderCommand> {
 
   // claude server
   if (false) {
-    program.command('server').description('Start an Mythos Patriarch session server').option('--port <number>', 'HTTP port', '0').option('--host <string>', 'Bind address', '0.0.0.0').option('--auth-token <token>', 'Bearer token for auth').option('--unix <path>', 'Listen on a unix domain socket').option('--workspace <dir>', 'Default working directory for sessions that do not specify cwd').option('--idle-timeout <ms>', 'Idle timeout for detached sessions in ms (0 = never expire)', '600000').option('--max-sessions <n>', 'Maximum concurrent sessions (0 = unlimited)', '32').action(async (opts: {
+    program.command('server').description('Start an Olympuz Coder session server').option('--port <number>', 'HTTP port', '0').option('--host <string>', 'Bind address', '0.0.0.0').option('--auth-token <token>', 'Bearer token for auth').option('--unix <path>', 'Listen on a unix domain socket').option('--workspace <dir>', 'Default working directory for sessions that do not specify cwd').option('--idle-timeout <ms>', 'Idle timeout for detached sessions in ms (0 = never expire)', '600000').option('--max-sessions <n>', 'Maximum concurrent sessions (0 = unlimited)', '32').action(async (opts: {
       port: string;
       host: string;
       authToken?: string;
@@ -3988,7 +3988,7 @@ async function run(): Promise<CommanderCommand> {
       } = await import('./server/lockfile.js');
       const existing = await probeRunningServer();
       if (existing) {
-        process.stderr.write(`An Mythos Patriarch server is already running (pid ${existing.pid}) at ${existing.httpUrl}\n`);
+        process.stderr.write(`An Olympuz Coder server is already running (pid ${existing.pid}) at ${existing.httpUrl}\n`);
         process.exit(1);
       }
       const authToken = opts.authToken ?? `sk-ant-cc-${randomBytes(16).toString('base64url')}`;
@@ -4038,11 +4038,11 @@ async function run(): Promise<CommanderCommand> {
   // this action it means the argv rewrite didn't fire (e.g. user ran
   // `claude ssh` with no host) — just print usage.
   if (false) {
-    program.command('ssh <host> [dir]').description('Run Mythos Patriarch on a remote host over SSH. Deploys the binary and ' + 'tunnels API auth back through your local machine — no remote setup needed.').option('--permission-mode <mode>', 'Permission mode for the remote session').option('--dangerously-skip-permissions', 'Skip all permission prompts on the remote (dangerous)').option('--local', 'e2e test mode — spawn the child CLI locally (skip ssh/deploy). ' + 'Exercises the auth proxy and unix-socket plumbing without a remote host.').action(async () => {
+    program.command('ssh <host> [dir]').description('Run Olympuz Coder on a remote host over SSH. Deploys the binary and ' + 'tunnels API auth back through your local machine — no remote setup needed.').option('--permission-mode <mode>', 'Permission mode for the remote session').option('--dangerously-skip-permissions', 'Skip all permission prompts on the remote (dangerous)').option('--local', 'e2e test mode — spawn the child CLI locally (skip ssh/deploy). ' + 'Exercises the auth proxy and unix-socket plumbing without a remote host.').action(async () => {
       // Argv rewriting in main() should have consumed `ssh <host>` before
       // commander runs. Reaching here means host was missing or the
       // rewrite predicate didn't match.
-      process.stderr.write('Usage: Mythos Patriarch ssh <user@host | ssh-config-alias> [dir]\n\n' + "Runs Mythos Patriarch on a remote Linux host. You don't need to install\n" + 'anything on the remote or run `Mythos Patriarch auth login` there — the binary is\n' + 'deployed over SSH and API auth tunnels back through your local machine.\n');
+      process.stderr.write('Usage: Olympuz Coder ssh <user@host | ssh-config-alias> [dir]\n\n' + "Runs Olympuz Coder on a remote Linux host. You don't need to install\n" + 'anything on the remote or run `Olympuz Coder auth login` there — the binary is\n' + 'deployed over SSH and API auth tunnels back through your local machine.\n');
       process.exit(1);
     });
   }
@@ -4051,7 +4051,7 @@ async function run(): Promise<CommanderCommand> {
   // Interactive mode (without -p) is handled by early argv rewriting in main()
   // which redirects to the main command with full TUI support.
   if (false) {
-    program.command('open <cc-url>').description('Connect to an Mythos Patriarch server (internal — use cc:// URLs)').option('-p, --print [prompt]', 'Print mode (headless)').option('--output-format <format>', 'Output format: text, json, stream-json', 'text').action(async (ccUrl: string, opts: {
+    program.command('open <cc-url>').description('Connect to an Olympuz Coder server (internal — use cc:// URLs)').option('-p, --print [prompt]', 'Print mode (headless)').option('--output-format <format>', 'Output format: text, json, stream-json', 'text').action(async (ccUrl: string, opts: {
       print?: string | boolean;
       outputFormat: string;
     }) => {
@@ -4140,7 +4140,7 @@ async function run(): Promise<CommanderCommand> {
   const coworkOption = () => new Option('--cowork', 'Use cowork_plugins directory').hideHelp();
 
   // Plugin validate command
-  const pluginCmd = program.command('plugin').alias('plugins').description('Manage Mythos Patriarch plugins').configureHelp(createSortedHelpConfig());
+  const pluginCmd = program.command('plugin').alias('plugins').description('Manage Olympuz Coder plugins').configureHelp(createSortedHelpConfig());
   pluginCmd.command('validate <path>').description('Validate a plugin or marketplace manifest').addOption(coworkOption()).action(async (manifestPath: string, options: {
     cowork?: boolean;
   }) => {
@@ -4163,7 +4163,7 @@ async function run(): Promise<CommanderCommand> {
   });
 
   // Marketplace subcommands
-  const marketplaceCmd = pluginCmd.command('marketplace').description('Manage Mythos Patriarch marketplaces').configureHelp(createSortedHelpConfig());
+  const marketplaceCmd = pluginCmd.command('marketplace').description('Manage Olympuz Coder marketplaces').configureHelp(createSortedHelpConfig());
   marketplaceCmd.command('add <source>').description('Add a marketplace from a URL, path, or GitHub repo').addOption(coworkOption()).option('--sparse <paths...>', 'Limit checkout to specific directories via git sparse-checkout (for monorepos). Example: --sparse .claude-plugin plugins').option('--scope <scope>', 'Where to declare the marketplace: user (default), project, or local').action(async (source: string, options: {
     cowork?: boolean;
     sparse?: string[];
@@ -4332,13 +4332,13 @@ async function run(): Promise<CommanderCommand> {
       // before commander runs. Reaching here means a root flag came first
       // (e.g. `--debug assistant`) and the position-0 predicate
       // didn't match. Print usage like the ssh stub does.
-      process.stderr.write('Usage: Mythos Patriarch assistant [sessionId]\n\n' + 'Attach the REPL as a viewer client to a running bridge session.\n' + 'Omit sessionId to discover and pick from available sessions.\n');
+      process.stderr.write('Usage: Olympuz Coder assistant [sessionId]\n\n' + 'Attach the REPL as a viewer client to a running bridge session.\n' + 'Omit sessionId to discover and pick from available sessions.\n');
       process.exit(1);
     });
   }
 
   // Doctor command - check installation health
-  program.command('doctor').description('Check the health of your Mythos Patriarch auto-updater. Note: The workspace trust dialog is skipped and stdio servers from .mcp.json are spawned for health checks. Only use this command in directories you trust.').action(async () => {
+  program.command('doctor').description('Check the health of your Olympuz Coder auto-updater. Note: The workspace trust dialog is skipped and stdio servers from .mcp.json are spawned for health checks. Only use this command in directories you trust.').action(async () => {
     const [{
       doctorHandler
     }, {
@@ -4387,7 +4387,7 @@ async function run(): Promise<CommanderCommand> {
   }
 
   // claude install
-  program.command('install [target]').description('Install Mythos Patriarch native build. Use [target] to specify version (stable, latest, or specific version)').option('--force', 'Force installation even if already installed').action(async (target: string | undefined, options: {
+  program.command('install [target]').description('Install Olympuz Coder native build. Use [target] to specify version (stable, latest, or specific version)').option('--force', 'Force installation even if already installed').action(async (target: string | undefined, options: {
     force?: boolean;
   }) => {
     const {

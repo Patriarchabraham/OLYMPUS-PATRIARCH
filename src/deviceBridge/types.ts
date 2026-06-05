@@ -1,6 +1,6 @@
 /**
  * DeviceBridge Module — Universal Device Discovery and Control Types
- * Enables Mythos to discover, read state from, and control any connected device.
+ * Enables Olympuz to discover, read state from, and control any connected device.
  */
 
 export type DeviceType =

@@ -18,7 +18,7 @@ function App() {
     document.documentElement.dataset.theme = theme
     document.documentElement.style.colorScheme = theme
     try {
-      localStorage.setItem('mythos-theme', theme)
+      localStorage.setItem('olympuz-theme', theme)
     } catch {
       /* storage unavailable */
     }
@@ -30,9 +30,9 @@ function App() {
     <div className="site-shell">
       <header className="site-header">
         <nav className="nav" aria-label="primary">
-          <a className="brand" href="/" aria-label="Mythos Patriarch home">
-            <img src="/Mythos Patriarch.png" alt="" />
-            <span>Mythos Patriarch</span>
+          <a className="brand" href="/" aria-label="Olympuz Coder home">
+            <img src="/Olympuz Coder.png" alt="" />
+            <span>Olympuz Coder</span>
             <span className="ver">v0.7</span>
           </a>
           <div className="nav-right">
@@ -92,7 +92,7 @@ function App() {
                 <span className="step-num">02</span>
                 <div>
                   <strong>start</strong>
-                  <p>run <code>Mythos Patriarch</code> in any repo.</p>
+                  <p>run <code>Olympuz Coder</code> in any repo.</p>
                 </div>
               </li>
               <li>
@@ -110,14 +110,14 @@ function App() {
       <footer className="footer">
         <div className="footer-line">
           <span className="brand">
-            <img src="/Mythos Patriarch.png" alt="" />
-            <span>Mythos Patriarch</span>
+            <img src="/Olympuz Coder.png" alt="" />
+            <span>Olympuz Coder</span>
             <span className="ver">v0.7.0</span>
           </span>
           <span className="sep">|</span>
           <a href="https://gitlawb.com">gitlawb ↗</a>
           <span className="sep">|</span>
-          <a href="https://github.com/Gitlawb/Mythos Patriarch/blob/main/LICENSE">license</a>
+          <a href="https://github.com/Gitlawb/Olympuz Coder/blob/main/LICENSE">license</a>
           <span className="sep">·</span>
           <span>{new Date().getFullYear()}</span>
         </div>
@@ -146,7 +146,7 @@ function Hero() {
 
       <div className="hero-cta">
         <CopyableCommand command={installCommand} variant="hero" />
-        <a className="button button-ghost" href="https://github.com/Gitlawb/Mythos Patriarch">
+        <a className="button button-ghost" href="https://github.com/Gitlawb/Olympuz Coder">
           view on github →
         </a>
       </div>

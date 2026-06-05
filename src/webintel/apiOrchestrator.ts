@@ -180,7 +180,7 @@ export class APIOrchestrator {
         path: url.pathname + url.search,
         method: endpoint.method,
         headers: {
-          'User-Agent': 'Mythos-WebIntel/1.0',
+          'User-Agent': 'Olympuz-WebIntel/1.0',
           'Accept': 'application/json',
           ...(bodyData != null
             ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyData) }

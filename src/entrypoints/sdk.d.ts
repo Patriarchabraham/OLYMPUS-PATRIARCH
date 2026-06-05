@@ -1,4 +1,4 @@
-﻿// Type declarations for @gitlawb/Mythos Patriarch SDK
+﻿// Type declarations for @gitlawb/Olympuz Coder SDK
 // Manually maintained — keep in sync with src/entrypoints/sdk/index.ts
 // Drift is caught by validate-externals.ts (runs in CI)
 

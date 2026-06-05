@@ -3,7 +3,7 @@ import { isEnvTruthy } from '../../utils/envUtils.js'
 
 const doctor: Command = {
   name: 'doctor',
-  description: 'Diagnose and verify your Mythos Patriarch installation and settings',
+  description: 'Diagnose and verify your Olympuz Coder installation and settings',
   isEnabled: () => !isEnvTruthy(process.env.DISABLE_DOCTOR_COMMAND),
   type: 'local-jsx',
   load: () => import('./doctor.js'),

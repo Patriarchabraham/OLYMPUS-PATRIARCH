@@ -507,13 +507,13 @@ export function buildProfileSaveMessage(
 
   lines.push(`Profile: ${filePath}`)
   if (options?.activatedInSession) {
-    lines.push('Mythos Patriarch switched to it for this session.')
+    lines.push('Olympuz Coder switched to it for this session.')
   } else if (options?.activationWarning) {
     lines.push(
       `Saved for next startup. Warning: could not activate it in this session (${options.activationWarning}).`,
     )
   } else {
-    lines.push('Restart Mythos Patriarch to use it.')
+    lines.push('Restart Olympuz Coder to use it.')
   }
 
   return lines.join('\n')
@@ -671,7 +671,7 @@ function ProviderChooser({
   const geminiMetadata = getProviderPresetUiMetadata('gemini')
   const mistralMetadata = getProviderPresetUiMetadata('mistral')
   const helperText = canUseCodexOAuth
-    ? 'Save a provider profile without editing environment variables first. Codex profiles backed by env, auth.json, or Mythos Patriarch secure storage can switch this session immediately when validation succeeds.'
+    ? 'Save a provider profile without editing environment variables first. Codex profiles backed by env, auth.json, or Olympuz Coder secure storage can switch this session immediately when validation succeeds.'
     : 'Save a provider profile without editing environment variables first. Codex profiles backed by env or auth.json can switch this session immediately.'
   const options: OptionWithDescription<ProviderChoice>[] = [
     {
@@ -1114,7 +1114,7 @@ function CodexOAuthStep({
     const env = buildCodexOAuthProfileEnv(tokens)
     if (!env) {
       throw new Error(
-        'Codex OAuth succeeded, but Mythos Patriarch could not build a Codex profile from the stored credentials.',
+        'Codex OAuth succeeded, but Olympuz Coder could not build a Codex profile from the stored credentials.',
       )
     }
 
@@ -1154,7 +1154,7 @@ function CodexOAuthStep({
     <Dialog title="Codex OAuth" onCancel={onBack}>
       <Box flexDirection="column" gap={1}>
         <Text>
-          Finish signing in with ChatGPT in your browser. Mythos Patriarch will store
+          Finish signing in with ChatGPT in your browser. Olympuz Coder will store
           the resulting Codex credentials securely for future sessions.
         </Text>
         {status.browserOpened === false ? (
@@ -1163,7 +1163,7 @@ function CodexOAuthStep({
           </Text>
         ) : status.browserOpened === true ? (
           <Text dimColor>
-            Browser opened. Complete the sign-in there, then Mythos Patriarch will
+            Browser opened. Complete the sign-in there, then Olympuz Coder will
             finish setup automatically.
           </Text>
         ) : (
@@ -1288,7 +1288,7 @@ function resolveCodexCredentials(processEnv: NodeJS.ProcessEnv):
       credentials.source === 'env'
         ? 'the current shell environment'
         : credentials.source === 'secure-storage'
-          ? 'Mythos Patriarch secure storage'
+          ? 'Olympuz Coder secure storage'
         : credentials.authPath ?? DEFAULT_CODEX_BASE_URL,
   }
 }
@@ -1326,7 +1326,7 @@ export function ProviderWizard({
               setStep({ name: 'codex-oauth' })
             } else if (value === 'clear') {
               const filePath = deleteProfileFile()
-              onDone(`Removed saved provider profile at ${filePath}. Restart Mythos Patriarch to go back to normal startup.`, {
+              onDone(`Removed saved provider profile at ${filePath}. Restart Olympuz Coder to go back to normal startup.`, {
                 display: 'system',
               })
             } else {

@@ -204,12 +204,22 @@ import goals from './commands/goals/index.js'
 import evolve from './commands/evolve/index.js'
 import rag from './commands/rag/index.js'
 import visualize from './commands/visualize/index.js'
+import olympus from './commands/olympus/index.js'
+import proof from './commands/proof/index.js'
+import pbt from './commands/pbt/index.js'
+import mutationTest from './commands/mutation-test/index.js'
+import sat from './commands/sat/index.js'
+import contract from './commands/contract/index.js'
+import abstractCmd from './commands/abstract/index.js'
+import fuzz from './commands/fuzz/index.js'
+import symbolic from './commands/symbolic/index.js'
+import slice from './commands/slice/index.js'
 // insights.ts is 113KB (3200 lines, includes diffLines/html rendering). Lazy
 // shim defers the heavy module until /insights is actually invoked.
 const usageReport: Command = {
   type: 'prompt',
   name: 'insights',
-  description: 'Generate a report analyzing your Mythos Patriarch sessions',
+  description: 'Generate a report analyzing your Olympuz Coder sessions',
   contentLength: 0,
   progressMessage: 'analyzing your sessions',
   source: 'builtin',
@@ -354,6 +364,16 @@ const COMMANDS = memoize((): Command[] => [
   evolve,
   rag,
   visualize,
+  olympus,
+  proof,
+  pbt,
+  mutationTest,
+  sat,
+  contract,
+  abstractCmd,
+  fuzz,
+  symbolic,
+  slice,
   ...(webCmd ? [webCmd] : []),
   ...(forkCmd ? [forkCmd] : []),
   ...(buddy ? [buddy] : []),

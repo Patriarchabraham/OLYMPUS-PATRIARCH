@@ -33,9 +33,12 @@ import type { ThemeSetting } from './theme.js'
 import { PRIMARY_PROJECT_INSTRUCTION_FILE } from './projectInstructions.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
-const teamMemPaths = true
-  ? (require('../memdir/teamMemPaths.js') as typeof import('../memdir/teamMemPaths.js'))
-  : null
+let teamMemPaths: typeof import('../memdir/teamMemPaths.js') | null = null
+try {
+  teamMemPaths = require('../memdir/teamMemPaths.js')
+} catch {
+  // Module not resolvable in Vitest ESM mode — safe fallback
+}
 const ccrAutoConnect = false
   ? (require('../bridge/bridgeEnabled.js') as typeof import('../bridge/bridgeEnabled.js'))
   : null
@@ -1866,8 +1869,8 @@ export function getMemoryPath(memoryType: MemoryType): string {
       return getAutoMemEntrypoint()
   }
   // TeamMem is only a valid MemoryType when true is true
-  if (true) {
-    return teamMemPaths!.getTeamMemEntrypoint()
+  if (true && teamMemPaths) {
+    return teamMemPaths.getTeamMemEntrypoint()
   }
   return '' // unreachable in external builds where TeamMem is not in MemoryType
 }

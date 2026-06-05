@@ -119,7 +119,7 @@ export default defineGateway({
     kind: 'openai-compatible',
     openaiShim: {
       headers: {
-        'X-Acme-Client': 'Mythos Patriarch',
+        'X-Acme-Client': 'Olympuz Coder',
       },
       supportsApiFormatSelection: false,
       supportsAuthHeaders: true,
@@ -495,7 +495,7 @@ transportConfig: {
   kind: 'openai-compatible',
   openaiShim: {
     headers: {
-      'X-Acme-Client': 'Mythos Patriarch',
+      'X-Acme-Client': 'Olympuz Coder',
     },
     supportsApiFormatSelection: false,
     supportsAuthHeaders: true,

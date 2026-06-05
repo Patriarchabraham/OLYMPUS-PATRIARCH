@@ -1,11 +1,11 @@
 {
-  "name": "mythos-patriarch",
+  "name": "olympuz-coder",
   "version": "1.0.0",
-  "description": "Mythos — AI coding agent powered by Patriarch",
+  "description": "Olympuz — AI coding agent powered by Patriarch",
   "author": "Patriarch",
   "type": "module",
   "bin": {
-    "mythos": "./bin/mythos"
+    "olympuz": "./bin/olympuz"
   },
   "exports": {
     "./package.json": "./package.json",
@@ -25,9 +25,9 @@
   ],
   "scripts": {
     "build": "bun run scripts/build.ts",
-    "start": "node --max-old-space-size=4096 dist/cli.mjs",
-    "dev": "node --max-old-space-size=4096 --import tsx/esm src/entrypoints/cli.tsx",
-    "typecheck": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc --noEmit",
+    "start": "node --max-old-space-size=2048 dist/cli.mjs",
+    "dev": "node --max-old-space-size=2048 --import tsx/esm src/entrypoints/cli.tsx",
+    "typecheck": "node --max-old-space-size=2048 ./node_modules/typescript/bin/tsc --noEmit",
     "smoke": "npm run build && node dist/cli.mjs --version",
     "prepack": "npm run build",
     "test": "vitest run",
@@ -136,11 +136,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mythos-patriarch/mythos.git"
+    "url": "https://github.com/olympuz-coder/olympuz.git"
   },
   "keywords": [
-    "mythos",
-    "mythos-patriarch",
+    "olympuz",
+    "olympuz-coder",
     "openai",
     "llm",
     "cli",

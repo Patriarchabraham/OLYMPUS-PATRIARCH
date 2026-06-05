@@ -339,7 +339,7 @@ export function addToTotalSessionCost(
   if (shouldLogTokenUsageVerbose()) {
     process.stderr.write(
       JSON.stringify({
-        tag: 'Mythos Patriarch.tokenUsage',
+        tag: 'Olympuz Coder.tokenUsage',
         model,
         provider: cacheProvider,
         input_tokens: usage.input_tokens,

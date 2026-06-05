@@ -3,7 +3,7 @@
 const buddy = {
   type: 'local-jsx',
   name: 'buddy',
-  description: 'Hatch, pet, and manage your Mythos Patriarch companion',
+  description: 'Hatch, pet, and manage your Olympuz Coder companion',
   immediate: true,
   argumentHint: '[status|mute|unmute|help]',
   load: () => import('./buddy.js'),

@@ -1,5 +1,5 @@
 /**
- * Quantum Supreme Module — Real quantum computing for Mythos Patriarch.
+ * Quantum Supreme Module — Real quantum computing for Olympuz Coder.
  *
  * This module implements actual quantum mechanics simulation:
  * - Complex number arithmetic for quantum amplitudes

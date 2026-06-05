@@ -3,7 +3,7 @@
 const wiki = {
   type: 'local-jsx',
   name: 'wiki',
-  description: 'Initialize and inspect the Mythos Patriarch project wiki',
+  description: 'Initialize and inspect the Olympuz Coder project wiki',
   argumentHint: '[init|status]',
   immediate: true,
   load: () => import('./wiki.js'),

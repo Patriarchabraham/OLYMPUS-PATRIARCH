@@ -1,5 +1,5 @@
-export const PRODUCT_DISPLAY_NAME = 'Mythos Anthropic'
-export const PRODUCT_URL = 'https://github.com/Patriarch-Romana/mythos-anthropic'
+export const PRODUCT_DISPLAY_NAME = 'Olympuz Anthropic'
+export const PRODUCT_URL = 'https://github.com/Patriarch-Romana/olympuz-anthropic'
 
 // Claude Code Remote session URLs
 export const CLAUDE_AI_BASE_URL = 'https://claude.ai'

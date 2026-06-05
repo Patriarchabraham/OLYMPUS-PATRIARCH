@@ -14,7 +14,7 @@ afterEach(async () => {
 })
 
 async function makeProjectDir(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'Mythos Patriarch-wiki-ingest-'))
+  const dir = await mkdtemp(join(tmpdir(), 'Olympuz Coder-wiki-ingest-'))
   tempDirs.push(dir)
   return dir
 }

@@ -39,7 +39,7 @@ function parseOptions(argv: string[]): CliOptions {
   const options: CliOptions = {
     apply: false,
     benchmark: false,
-    goal: normalizeRecommendationGoal(process.env.Mythos Patriarch_PROFILE_GOAL),
+    goal: normalizeRecommendationGoal(process.env.Olympuz Coder_PROFILE_GOAL),
     json: false,
     provider: 'auto',
     baseUrl: null,
@@ -113,7 +113,7 @@ function printHumanSummary(payload: {
   }
 
   if (payload.applied) {
-    console.log('\nSaved .Mythos Patriarch-profile.json with the recommended profile.')
+    console.log('\nSaved .Olympuz Coder-profile.json with the recommended profile.')
     console.log('Next: bun run dev:profile')
   } else {
     console.log(

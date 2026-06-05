@@ -182,5 +182,74 @@ export async function augmentSystemPrompt(
 		// Non-critical
 	}
 
+	// ─── Olympus Industries Context ──────────────────────────────
+	if (orchestrator.isModuleEnabled('olympus')) {
+		try {
+			const companies = orchestrator.getOlympusCompanies()
+			if (companies.length > 0) {
+				const companyLines = companies.map(
+					(c) => `- ${c.companyId}: ${c.agentCount} agents, ${c.departmentCount} departments`,
+				)
+				parts.olympusContext = `[Olympus Industries]\nActive companies: ${companies.length}\n${companyLines.join('\n')}`
+			}
+		} catch {
+			// Non-critical
+		}
+	}
+
+	// ─── Proof Engine Context ─────────────────────────────────────
+	if (orchestrator.isModuleEnabled('proof')) {
+		try {
+			const proofEngine = orchestrator.getProofEngine()
+			if (proofEngine) {
+				const report = proofEngine.getTokenMultiplierReport()
+				if (report.totalProofsRun > 0) {
+					const proofLines: string[] = [
+						`[Proof Engine]`,
+						`Correct lines/token: ${report.currentCorrectLinesPerToken.toFixed(2)}`,
+						`Avg proof confidence: ${(report.averageConfidence * 100).toFixed(1)}%`,
+						`Trend: ${report.trend}`,
+						`Total proofs: ${report.totalProofsRun}`,
+					]
+					if (report.recommendations.length > 0) {
+						proofLines.push(`Recommendations: ${report.recommendations.slice(0, 3).join('; ')}`)
+					}
+					parts.proofEngine = proofLines.join('\n')
+				}
+			}
+		} catch {
+			// Non-critical
+		}
+	}
+
+	// ─── SAT Solver & Contract Context ───────────────────────────
+	try {
+		const state = orchestrator.getState()
+		const satLines: string[] = []
+		if (state.satPathsChecked > 0) {
+			satLines.push(`[SAT Solver] Paths checked: ${state.satPathsChecked}, Infeasible: ${state.satInfeasiblePaths}`)
+		}
+		if (state.contractCompliance !== null) {
+			satLines.push(`[DbC] Contract compliance: ${(state.contractCompliance * 100).toFixed(1)}%`)
+		}
+		if (state.aiSoundnessScore !== null) {
+			satLines.push(`[Abstract] Soundness: ${(state.aiSoundnessScore * 100).toFixed(1)}%, Findings: ${state.aiFindingsCount}`)
+		}
+		if (state.fuzzCrashesFound > 0) {
+			satLines.push(`[Fuzzing] Crashes found: ${state.fuzzCrashesFound}`)
+		}
+		if (state.sePathsExplored > 0) {
+			satLines.push(`[Symbolic] Paths explored: ${state.sePathsExplored}, Findings: ${state.seFindingsCount}`)
+		}
+		if (state.sliceReductionAvg !== null) {
+			satLines.push(`[Slicing] Avg reduction: ${state.sliceReductionAvg.toFixed(1)}%`)
+		}
+		if (satLines.length > 0) {
+			parts.satSolver = satLines.join('\n')
+		}
+	} catch {
+		// Non-critical
+	}
+
 	return parts
 }

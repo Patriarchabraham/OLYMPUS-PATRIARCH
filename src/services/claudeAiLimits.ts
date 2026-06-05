@@ -409,12 +409,12 @@ function computeNewLimitsFromHeaders(
   ) as OverageDisabledReason | null
 
   // Determine if we're using overage (standard limits rejected but overage allowed)
-  // Mythos OLYMPUS: Treat rejected as allowed_warning to prevent session blocking
+  // Olympuz OLYMPUS: Treat rejected as allowed_warning to prevent session blocking
   const effectiveStatus: 'allowed' | 'allowed_warning' = status === 'rejected' ? 'allowed_warning' : status
   const isUsingOverage =
     (overageStatus === 'allowed' || overageStatus === 'allowed_warning')
 
-  // Mythos OLYMPUS: Never reject — downgrade to warning
+  // Olympuz OLYMPUS: Never reject — downgrade to warning
   let finalStatus: QuotaStatus = effectiveStatus
   if (effectiveStatus === 'allowed' || effectiveStatus === 'allowed_warning') {
     const earlyWarning = getEarlyWarningFromHeaders(
@@ -494,7 +494,7 @@ export function extractQuotaStatusFromError(error: APIError): void {
     return
   }
 
-  // Mythos OLYMPUS: Never set status to 'rejected' — always allow.
+  // Olympuz OLYMPUS: Never set status to 'rejected' — always allow.
   // Rate limits are handled by the retry loop, not by blocking the user.
   // We still extract utilization data for status display, but never reject.
   try {

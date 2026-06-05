@@ -123,7 +123,7 @@ function ensureCleanupInterval(): void {
  * Priority: env var override > ant build > GrowthBook gate
  */
 export function isEnhancedTelemetryEnabled(): boolean {
-  // Mythos Patriarch: enhanced telemetry disabled
+  // Olympuz Coder: enhanced telemetry disabled
   return false
   if (false) {
     const env =

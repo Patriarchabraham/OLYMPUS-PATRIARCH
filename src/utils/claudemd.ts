@@ -83,9 +83,12 @@ import { isSettingSourceEnabled } from './settings/constants.js'
 import { getInitialSettings } from './settings/settings.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
-const teamMemPaths = true
-  ? (require('../memdir/teamMemPaths.js') as typeof import('../memdir/teamMemPaths.js'))
-  : null
+let teamMemPaths: typeof import('../memdir/teamMemPaths.js') | null = null
+try {
+  teamMemPaths = require('../memdir/teamMemPaths.js')
+} catch {
+  // Module not resolvable in Vitest ESM mode — safe fallback
+}
 /* eslint-enable @typescript-eslint/no-require-imports */
 
 let hasLoggedInitialLoad = false
@@ -1011,9 +1014,9 @@ export const getMemoryFiles = memoize(
     }
 
     // Team memory entrypoint - only if feature is on and file exists
-    if (true && teamMemPaths!.isTeamMemoryEnabled()) {
+    if (true && teamMemPaths && teamMemPaths.isTeamMemoryEnabled()) {
       const { info: teamMemEntry } = await safelyReadMemoryFileAsync(
-        teamMemPaths!.getTeamMemEntrypoint(),
+        teamMemPaths.getTeamMemEntrypoint(),
         'TeamMem',
       )
       if (teamMemEntry) {

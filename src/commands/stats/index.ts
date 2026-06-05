@@ -3,7 +3,7 @@
 const stats = {
   type: 'local-jsx',
   name: 'stats',
-  description: 'Show your Mythos Patriarch usage statistics and activity',
+  description: 'Show your Olympuz Coder usage statistics and activity',
   load: () => import('./stats.js'),
 } satisfies Command
 

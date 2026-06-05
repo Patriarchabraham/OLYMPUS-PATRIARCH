@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Mythos Patriarch will be documented in this file.
+All notable changes to Olympuz Coder will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
@@ -166,22 +166,22 @@ Zero degradation across all modules. Every claimed capability now uses real algo
 
 ### Added
 
-- Initial release of Mythos Patriarch
+- Initial release of Olympuz Coder
 - Multi-provider LLM support
 - Terminal-first REPL interface
 - MCP (Model Context Protocol) support
 - Web search with DuckDuckGo fallback
 - Provider profiles and saved configurations
 
-[1.1.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.10.0...v1.0.0
-[0.10.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.9.2...v0.10.0
-[0.9.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.8.0...v0.9.0
-[0.8.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.7.0...v0.8.0
-[0.7.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.6.0...v0.7.0
-[0.6.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.5.2...v0.6.0
-[0.5.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.2.3...v0.3.0
-[0.2.0]: https://github.com/Gitlawb/Mythos Patriarch/compare/v0.1.8...v0.2.0
-[0.1.0]: https://github.com/Gitlawb/Mythos Patriarch/releases/tag/v0.1.0
+[1.1.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.10.0...v1.0.0
+[0.10.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.9.2...v0.10.0
+[0.9.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.5.2...v0.6.0
+[0.5.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.2.3...v0.3.0
+[0.2.0]: https://github.com/Gitlawb/Olympuz Coder/compare/v0.1.8...v0.2.0
+[0.1.0]: https://github.com/Gitlawb/Olympuz Coder/releases/tag/v0.1.0

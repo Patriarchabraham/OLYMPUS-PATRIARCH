@@ -1,14 +1,19 @@
 /**
- * Memory Guard — proactive OOM prevention for Mythos Patriarch.
+ * Memory Guard — proactive OOM prevention for Olympuz Coder.
  *
  * Monitors heap usage on a fixed interval and takes escalating action
  * before the process hits the V8 heap limit and crashes.
  *
+ * On memory-constrained machines (e.g., 6GB RAM), the heap limit is
+ * set dynamically to ~50% of free RAM (~1.1–1.5GB). This means the
+ * old 70/80/90/95% thresholds were too high — by 70% of a 1.5GB heap,
+ * only ~450MB remains before crash.
+ *
  * Layers of defense:
- *   70% → soft GC hint (if --expose-gc is set)
- *   80% → warn + aggressive GC
- *   90% → log diagnostic snapshot
- *   95% → emergency: log + attempt heap dump, process may be unrecoverable
+ *   50% → soft GC hint (if --expose-gc is set)
+ *   65% → warn + aggressive GC
+ *   80% → log diagnostic snapshot + force compact
+ *   90% → emergency: log + attempt heap dump + last-resort GC
  */
 
 import { logError } from './log.js'
@@ -23,10 +28,10 @@ const state: MemoryGuardState = { timer: null, started: false }
 
 /** Percentage thresholds (0–1) of heapSizeLimit */
 const THRESHOLDS = {
-  gcHint: 0.70,
-  warn: 0.80,
-  snapshot: 0.90,
-  emergency: 0.95,
+  gcHint: 0.50,
+  warn: 0.65,
+  snapshot: 0.80,
+  emergency: 0.90,
 } as const
 
 function getHeapRatio(): { used: number; total: number; limit: number; ratio: number } {
@@ -75,6 +80,24 @@ function formatMB(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(0)}MB`
 }
 
+/**
+ * Attempt to free memory by clearing known caches.
+ * Called when heap is at warning level or above.
+ */
+function tryClearCaches(): void {
+  try {
+    // Clear require cache for non-essential modules (keep core modules)
+    const keepPatterns = ['/node_modules/', '/src/entrypoints/', '/src/cli/']
+    for (const key of Object.keys(require.cache)) {
+      if (!keepPatterns.some(p => key.includes(p))) {
+        delete require.cache[key]
+      }
+    }
+  } catch {
+    // Non-critical — best effort
+  }
+}
+
 function check(): void {
   const { used, total, limit, ratio } = getHeapRatio()
   const pct = (ratio * 100).toFixed(1)
@@ -82,16 +105,18 @@ function check(): void {
   if (ratio >= THRESHOLDS.emergency) {
     logForDebugging(
       `[MemoryGuard] EMERGENCY heap at ${pct}% (${formatMB(used)}/${formatMB(limit)}). ` +
-      `Process may crash. Attempting GC.`,
+      `Process may crash. Attempting GC + cache clear.`,
     )
+    tryClearCaches()
     tryGC()
     return
   }
 
   if (ratio >= THRESHOLDS.snapshot) {
     logForDebugging(
-      `[MemoryGuard] CRITICAL heap at ${pct}% (${formatMB(used)}/${formatMB(limit)}).`,
+      `[MemoryGuard] CRITICAL heap at ${pct}% (${formatMB(used)}/${formatMB(limit)}). Forcing GC + cache eviction.`,
     )
+    tryClearCaches()
     tryGC()
     return
   }
@@ -110,7 +135,7 @@ function check(): void {
   }
 }
 
-const CHECK_INTERVAL_MS = 30_000 // 30 seconds
+const CHECK_INTERVAL_MS = 10_000 // 10 seconds — faster detection on constrained machines
 
 /**
  * Start the memory guard. Safe to call multiple times — only starts once.
@@ -129,7 +154,7 @@ export function startMemoryGuard(): void {
     state.timer.unref()
   }
 
-  logForDebugging('[MemoryGuard] Started — monitoring heap every 30s')
+  logForDebugging('[MemoryGuard] Started — monitoring heap every 10s')
 }
 
 /**

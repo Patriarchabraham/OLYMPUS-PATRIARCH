@@ -17,7 +17,7 @@ import { sanitizePath } from './sessionStoragePortable.js'
 
 describe('KnowledgeGraph Global Persistence & RAG', () => {
   const originalConfigDir = process.env.CLAUDE_CONFIG_DIR
-  const configDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-test-'))
+  const configDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-test-'))
   process.env.CLAUDE_CONFIG_DIR = configDir
   const cwd = process.cwd()
 
@@ -36,14 +36,14 @@ describe('KnowledgeGraph Global Persistence & RAG', () => {
   })
 
   it('persists entities across loads', async () => {
-    await addGlobalEntity('tool', 'Mythos Patriarch', { status: 'alpha' })
+    await addGlobalEntity('tool', 'Olympuz Coder', { status: 'alpha' })
     const path = getProjectGraphPath(cwd)
     expect(existsSync(path)).toBe(true)
 
     // Clear cache and reload
     clearMemoryOnly()
     const graph = loadProjectGraph(cwd)
-    const entities = Object.values(graph.entities).filter(e => e.name === 'Mythos Patriarch')
+    const entities = Object.values(graph.entities).filter(e => e.name === 'Olympuz Coder')
     expect(entities.length).toBe(1)
     expect(entities[0].attributes.status).toBe('alpha')
   })
@@ -59,11 +59,11 @@ describe('KnowledgeGraph Global Persistence & RAG', () => {
   })
 
   it('deduplicates entities and updates attributes', async () => {
-    await addGlobalEntity('tool', 'Mythos Patriarch', { status: 'alpha' })
-    await addGlobalEntity('tool', 'Mythos Patriarch', { status: 'beta', version: '0.6.0' })
+    await addGlobalEntity('tool', 'Olympuz Coder', { status: 'alpha' })
+    await addGlobalEntity('tool', 'Olympuz Coder', { status: 'beta', version: '0.6.0' })
 
     const graph = loadProjectGraph(cwd)
-    const entities = Object.values(graph.entities).filter(e => e.name === 'Mythos Patriarch')
+    const entities = Object.values(graph.entities).filter(e => e.name === 'Olympuz Coder')
     expect(entities.length).toBe(1)
     expect(entities[0].attributes.status).toBe('beta')
     expect(entities[0].attributes.version).toBe('0.6.0')

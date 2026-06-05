@@ -6,8 +6,8 @@
   VERSION: '99.0.0',
   DISPLAY_VERSION: '0.0.0-test',
   BUILD_TIME: new Date().toISOString(),
-  ISSUES_EXPLAINER: 'report the issue at https://github.com/Gitlawb/Mythos Patriarch/issues',
-  PACKAGE_URL: '@gitlawb/Mythos Patriarch',
+  ISSUES_EXPLAINER: 'report the issue at https://github.com/Gitlawb/Olympuz Coder/issues',
+  PACKAGE_URL: '@gitlawb/Olympuz Coder',
   NATIVE_PACKAGE_URL: undefined,
 }
 
@@ -27,24 +27,24 @@ afterEach(() => {
   clearSystemPromptSections()
 })
 
-test('CLI identity prefixes describe Mythos Anthropic instead of Claude Code', () => {
-  expect(getCLISyspromptPrefix()).toContain('Mythos Anthropic')
+test('CLI identity prefixes describe Olympuz Anthropic instead of Claude Code', () => {
+  expect(getCLISyspromptPrefix()).toContain('Olympuz Anthropic')
   expect(getCLISyspromptPrefix()).not.toContain('Claude Code')
   expect(getCLISyspromptPrefix()).not.toContain("Anthropic's official CLI for Claude")
 
   for (const prefix of CLI_SYSPROMPT_PREFIXES) {
-    expect(prefix).toContain('Mythos Anthropic')
+    expect(prefix).toContain('Olympuz Anthropic')
     expect(prefix).not.toContain('Claude Code')
     expect(prefix).not.toContain("Anthropic's official CLI for Claude")
   }
 })
 
-test('simple mode identity describes Mythos Patriarch instead of Claude Code', async () => {
+test('simple mode identity describes Olympuz Coder instead of Claude Code', async () => {
   process.env.CLAUDE_CODE_SIMPLE = '1'
 
   const prompt = await getSystemPrompt([], 'gpt-4o')
 
-  expect(prompt[0]).toContain('Mythos Patriarch')
+  expect(prompt[0]).toContain('Olympuz Coder')
   expect(prompt[0]).not.toContain('Claude Code')
   expect(prompt[0]).not.toContain("Anthropic's official CLI for Claude")
 })
@@ -64,35 +64,35 @@ test('system prompt model identity updates when model changes mid-session', asyn
   expect(secondText).not.toContain('You are powered by the model old-test-model.')
 })
 
-test('built-in agent prompts describe Mythos Patriarch instead of Claude Code', () => {
-  expect(DEFAULT_AGENT_PROMPT).toContain('Mythos Patriarch')
+test('built-in agent prompts describe Olympuz Coder instead of Claude Code', () => {
+  expect(DEFAULT_AGENT_PROMPT).toContain('Olympuz Coder')
   expect(DEFAULT_AGENT_PROMPT).not.toContain('Claude Code')
   expect(DEFAULT_AGENT_PROMPT).not.toContain("Anthropic's official CLI for Claude")
 
   const generalPrompt = GENERAL_PURPOSE_AGENT.getSystemPrompt({
     toolUseContext: { options: {} as never },
   })
-  expect(generalPrompt).toContain('Mythos Patriarch')
+  expect(generalPrompt).toContain('Olympuz Coder')
   expect(generalPrompt).not.toContain('Claude Code')
   expect(generalPrompt).not.toContain("Anthropic's official CLI for Claude")
 
   const explorePrompt = EXPLORE_AGENT.getSystemPrompt({
     toolUseContext: { options: {} as never },
   })
-  expect(explorePrompt).toContain('Mythos Patriarch')
+  expect(explorePrompt).toContain('Olympuz Coder')
   expect(explorePrompt).not.toContain('Claude Code')
   expect(explorePrompt).not.toContain("Anthropic's official CLI for Claude")
 
   const planPrompt = PLAN_AGENT.getSystemPrompt({
     toolUseContext: { options: {} as never },
   })
-  expect(planPrompt).toContain('Mythos Patriarch')
+  expect(planPrompt).toContain('Olympuz Coder')
   expect(planPrompt).not.toContain('Claude Code')
 
   const statuslinePrompt = STATUSLINE_SETUP_AGENT.getSystemPrompt({
     toolUseContext: { options: {} as never },
   })
-  expect(statuslinePrompt).toContain('Mythos Patriarch')
+  expect(statuslinePrompt).toContain('Olympuz Coder')
   expect(statuslinePrompt).not.toContain('Claude Code')
 
   const guidePrompt = CLAUDE_CODE_GUIDE_AGENT.getSystemPrompt({
@@ -104,9 +104,9 @@ test('built-in agent prompts describe Mythos Patriarch instead of Claude Code', 
       } as never,
     },
   })
-  expect(guidePrompt).toContain('Mythos Patriarch')
-  expect(guidePrompt).toContain('You are the Mythos Patriarch guide agent.')
-  expect(guidePrompt).toContain('**Mythos Patriarch** (the CLI tool)')
+  expect(guidePrompt).toContain('Olympuz Coder')
+  expect(guidePrompt).toContain('You are the Olympuz Coder guide agent.')
+  expect(guidePrompt).toContain('**Olympuz Coder** (the CLI tool)')
   expect(guidePrompt).not.toContain('You are the Claude guide agent.')
   expect(guidePrompt).not.toContain('**Claude Code** (the CLI tool)')
 })

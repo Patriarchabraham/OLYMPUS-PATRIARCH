@@ -20,7 +20,7 @@ afterEach(() => {
   }
 })
 
-describe('Mythos Patriarch settings path surfaces', () => {
+describe('Olympuz Coder settings path surfaces', () => {
   test('isClaudeSettingsPath recognizes project .openclaude settings files', () => {
     expect(
       isClaudeSettingsPath(
@@ -71,11 +71,11 @@ describe('Mythos Patriarch settings path surfaces', () => {
   })
 
   test('permission dialog does not treat arbitrary CLAUDE_CONFIG_DIR as the global Claude folder', () => {
-    process.env.CLAUDE_CONFIG_DIR = join(homedir(), 'custom-Mythos Patriarch')
+    process.env.CLAUDE_CONFIG_DIR = join(homedir(), 'custom-Olympuz Coder')
 
     expect(
       isInGlobalClaudeFolder(
-        join(homedir(), 'custom-Mythos Patriarch', 'settings.json'),
+        join(homedir(), 'custom-Olympuz Coder', 'settings.json'),
       ),
     ).toBe(false)
   })
@@ -103,17 +103,17 @@ describe('Mythos Patriarch settings path surfaces', () => {
   })
 
   test('global skill scope does not emit fixed rules for arbitrary CLAUDE_CONFIG_DIR skills', () => {
-    process.env.CLAUDE_CONFIG_DIR = join(homedir(), 'custom-Mythos Patriarch')
+    process.env.CLAUDE_CONFIG_DIR = join(homedir(), 'custom-Olympuz Coder')
 
     expect(
       getClaudeSkillScope(
-        join(homedir(), 'custom-Mythos Patriarch', 'skills', 'demo', 'SKILL.md'),
+        join(homedir(), 'custom-Olympuz Coder', 'skills', 'demo', 'SKILL.md'),
       ),
     ).toBe(null)
   })
 })
 
-describe('Mythos Patriarch validation tips', () => {
+describe('Olympuz Coder validation tips', () => {
   test('permissions.defaultMode invalid value keeps suggestion but no Claude docs link', () => {
     const tip = getValidationTip({
       path: 'permissions.defaultMode',

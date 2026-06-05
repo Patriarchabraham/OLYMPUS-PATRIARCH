@@ -17,7 +17,7 @@ import {
 
 const MAX_RELEASE_NOTES_SHOWN = 5
 const RELEASES_API_URL =
-  'https://api.github.com/repos/Gitlawb/Mythos Patriarch/releases?per_page=10'
+  'https://api.github.com/repos/Gitlawb/Olympuz Coder/releases?per_page=10'
 const SECTION_HEADER_PREFIX = '__section__:'
 
 type GitHubRelease = {
@@ -28,7 +28,7 @@ type GitHubRelease = {
 }
 
 /**
- * We fetch Mythos Patriarch release notes from GitHub instead of bundling them with
+ * We fetch Olympuz Coder release notes from GitHub instead of bundling them with
  * the build.
  *
  * This is necessary because Ink's static rendering makes it difficult to
@@ -175,7 +175,7 @@ async function fetchGitHubReleases(): Promise<GitHubRelease[]> {
   const response = await axios.get<GitHubRelease[]>(RELEASES_API_URL, {
     headers: {
       Accept: 'application/vnd.github+json',
-      'User-Agent': 'Mythos Patriarch',
+      'User-Agent': 'Olympuz Coder',
     },
   })
 
@@ -378,7 +378,7 @@ export function getRecentReleaseNotes(
     const baseCurrentVersion = coerce(currentVersion)
     let basePreviousVersion = previousVersion ? coerce(previousVersion) : null
 
-    // Older Mythos Patriarch builds stored the internal compatibility version
+    // Older Olympuz Coder builds stored the internal compatibility version
     // (e.g. 99.0.0) as the "seen" marker. Treat that as unseen so users
     // can start receiving release notes keyed to the public version.
     if (

@@ -1,8 +1,8 @@
 ﻿/**
- * Mythos Anthropic startup screen — filled-block text logo with sunset gradient.
+ * Olympuz Anthropic startup screen — filled-block text logo with sunset gradient.
  * Called once at CLI startup before the Ink UI renders.
  *
- * Mythos by Patriarch - Next-generation AI coding agent platform
+ * Olympuz by Patriarch - Next-generation AI coding agent platform
  */
 
 import { isLocalProviderUrl, resolveProviderRequest } from '../services/api/providerConfig.js'
@@ -54,15 +54,15 @@ export function paintLine(text: string, stops: readonly RGB[], lineT: number): s
 }
 
 // ─── Filled Block Text Logo ───────────────────────────────────────────────────
-// OLYMPUS — 7 letters rendered as filled block ASCII art with Unicode box-drawing
+// OLYMPUZ CODER — 12 letters rendered as filled block ASCII art with Unicode box-drawing
 
 const LOGO_OLYMPUS = [
-  `  ████████╗██╗  ██╗███████╗██╗  ██╗██╗   ██╗███████╗██╗  ██╗███████╗███████╗██████╗ `,
-  `  ╚══██╔══╝██║  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝██║  ██║██╔════╝██╔════╝██╔══██╗`,
-  `     ██║   ███████║█████╗   ╚███╔╝ ██║   ██║███████╗███████║█████╗  █████╗  ██████╔╝`,
-  `     ██║   ██╔══██║██╔══╝   ██╔██╗ ██║   ██║╚════██║██╔══██║██╔══╝  ██╔══╝  ██╔══██╗`,
-  `     ██║   ██║  ██║███████╗██╔╝ ██╗╚██████╔╝███████║██║  ██║███████╗███████╗██║  ██║`,
-  `     ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝`,
+  `  ███████╗ ███╗   ██╗ ██╗   ██╗ ███╗   ██╗ ██████╗ ██╗      █████╗ ███╗   ██╗ ██████╗  ██████╗ ███████╗`,
+  `  ██╔════╝ ████╗  ██║ ╚██╗ ██╔╝ ████╗  ██║██╔════╝ ██║     ██╔══██╗████╗  ██║██╔════╝ ██╔════╝ ██╔════╝`,
+  `  ███████╗ ██╔██╗ ██║  ╚████╔╝  ██╔██╗ ██║██║  ███╗██║     ███████║██╔██╗ ██║██║  ███╗██║  ███╗███████╗`,
+  `  ╚════██║ ██║╚██╗██║   ╚██╔╝   ██║╚██╗██║██║   ██║██║     ██╔══██║██║╚██╗██║██║   ██║██║   ██║╚════██║`,
+  `  ███████║ ██║ ╚████║    ██║    ██║ ╚████║╚██████╔╝███████╗ ██║  ██║██║ ╚████║╚██████╔╝╚██████╔╝███████║`,
+  `  ╚══════╝ ╚═╝  ╚═══╝    ╚═╝    ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚══════╝`,
 ]
 
 // ─── Provider detection ───────────────────────────────────────────────────────
@@ -178,7 +178,7 @@ export function printStartupScreen(modelOverride?: string): void {
   const GRAD = palette.gradient
 
   const p = detectProvider(modelOverride)
-  const W = 62
+  const W = 96
   const out: string[] = []
 
   out.push('')
@@ -198,7 +198,7 @@ export function printStartupScreen(modelOverride?: string): void {
   out.push('')
 
   // Tagline
-  out.push(`  ${ansiRgb(...ACCENT)}\u2726${RESET} ${ansiRgb(...CREAM)}Olympus — Where gods code.${RESET} ${ansiRgb(...ACCENT)}\u2726${RESET}`)
+  out.push(`  ${ansiRgb(...ACCENT)}\u2726${RESET} ${ansiRgb(...CREAM)}Olympuz Coder — Where gods code.${RESET} ${ansiRgb(...ACCENT)}\u2726${RESET}`)
   out.push('')
 
   // Provider info box
@@ -238,7 +238,7 @@ export function printStartupScreen(modelOverride?: string): void {
   out.push(boxRow(sRow, W, sLen, BORDER))
 
   out.push(`${ansiRgb(...BORDER)}\u255a${'\u2550'.repeat(W - 2)}\u255d${RESET}`)
-  out.push(`  ${DIM}${ansiRgb(...DIMCOL)}Mythos Patriarch ${RESET}${ansiRgb(...ACCENT)}v${MACRO.DISPLAY_VERSION ?? MACRO.VERSION}${RESET}`)
+  out.push(`  ${DIM}${ansiRgb(...DIMCOL)}Olympuz Coder ${RESET}${ansiRgb(...ACCENT)}v${MACRO.DISPLAY_VERSION ?? MACRO.VERSION}${RESET}`)
   out.push('')
 
   process.stdout.write(out.join('\n') + '\n')

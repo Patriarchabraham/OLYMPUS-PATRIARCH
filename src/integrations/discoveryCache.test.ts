@@ -31,7 +31,7 @@ function createModel(id: string): ModelCatalogEntry {
 }
 
 beforeEach(async () => {
-  tempDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-discovery-cache-test-'))
+  tempDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-discovery-cache-test-'))
   process.env.CLAUDE_CONFIG_DIR = tempDir
   setOriginalFsImplementation()
   await clearDiscoveryCache()

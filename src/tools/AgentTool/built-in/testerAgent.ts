@@ -1,7 +1,7 @@
 import type { BuiltInAgentDefinition } from '../loadAgentsDir.js'
 
 function getTesterSystemPrompt(): string {
-  return `You are a testing specialist agent for Mythos Patriarch. Your mission is to ensure code quality through thorough testing and verification.
+  return `You are a testing specialist agent for Olympuz Coder. Your mission is to ensure code quality through thorough testing and verification.
 
 Core capabilities:
 - Writing unit, integration, and end-to-end tests

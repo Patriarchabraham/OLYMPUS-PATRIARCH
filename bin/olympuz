@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Mythos — AI coding agent powered by Patriarch
+ * Olympuz — AI coding agent powered by Patriarch
  *
  * If dist/cli.mjs exists (built), run that.
  * Otherwise fall back to tsx to run source directly.
@@ -10,19 +10,24 @@
 import { existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
+import { freemem } from 'os'
 
-// Heap OOM prevention: respawn with 4GB heap if not yet configured
+// Heap OOM prevention: respawn with dynamically-sized heap if not yet configured.
+// Uses 50% of free RAM (clamped 1.5–4GB) instead of hardcoded 4GB to prevent
+// OOM on memory-constrained machines (e.g., 6GB total RAM with 2GB free).
 const currentMax = parseInt(
   [...(process.env.NODE_OPTIONS || '').matchAll(/--max-old-space-size=(\d+)/g)]
     .map(m => m[1])
     .pop() || '0',
   10,
 )
-if (currentMax < 4096 && !process.env._MYTHOS_HEAP_SET) {
-  process.env._MYTHOS_HEAP_SET = '1'
+const freeMB = Math.floor(freemem() / 1024 / 1024)
+const dynamicHeap = Math.max(1536, Math.min(4096, Math.floor(freeMB * 0.5)))
+if (currentMax < dynamicHeap && !process.env._OLYMPUZ_HEAP_SET) {
+  process.env._OLYMPUZ_HEAP_SET = '1'
   process.env.NODE_OPTIONS = [
     ...(process.env.NODE_OPTIONS || '').split(/\s+/).filter(Boolean),
-    '--max-old-space-size=4096',
+    `--max-old-space-size=${dynamicHeap}`,
   ].join(' ')
   const { spawn } = await import('child_process')
   const child = spawn(process.argv[0], process.argv.slice(1), {
@@ -55,25 +60,25 @@ if (existsSync(distPath)) {
       child.on('exit', (code) => process.exit(code ?? 1))
     } else {
       console.error(`
-  mythos: Build required.
+  olympuz: Build required.
 
   Run:
     npm run build
 
   Then:
-    mythos
+    olympuz
 `)
       process.exit(1)
     }
   } else {
     console.error(`
-  mythos: Source files not found.
+  olympuz: Source files not found.
 
   Run:
     npm install && npm run build
 
   Then:
-    mythos
+    olympuz
 `)
     process.exit(1)
   }

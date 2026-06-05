@@ -1,4 +1,4 @@
-﻿# Mythos Patriarch Quick Start for macOS and Linux
+﻿# Olympuz Coder Quick Start for macOS and Linux
 
 This guide uses a standard shell such as Terminal, iTerm, bash, or zsh.
 
@@ -15,10 +15,10 @@ node --version
 npm --version
 ```
 
-## 2. Install Mythos Patriarch
+## 2. Install Olympuz Coder
 
 ```bash
-npm install -g @gitlawb/Mythos Patriarch
+npm install -g @gitlawb/Olympuz Coder
 ```
 
 ## 3. Pick One Provider
@@ -32,7 +32,7 @@ export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_API_KEY=sk-your-key-here
 export OPENAI_MODEL=gpt-4o
 
-Mythos Patriarch
+Olympuz Coder
 ```
 
 ### Option B: DeepSeek
@@ -43,7 +43,7 @@ export OPENAI_API_KEY=sk-your-key-here
 export OPENAI_BASE_URL=https://api.deepseek.com/v1
 export OPENAI_MODEL=deepseek-v4-flash
 
-Mythos Patriarch
+Olympuz Coder
 ```
 
 Use `deepseek-v4-pro` when you want the stronger model. `deepseek-chat` and `deepseek-reasoner` still work as DeepSeek's legacy API aliases.
@@ -63,7 +63,7 @@ export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_BASE_URL=http://localhost:11434/v1
 export OPENAI_MODEL=llama3.1:8b
 
-Mythos Patriarch
+Olympuz Coder
 ```
 
 No API key is needed for Ollama local models.
@@ -88,19 +88,19 @@ export OPENAI_BASE_URL=http://localhost:1234/v1
 export OPENAI_MODEL=your-model-name
 # export OPENAI_API_KEY=lmstudio  # optional: some users need a dummy key
 
-Mythos Patriarch
+Olympuz Coder
 ```
 
 Replace `your-model-name` with the model name shown in LM Studio.
 
 No API key is needed for LM Studio local models (but uncomment the `OPENAI_API_KEY` line if you hit auth errors).
 
-## 4. If `Mythos Patriarch` Is Not Found
+## 4. If `Olympuz Coder` Is Not Found
 
 Close the terminal, open a new one, and try again:
 
 ```bash
-Mythos Patriarch
+Olympuz Coder
 ```
 
 ## 5. If Your Provider Fails
@@ -126,16 +126,16 @@ Check the basics:
 - make sure a model is loaded in LM Studio
 - make sure the model name matches what you set in `OPENAI_MODEL`
 
-## 6. Updating Mythos Patriarch
+## 6. Updating Olympuz Coder
 
 ```bash
-npm install -g @gitlawb/Mythos Patriarch@latest
+npm install -g @gitlawb/Olympuz Coder@latest
 ```
 
-## 7. Uninstalling Mythos Patriarch
+## 7. Uninstalling Olympuz Coder
 
 ```bash
-npm uninstall -g @gitlawb/Mythos Patriarch
+npm uninstall -g @gitlawb/Olympuz Coder
 ```
 
 ## Need Advanced Setup?

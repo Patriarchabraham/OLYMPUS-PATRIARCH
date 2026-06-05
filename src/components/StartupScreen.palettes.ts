@@ -12,7 +12,7 @@ export type LogoPalette = {
   accent: RGB
   /** Soft body text color (tagline value, label values). */
   cream: RGB
-  /** Dim color for label names and the Mythos Patriarch prefix. */
+  /** Dim color for label names and the Olympuz Coder prefix. */
   dim: RGB
   /** Box-drawing border color. */
   border: RGB
@@ -21,17 +21,17 @@ export type LogoPalette = {
 export const LOGO_PALETTES = {
   olympus: {
     gradient: [
-      [255, 200, 50],
-      [255, 165, 30],
-      [255, 130, 20],
-      [240, 100, 15],
-      [220, 80, 10],
-      [180, 60, 5],
+      [60, 80, 180],
+      [45, 60, 160],
+      [30, 45, 140],
+      [25, 35, 120],
+      [20, 25, 100],
+      [15, 18, 80],
     ],
-    accent: [255, 165, 40],
-    cream: [255, 220, 180],
-    dim: [160, 110, 60],
-    border: [140, 90, 40],
+    accent: [70, 100, 200],
+    cream: [200, 210, 240],
+    dim: [100, 120, 170],
+    border: [220, 225, 240],
   },
   sunset: {
     gradient: [
@@ -98,7 +98,7 @@ export const LOGO_PALETTE_NAMES = Object.keys(LOGO_PALETTES) as LogoPaletteName[
 export const DEFAULT_LOGO_PALETTE: LogoPaletteName = 'olympus'
 
 export const LOGO_PALETTE_LABELS: Record<LogoPaletteName, string> = {
-  olympus: 'Olympus Orange (default)',
+  olympus: 'Olympuz Royal Blue (default)',
   sunset: 'Sunset',
   forest: 'Forest green',
   ocean: 'Ocean blue',

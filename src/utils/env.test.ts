@@ -12,7 +12,7 @@ const originalEnv = {
 let tempDir: string
 
 beforeEach(() => {
-	tempDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-env-test-'))
+	tempDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-env-test-'))
 	process.env.CLAUDE_CONFIG_DIR = tempDir
 	delete process.env.CLAUDE_CODE_CUSTOM_OAUTH_URL
 	delete process.env.USER_TYPE

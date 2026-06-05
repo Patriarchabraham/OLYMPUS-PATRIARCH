@@ -85,7 +85,7 @@ function telemetryTimeout(ms: number, message: string): Promise<never> {
 }
 
 export function bootstrapTelemetry() {
-  // Mythos Patriarch: telemetry bootstrap disabled
+  // Olympuz Coder: telemetry bootstrap disabled
   return
   if (process.env.USER_TYPE === 'ant') {
     // Read from ANT_ prefixed variables that are defined at build time
@@ -324,7 +324,7 @@ async function getOtlpTraceExporters() {
 }
 
 export function isTelemetryEnabled() {
-  // Mythos Patriarch: telemetry permanently disabled
+  // Olympuz Coder: telemetry permanently disabled
   return false
 }
 
@@ -422,7 +422,7 @@ async function initializeBetaTracing(
 }
 
 export async function initializeTelemetry() {
-  // Mythos Patriarch: all telemetry disabled
+  // Olympuz Coder: all telemetry disabled
   return undefined as any
   profileCheckpoint('telemetry_init_start')
   bootstrapTelemetry()
@@ -476,7 +476,7 @@ export async function initializeTelemetry() {
   // Create base resource with service attributes
   const platform = getPlatform()
   const baseAttributes: Record<string, string> = {
-    [ATTR_SERVICE_NAME]: 'mythos-patriarch',
+    [ATTR_SERVICE_NAME]: 'olympuz-coder',
     [ATTR_SERVICE_VERSION]: MACRO.VERSION,
   }
 
@@ -710,7 +710,7 @@ Current timeout: ${timeoutMs}ms
  * This should be called before logout or org switching to prevent data leakage.
  */
 export async function flushTelemetry(): Promise<void> {
-  // Mythos Patriarch: telemetry flush disabled
+  // Olympuz Coder: telemetry flush disabled
   return
   const meterProvider = getMeterProvider()
   if (!meterProvider) {

@@ -75,7 +75,7 @@ vi.mock('./marketplaceHelpers.js', () => ({
 
 vi.mock('./marketplaceManager.js', () => ({
   addMarketplaceSource,
-  getMarketplacesCacheDir: () => '/tmp/Mythos Patriarch-marketplaces',
+  getMarketplacesCacheDir: () => '/tmp/Olympuz Coder-marketplaces',
   loadKnownMarketplacesConfig: async () => knownMarketplaces,
   saveKnownMarketplacesConfig,
 }))
@@ -118,7 +118,7 @@ describe('checkAndInstallOfficialMarketplace', () => {
   test('uses known marketplaces as the installed source of truth', async () => {
     knownMarketplaces = {
       'claude-plugins-official': {
-        installLocation: '/tmp/Mythos Patriarch-marketplaces/claude-plugins-official',
+        installLocation: '/tmp/Olympuz Coder-marketplaces/claude-plugins-official',
       },
     }
 

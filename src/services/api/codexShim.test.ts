@@ -39,7 +39,7 @@ afterEach(() => {
 })
 
 function createTempAuthJson(payload: Record<string, unknown>): string {
-	const dir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-codex-'))
+	const dir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-codex-'))
 	tempDirs.push(dir)
 	const authPath = join(dir, 'auth.json')
 	writeFileSync(authPath, JSON.stringify(payload), 'utf8')
@@ -748,8 +748,8 @@ describe('Codex request translation', () => {
 						type: 'web_search_call',
 						sources: [
 							{
-								title: 'Mythos Patriarch repo',
-								url: 'https://github.com/example/Mythos Patriarch',
+								title: 'Olympuz Coder repo',
+								url: 'https://github.com/example/Olympuz Coder',
 							},
 						],
 					},
@@ -759,11 +759,11 @@ describe('Codex request translation', () => {
 						content: [
 							{
 								type: 'text',
-								text: 'Mythos Patriarch is available on GitHub.',
+								text: 'Olympuz Coder is available on GitHub.',
 								sources: [
 									{
 										title: 'Docs',
-										url: 'https://docs.example.com/Mythos Patriarch',
+										url: 'https://docs.example.com/Olympuz Coder',
 									},
 								],
 							},
@@ -771,22 +771,22 @@ describe('Codex request translation', () => {
 					},
 				],
 			},
-			'Mythos Patriarch GitHub 2026',
+			'Olympuz Coder GitHub 2026',
 			0.42,
 		)
 
 		expect(output.results).toEqual([
-			'Mythos Patriarch is available on GitHub.',
+			'Olympuz Coder is available on GitHub.',
 			{
 				tool_use_id: 'codex-web-search',
 				content: [
 					{
-						title: 'Mythos Patriarch repo',
-						url: 'https://github.com/example/Mythos Patriarch',
+						title: 'Olympuz Coder repo',
+						url: 'https://github.com/example/Olympuz Coder',
 					},
 					{
 						title: 'Docs',
-						url: 'https://docs.example.com/Mythos Patriarch',
+						url: 'https://docs.example.com/Olympuz Coder',
 					},
 				],
 			},
@@ -796,7 +796,7 @@ describe('Codex request translation', () => {
 	test('falls back to a non-empty Codex web search result message', () => {
 		const output = webSearchToolTest.makeOutputFromCodexWebSearchResponse(
 			{ output: [] },
-			'Mythos Patriarch GitHub 2026',
+			'Olympuz Coder GitHub 2026',
 			0.11,
 		)
 
@@ -814,7 +814,7 @@ describe('Codex request translation', () => {
 					},
 				],
 			},
-			'Mythos Patriarch GitHub 2026',
+			'Olympuz Coder GitHub 2026',
 			0.05,
 		)
 
@@ -832,7 +832,7 @@ describe('Codex request translation', () => {
 					},
 				],
 			},
-			'Mythos Patriarch GitHub 2026',
+			'Olympuz Coder GitHub 2026',
 			0.05,
 		)
 
@@ -849,7 +849,7 @@ describe('Codex request translation', () => {
 					},
 				],
 			},
-			'Mythos Patriarch GitHub 2026',
+			'Olympuz Coder GitHub 2026',
 			0.05,
 		)
 
@@ -872,13 +872,13 @@ describe('Codex request translation', () => {
 							{
 								type: 'output_text',
 								text: 'Partial results below.',
-								sources: [{ title: 'Docs', url: 'https://docs.example.com/Mythos Patriarch' }],
+								sources: [{ title: 'Docs', url: 'https://docs.example.com/Olympuz Coder' }],
 							},
 						],
 					},
 				],
 			},
-			'Mythos Patriarch GitHub 2026',
+			'Olympuz Coder GitHub 2026',
 			0.05,
 		)
 
@@ -887,7 +887,7 @@ describe('Codex request translation', () => {
 			'Partial results below.',
 			{
 				tool_use_id: 'codex-web-search',
-				content: [{ title: 'Docs', url: 'https://docs.example.com/Mythos Patriarch' }],
+				content: [{ title: 'Docs', url: 'https://docs.example.com/Olympuz Coder' }],
 			},
 		])
 	})

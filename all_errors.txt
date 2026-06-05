@@ -1,14 +1,14 @@
 src/cli/print.ts(112,3): error TS2300: Duplicate identifier 'ModelInfo'.
 src/cli/print.ts(130,15): error TS2300: Duplicate identifier 'ModelInfo'.
-src/cli/print.ts(536,22): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(539,21): error TS2339: Property 'activateProactive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(1834,33): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(1835,31): error TS2339: Property 'isProactivePaused' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(2473,24): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(2474,24): error TS2339: Property 'isProactivePaused' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(3875,35): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(3876,32): error TS2339: Property 'activateProactive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/cli/print.ts(3880,30): error TS2339: Property 'deactivateProactive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
+src/cli/print.ts(536,22): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(539,21): error TS2339: Property 'activateProactive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(1834,33): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(1835,31): error TS2339: Property 'isProactivePaused' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(2473,24): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(2474,24): error TS2339: Property 'isProactivePaused' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(3875,35): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(3876,32): error TS2339: Property 'activateProactive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/cli/print.ts(3880,30): error TS2339: Property 'deactivateProactive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
 src/cli/remoteIO.ts(98,20): error TS2551: Property 'setOnData' does not exist on type 'Transport'. Did you mean 'onData'?
 src/cli/remoteIO.ts(106,20): error TS2551: Property 'setOnClose' does not exist on type 'Transport'. Did you mean 'onClose'?
 src/cli/remoteIO.ts(235,28): error TS2339: Property 'write' does not exist on type 'Transport'.
@@ -20,7 +20,7 @@ src/cli/transports/WebSocketTransport.ts(74,14): error TS2420: Class 'WebSocketT
 src/commands.ts(495,47): error TS2554: Expected 0 arguments, but got 1.
 src/commands/benchmark.ts(25,5): error TS2322: Type 'ModelSetting[]' is not assignable to type 'string[]'.
 src/commands/clear/caches.ts(106,5): error TS2578: Unused '@ts-expect-error' directive.
-src/commands/clear/caches.ts(108,10): error TS2339: Property 'clearAttributionCaches' does not exist on type 'typeof import("C:/mythos/src/utils/attributionHooks")'.
+src/commands/clear/caches.ts(108,10): error TS2339: Property 'clearAttributionCaches' does not exist on type 'typeof import("C:/olympuz/src/utils/attributionHooks")'.
 src/commands/compact/compact.ts(265,67): error TS2349: This expression is not callable.
 src/commands/install-github-app/install-github-app.tsx(145,68): error TS2345: Argument of type 'AuthType' is not assignable to parameter of type '"api_key" | "oauth_token"'.
 src/commands/lsp/lsp.test.ts(154,59): error TS2345: Argument of type '{ getInitializationStatus: () => InitializationStatus; getLspServerManager: () => { getAllServers: () => Map<string, TestServerInstance>; } | undefined; ... 8 more ...; discoverWorkspaceExtensions: (pathspec?: string) => Promise<...>; }' is not assignable to parameter of type 'LspCommandDeps'.
@@ -262,7 +262,7 @@ src/components/memory/MemoryFileSelector.tsx(176,37): error TS2345: Argument of 
 src/components/memory/MemoryFileSelector.tsx(286,24): error TS2345: Argument of type '(prev: null) => number | null' is not assignable to parameter of type 'SetStateAction<null>'.
 src/components/memory/MemoryFileSelector.tsx(386,34): error TS2345: Argument of type '0 | 1' is not assignable to parameter of type 'SetStateAction<null>'.
 src/components/MemoryUsageIndicator.tsx(10,7): error TS2367: This comparison appears to be unintentional because the types '"external"' and '"ant"' have no overlap.
-src/components/Message.tsx(254,13): error TS2339: Property 'isSnipMarkerMessage' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
+src/components/Message.tsx(254,13): error TS2339: Property 'isSnipMarkerMessage' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
 src/components/Message.tsx(605,20): error TS2339: Property 'uuid' does not exist on type 'AssistantMessage | AttachmentMessage | SystemMessage | NormalizedUserMessage | GroupedToolUseMessage | CollapsedReadSearchGroup'.
 src/components/Message.tsx(605,42): error TS2339: Property 'uuid' does not exist on type 'AssistantMessage | AttachmentMessage | SystemMessage | NormalizedUserMessage | GroupedToolUseMessage | CollapsedReadSearchGroup'.
 src/components/Message.tsx(616,67): error TS2339: Property 'uuid' does not exist on type 'AssistantMessage | AttachmentMessage | SystemMessage | NormalizedUserMessage | GroupedToolUseMessage | CollapsedReadSearchGroup'.
@@ -489,7 +489,7 @@ src/components/StructuredDiffList.tsx(25,25): error TS2322: Type '{ patch: Struc
 src/components/TaskListV2.tsx(98,11): error TS18046: 'teammate' is of type 'unknown'.
 src/components/TaskListV2.tsx(99,55): error TS18046: 'teammate' is of type 'unknown'.
 src/components/TaskListV2.tsx(101,26): error TS18046: 'teammate' is of type 'unknown'.
-src/components/tasks/BackgroundTasksDialog.tsx(119,42): error TS2339: Property 'killMonitorMcp' does not exist on type 'typeof import("C:/mythos/src/tasks/MonitorMcpTask/MonitorMcpTask")'.
+src/components/tasks/BackgroundTasksDialog.tsx(119,42): error TS2339: Property 'killMonitorMcp' does not exist on type 'typeof import("C:/olympuz/src/tasks/MonitorMcpTask/MonitorMcpTask")'.
 src/components/tasks/BackgroundTasksDialog.tsx(192,14): error TS18048: 'bTime' is possibly 'undefined'.
 src/components/tasks/BackgroundTasksDialog.tsx(192,22): error TS18048: 'aTime' is possibly 'undefined'.
 src/components/tasks/BackgroundTasksDialog.tsx(278,49): error TS2554: Expected 1 arguments, but got 2.
@@ -534,8 +534,8 @@ src/components/wizard/WizardProvider.tsx(9,65): error TS2344: Type 'T' does not 
 src/context/promptOverlayContext.tsx(52,31): error TS2322: Type 'Dispatch<SetStateAction<null>>' is not assignable to type 'Setter<PromptOverlayData>'.
 src/context/promptOverlayContext.tsx(52,74): error TS2322: Type 'Dispatch<SetStateAction<null>>' is not assignable to type 'Setter<ReactNode>'.
 src/dialogLaunchers.tsx(37,92): error TS2322: Type '{ agentType: string; scope: AgentMemoryScope; snapshotTimestamp: string; onComplete: (result: "replace" | "merge" | "keep") => void; onCancel: () => void; }' is not assignable to type 'IntrinsicAttributes'.
-src/dialogLaunchers.tsx(75,5): error TS2339: Property 'NewInstallWizard' does not exist on type 'typeof import("C:/mythos/src/commands/assistant/assistant")'.
-src/dialogLaunchers.tsx(76,5): error TS2339: Property 'computeDefaultInstallDir' does not exist on type 'typeof import("C:/mythos/src/commands/assistant/assistant")'.
+src/dialogLaunchers.tsx(75,5): error TS2339: Property 'NewInstallWizard' does not exist on type 'typeof import("C:/olympuz/src/commands/assistant/assistant")'.
+src/dialogLaunchers.tsx(76,5): error TS2339: Property 'computeDefaultInstallDir' does not exist on type 'typeof import("C:/olympuz/src/commands/assistant/assistant")'.
 src/entrypoints/cli.tsx(22,5): error TS2578: Unused '@ts-expect-error' directive.
 src/entrypoints/cli.tsx(212,27): error TS2554: Expected 0 arguments, but got 1.
 src/entrypoints/cli.tsx(286,22): error TS2554: Expected 0 arguments, but got 1.
@@ -645,9 +645,9 @@ src/knowledge/knowledgeGraph.ts(169,75): error TS2339: Property 'path' does not 
 src/knowledge/ragEngine.ts(6,15): error TS2724: '"./embeddings.js"' has no exported member named 'TfidfEmbeddingProvider'. Did you mean 'EmbeddingProvider'?
 src/knowledge/ragEngine.ts(192,5): error TS2502: 'results' is referenced directly or indirectly in its own type annotation.
 src/main.tsx(266,5): error TS2367: This comparison appears to be unintentional because the types '"external"' and '"ant"' have no overlap.
-src/main.tsx(2282,13): error TS2339: Property 'buildMergePrompt' does not exist on type 'typeof import("C:/mythos/src/components/agents/SnapshotUpdateDialog")'.
-src/main.tsx(3200,9): error TS2339: Property 'createLocalSSHSession' does not exist on type 'typeof import("C:/mythos/src/ssh/createSSHSession")'.
-src/main.tsx(3201,9): error TS2339: Property 'SSHSessionError' does not exist on type 'typeof import("C:/mythos/src/ssh/createSSHSession")'.
+src/main.tsx(2282,13): error TS2339: Property 'buildMergePrompt' does not exist on type 'typeof import("C:/olympuz/src/components/agents/SnapshotUpdateDialog")'.
+src/main.tsx(3200,9): error TS2339: Property 'createLocalSSHSession' does not exist on type 'typeof import("C:/olympuz/src/ssh/createSSHSession")'.
+src/main.tsx(3201,9): error TS2339: Property 'SSHSessionError' does not exist on type 'typeof import("C:/olympuz/src/ssh/createSSHSession")'.
 src/main.tsx(3219,47): error TS2345: Argument of type '{ host: string; cwd: string | undefined; localVersion: string; permissionMode: string | undefined; dangerouslySkipPermissions: boolean; extraCliArgs: string[]; }' is not assignable to parameter of type 'string'.
 src/main.tsx(3238,75): error TS18046: 'err' is of type 'unknown'.
 src/main.tsx(3328,61): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
@@ -656,16 +656,16 @@ src/main.tsx(4012,33): error TS2339: Property 'port' does not exist on type 'Pro
 src/main.tsx(4013,27): error TS2554: Expected 1 arguments, but got 3.
 src/main.tsx(4014,13): error TS2554: Expected 2 arguments, but got 1.
 src/main.tsx(4026,16): error TS2339: Property 'stop' does not exist on type 'Promise<void>'.
-src/main.tsx(4369,9): error TS2339: Property 'up' does not exist on type 'typeof import("C:/mythos/src/cli/up")'.
-src/main.tsx(4384,9): error TS2339: Property 'rollback' does not exist on type 'typeof import("C:/mythos/src/cli/rollback")'.
-src/main.tsx(4612,26): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
-src/main.tsx(4613,23): error TS2339: Property 'activateProactive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
+src/main.tsx(4369,9): error TS2339: Property 'up' does not exist on type 'typeof import("C:/olympuz/src/cli/up")'.
+src/main.tsx(4384,9): error TS2339: Property 'rollback' does not exist on type 'typeof import("C:/olympuz/src/cli/rollback")'.
+src/main.tsx(4612,26): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
+src/main.tsx(4613,23): error TS2339: Property 'activateProactive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
 src/multimodal/documentParser.ts(134,17): error TS2345: Argument of type 'string[]' is not assignable to parameter of type 'string[][]'.
 src/multimodal/documentParser.ts(144,5): error TS2322: Type 'string[][][][] | undefined' is not assignable to type 'string[][][] | undefined'.
 src/planning/dependencyAnalyzer.ts(169,61): error TS2353: Object literal may only specify known properties, and 'orphans' does not exist in type 'Pick<DependencyAnalysis, "nodes" | "edges">'.
-src/query.ts(347,49): error TS2339: Property 'startSkillDiscoveryPrefetch' does not exist on type 'typeof import("C:/mythos/src/services/skillSearch/prefetch")'.
+src/query.ts(347,49): error TS2339: Property 'startSkillDiscoveryPrefetch' does not exist on type 'typeof import("C:/olympuz/src/services/skillSearch/prefetch")'.
 src/query.ts(353,11): error TS2322: Type '{ type: "stream_request_start"; }' is not assignable to type 'Message | StreamEvent | RequestStartEvent'.
-src/query.ts(435,38): error TS2339: Property 'snipCompactIfNeeded' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
+src/query.ts(435,38): error TS2339: Property 'snipCompactIfNeeded' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
 src/query.ts(474,9): error TS2554: Expected 0 arguments, but got 3.
 src/query.ts(478,41): error TS2339: Property 'messages' does not exist on type 'boolean'.
 src/query.ts(520,27): error TS2339: Property 'tool' does not exist on type 'ToolRecommendation'.
@@ -698,7 +698,7 @@ src/query.ts(1534,15): error TS2741: Property 'type' is missing in type '{ reaso
 src/query.ts(1542,7): error TS2741: Property 'type' is missing in type '{ reason: string; }' but required in type 'Terminal'.
 src/query.ts(1732,7): error TS2741: Property 'type' is missing in type '{ reason: string; }' but required in type 'Terminal'.
 src/query.ts(1737,7): error TS2741: Property 'type' is missing in type '{ reason: string; }' but required in type 'Terminal'.
-src/query.ts(1839,29): error TS2339: Property 'collectSkillDiscoveryPrefetch' does not exist on type 'typeof import("C:/mythos/src/services/skillSearch/prefetch")'.
+src/query.ts(1839,29): error TS2339: Property 'collectSkillDiscoveryPrefetch' does not exist on type 'typeof import("C:/olympuz/src/services/skillSearch/prefetch")'.
 src/query.ts(1928,37): error TS2353: Object literal may only specify known properties, and 'turnCount' does not exist in type 'Terminal'.
 src/query.ts(1944,7): error TS2741: Property 'type' is missing in type '{ reason: string; }' but required in type 'Continue'.
 src/query/stopHooks.ts(121,58): error TS2554: Expected 1 arguments, but got 2.
@@ -727,7 +727,7 @@ src/QueryEngine.ts(821,23): error TS2339: Property 'event' does not exist on typ
 src/QueryEngine.ts(832,30): error TS2339: Property 'event' does not exist on type 'StreamEventMessage | StreamEvent'.
 src/QueryEngine.ts(1198,31): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Message'.
 src/QueryEngine.ts(1230,5): error TS2322: Type 'unknown[]' is not assignable to type 'AgentDefinition[]'.
-src/QueryEngine.ts(1416,32): error TS2339: Property 'snipCompactIfNeeded' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
+src/QueryEngine.ts(1416,32): error TS2339: Property 'snipCompactIfNeeded' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
 src/reasoning/selfReflection.ts(203,5): error TS2353: Object literal may only specify known properties, and 'metadata' does not exist in type 'ReasoningChain'.
 src/reasoning/strategySelector.ts(109,3): error TS2322: Type 'ReasoningStrategy' is not assignable to type '"cot" | "tot" | "reflect"'.
 src/reasoning/treeOfThought.ts(164,5): error TS2353: Object literal may only specify known properties, and 'metadata' does not exist in type 'ReasoningChain'.
@@ -835,10 +835,10 @@ src/screens/REPL.tsx(4639,59): error TS2786: 'TungstenLiveMonitor' cannot be use
 src/screens/REPL.tsx(4642,122): error TS2322: Type '{ mode: SpinnerMode; spinnerTip: any; responseLengthRef: RefObject<number>; apiMetricsRef: RefObject<{ ttftMs: number; firstTokenTime: number; lastTokenTime: number; responseLengthBaseline: number; endResponseLength: number; }[]>; ... 9 more ...; leaderIsIdle: boolean; }' is not assignable to type 'IntrinsicAttributes & Props'.
 src/screens/REPL.tsx(4944,21): error TS2345: Argument of type '(msg: string) => void' is not assignable to parameter of type '(value: void) => void | PromiseLike<void>'.
 src/screens/REPL.tsx(4989,185): error TS2349: This expression is not callable.
-src/screens/ResumeConversation.tsx(270,120): error TS2339: Property 'restoreFromEntries' does not exist on type 'typeof import("C:/mythos/src/services/contextCollapse/persist")'.
+src/screens/ResumeConversation.tsx(270,120): error TS2339: Property 'restoreFromEntries' does not exist on type 'typeof import("C:/olympuz/src/services/contextCollapse/persist")'.
 src/services/api/claude.ts(989,23): error TS2345: Argument of type 'TextBlockParam | ImageBlockParam | DocumentBlockParam | SearchResultBlockParam | ToolReferenceBlockParam' is not assignable to parameter of type 'BetaContentBlockParam'.
 src/services/api/claude.ts(1012,39): error TS2345: Argument of type 'BetaTextBlockParam | BetaImageBlockParam | BetaRequestDocumentBlock | BetaSearchResultBlockParam | BetaToolReferenceBlockParam' is not assignable to parameter of type 'BetaContentBlockParam'.
-src/services/api/claude.ts(1219,36): error TS2339: Property 'CACHE_EDITING_BETA_HEADER' does not exist on type 'typeof import("C:/mythos/src/constants/betas")'.
+src/services/api/claude.ts(1219,36): error TS2339: Property 'CACHE_EDITING_BETA_HEADER' does not exist on type 'typeof import("C:/olympuz/src/constants/betas")'.
 src/services/api/claude.ts(1225,146): error TS2339: Property 'supportedModels' does not exist on type 'never'.
 src/services/api/claude.ts(1303,5): error TS2322: Type 'Message[]' is not assignable to type '(AssistantMessage | UserMessage)[]'.
 src/services/api/claude.ts(2179,34): error TS2339: Property 'signature' does not exist on type 'ConnectorTextBlock'.
@@ -972,22 +972,22 @@ src/services/compact/compact.ts(1342,35): error TS2345: Argument of type '"respo
 src/services/compact/compact.ts(1347,17): error TS2339: Property 'event' does not exist on type 'StreamEvent'.
 src/services/compact/compact.ts(1348,17): error TS2339: Property 'event' does not exist on type 'StreamEvent'.
 src/services/compact/compact.ts(1350,44): error TS2339: Property 'event' does not exist on type 'StreamEvent'.
-src/services/compact/microCompact.ts(56,54): error TS2694: Namespace '"C:/mythos/src/services/compact/cachedMicrocompact"' has no exported member 'CachedMCState'.
-src/services/compact/microCompact.ts(58,39): error TS2694: Namespace '"C:/mythos/src/services/compact/cachedMicrocompact"' has no exported member 'CacheEditsBlock'.
-src/services/compact/microCompact.ts(70,67): error TS2694: Namespace '"C:/mythos/src/services/compact/cachedMicrocompact"' has no exported member 'CachedMCState'.
-src/services/compact/microCompact.ts(72,36): error TS2339: Property 'createCachedMCState' does not exist on type 'typeof import("C:/mythos/src/services/compact/cachedMicrocompact")'.
-src/services/compact/microCompact.ts(88,39): error TS2694: Namespace '"C:/mythos/src/services/compact/cachedMicrocompact"' has no exported member 'CacheEditsBlock'.
-src/services/compact/microCompact.ts(99,74): error TS2694: Namespace '"C:/mythos/src/services/compact/cachedMicrocompact"' has no exported member 'PinnedCacheEdits'.
-src/services/compact/microCompact.ts(112,44): error TS2694: Namespace '"C:/mythos/src/services/compact/cachedMicrocompact"' has no exported member 'CacheEditsBlock'.
-src/services/compact/microCompact.ts(125,20): error TS2339: Property 'markToolsSentToAPI' does not exist on type 'typeof import("C:/mythos/src/services/compact/cachedMicrocompact")'.
-src/services/compact/microCompact.ts(131,20): error TS2339: Property 'resetCachedMCState' does not exist on type 'typeof import("C:/mythos/src/services/compact/cachedMicrocompact")'.
-src/services/compact/microCompact.ts(323,15): error TS2339: Property 'registerToolResult' does not exist on type 'typeof import("C:/mythos/src/services/compact/cachedMicrocompact")'.
-src/services/compact/microCompact.ts(327,11): error TS2339: Property 'registerToolMessage' does not exist on type 'typeof import("C:/mythos/src/services/compact/cachedMicrocompact")'.
-src/services/compact/microCompact.ts(331,29): error TS2339: Property 'getToolResultsToDelete' does not exist on type 'typeof import("C:/mythos/src/services/compact/cachedMicrocompact")'.
-src/services/compact/microCompact.ts(335,28): error TS2339: Property 'createCacheEditsBlock' does not exist on type 'typeof import("C:/mythos/src/services/compact/cachedMicrocompact")'.
+src/services/compact/microCompact.ts(56,54): error TS2694: Namespace '"C:/olympuz/src/services/compact/cachedMicrocompact"' has no exported member 'CachedMCState'.
+src/services/compact/microCompact.ts(58,39): error TS2694: Namespace '"C:/olympuz/src/services/compact/cachedMicrocompact"' has no exported member 'CacheEditsBlock'.
+src/services/compact/microCompact.ts(70,67): error TS2694: Namespace '"C:/olympuz/src/services/compact/cachedMicrocompact"' has no exported member 'CachedMCState'.
+src/services/compact/microCompact.ts(72,36): error TS2339: Property 'createCachedMCState' does not exist on type 'typeof import("C:/olympuz/src/services/compact/cachedMicrocompact")'.
+src/services/compact/microCompact.ts(88,39): error TS2694: Namespace '"C:/olympuz/src/services/compact/cachedMicrocompact"' has no exported member 'CacheEditsBlock'.
+src/services/compact/microCompact.ts(99,74): error TS2694: Namespace '"C:/olympuz/src/services/compact/cachedMicrocompact"' has no exported member 'PinnedCacheEdits'.
+src/services/compact/microCompact.ts(112,44): error TS2694: Namespace '"C:/olympuz/src/services/compact/cachedMicrocompact"' has no exported member 'CacheEditsBlock'.
+src/services/compact/microCompact.ts(125,20): error TS2339: Property 'markToolsSentToAPI' does not exist on type 'typeof import("C:/olympuz/src/services/compact/cachedMicrocompact")'.
+src/services/compact/microCompact.ts(131,20): error TS2339: Property 'resetCachedMCState' does not exist on type 'typeof import("C:/olympuz/src/services/compact/cachedMicrocompact")'.
+src/services/compact/microCompact.ts(323,15): error TS2339: Property 'registerToolResult' does not exist on type 'typeof import("C:/olympuz/src/services/compact/cachedMicrocompact")'.
+src/services/compact/microCompact.ts(327,11): error TS2339: Property 'registerToolMessage' does not exist on type 'typeof import("C:/olympuz/src/services/compact/cachedMicrocompact")'.
+src/services/compact/microCompact.ts(331,29): error TS2339: Property 'getToolResultsToDelete' does not exist on type 'typeof import("C:/olympuz/src/services/compact/cachedMicrocompact")'.
+src/services/compact/microCompact.ts(335,28): error TS2339: Property 'createCacheEditsBlock' does not exist on type 'typeof import("C:/olympuz/src/services/compact/cachedMicrocompact")'.
 src/services/compact/microCompact.ts(353,18): error TS18047: 'config' is possibly 'null'.
 src/services/compact/microCompact.ts(354,19): error TS18047: 'config' is possibly 'null'.
-src/services/compact/prompt.ts(363,24): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
+src/services/compact/prompt.ts(363,24): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
 src/services/compact/sessionMemoryCompact.ts(454,36): error TS2339: Property 'preCompactDiscoveredTools' does not exist on type 'CompactMetadata'.
 src/services/extractMemories/extractMemories.ts(442,9): error TS18048: 'result.totalUsage.cache_creation_input_tokens' is possibly 'undefined'.
 src/services/extractMemories/extractMemories.ts(443,9): error TS18048: 'result.totalUsage.cache_read_input_tokens' is possibly 'undefined'.
@@ -1201,7 +1201,7 @@ src/tools/AgentTool/AgentTool.tsx(502,117): error TS2349: This expression is not
 src/tools/AgentTool/AgentTool.tsx(503,127): error TS2345: Argument of type 'unknown[]' is not assignable to parameter of type 'string[]'.
 src/tools/AgentTool/AgentTool.tsx(515,117): error TS2349: This expression is not callable.
 src/tools/AgentTool/AgentTool.tsx(534,107): error TS2345: Argument of type 'unknown[]' is not assignable to parameter of type 'string[]'.
-src/tools/AgentTool/AgentTool.tsx(567,168): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
+src/tools/AgentTool/AgentTool.tsx(567,168): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
 src/tools/AgentTool/AgentTool.tsx(813,17): error TS2322: Type '"agent_progress"' is not assignable to type '"bash" | "agent"'.
 src/tools/AgentTool/AgentTool.tsx(1102,17): error TS2322: Type 'ToolProgressData' is not assignable to type 'Progress'.
 src/tools/AgentTool/AgentTool.tsx(1131,23): error TS2322: Type '"agent_progress"' is not assignable to type '"bash" | "agent"'.
@@ -1312,10 +1312,10 @@ src/utils/apiPreconnect.test.ts(28,24): error TS2352: Conversion of type 'Mock<(
 src/utils/apiPreconnect.test.ts(42,24): error TS2352: Conversion of type 'Mock<() => Promise<Response>>' to type 'typeof fetch' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
 src/utils/apiPreconnect.test.ts(56,24): error TS2352: Conversion of type 'Mock<() => Promise<Response>>' to type 'typeof fetch' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
 src/utils/apiPreconnect.test.ts(83,24): error TS2352: Conversion of type 'Mock<() => Promise<Response>>' to type 'typeof fetch' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-src/utils/attachments.ts(807,45): error TS2339: Property 'getTurnZeroSkillDiscovery' does not exist on type 'typeof import("C:/mythos/src/services/skillSearch/prefetch")'.
+src/utils/attachments.ts(807,45): error TS2339: Property 'getTurnZeroSkillDiscovery' does not exist on type 'typeof import("C:/olympuz/src/services/skillSearch/prefetch")'.
 src/utils/attachments.ts(999,3): error TS2322: Type '{}[]' is not assignable to type 'Attachment[]'.
-src/utils/attachments.ts(3991,11): error TS2339: Property 'isSnipRuntimeEnabled' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
-src/utils/attachments.ts(3991,33): error TS2339: Property 'shouldNudgeForSnips' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
+src/utils/attachments.ts(3991,11): error TS2339: Property 'isSnipRuntimeEnabled' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
+src/utils/attachments.ts(3991,33): error TS2339: Property 'shouldNudgeForSnips' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
 src/utils/attribution.ts(238,37): error TS2345: Argument of type 'Entry[]' is not assignable to parameter of type 'readonly { type: string; message?: { content?: unknown; } | undefined; }[]'.
 src/utils/attribution.ts(449,46): error TS2339: Property 'join' does not exist on type 'string'.
 src/utils/auth.ts(571,120): error TS2339: Property 'FEEDBACK_CHANNEL' does not exist on type '{ VERSION: string; DISPLAY_VERSION: string; BUILD_TIME: string; ISSUES_EXPLAINER: string; PACKAGE_URL: string; NATIVE_PACKAGE_URL: string | undefined; VERSION_CHANGELOG: string; }'.
@@ -1468,7 +1468,7 @@ src/utils/env.ts(98,62): error TS2345: Argument of type '"pnpm"' is not assignab
 src/utils/env.ts(106,54): error TS2345: Argument of type '"bun"' is not assignable to parameter of type 'never'.
 src/utils/env.ts(107,55): error TS2345: Argument of type '"deno"' is not assignable to parameter of type 'never'.
 src/utils/env.ts(108,55): error TS2345: Argument of type '"node"' is not assignable to parameter of type 'never'.
-src/utils/envUtils.ts(320,7): error TS2551: Property 'checkProtectedNamespace' does not exist on type 'typeof import("C:/mythos/src/utils/protectedNamespace")'. Did you mean 'isProtectedNamespace'?
+src/utils/envUtils.ts(320,7): error TS2551: Property 'checkProtectedNamespace' does not exist on type 'typeof import("C:/olympuz/src/utils/protectedNamespace")'. Did you mean 'isProtectedNamespace'?
 src/utils/execFileNoThrowPortable.ts(72,20): error TS2769: No overload matches this call.
 src/utils/exportRenderer.tsx(39,23): error TS2339: Property 'content' does not exist on type '`${string}-${string}-${string}-${string}-${string}` | (BetaMessage & { content: BetaContentBlock[]; context_management: unknown; }) | { role: "user"; content: string | ContentBlockParam[]; }'.
 src/utils/filePersistence/outputsScanner.ts(69,5): error TS2322: Type 'Dirent<string>[]' is not assignable to type 'Dirent<NonSharedBuffer>[]'.
@@ -1568,8 +1568,8 @@ src/utils/messages.ts(1074,13): error TS2339: Property 'attachment' does not exi
 src/utils/messages.ts(1278,29): error TS2339: Property 'attachment' does not exist on type 'NormalizedMessage'.
 src/utils/messages.ts(1279,29): error TS2339: Property 'attachment' does not exist on type 'NormalizedMessage'.
 src/utils/messages.ts(1280,29): error TS2339: Property 'attachment' does not exist on type 'NormalizedMessage'.
-src/utils/messages.ts(2358,13): error TS2339: Property 'isSnipRuntimeEnabled' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
-src/utils/messages.ts(2428,13): error TS2339: Property 'isSnipRuntimeEnabled' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
+src/utils/messages.ts(2358,13): error TS2339: Property 'isSnipRuntimeEnabled' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
+src/utils/messages.ts(2428,13): error TS2339: Property 'isSnipRuntimeEnabled' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
 src/utils/messages.ts(2775,35): error TS2339: Property 'toolUseID' does not exist on type 'Attachment'.
 src/utils/messages.ts(2784,19): error TS2339: Property 'sourceToolUseID' does not exist on type 'NormalizedUserMessage'.
 src/utils/messages.ts(2785,24): error TS2339: Property 'sourceToolUseID' does not exist on type 'NormalizedUserMessage'.
@@ -1595,7 +1595,7 @@ src/utils/messages.ts(3064,33): error TS2339: Property 'event' does not exist on
 src/utils/messages.ts(3082,34): error TS2339: Property 'event' does not exist on type 'StreamEventMessage | StreamEvent'.
 src/utils/messages.ts(3095,23): error TS2345: Argument of type '"responding"' is not assignable to parameter of type 'SpinnerMode'.
 src/utils/messages.ts(3098,23): error TS2345: Argument of type '"responding"' is not assignable to parameter of type 'SpinnerMode'.
-src/utils/messages.ts(4162,17): error TS2339: Property 'SNIP_NUDGE_TEXT' does not exist on type 'typeof import("C:/mythos/src/services/compact/snipCompact")'.
+src/utils/messages.ts(4162,17): error TS2339: Property 'SNIP_NUDGE_TEXT' does not exist on type 'typeof import("C:/olympuz/src/services/compact/snipCompact")'.
 src/utils/messages.ts(4682,23): error TS2339: Property 'kind' does not exist on type 'MessageOrigin'.
 src/utils/messages.ts(5512,19): error TS2339: Property 'kind' does not exist on type 'MessageOrigin'.
 src/utils/messages.ts(5518,47): error TS2339: Property 'server' does not exist on type 'MessageOrigin'.
@@ -1723,8 +1723,8 @@ src/utils/secureStorage/platformStorage.test.ts(165,14): error TS18048: 'options
 src/utils/secureStorage/windowsCredentialStorage.ts(55,34): error TS2339: Property 'trim' does not exist on type 'string | string[] | unknown[] | Uint8Array<ArrayBufferLike>'.
 src/utils/secureStorage/windowsCredentialStorage.ts(89,24): error TS2345: Argument of type 'string | string[] | unknown[] | Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'string'.
 src/utils/secureStorage/windowsCredentialStorage.ts(139,26): error TS2345: Argument of type 'string | string[] | unknown[] | Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'string'.
-src/utils/sessionRestore.ts(131,7): error TS2339: Property 'restoreFromEntries' does not exist on type 'typeof import("C:/mythos/src/services/contextCollapse/persist")'.
-src/utils/sessionRestore.ts(498,7): error TS2339: Property 'restoreFromEntries' does not exist on type 'typeof import("C:/mythos/src/services/contextCollapse/persist")'.
+src/utils/sessionRestore.ts(131,7): error TS2339: Property 'restoreFromEntries' does not exist on type 'typeof import("C:/olympuz/src/services/contextCollapse/persist")'.
+src/utils/sessionRestore.ts(498,7): error TS2339: Property 'restoreFromEntries' does not exist on type 'typeof import("C:/olympuz/src/services/contextCollapse/persist")'.
 src/utils/sessionStorage.test.ts(122,23): error TS2345: Argument of type 'string' is not assignable to parameter of type '`${string}-${string}-${string}-${string}-${string}`'.
 src/utils/sessionStorage.test.ts(123,23): error TS2345: Argument of type 'string' is not assignable to parameter of type '`${string}-${string}-${string}-${string}-${string}`'.
 src/utils/sessionStorage.test.ts(124,23): error TS2345: Argument of type 'string' is not assignable to parameter of type '`${string}-${string}-${string}-${string}-${string}`'.
@@ -1792,7 +1792,7 @@ src/utils/swarm/It2SetupPrompt.tsx(77,22): error TS2345: Argument of type 'strin
 src/utils/swarm/It2SetupPrompt.tsx(94,18): error TS2345: Argument of type '"No Python package manager found (uvx, pipx, or pip)"' is not assignable to parameter of type 'SetStateAction<null>'.
 src/utils/swarm/It2SetupPrompt.tsx(103,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<null>'.
 src/utils/swarm/It2SetupPrompt.tsx(286,32): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<null>'.
-src/utils/systemPrompt.ts(25,27): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/mythos/src/proactive/index")'.
+src/utils/systemPrompt.ts(25,27): error TS2339: Property 'isProactiveActive' does not exist on type 'typeof import("C:/olympuz/src/proactive/index")'.
 src/utils/task/framework.ts(108,23): error TS2339: Property 'toolUseId' does not exist on type 'TaskState'.
 src/utils/task/framework.ts(132,31): error TS2345: Argument of type 'string' is not assignable to parameter of type 'TaskStatus'.
 src/utils/task/framework.ts(133,15): error TS2339: Property 'notified' does not exist on type 'TaskState'.

@@ -12,7 +12,7 @@ import { getCwd } from '../../utils/cwd.js'
 function renderHelp(): string {
   return `Usage: /wiki [init|status|ingest <path>]
 
-Manage the Mythos Patriarch project wiki stored in .openclaude/wiki.
+Manage the Olympuz Coder project wiki stored in .openclaude/wiki.
 
 Commands:
   /wiki init    Initialize the wiki structure in the current project
@@ -26,7 +26,7 @@ Examples:
 }
 
 function formatInitResult(result: Awaited<ReturnType<typeof initializeWiki>>): string {
-  const lines = [`Initialized Mythos Patriarch wiki at ${result.root}`]
+  const lines = [`Initialized Olympuz Coder wiki at ${result.root}`]
 
   if (result.alreadyExisted) {
     lines.push('', 'Wiki already existed. No new files were created.')
@@ -45,11 +45,11 @@ function formatInitResult(result: Awaited<ReturnType<typeof initializeWiki>>): s
 
 function formatStatus(status: Awaited<ReturnType<typeof getWikiStatus>>): string {
   if (!status.initialized) {
-    return `Mythos Patriarch wiki is not initialized in this project.\n\nRun /wiki init to create ${status.root}.`
+    return `Olympuz Coder wiki is not initialized in this project.\n\nRun /wiki init to create ${status.root}.`
   }
 
   return [
-    'Mythos Patriarch wiki status',
+    'Olympuz Coder wiki status',
     '',
     `Root: ${status.root}`,
     `Pages: ${status.pageCount}`,
@@ -65,7 +65,7 @@ function formatIngestResult(
   result: Awaited<ReturnType<typeof ingestLocalWikiSource>>,
 ): string {
   return [
-    `Ingested ${result.sourceFile} into the Mythos Patriarch wiki.`,
+    `Ingested ${result.sourceFile} into the Olympuz Coder wiki.`,
     '',
     `Title: ${result.title}`,
     `Source note: ${result.sourceNote}`,

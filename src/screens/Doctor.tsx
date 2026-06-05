@@ -222,7 +222,7 @@ export function Doctor(t0: Props) {
   let t7;
   if ($[11] !== onDone) {
     t7 = () => {
-      onDone("Mythos Patriarch diagnostics dismissed", {
+      onDone("Olympuz Coder diagnostics dismissed", {
         display: "system"
       });
     };

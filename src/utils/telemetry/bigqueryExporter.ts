@@ -38,7 +38,7 @@ type InternalMetricsPayload = {
 }
 
 export class BigQueryMetricsExporter implements PushMetricExporter {
-  // Mythos Patriarch: BigQuery export disabled
+  // Olympuz Coder: BigQuery export disabled
   private readonly endpoint: string
   private readonly timeout: number
   private pendingExports: Promise<void>[] = []

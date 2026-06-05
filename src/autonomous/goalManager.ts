@@ -27,7 +27,7 @@ export function setDataDir(dir: string): void {
 }
 
 function getGoalsPath(): string {
-	return join(dataDir ?? '.mythos/autonomous', 'goals.json')
+	return join(dataDir ?? '.olympuz/autonomous', 'goals.json')
 }
 
 export async function persistGoals(): Promise<void> {

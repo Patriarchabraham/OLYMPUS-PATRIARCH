@@ -3,7 +3,7 @@ const plugin = {
   type: 'local-jsx',
   name: 'plugin',
   aliases: ['plugins', 'marketplace'],
-  description: 'Manage Mythos Patriarch plugins',
+  description: 'Manage Olympuz Coder plugins',
   immediate: true,
   load: () => import('./plugin.js')
 } satisfies Command;

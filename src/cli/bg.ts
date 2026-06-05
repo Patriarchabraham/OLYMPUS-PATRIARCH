@@ -1,5 +1,5 @@
 /**
- * Named Background Delegations for the Mythos CLI.
+ * Named Background Delegations for the Olympuz CLI.
  *
  * Provides the `claude ps`, `claude logs`, `claude attach`, `claude kill`
  * sub-commands and the `--bg`/`--background` flag handler.

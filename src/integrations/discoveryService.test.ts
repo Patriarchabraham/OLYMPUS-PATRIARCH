@@ -56,7 +56,7 @@ function clearProviderEnv(): void {
 
 beforeEach(() => {
 	vi.restoreAllMocks()
-	tempDir = mkdtempSync(join(tmpdir(), 'Mythos Patriarch-discovery-service-test-'))
+	tempDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-discovery-service-test-'))
 	process.env.CLAUDE_CONFIG_DIR = tempDir
 	delete process.env.OPENROUTER_API_KEY
 	clearProviderEnv()
@@ -242,7 +242,7 @@ describe('discoverModelsForRoute', () => {
 				kind: 'openai-compatible',
 				openaiShim: {
 					headers: {
-						'X-Static-Client': 'Mythos Patriarch',
+						'X-Static-Client': 'Olympuz Coder',
 					},
 				},
 			},

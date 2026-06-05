@@ -1,6 +1,6 @@
-# SWE-bench Evaluation for Mythos Patriarch
+# SWE-bench Evaluation for Olympuz Coder
 
-Benchmark Mythos against the SWE-bench dataset to measure code resolution accuracy.
+Benchmark Olympuz against the SWE-bench dataset to measure code resolution accuracy.
 
 ## Quick Start
 
@@ -92,7 +92,7 @@ export const MODEL_PRESETS = {
 ```
 scripts/benchmark/
   runner.ts     — Main evaluation orchestrator + CLI
-  agent.ts      — Mythos CLI wrapper (runs headless, captures patches)
+  agent.ts      — Olympuz CLI wrapper (runs headless, captures patches)
   scorer.ts     — Patch comparison + Docker test validation
   report.ts     — Markdown/JSON report generation
   config.ts     — Default config + model presets

@@ -7,7 +7,7 @@ import {
   validateProviderEnvForStartupOrExit,
 } from '../utils/providerValidation.js'
 
-// Mythos Patriarch: polyfill globalThis.File for Node < 20.
+// Olympuz Coder: polyfill globalThis.File for Node < 20.
 // undici v7 references `File` at module evaluation time (webidl type
 // assertions). Node 18 lacks the global, causing a ReferenceError inside
 // the bundled __commonJS require chain which deadlocks the process when a
@@ -34,7 +34,7 @@ if (typeof globalThis.File === 'undefined') {
   }
 }
 
-// Mythos Patriarch: disable experimental API betas by default.
+// Olympuz Coder: disable experimental API betas by default.
 // Tool search (defer_loading), global cache scope, and context management
 // require internal API support not available to external accounts → 500.
 // Users can opt-in with CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=false.
@@ -45,16 +45,23 @@ process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS ??= 'true'
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 process.env.COREPACK_ENABLE_AUTO_PIN = '0';
 
-// Mythos Patriarch: OOM prevention — ensure minimum 4GB heap for ALL environments.
-// Without this, the default V8 limit (~1.7GB) is easily exceeded during long sessions.
-// CCR/containers get 8GB; local dev gets 4GB.
+// Olympuz Coder: OOM prevention — dynamic heap sizing based on available RAM.
+// Uses 50% of free memory (capped at 4GB, min 1.5GB) to avoid allocating more
+// heap than the system can physically provide. Hardcoded 4GB on 6GB machines
+// causes guaranteed OOM because the OS + Node overhead already uses 3.5GB+.
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 {
   // eslint-disable-next-line custom-rules/no-process-env-top-level
   const existing = process.env.NODE_OPTIONS || '';
   const hasHeapFlag = /--max-old-space-size=(\d+)/.test(existing);
   if (!hasHeapFlag) {
-    const size = process.env.CLAUDE_CODE_REMOTE === 'true' ? '8192' : '4096';
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const os = require('os') as { freemem: () => number; totalmem: () => number };
+    const freeMB = Math.floor(os.freemem() / 1024 / 1024);
+    const totalMB = Math.floor(os.totalmem() / 1024 / 1024);
+    // Use 50% of currently free memory, clamped to [1536, 4096]
+    const rawSize = Math.floor(freeMB * 0.5);
+    const size = Math.max(1536, Math.min(4096, rawSize));
     // eslint-disable-next-line custom-rules/no-process-env-top-level
     process.env.NODE_OPTIONS = existing ? `${existing} --max-old-space-size=${size}` : `--max-old-space-size=${size}`;
   }
@@ -84,7 +91,7 @@ async function main(): Promise<void> {
   if (args.length === 1 && (args[0] === '--version' || args[0] === '-v' || args[0] === '-V')) {
     // MACRO.VERSION is inlined at build time
     // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (Mythos Patriarch)`);
+    console.log(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (Olympuz Coder)`);
     return;
   }
 
@@ -425,7 +432,7 @@ void main().catch(error => {
   // the process with no diagnostics. All async paths flow through here.
   const message = error instanceof Error ? error.message : String(error);
   // biome-ignore lint/suspicious/noConsole:: crash diagnostics
-  console.error(`\nMythos Patriarch encountered a fatal error:\n${message}`);
+  console.error(`\nOlympuz Coder encountered a fatal error:\n${message}`);
   if (error instanceof Error && error.stack) {
     // biome-ignore lint/suspicious/noConsole:: crash diagnostics
     console.error(error.stack);

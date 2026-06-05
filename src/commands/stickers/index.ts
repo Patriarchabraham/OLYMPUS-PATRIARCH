@@ -3,7 +3,7 @@
 const stickers = {
   type: 'local',
   name: 'stickers',
-  description: 'Order Mythos Patriarch stickers',
+  description: 'Order Olympuz Coder stickers',
   supportsNonInteractive: false,
   load: () => import('./stickers.js'),
 } satisfies Command

@@ -89,11 +89,11 @@ export function getDefaultCommitCoAuthorName({
   }
 
   const sanitizedModel = sanitizeCoAuthorNamePart(model)
-  return sanitizedModel ? `Mythos Patriarch (${sanitizedModel})` : 'Mythos Patriarch'
+  return sanitizedModel ? `Olympuz Coder (${sanitizedModel})` : 'Olympuz Coder'
 }
 
 export function getDefaultCommitCoAuthorEmail(_apiProvider: string): string {
-  return 'Mythos Patriarch@gitlawb.com'
+  return 'Olympuz Coder@gitlawb.com'
 }
 
 /**
@@ -132,7 +132,7 @@ export function getAttributionTexts(): AttributionTexts {
     isInternalRepo: isInternalModelRepoCached(),
   })
   const defaultAttribution =
-    '🤖 Generated with [Mythos Patriarch](https://github.com/Gitlawb/Mythos Patriarch)'
+    '🤖 Generated with [Olympuz Coder](https://github.com/Gitlawb/Olympuz Coder)'
   const coAuthorEmail = getDefaultCommitCoAuthorEmail(apiProvider)
   const defaultCommit = isEnvTruthy(
     process.env.OPENCLAUDE_DISABLE_CO_AUTHORED_BY,
@@ -387,7 +387,7 @@ export async function getEnhancedPRAttribution(
   }
 
   const defaultAttribution =
-    '🤖 Generated with [Mythos Patriarch](https://github.com/Gitlawb/Mythos Patriarch)'
+    '🤖 Generated with [Olympuz Coder](https://github.com/Gitlawb/Olympuz Coder)'
 
   // Get AppState first
   const appState = getAppState()
@@ -433,7 +433,7 @@ export async function getEnhancedPRAttribution(
     memoryAccessCount > 0
       ? `, ${memoryAccessCount} ${memoryAccessCount === 1 ? 'memory' : 'memories'} recalled`
       : ''
-  const summary = `🤖 Generated with [Mythos Patriarch](https://github.com/Gitlawb/Mythos Patriarch) (${claudePercent}% ${promptCount}-shotted by ${shortModelName}${memSuffix})`
+  const summary = `🤖 Generated with [Olympuz Coder](https://github.com/Gitlawb/Olympuz Coder) (${claudePercent}% ${promptCount}-shotted by ${shortModelName}${memSuffix})`
 
   // Append trailer lines for squash-merge survival. Only for allowlisted repos
   // (INTERNAL_MODEL_REPOS) and only in builds with COMMIT_ATTRIBUTION enabled —

@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Quantum_Simulator-12_files-blueviolet" alt="Quantum" />
 </p>
 
-<h1 align="center">Mythos Patriarch</h1>
+<h1 align="center">Olympuz Coder</h1>
 
 <p align="center"><strong>Quantum Supreme AI Coding Agent</strong></p>
 
@@ -27,7 +27,7 @@
 
 ---
 
-## Why Mythos Patriarch
+## Why Olympuz Coder
 
 - **One CLI, any provider** — Anthropic, OpenAI, Gemini, DeepSeek, Ollama, Bedrock, Vertex, Codex, and more
 - **Quantum-inspired reasoning** — Real quantum circuit simulator (complex amplitudes, Born rule, Bell states)
@@ -40,18 +40,18 @@
 
 ```bash
 # Install globally
-npm install -g mythos-patriarch
+npm install -g olympuz-coder
 
 # Start (first run launches provider setup)
-mythos
+olympuz
 
 # Or set up a specific provider
 export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_API_KEY=sk-your-key-here
-mythos
+olympuz
 ```
 
-Inside Mythos:
+Inside Olympuz:
 
 - `/provider` — guided provider setup with saved profiles
 - `/onboard-github` — GitHub Models onboarding
@@ -137,7 +137,7 @@ Pipeline: `PERCEIVE -> SUPERPOSE -> ENTANGLE -> EVALUATE -> COLLAPSE`
 
 ## Comparison
 
-| Feature | Mythos | Claude Code | Gemini CLI | Grok CLI |
+| Feature | Olympuz | Claude Code | Gemini CLI | Grok CLI |
 |---------|--------|-------------|------------|----------|
 | Open Source | :white_check_mark: | :x: | :white_check_mark: | :x: |
 | Multi-Provider | :white_check_mark: 10+ | :x: Anthropic only | :x: Gemini only | :x: Grok only |
@@ -166,7 +166,7 @@ Pipeline: `PERCEIVE -> SUPERPOSE -> ENTANGLE -> EVALUATE -> COLLAPSE`
 ## Architecture
 
 ```
-mythos/
+olympuz/
   src/
     cli/              Terminal UI and command parsing
     reasoning/        CoT, ToT, Self-Reflection, Quantum, Ensemble strategies
@@ -201,14 +201,14 @@ mythos/
 ### From npm
 
 ```bash
-npm install -g mythos-patriarch
+npm install -g olympuz-coder
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/Gitlawb/Mythos Patriarch.git
-cd "Mythos Patriarch"
+git clone https://github.com/Gitlawb/Olympuz Coder.git
+cd "Olympuz Coder"
 bun install
 bun run build
 node dist/cli.mjs
@@ -221,7 +221,7 @@ node dist/cli.mjs
 ```bash
 export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_API_KEY=sk-your-key-here
-mythos
+olympuz
 ```
 
 **Ollama (local, zero cost):**
@@ -230,22 +230,22 @@ mythos
 export CLAUDE_CODE_USE_OPENAI=1
 export OPENAI_BASE_URL=http://localhost:11434/v1
 export OPENAI_MODEL=qwen2.5-coder:7b
-mythos
+olympuz
 ```
 
 **Guided Setup:**
 
-Launch `mythos` and run `/provider` for interactive setup with saved profiles.
+Launch `olympuz` and run `/provider` for interactive setup with saved profiles.
 
 ## Usage
 
 ### CLI Commands
 
 ```bash
-mythos                          # Start interactive REPL
-mythos -p "fix the auth bug"   # One-shot prompt
-mythos --model gpt-4o           # Override model
-mythos --provider openai        # Override provider
+olympuz                          # Start interactive REPL
+olympuz -p "fix the auth bug"   # One-shot prompt
+olympuz --model gpt-4o           # Override model
+olympuz --provider openai        # Override provider
 ```
 
 ### Reasoning Strategies
@@ -280,7 +280,7 @@ Available via AILEX skills:
 
 ### Agent Routing
 
-Route different agents to different models in `~/.mythos-patriarch.json`:
+Route different agents to different models in `~/.olympuz-coder.json`:
 
 ```json
 {
@@ -318,8 +318,8 @@ npx biome check src/     # Lint and format
 
 ## Community
 
-- [GitHub Discussions](https://github.com/Gitlawb/Mythos Patriarch/discussions) — Q&A, ideas, conversation
-- [GitHub Issues](https://github.com/Gitlawb/Mythos Patriarch/issues) — Bug reports, feature requests
+- [GitHub Discussions](https://github.com/Gitlawb/Olympuz Coder/discussions) — Q&A, ideas, conversation
+- [GitHub Issues](https://github.com/Gitlawb/Olympuz Coder/issues) — Bug reports, feature requests
 
 ## Contributing
 
@@ -327,7 +327,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code standards, an
 
 ## Disclaimer
 
-Mythos Patriarch is an independent community project and is not affiliated with, endorsed by, or sponsored by Anthropic. Mythos Patriarch originated from the Claude Code codebase and has since been substantially modified to support multiple providers and open use. "Claude" and "Claude Code" are trademarks of Anthropic PBC.
+Olympuz Coder is an independent community project and is not affiliated with, endorsed by, or sponsored by Anthropic. Olympuz Coder originated from the Claude Code codebase and has since been substantially modified to support multiple providers and open use. "Claude" and "Claude Code" are trademarks of Anthropic PBC.
 
 ## License
 

@@ -1,7 +1,7 @@
 {
-  "name": "Mythos Patriarch-vscode",
-  "displayName": "Mythos Patriarch",
-  "description": "Practical VS Code companion for Mythos Patriarch with project-aware launch behavior and a real Control Center.",
+  "name": "Olympuz Coder-vscode",
+  "displayName": "Olympuz Coder",
+  "description": "Practical VS Code companion for Olympuz Coder with project-aware launch behavior and a real Control Center.",
   "version": "0.2.0",
   "publisher": "devnull-bootloader",
   "engines": {
@@ -13,18 +13,18 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "onCommand:Mythos Patriarch.start",
-    "onCommand:Mythos Patriarch.startInWorkspaceRoot",
-    "onCommand:Mythos Patriarch.openDocs",
-    "onCommand:Mythos Patriarch.openSetupDocs",
-    "onCommand:Mythos Patriarch.openWorkspaceProfile",
-    "onCommand:Mythos Patriarch.openControlCenter",
-    "onCommand:Mythos Patriarch.newChat",
-    "onCommand:Mythos Patriarch.openChat",
-    "onCommand:Mythos Patriarch.resumeSession",
-    "onCommand:Mythos Patriarch.abortChat",
-    "onView:Mythos Patriarch.controlCenter",
-    "onView:Mythos Patriarch.chat"
+    "onCommand:Olympuz Coder.start",
+    "onCommand:Olympuz Coder.startInWorkspaceRoot",
+    "onCommand:Olympuz Coder.openDocs",
+    "onCommand:Olympuz Coder.openSetupDocs",
+    "onCommand:Olympuz Coder.openWorkspaceProfile",
+    "onCommand:Olympuz Coder.openControlCenter",
+    "onCommand:Olympuz Coder.newChat",
+    "onCommand:Olympuz Coder.openChat",
+    "onCommand:Olympuz Coder.resumeSession",
+    "onCommand:Olympuz Coder.abortChat",
+    "onView:Olympuz Coder.controlCenter",
+    "onView:Olympuz Coder.chat"
   ],
   "main": "./src/extension.js",
   "files": [
@@ -39,74 +39,74 @@
   "contributes": {
     "commands": [
       {
-        "command": "Mythos Patriarch.start",
-        "title": "Mythos Patriarch: Launch in Terminal",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.start",
+        "title": "Olympuz Coder: Launch in Terminal",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.startInWorkspaceRoot",
-        "title": "Mythos Patriarch: Launch in Workspace Root",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.startInWorkspaceRoot",
+        "title": "Olympuz Coder: Launch in Workspace Root",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.openDocs",
-        "title": "Mythos Patriarch: Open Repository",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.openDocs",
+        "title": "Olympuz Coder: Open Repository",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.openSetupDocs",
-        "title": "Mythos Patriarch: Open Setup Guide",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.openSetupDocs",
+        "title": "Olympuz Coder: Open Setup Guide",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.openWorkspaceProfile",
-        "title": "Mythos Patriarch: Open Workspace Profile",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.openWorkspaceProfile",
+        "title": "Olympuz Coder: Open Workspace Profile",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.openControlCenter",
-        "title": "Mythos Patriarch: Open Control Center",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.openControlCenter",
+        "title": "Olympuz Coder: Open Control Center",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.newChat",
-        "title": "Mythos Patriarch: New Chat",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.newChat",
+        "title": "Olympuz Coder: New Chat",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.openChat",
-        "title": "Mythos Patriarch: Open Chat Panel",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.openChat",
+        "title": "Olympuz Coder: Open Chat Panel",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.resumeSession",
-        "title": "Mythos Patriarch: Resume Session",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.resumeSession",
+        "title": "Olympuz Coder: Resume Session",
+        "category": "Olympuz Coder"
       },
       {
-        "command": "Mythos Patriarch.abortChat",
-        "title": "Mythos Patriarch: Abort Generation",
-        "category": "Mythos Patriarch"
+        "command": "Olympuz Coder.abortChat",
+        "title": "Olympuz Coder: Abort Generation",
+        "category": "Olympuz Coder"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "Mythos Patriarch",
-          "title": "Mythos Patriarch",
-          "icon": "media/Mythos Patriarch.svg"
+          "id": "Olympuz Coder",
+          "title": "Olympuz Coder",
+          "icon": "media/Olympuz Coder.svg"
         }
       ]
     },
     "views": {
-      "Mythos Patriarch": [
+      "Olympuz Coder": [
         {
-          "id": "Mythos Patriarch.chat",
+          "id": "Olympuz Coder.chat",
           "name": "Chat",
           "type": "webview"
         },
         {
-          "id": "Mythos Patriarch.controlCenter",
+          "id": "Olympuz Coder.controlCenter",
           "name": "Control Center",
           "type": "webview"
         }
@@ -114,30 +114,30 @@
     },
     "keybindings": [
       {
-        "command": "Mythos Patriarch.openChat",
+        "command": "Olympuz Coder.openChat",
         "key": "ctrl+shift+l",
         "mac": "cmd+shift+l"
       }
     ],
     "configuration": {
-      "title": "Mythos Patriarch",
+      "title": "Olympuz Coder",
       "properties": {
-        "Mythos Patriarch.launchCommand": {
+        "Olympuz Coder.launchCommand": {
           "type": "string",
-          "default": "Mythos Patriarch",
-          "description": "Command run in the integrated terminal when launching Mythos Patriarch."
+          "default": "Olympuz Coder",
+          "description": "Command run in the integrated terminal when launching Olympuz Coder."
         },
-        "Mythos Patriarch.terminalName": {
+        "Olympuz Coder.terminalName": {
           "type": "string",
-          "default": "Mythos Patriarch",
-          "description": "Integrated terminal tab name for Mythos Patriarch sessions."
+          "default": "Olympuz Coder",
+          "description": "Integrated terminal tab name for Olympuz Coder sessions."
         },
-        "Mythos Patriarch.useOpenAIShim": {
+        "Olympuz Coder.useOpenAIShim": {
           "type": "boolean",
           "default": false,
-          "description": "Optionally set CLAUDE_CODE_USE_OPENAI=1 in launched Mythos Patriarch terminals."
+          "description": "Optionally set CLAUDE_CODE_USE_OPENAI=1 in launched Olympuz Coder terminals."
         },
-        "Mythos Patriarch.permissionMode": {
+        "Olympuz Coder.permissionMode": {
           "type": "string",
           "default": "acceptEdits",
           "enum": ["default", "acceptEdits", "bypassPermissions", "plan"],
@@ -153,9 +153,9 @@
     },
     "themes": [
       {
-        "label": "Mythos Patriarch Terminal Black",
+        "label": "Olympuz Coder Terminal Black",
         "uiTheme": "vs-dark",
-        "path": "./themes/Mythos Patriarch-Terminal-Black.json"
+        "path": "./themes/Olympuz Coder-Terminal-Black.json"
       }
     ]
   },
@@ -165,7 +165,7 @@
     "package": "npx @vscode/vsce package --no-dependencies"
   },
   "keywords": [
-    "Mythos Patriarch",
+    "Olympuz Coder",
     "terminal",
     "theme",
     "cli",
@@ -173,7 +173,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Gitlawb/Mythos Patriarch"
+    "url": "https://github.com/Gitlawb/Olympuz Coder"
   },
   "license": "MIT"
 }

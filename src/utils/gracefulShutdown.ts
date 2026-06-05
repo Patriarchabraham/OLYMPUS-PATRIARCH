@@ -178,7 +178,7 @@ function printResumeHint(): void {
       writeSync(
         1,
         chalk.dim(
-          `\nResume this session with:\nMythos Patriarch --resume ${resumeArg}\n`,
+          `\nResume this session with:\nOlympuz Coder --resume ${resumeArg}\n`,
         ),
       )
       resumeHintPrinted = true
@@ -318,7 +318,7 @@ export const setupGracefulShutdown = memoize(() => {
     // error would trigger this handler again.
     if (shutdownInProgress) return
     try {
-      writeSync(2, `\nMythos: uncaught exception — ${error.message.slice(0, 500)}\n`)
+      writeSync(2, `\nOlympuz: uncaught exception — ${error.message.slice(0, 500)}\n`)
     } catch {
       // stderr may be closed
     }
@@ -349,7 +349,7 @@ export const setupGracefulShutdown = memoize(() => {
     if (shutdownInProgress) return
     const msg = reason instanceof Error ? reason.message : String(reason)
     try {
-      writeSync(2, `\nMythos: unhandled rejection — ${msg.slice(0, 500)}\n`)
+      writeSync(2, `\nOlympuz: unhandled rejection — ${msg.slice(0, 500)}\n`)
     } catch {
       // stderr may be closed
     }

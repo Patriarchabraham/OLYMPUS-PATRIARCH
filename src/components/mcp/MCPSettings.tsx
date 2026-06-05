@@ -147,7 +147,7 @@ export function MCPSettings(t0: Props) {
         return;
       }
       if (servers.length === 0 && agentMcpServers.length === 0) {
-        onComplete("No MCP servers configured. Please run /doctor if this is unexpected. Otherwise, run `Mythos Patriarch mcp --help` or visit https://github.com/Gitlawb/Mythos Patriarch to learn more.");
+        onComplete("No MCP servers configured. Please run /doctor if this is unexpected. Otherwise, run `Olympuz Coder mcp --help` or visit https://github.com/Gitlawb/Olympuz Coder to learn more.");
       }
     };
     t8 = [servers.length, filteredClients.length, agentMcpServers.length, onComplete];
