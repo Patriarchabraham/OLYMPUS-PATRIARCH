@@ -8,6 +8,66 @@
  * Inspired by Awwwards 2026, Dubai ultra-luxury, and international premium standards.
  */
 
+import { closeSync, existsSync, openSync, readdirSync, readSync, statSync } from 'node:fs'
+import { join } from 'node:path'
+
+/** Bounded read of the first `max` bytes of a file — never loads a whole image. */
+function readImageHead(file: string, max = 4096): { bytes: number; head: Buffer } | null {
+	try {
+		const stat = statSync(file)
+		const fd = openSync(file, 'r')
+		const head = Buffer.alloc(Math.min(max, stat.size))
+		readSync(fd, head, 0, head.length, 0)
+		closeSync(fd)
+		return { bytes: stat.size, head }
+	} catch {
+		return null
+	}
+}
+
+/** Parse PNG/JPEG dimensions from a header buffer. Returns null when not parseable. */
+function parseImageDimensions(
+	head: Buffer,
+	filename: string,
+): { width: number; height: number } | null {
+	try {
+		if (/\.png$/i.test(filename) && head.length >= 24) {
+			const width = head.readUInt32BE(16)
+			const height = head.readUInt32BE(20)
+			if (width > 0 && height > 0) return { width, height }
+		}
+		if (/\.jpe?g$/i.test(filename)) {
+			let i = 0
+			while (i < head.length - 9) {
+				if (head[i] !== 0xff) {
+					i++
+					continue
+				}
+				const marker = head[i + 1]
+				if (
+					marker >= 0xc0 &&
+					marker <= 0xcf &&
+					marker !== 0xc4 &&
+					marker !== 0xc8 &&
+					marker !== 0xcc
+				) {
+					const height = head.readUInt16BE(i + 5)
+					const width = head.readUInt16BE(i + 7)
+					if (width > 0 && height > 0) return { width, height }
+				}
+				if (i + 4 <= head.length) {
+					i += 2 + head.readUInt16BE(i + 2)
+				} else {
+					i++
+				}
+			}
+		}
+	} catch {
+		// Unparseable header → honestly report "unknown" (caller leaves hasLowRes false).
+	}
+	return null
+}
+
 export interface DesignAuditResult {
 	timestamp: string
 	projectPath: string
@@ -467,29 +527,76 @@ export class DesignEvolutionEngine {
 	 */
 	private async checkImageQuality(): Promise<DesignCheck> {
 		const penalties = DESIGN_STANDARDS.imageGeneration.auditPenalties
+		const minResolution = DESIGN_STANDARDS.imageGeneration.minResolution
 		let score = 80 // Base score
 		const issues: string[] = []
 
-		// Check for image directories
-		// In real implementation: scan /public/images/ for section-specific folders
-		// For now, provide the audit framework
-		const hasImages = true // Would check filesystem
-		if (!hasImages) {
-			score += penalties.noImages
-			issues.push('No images found in project')
+		// Real (shallow) scan of candidate image directories under the project root.
+		const candidateDirs = ['public/images', 'public/img', 'assets', 'assets/images', 'src/assets']
+		const imageExt = /\.(png|jpe?g|webp|gif|svg)$/i
+		const placeholderName = /(placeholder|lorem|todo|dummy|sample|temp)/i
+		let scannedFiles = 0
+
+		for (const dir of candidateDirs) {
+			const abs = join(this.projectPath, dir)
+			if (!existsSync(abs)) continue
+			let entries: string[]
+			try {
+				entries = readdirSync(abs, { encoding: 'utf8' })
+			} catch {
+				continue
+			}
+
+			for (const entry of entries) {
+				if (!imageExt.test(entry)) continue
+				scannedFiles++
+				const file = join(abs, entry)
+				const read = readImageHead(file)
+				if (!read) continue
+				const { bytes, head } = read
+
+				if (placeholderName.test(entry)) {
+					score += penalties.placeholderOnly
+					issues.push(`${entry}: placeholder filename`)
+					continue
+				}
+				if (bytes < 200) {
+					score += penalties.placeholderOnly
+					issues.push(`${entry}: suspiciously small (${bytes} bytes)`)
+					continue
+				}
+				if (/\.svg$/i.test(entry)) {
+					const text = head.toString('utf8')
+					const hasText = /<text[\s>]/i.test(text)
+					const emojiOnly =
+						hasText && !/<(?:rect|circle|path|polygon|image|line|g)[\s>]/i.test(text)
+					if (emojiOnly) {
+						score += penalties.placeholderOnly
+						issues.push(`${entry}: emoji-only SVG placeholder`)
+					}
+					continue
+				}
+				const dims = parseImageDimensions(head, entry)
+				if (dims && Math.min(dims.width, dims.height) < minResolution) {
+					score += penalties.lowResolution
+					issues.push(`${entry}: ${dims.width}x${dims.height} below ${minResolution}px minimum`)
+				}
+			}
 		}
 
-		const hasPlaceholders = false // Would check for emoji-only or placeholder images
-		if (hasPlaceholders) {
-			score += penalties.placeholderOnly
-			issues.push('Sections using placeholder/emoji-only visuals instead of real imagery')
+		// Nothing scanned — be honest. Do NOT claim high-quality imagery exists.
+		if (scannedFiles === 0) {
+			return {
+				name: 'Context-Aware Image Quality',
+				status: 'warning',
+				score: 0,
+				message: 'Skipped: no image directories found to audit',
+				details: 'Expected one of: public/images, assets, src/assets',
+			}
 		}
 
-		const hasLowRes = false // Would check image dimensions
-		if (hasLowRes) {
-			score += penalties.lowResolution
-			issues.push(`Images below ${DESIGN_STANDARDS.imageGeneration.minResolution}px minimum`)
-		}
+		const hasPlaceholders = issues.some((m) => m.includes('placeholder') || m.includes('small'))
+		const hasLowRes = issues.some((m) => m.includes('below'))
 
 		return {
 			name: 'Context-Aware Image Quality',
@@ -498,9 +605,9 @@ export class DesignEvolutionEngine {
 			message:
 				issues.length > 0
 					? `Image issues: ${issues.join('; ')}`
-					: 'All sections have contextually appropriate, high-quality imagery',
+					: `${scannedFiles} image(s) scanned; no placeholders or low-res assets detected`,
 			details:
-				issues.length > 0
+				hasPlaceholders || hasLowRes
 					? 'Run /design-evolution images to generate section-specific imagery'
 					: undefined,
 		}
