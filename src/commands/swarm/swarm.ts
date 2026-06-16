@@ -1,105 +1,98 @@
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs'
 import type { Command } from '../../commands.js'
 import { getSuperAgentOrchestrator } from '../../services/superAgent/index.js'
+import type { SwarmTaskResult } from '../../swarm/types.js'
+
+/**
+ * Render swarm execution results as a structured, honest text report.
+ * Accepts either a Map (what SuperAgent.executeSwarm returns) or an array.
+ */
+function renderSwarmResults(
+	results: Map<string, SwarmTaskResult> | SwarmTaskResult[] | null,
+): string {
+	if (!results) return '[Swarm] No results — swarm is disabled or failed to start.'
+	const list = Array.isArray(results) ? results : [...results.values()]
+	if (list.length === 0) return '[Swarm] No tasks were executed.'
+
+	const blocks = list.map((r, i) => {
+		const role = (r.metadata?.agentRole as string | undefined) ?? 'unknown'
+		const status = r.success ? '✓ success' : '✗ failed'
+		const output = r.output.length > 400 ? `${r.output.slice(0, 400)}…` : r.output
+		return `### Task ${i + 1} — ${status}\n- Role: ${role}\n- Output:\n${output || '(empty)'}`
+	})
+	const ok = list.filter((r) => r.success).length
+	return `[Swarm] ${ok}/${list.length} task(s) succeeded.\n\n${blocks.join('\n\n')}`
+}
+
+const helpText = `[Swarm System] — real multi-agent execution
+
+Usage:
+- /swarm run <task>   Execute a task through the multi-agent pipeline
+                      (decompose → role agents → parallel execution → results)
+- /swarm status       Show active swarm state
+- /swarm help         Show this help
+
+Agent roles: researcher, coder, tester, reviewer, architect.
+
+How it works:
+- The task is decomposed into subtasks by complexity analysis.
+- Subtasks are assigned to role-specialized agents and run in parallel,
+  respecting dependencies.
+- Each agent runs on a real model (the LLM executor). Without an API key,
+  tasks report 'failed' honestly rather than faking success.`
 
 const command = {
-  type: 'prompt',
-  name: 'swarm',
-  description:
-    'Manage agent swarms — start, stop, status, or assign tasks to coordinated agent teams',
-  isEnabled: () => true,
-  progressMessage: 'managing swarm',
-  contentLength: 0,
-  source: 'builtin',
-  async getPromptForCommand(args?: string): Promise<ContentBlockParam[]> {
-    const action = args?.trim() || 'help'
+	type: 'prompt',
+	name: 'swarm',
+	description: 'Run a task through the multi-agent swarm pipeline, or show swarm status',
+	isEnabled: () => true,
+	progressMessage: 'running swarm',
+	contentLength: 0,
+	source: 'builtin',
+	async getPromptForCommand(args?: string): Promise<ContentBlockParam[]> {
+		const action = args?.trim() || 'help'
 
-    const helpText = `[Swarm System]
+		if (action === 'help' || action === '') {
+			return [{ type: 'text', text: helpText }]
+		}
 
-Available actions:
-- /swarm start <size> — Launch a swarm of coordinated agents
-- /swarm stop — Terminate the active swarm
-- /swarm status — Show current swarm state
-- /swarm assign <task> — Assign a task to the swarm
+		if (action.startsWith('run')) {
+			const task = action.slice(3).trim()
+			if (!task) {
+				return [{ type: 'text', text: 'Usage: /swarm run <task description>' }]
+			}
+			const orchestrator = getSuperAgentOrchestrator()
+			try {
+				await orchestrator.initialize()
+				const results = await orchestrator.executeSwarm([task])
+				return [{ type: 'text', text: renderSwarmResults(results) }]
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : String(e)
+				return [{ type: 'text', text: `[Swarm] Execution failed: ${msg}` }]
+			}
+		}
 
-Agent roles: researcher, coder, tester, reviewer, architect, dataAnalyst
+		if (action === 'status') {
+			const orchestrator = getSuperAgentOrchestrator()
+			const swarms = orchestrator.getState().activeSwarms
+			if (swarms.length === 0) {
+				return [
+					{
+						type: 'text',
+						text: '[Swarm Status]\nNo active swarm. Use /swarm run <task> to execute one.',
+					},
+				]
+			}
+			return [
+				{
+					type: 'text',
+					text: `[Swarm Status]\nActive swarms: ${swarms.length}`,
+				},
+			]
+		}
 
-The swarm system is integrated into the super-agent orchestrator. It provides:
-- Task decomposition and dependency analysis
-- Parallel agent execution with message bus
-- Consensus voting for critical decisions
-- Automatic role assignment based on task complexity`
-
-    if (action === 'help' || action === '') {
-      return [{ type: 'text', text: helpText }]
-    }
-
-    if (action.startsWith('start')) {
-      const size = parseInt(action.split(' ')[1] || '3', 10)
-      return [
-        {
-          type: 'text',
-          text: `[Swarm Launched]
-
-Spawning ${size} coordinated agents with roles:
-- 1x Architect (planning and design decisions)
-- ${Math.max(1, Math.floor(size * 0.4))}x Coder (implementation)
-- ${Math.max(1, Math.floor(size * 0.3))}x Tester (verification)
-- ${Math.max(1, size - 1 - Math.floor(size * 0.4) - Math.floor(size * 0.3))}x Reviewer (quality assurance)
-
-Swarm is active. Use /swarm assign <task> to distribute work.
-Use the Agent tool with subagent_type to spawn specialized agents.`,
-        },
-      ]
-    }
-
-    if (action === 'stop') {
-      return [{ type: 'text', text: '[Swarm Stopped] All agents terminated.' }]
-    }
-
-    if (action === 'status') {
-      const orchestrator = getSuperAgentOrchestrator()
-      const swarms = orchestrator.getState().activeSwarms
-      if (swarms.length === 0) {
-        return [
-          {
-            type: 'text',
-            text: `[Swarm Status]
-No active swarm. Use /swarm start <size> to launch one.`,
-          },
-        ]
-      }
-      return [
-        {
-          type: 'text',
-          text: `[Swarm Status]
-Active swarms: ${swarms.length}`,
-        },
-      ]
-    }
-
-    if (action.startsWith('assign')) {
-      const task = action.slice(7).trim()
-      return [
-        {
-          type: 'text',
-          text: `[Swarm Task Assigned]
-
-Task: ${task}
-
-The swarm orchestrator will:
-1. Decompose the task into subtasks
-2. Assign subtasks to appropriate agent roles
-3. Execute in parallel where possible
-4. Collect and synthesize results
-
-Use the Agent tool to spawn specialized sub-agents for each subtask.`,
-        },
-      ]
-    }
-
-    return [{ type: 'text', text: helpText }]
-  },
+		return [{ type: 'text', text: helpText }]
+	},
 } satisfies Command
 
 export default command
