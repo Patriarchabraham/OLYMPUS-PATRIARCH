@@ -25,6 +25,7 @@
   ],
   "scripts": {
     "build": "bun run scripts/build.ts",
+    "build:harness": "bun run scripts/build-harness.ts",
     "start": "node --max-old-space-size=2048 dist/cli.mjs",
     "dev": "node --max-old-space-size=2048 --import tsx/esm src/entrypoints/cli.tsx",
     "typecheck": "node --max-old-space-size=2048 ./node_modules/typescript/bin/tsc --noEmit",
