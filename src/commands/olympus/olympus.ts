@@ -1,6 +1,6 @@
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs'
 import type { Command } from '../../commands.js'
-import { getSuperAgentOrchestrator } from '../../services/superAgent/index.js'
+import { getOlympusEngine } from '../../olympus/index.js'
 
 const command: Command = {
 	type: 'prompt',
@@ -36,16 +36,15 @@ Each company gets departments with agentic employees (managers, workers, verifie
 			return [{ type: 'text', text: helpText }]
 		}
 
-		const orchestrator = getSuperAgentOrchestrator()
-		const engine = orchestrator.getOlympusEngineInstance()
+		const engine = getOlympusEngine()
 
-		if (!engine || !orchestrator.isModuleEnabled('olympus')) {
+		if (!engine) {
 			return [{ type: 'text', text: '[Olympus Industries] Engine not initialized.' }]
 		}
 
 		const parts = action.split(' ')
 		const subcommand = parts[0]
-		const rest = parts.slice(1).join(' ')
+		const _rest = parts.slice(1).join(' ')
 
 		if (subcommand === 'templates') {
 			const templates = engine.getTemplates()
@@ -63,7 +62,12 @@ Each company gets departments with agentic employees (managers, workers, verifie
 			const companyName = parts.slice(2).join(' ') || `${segment || 'Unknown'} Corp`
 
 			if (!segment) {
-				return [{ type: 'text', text: '[Olympus Industries] Usage: /olympus spawn <segment> <company-name>' }]
+				return [
+					{
+						type: 'text',
+						text: '[Olympus Industries] Usage: /olympus spawn <segment> <company-name>',
+					},
+				]
 			}
 
 			try {
@@ -105,23 +109,34 @@ Use /olympus list to see all active companies.`,
 			const companies = engine.listCompanies()
 			if (companies.length === 0) {
 				return [
-					{ type: 'text', text: '[Olympus Industries] No active companies. Use /olympus spawn to create one.' },
+					{
+						type: 'text',
+						text: '[Olympus Industries] No active companies. Use /olympus spawn to create one.',
+					},
 				]
 			}
 
 			const companyList = companies
-				.map((c) => `- ${c.companyId}: ${c.state.agents.length} agents, ${c.state.departments.length} departments`)
+				.map(
+					(c) =>
+						`- ${c.companyId}: ${c.state.agents.length} agents, ${c.state.departments.length} departments`,
+				)
 				.join('\n')
 
 			return [
-				{ type: 'text', text: `[Olympus Industries] Active companies (${companies.length}):\n${companyList}` },
+				{
+					type: 'text',
+					text: `[Olympus Industries] Active companies (${companies.length}):\n${companyList}`,
+				},
 			]
 		}
 
 		if (subcommand === 'status' || subcommand === 'agents') {
 			const companyId = parts[1]
 			if (!companyId) {
-				return [{ type: 'text', text: `[Olympus Industries] Usage: /olympus ${subcommand} <company-id>` }]
+				return [
+					{ type: 'text', text: `[Olympus Industries] Usage: /olympus ${subcommand} <company-id>` },
+				]
 			}
 
 			const company = engine.getCompany(companyId)
@@ -139,7 +154,10 @@ Use /olympus list to see all active companies.`,
 				const more = state.agents.length > 20 ? `\n  ... and ${state.agents.length - 20} more` : ''
 
 				return [
-					{ type: 'text', text: `[Olympus Industries] Agents in ${companyId}:\n${agentList}${more}` },
+					{
+						type: 'text',
+						text: `[Olympus Industries] Agents in ${companyId}:\n${agentList}${more}`,
+					},
 				]
 			}
 
@@ -160,7 +178,9 @@ Verification Results: ${state.verificationResults.length}`,
 			const companyId = parts[1]
 			const title = parts.slice(2).join(' ')
 			if (!companyId || !title) {
-				return [{ type: 'text', text: '[Olympus Industries] Usage: /olympus task <company-id> <title>' }]
+				return [
+					{ type: 'text', text: '[Olympus Industries] Usage: /olympus task <company-id> <title>' },
+				]
 			}
 
 			const success = engine.submitTask(companyId, {
@@ -175,7 +195,9 @@ Verification Results: ${state.verificationResults.length}`,
 			})
 
 			if (success) {
-				return [{ type: 'text', text: `[Olympus Industries] Task submitted to ${companyId}: "${title}"` }]
+				return [
+					{ type: 'text', text: `[Olympus Industries] Task submitted to ${companyId}: "${title}"` },
+				]
 			}
 			return [{ type: 'text', text: `[Olympus Industries] Company not found: ${companyId}` }]
 		}
@@ -184,7 +206,12 @@ Verification Results: ${state.verificationResults.length}`,
 			const companyId = parts[1]
 			const content = parts.slice(2).join(' ')
 			if (!companyId || !content) {
-				return [{ type: 'text', text: '[Olympus Industries] Usage: /olympus verify <company-id> <content>' }]
+				return [
+					{
+						type: 'text',
+						text: '[Olympus Industries] Usage: /olympus verify <company-id> <content>',
+					},
+				]
 			}
 
 			const results = engine.verify(companyId, content, 'content', 'cli-verify')
@@ -203,7 +230,12 @@ Verification Results: ${state.verificationResults.length}`,
 			const companyId = parts[1]
 			const agentId = parts[2]
 			if (!companyId || !agentId) {
-				return [{ type: 'text', text: '[Olympus Industries] Usage: /olympus performance <company-id> <agent-id>' }]
+				return [
+					{
+						type: 'text',
+						text: '[Olympus Industries] Usage: /olympus performance <company-id> <agent-id>',
+					},
+				]
 			}
 
 			const score = engine.getPerformance(companyId, agentId)
@@ -223,7 +255,12 @@ Initiative: ${(score.dimensions.initiative * 100).toFixed(1)}%`,
 			]
 		}
 
-		return [{ type: 'text', text: `[Olympus Industries] Unknown action: "${subcommand}". Type /olympus help for available actions.` }]
+		return [
+			{
+				type: 'text',
+				text: `[Olympus Industries] Unknown action: "${subcommand}". Type /olympus help for available actions.`,
+			},
+		]
 	},
 }
 
