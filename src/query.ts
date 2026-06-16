@@ -66,9 +66,6 @@ const skillPrefetch = false
   ? (require('./services/skillSearch/prefetch.js') as typeof import('./services/skillSearch/prefetch.js'))
   : null
 // biome-ignore lint/correctness/noUnusedVariables: lazy-loaded module, used downstream
-const jobClassifier = false
-  ? (require('./jobs/classifier.js') as typeof import('./jobs/classifier.js'))
-  : null
 /* eslint-enable @typescript-eslint/no-require-imports */
 import {
   remove as removeFromQueue,
@@ -220,6 +217,18 @@ type State = {
   // Why the previous iteration continued. Undefined on first iteration.
   // Lets tests assert recovery paths fired without inspecting message contents.
   transition: Continue | undefined
+}
+
+// Keywords that signal a query is substantive enough to warrant a pre-query
+// reasoning pass (which makes extra model calls). Trivia like "ls" is skipped.
+const SUBSTANTIVE_QUERY_KEYWORDS =
+  /\b(analyz|design|architect|refactor|why|how|debug|plan|compare|implement|review|optimiz|investigat|explain|security|perform)\b/i
+
+/** Heuristic: does this query warrant a pre-query reasoning pass? */
+function isSubstantiveQuery(query: string): boolean {
+  const trimmed = query.trim()
+  if (trimmed.length < 15) return false // too short to be substantive
+  return SUBSTANTIVE_QUERY_KEYWORDS.test(trimmed) || trimmed.length > 140
 }
 
 export async function* query(
@@ -436,7 +445,7 @@ async function* queryLoop(
       messagesForQuery = snipResult.messages
       snipTokensFreed = snipResult.tokensFreed
       if (snipResult.boundaryMessage) {
-        yield snipResult.boundaryMessage
+        yield snipResult.boundaryMessage!
       }
       queryCheckpoint('query_snip_end')
     }
@@ -470,7 +479,7 @@ async function* queryLoop(
     // continue site (query.ts:1192), and the next projectView() no-ops
     // because the archived messages are already gone from its input.
     if (false && contextCollapse) {
-      const collapseResult = await contextCollapse.applyCollapsesIfNeeded(
+      const collapseResult = await contextCollapse!.applyCollapsesIfNeeded!(
         messagesForQuery,
         toolUseContext,
         querySource,
@@ -487,8 +496,8 @@ async function* queryLoop(
         const lastMessage = messagesForQuery[messagesForQuery.length - 1]
         userQueryText =
           lastMessage?.type === 'user' &&
-          typeof lastMessage.message.content === 'string'
-            ? lastMessage.message.content
+          typeof (lastMessage as any).message.content === 'string'
+            ? (lastMessage as any).message.content
             : ''
         const { getArcSummary } = await import('./utils/conversationArc.js')
         const arcSummary = await getArcSummary(userQueryText)
@@ -507,10 +516,11 @@ async function* queryLoop(
     try {
       const orchestrator = getSuperAgentOrchestrator()
       if (orchestrator.getState().initialized) {
-        // Get evolution recommendations for this query
+        const hints: string[] = []
+
+        // Evolution recommendations (patterns learned from past interactions)
         const recommendations = orchestrator.getRecommendations(userQueryText)
         if (recommendations) {
-          const hints: string[] = []
           if (recommendations.strategy) {
             hints.push(`[Evolution] Recommended strategy: ${recommendations.strategy}`)
           }
@@ -521,11 +531,32 @@ async function* queryLoop(
               .join(', ')
             hints.push(`[Evolution] Effective tools: ${topTools}`)
           }
-          if (hints.length > 0) {
-            superAgentUserContext = {
-              ...userContext,
-              superAgentHints: hints.join('\n'),
-            }
+        }
+
+        // Pre-query reasoning chain (CoT/ToT/Self-Reflection/Ensemble). This was
+        // the single biggest dormant capability: SuperAgent.runReasoning() existed
+        // but was never invoked in the query loop. Strategy auto-selected; the
+        // chain's conclusion is surfaced as a hint so the model reasons from it.
+        // Cost-aware: only invoked for substantive queries (reasoning makes extra
+        // model calls), so trivia like "ls" isn't doubled in latency/cost.
+        // Degrades gracefully — returns null without a configured model/strategy.
+        if (isSubstantiveQuery(userQueryText)) {
+          const chain = await orchestrator.runReasoning(userQueryText)
+          if (chain?.conclusion) {
+            const conclusion =
+              chain.conclusion.length > 240
+                ? `${chain.conclusion.slice(0, 240)}…`
+                : chain.conclusion
+            hints.push(
+              `[Reasoning:${chain.strategy} @${chain.confidence.toFixed(2)}] ${conclusion}`,
+            )
+          }
+        }
+
+        if (hints.length > 0) {
+          superAgentUserContext = {
+            ...userContext,
+            superAgentHints: hints.join('\n'),
           }
         }
       }
@@ -1199,7 +1230,7 @@ async function* queryLoop(
           contextCollapse &&
           state.transition?.reason !== 'collapse_drain_retry'
         ) {
-          const drained = contextCollapse.recoverFromOverflow(
+          const drained = contextCollapse!.recoverFromOverflow!(
             messagesForQuery,
             querySource,
           )
@@ -1290,8 +1321,8 @@ async function* queryLoop(
         // couldn't recover (staged queue empty/stale). Surface. Same
         // early-return rationale — don't fall through to stop hooks.
         if (lastMessage) {
-          yield lastMessage
-          void executeStopFailureHooks(lastMessage, toolUseContext)
+          yield lastMessage!
+          void executeStopFailureHooks(lastMessage as any, toolUseContext)
         }
         return { type: 'terminal' as const, reason: 'prompt_too_long' }
       }
