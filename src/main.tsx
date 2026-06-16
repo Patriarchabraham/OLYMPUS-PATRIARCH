@@ -1,4 +1,4 @@
-﻿// These side-effects must run before all other imports:
+// These side-effects must run before all other imports:
 // 1. profileCheckpoint marks entry before heavy module evaluation begins
 // 2. startMdmRawRead fires MDM subprocesses (plutil/reg query) so they run in
 //    parallel with the remaining ~135ms of imports below
@@ -1707,12 +1707,12 @@ async function run(): Promise<CommanderCommand> {
       // --channels works in both interactive and print/SDK modes; dev-channels
       // stays interactive-only (requires a confirmation dialog).
       let channelEntries: ChannelEntry[] = [];
-      if (rawChannels && rawChannels.length > 0) {
+      if (rawChannels && rawChannels!.length > 0) {
         channelEntries = parseChannelEntries(rawChannels!, '--channels');
         setAllowedChannels(channelEntries);
       }
       if (!isNonInteractiveSession) {
-        if (rawDev && rawDev.length > 0) {
+        if (rawDev && rawDev!.length > 0) {
           devChannels = parseChannelEntries(rawDev!, '--dangerously-load-development-channels');
         }
       }
@@ -1874,6 +1874,11 @@ async function run(): Promise<CommanderCommand> {
     }
     const effectivePrompt = prompt || '';
     let inputPrompt = await getInputPrompt(effectivePrompt, (inputFormat ?? 'text') as 'text' | 'stream-json');
+    // --multiagent: route the prompt through the real swarm pipeline. Equivalent
+    // to `olympuz -p "/swarm run <prompt>"`. Use with -p for headless execution.
+    if ((options as { multiagent?: boolean }).multiagent === true && typeof inputPrompt === 'string' && inputPrompt.trim()) {
+      inputPrompt = `/swarm run ${inputPrompt.trim()}`;
+    }
     profileCheckpoint('action_after_input_prompt');
 
     // Activate proactive mode BEFORE getTools() so SleepTool.isEnabled()
@@ -2269,7 +2274,7 @@ async function run(): Promise<CommanderCommand> {
       }
 
       // Check for pending agent memory snapshot updates (only for --agent mode, internal-only)
-      if (false && mainThreadAgentDefinition && isCustomAgent(mainThreadAgentDefinition!) && mainThreadAgentDefinition.memory && mainThreadAgentDefinition.pendingSnapshotUpdate) {
+      if (false && mainThreadAgentDefinition && isCustomAgent(mainThreadAgentDefinition!) && (mainThreadAgentDefinition as any).memory && (mainThreadAgentDefinition as any).pendingSnapshotUpdate) {
         const agentDef = mainThreadAgentDefinition!;
         const choice = await launchSnapshotUpdateDialog(root, {
           agentType: agentDef.agentType,
@@ -3168,7 +3173,7 @@ async function run(): Promise<CommanderCommand> {
         setDirectConnectServerUrl(_pendingConnect.url!);
         directConnectConfig = session.config;
       } catch (err: unknown) {
-        return await exitWithError(root, err instanceof DirectConnectError ? err.message : String(err), () => gracefulShutdown(1));
+        return await exitWithError(root, err instanceof DirectConnectError ? (err as DirectConnectError).message : String(err), () => gracefulShutdown(1));
       }
       const connectInfoMessage = createSystemMessage(`Connected to server at ${_pendingConnect.url}\nSession: ${directConnectConfig.sessionId}`, 'info');
       await launchRepl(root, {
@@ -3234,7 +3239,7 @@ async function run(): Promise<CommanderCommand> {
         setCwdState(sshSession.remoteCwd);
         setDirectConnectServerUrl(_pendingSSH.local ? 'local' : _pendingSSH.host!);
       } catch (err: unknown) {
-        return await exitWithError(root, err instanceof Error ? err.message : String(err), () => gracefulShutdown(1));
+        return await exitWithError(root, err instanceof Error ? (err as Error).message : String(err), () => gracefulShutdown(1));
       }
       const sshInfoMessage = createSystemMessage(_pendingSSH.local ? `Local ssh-proxy test session\ncwd: ${sshSession.remoteCwd}\nAuth: unix socket → local proxy` : `SSH session to ${_pendingSSH.host!}\nRemote cwd: ${sshSession.remoteCwd}\nAuth: unix socket -R → local proxy`, 'info');
       await launchRepl(root, {
@@ -3270,14 +3275,14 @@ async function run(): Promise<CommanderCommand> {
         try {
           sessions = await discoverAssistantSessions();
         } catch (e: unknown) {
-          return await exitWithError(root, `Failed to discover sessions: ${e instanceof Error ? e.message : String(e)}`, () => gracefulShutdown(1));
+          return await exitWithError(root, `Failed to discover sessions: ${e instanceof Error ? (e as Error).message : String(e)}`, () => gracefulShutdown(1));
         }
         if (sessions.length === 0) {
           let installedDir: string | null;
           try {
             installedDir = await launchAssistantInstallWizard(root);
           } catch (e: unknown) {
-            return await exitWithError(root, `Assistant installation failed: ${e instanceof Error ? e.message : String(e)}`, () => gracefulShutdown(1));
+            return await exitWithError(root, `Assistant installation failed: ${e instanceof Error ? (e as Error).message : String(e)}`, () => gracefulShutdown(1));
           }
           if (installedDir === null) {
             await gracefulShutdown(0);
@@ -3315,7 +3320,7 @@ async function run(): Promise<CommanderCommand> {
       try {
         apiCreds = await prepareApiRequest();
       } catch (e: unknown) {
-        return await exitWithError(root, `Error: ${e instanceof Error ? e.message : 'Failed to authenticate'}`, () => gracefulShutdown(1));
+        return await exitWithError(root, `Error: ${e instanceof Error ? (e as Error).message : 'Failed to authenticate'}`, () => gracefulShutdown(1));
       }
       const getAccessToken = (): string => getClaudeAIOAuthTokens()?.accessToken ?? apiCreds.accessToken;
 
@@ -3819,6 +3824,7 @@ async function run(): Promise<CommanderCommand> {
     }));
     program.addOption(new Option('--tasks [id]', '[internal-only] Tasks mode: watch for tasks and auto-process them. Optional id is used as both the task list ID and agent ID (defaults to "tasklist").').argParser(String).hideHelp());
     program.option('--agent-teams', '[internal-only] Force Claude to use multi-agent mode for solving problems', () => true);
+    program.option('--multiagent', 'Run the given prompt through the multi-agent swarm pipeline (use with -p "<task>")', () => true);
   }
   if (true) {
     program.addOption(new Option('--enable-auto-mode', 'Opt in to auto mode').hideHelp());
@@ -4603,15 +4609,9 @@ async function logTenguInit({
     logError(error);
   }
 }
-async function maybeActivateProactive(options: unknown): Promise<void> {
-  if ((false || false) && ((options as {
-    proactive?: boolean;
-  }).proactive || isEnvTruthy(process.env.CLAUDE_CODE_PROACTIVE))) {
-    const proactiveModule = await import('./proactive/index.js');
-    if (!proactiveModule.isProactiveActive()) {
-      proactiveModule.activateProactive('command');
-    }
-  }
+async function maybeActivateProactive(_options: unknown): Promise<void> {
+  // Proactive module removed — feature never graduated from feature flag.
+  // Kept as no-op so existing call sites remain valid.
 }
 async function maybeActivateBrief(options: unknown): Promise<void> {
   if (!(false || false)) return;

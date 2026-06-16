@@ -488,6 +488,13 @@ ${CYBER_RISK_INSTRUCTION}`,
     systemPromptSection('session_guidance', () =>
       getSessionSpecificGuidanceSection(enabledTools, skillToolCommands),
     ),
+    // Olympuz instruction harness operating doctrine (src/harness/corpus/).
+    // Lazy import keeps the core prompt module off the harness import graph;
+    // returns null (no-op) when no corpus is available.
+    systemPromptSection('harness_doctrine', async () => {
+      const { getDoctrineSection } = await import('../harness/index.js')
+      return getDoctrineSection('00-operating-doctrine')
+    }),
     systemPromptSection('memory', () => loadMemoryPrompt()),
     systemPromptSection('ant_model_override', () =>
       getAntModelOverrideSection(),
@@ -771,7 +778,7 @@ export async function enhanceSystemPromptWithEnvDetails(
     false &&
     skillSearchFeatureCheck?.isSkillSearchEnabled() &&
     DISCOVER_SKILLS_TOOL_NAME !== null &&
-    (enabledToolNames?.has(DISCOVER_SKILLS_TOOL_NAME) ?? true)
+    (enabledToolNames?.has(DISCOVER_SKILLS_TOOL_NAME!) ?? true)
       ? getDiscoverSkillsGuidance()
       : null
   const envInfo = await computeEnvInfo(model, additionalWorkingDirectories)
