@@ -44,9 +44,18 @@ describe('harness loader (filesystem corpus)', () => {
 
 	it('lists every corpus file', () => {
 		const entries = listCorpus()
-		expect(entries.length).toBeGreaterThanOrEqual(14)
+		expect(entries.length).toBeGreaterThanOrEqual(16)
 		expect(entries.some((e) => e.path === '00-operating-doctrine.md')).toBe(true)
 		expect(entries.some((e) => e.path === '20-role-coder.md')).toBe(true)
+	})
+
+	it('returns the adversarial-verification and reasoning-depth layers', () => {
+		const adv = getDoctrineSection('03-adversarial-verification')
+		expect(adv).not.toBeNull()
+		expect(adv).toContain('try to refute')
+		const depth = getDoctrineSection('13-reasoning-depth')
+		expect(depth).not.toBeNull()
+		expect(depth).toContain('reflection')
 	})
 
 	it('concatenates the full corpus in sorted order', () => {

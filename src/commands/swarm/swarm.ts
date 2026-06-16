@@ -1,5 +1,6 @@
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs'
 import type { Command } from '../../commands.js'
+import { verify as crossVerify } from '../../cortex/crossModelVerifier.js'
 import { getSuperAgentOrchestrator } from '../../services/superAgent/index.js'
 import type { SwarmTaskResult } from '../../swarm/types.js'
 
@@ -22,6 +23,47 @@ function renderSwarmResults(
 	})
 	const ok = list.filter((r) => r.success).length
 	return `[Swarm] ${ok}/${list.length} task(s) succeeded.\n\n${blocks.join('\n\n')}`
+}
+
+/**
+ * Run zero-trust cross-model verification on the merged swarm output and
+ * render a short report. Degrades gracefully: with no verification model
+ * configured, verify() falls back to structural (TF-IDF) analysis; on any
+ * error it reports "unverified" honestly rather than faking a pass.
+ */
+export async function renderVerification(
+	task: string,
+	results: Map<string, SwarmTaskResult> | SwarmTaskResult[] | null,
+): Promise<string> {
+	if (!results) return ''
+	const list = Array.isArray(results) ? results : [...results.values()]
+	const merged = list
+		.map((r) => r.output)
+		.filter((o) => o && !o.startsWith('ERROR:'))
+		.join('\n---\n')
+	if (!merged.trim()) return ''
+
+	try {
+		const v = await crossVerify(task, merged, 'cross-model-verify')
+		const conf = `${Math.round((v.confidence ?? 0) * 100)}%`
+		const agree =
+			typeof v.agreementWithPrimary === 'number' ? v.agreementWithPrimary.toFixed(2) : 'n/a'
+		const contra = Array.isArray(v.contradictions) ? v.contradictions : []
+		const lines = [
+			'[Swarm] Verification (zero-trust):',
+			`  Confidence: ${conf} | Agreement: ${agree} | Provider: ${v.provider ?? 'self'}`,
+		]
+		if (contra.length > 0) {
+			lines.push(`  Contradictions (${contra.length}):`)
+			for (const c of contra.slice(0, 5)) lines.push(`  - ${String(c).slice(0, 160)}`)
+		} else {
+			lines.push('  Contradictions: none detected')
+		}
+		return lines.join('\n')
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e)
+		return `[Swarm] Verification: unverified (${msg})`
+	}
 }
 
 const helpText = `[Swarm System] — real multi-agent execution
@@ -65,7 +107,10 @@ const command = {
 			try {
 				await orchestrator.initialize()
 				const results = await orchestrator.executeSwarm([task])
-				return [{ type: 'text', text: renderSwarmResults(results) }]
+				const report = renderSwarmResults(results)
+				const verification = await renderVerification(task, results)
+				const text = verification ? `${report}\n\n${verification}` : report
+				return [{ type: 'text', text }]
 			} catch (e) {
 				const msg = e instanceof Error ? e.message : String(e)
 				return [{ type: 'text', text: `[Swarm] Execution failed: ${msg}` }]
