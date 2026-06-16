@@ -7,8 +7,13 @@
  */
 
 import type {
-	SymbolicExpr, SymbolicState, PathCondition, ExecutionPath,
-	SEFinding, SEResult, SEConfig,
+	ExecutionPath,
+	PathCondition,
+	SEConfig,
+	SEFinding,
+	SEResult,
+	SymbolicExpr,
+	SymbolicState,
 } from './types.js'
 import { DEFAULT_SE_CONFIG } from './types.js'
 
@@ -36,7 +41,7 @@ export function executeSymbolically(
 	const branches = collectBranches(lines)
 
 	// Explore paths (bounded BFS over branch decisions)
-	const maxPaths = Math.min(config.maxPaths, Math.pow(2, Math.min(branches.length, config.maxPathDepth)))
+	const maxPaths = Math.min(config.maxPaths, 2 ** Math.min(branches.length, config.maxPathDepth))
 
 	// Initial state
 	const initialState: SymbolicState = {
@@ -53,7 +58,9 @@ export function executeSymbolically(
 		if (declMatch) {
 			const name = declMatch[1]
 			const typeHint = declMatch[2] ?? 'unknown'
-			const type = ['number', 'string', 'boolean'].includes(typeHint) ? typeHint as 'number' | 'string' | 'boolean' : 'unknown'
+			const _type = ['number', 'string', 'boolean'].includes(typeHint)
+				? (typeHint as 'number' | 'string' | 'boolean')
+				: 'unknown'
 			initialState.vars.set(name, { kind: 'var', name: `sym_${name}` })
 
 			// Track literal values for constraint solving
@@ -165,7 +172,7 @@ function checkForElse(lines: string[], ifLineIdx: number): boolean {
  */
 function enumerateBranchDecisions(numBranches: number, maxPaths: number): boolean[][] {
 	const decisions: boolean[][] = []
-	const total = Math.min(Math.pow(2, numBranches), maxPaths)
+	const total = Math.min(2 ** numBranches, maxPaths)
 
 	for (let i = 0; i < total; i++) {
 		const combo: boolean[] = []
@@ -243,13 +250,21 @@ function explorePath(
 		const lineNum = i + 1
 		linesCovered.push(lineNum)
 
-		if (line === '' || line.startsWith('//') || line.startsWith('import ') || line.startsWith('export type')) {
+		if (
+			line === '' ||
+			line.startsWith('//') ||
+			line.startsWith('import ') ||
+			line.startsWith('export type')
+		) {
 			continue
 		}
 
 		// Track assignments on this path
 		const assignMatch = line.match(/^(\w+)\s*=\s*(.+)$/)
-		if (assignMatch && !['if', 'else', 'for', 'while', 'return', 'throw'].includes(assignMatch[1])) {
+		if (
+			assignMatch &&
+			!['if', 'else', 'for', 'while', 'return', 'throw'].includes(assignMatch[1])
+		) {
 			const name = assignMatch[1]
 			const rhs = assignMatch[2].trim()
 
@@ -279,66 +294,166 @@ function explorePath(
  * Simple constraint solver for constant values.
  */
 function checkFeasibility(conditions: PathCondition[]): boolean {
-	// Build a simple constraint map: var → set of required values
-	const constraints = new Map<string, Set<number | boolean | null>>()
+	// Per-variable constraint accumulator. Reasons over equality/exclusion sets
+	// AND a numeric interval [lo, hi] (with strictness) built from inequalities,
+	// so contradictions like `x > 5 && x < 3` or `x >= 5 && x < 5` are detected
+	// (the previous version only caught `x===5 && x===3` and direct negation).
+	interface Bounds {
+		eqs: Set<number | boolean>
+		neqs: Set<number | boolean>
+		lo: number
+		loStrict: boolean
+		hi: number
+		hiStrict: boolean
+		hasLo: boolean
+		hasHi: boolean
+	}
+	const vars = new Map<string, Bounds>()
+	const get = (name: string): Bounds => {
+		let b = vars.get(name)
+		if (!b) {
+			b = {
+				eqs: new Set(),
+				neqs: new Set(),
+				lo: -Infinity,
+				loStrict: false,
+				hi: Infinity,
+				hiStrict: false,
+				hasLo: false,
+				hasHi: false,
+			}
+			vars.set(name, b)
+		}
+		return b
+	}
+	const tightenLo = (b: Bounds, v: number, strict: boolean): void => {
+		if (!b.hasLo || v > b.lo) {
+			b.lo = v
+			b.loStrict = strict
+		} else if (v === b.lo) {
+			b.loStrict = b.loStrict || strict
+		}
+		b.hasLo = true
+	}
+	const tightenHi = (b: Bounds, v: number, strict: boolean): void => {
+		if (!b.hasHi || v < b.hi) {
+			b.hi = v
+			b.hiStrict = strict
+		} else if (v === b.hi) {
+			b.hiStrict = b.hiStrict || strict
+		}
+		b.hasHi = true
+	}
 
 	for (const cond of conditions) {
 		const expr = cond.expr
+		if (expr.kind !== 'binop') continue
+		const leftIsVar = expr.left.kind === 'var'
+		const rightIsVar = expr.right.kind === 'var'
+		const leftIsConst = expr.left.kind === 'const'
+		const rightIsConst = expr.right.kind === 'const'
+		if (!(leftIsVar && rightIsConst) && !(rightIsVar && leftIsConst)) continue
 
-		if (expr.kind === 'binop' && expr.right.kind === 'const') {
-			const varName = expr.left.kind === 'var' ? expr.left.name : null
-			if (!varName) continue
+		const varName =
+			expr.left.kind === 'var' ? expr.left.name : expr.right.kind === 'var' ? expr.right.name : ''
+		const leftConst = expr.left.kind === 'const' ? (expr.left.value as number | boolean) : null
+		const rightConst = expr.right.kind === 'const' ? (expr.right.value as number | boolean) : null
+		const value = (leftConst ?? rightConst ?? 0) as number | boolean
+		// Normalize to `var OP const`; if the const is on the left, flip direction.
+		let op = expr.left.kind === 'const' ? flipOp(expr.op) : expr.op
+		op = cond.negated ? negateOp(op) : op
 
-			const value = expr.right.value as number
-			const expected = cond.negated ? negateOp(expr.op) : expr.op
-
-			// Simple check: same variable with contradictory constraints
-			if (!constraints.has(varName)) {
-				constraints.set(varName, new Set())
-			}
-
-			// For equality: check if we have a conflicting value
-			if (expected === '===' || expected === '==') {
-				const existing = constraints.get(varName)!
-				if (existing.size > 0 && !existing.has(value)) {
-					return false // x === 5 and x === 3 → infeasible
-				}
-				existing.add(value)
-			}
+		const b = get(varName)
+		if (typeof value === 'boolean') {
+			if (op === '===' || op === '==') b.eqs.add(value)
+			else if (op === '!==' || op === '!=') b.neqs.add(value)
+			continue
 		}
-
-		// Check for obvious contradiction: x > 5 AND !x > 5
-		if (cond.negated) {
-			for (const other of conditions) {
-				if (other === cond) continue
-				if (!other.negated && exprEquals(cond.expr, other.expr)) {
-					// Same condition, one negated and one not
-					const hasNegated = conditions.some((c) => c !== cond && c.negated === cond.negated && exprEquals(c.expr, cond.expr))
-					if (!hasNegated) return false
-				}
-			}
+		switch (op) {
+			case '===':
+			case '==':
+				b.eqs.add(value)
+				tightenLo(b, value, false)
+				tightenHi(b, value, false)
+				break
+			case '!==':
+			case '!=':
+				b.neqs.add(value)
+				break
+			case '>':
+				tightenLo(b, value, true)
+				break
+			case '>=':
+				tightenLo(b, value, false)
+				break
+			case '<':
+				tightenHi(b, value, true)
+				break
+			case '<=':
+				tightenHi(b, value, false)
+				break
+			default:
+				break
 		}
 	}
 
+	for (const b of vars.values()) {
+		const distinctEqs = new Set(b.eqs)
+		if (distinctEqs.size > 1) return false // x===5 && x===3
+		// Empty interval: lo > hi, or lo===hi with a strict bound on either side.
+		if (b.hasLo && b.hasHi) {
+			if (b.lo > b.hi) return false // x>5 && x<3
+			if (b.lo === b.hi && (b.loStrict || b.hiStrict)) return false // x>=5 && x<5
+		}
+		if (distinctEqs.size === 1) {
+			const v = [...b.eqs][0]!
+			if (typeof v === 'number') {
+				if (b.hasLo && (v < b.lo || (v === b.lo && b.loStrict))) return false // x===3 && x>3
+				if (b.hasHi && (v > b.hi || (v === b.hi && b.hiStrict))) return false
+			}
+			if (b.neqs.has(v)) return false // x===5 && x!==5
+		}
+	}
 	return true
+}
+
+/** Flip a comparison operator when the const is on the LEFT side (5 < x ⟺ x > 5). */
+function flipOp(op: string): string {
+	const flips: Record<string, string> = {
+		'>': '<',
+		'<': '>',
+		'>=': '<=',
+		'<=': '>=',
+		'===': '===',
+		'!==': '!==',
+		'==': '==',
+		'!=': '!=',
+	}
+	return flips[op] ?? op
 }
 
 /** Negate a comparison operator */
 function negateOp(op: string): string {
 	const negations: Record<string, string> = {
-		'>': '<=', '<': '>=', '>=': '<', '<=': '>',
-		'===': '!==', '!==': '===', '==': '!=', '!=': '==',
+		'>': '<=',
+		'<': '>=',
+		'>=': '<',
+		'<=': '>',
+		'===': '!==',
+		'!==': '===',
+		'==': '!=',
+		'!=': '==',
 	}
 	return negations[op] ?? op
 }
 
 /** Check if two symbolic expressions are structurally equal */
-function exprEquals(a: SymbolicExpr, b: SymbolicExpr): boolean {
+function _exprEquals(a: SymbolicExpr, b: SymbolicExpr): boolean {
 	if (a.kind !== b.kind) return false
 	if (a.kind === 'var' && b.kind === 'var') return a.name === b.name
 	if (a.kind === 'const' && b.kind === 'const') return a.value === b.value
 	if (a.kind === 'binop' && b.kind === 'binop') {
-		return a.op === b.op && exprEquals(a.left, b.left) && exprEquals(a.right, b.right)
+		return a.op === b.op && _exprEquals(a.left, b.left) && _exprEquals(a.right, b.right)
 	}
 	return false
 }
@@ -469,10 +584,14 @@ export function simplifyExpr(expr: SymbolicExpr): SymbolicExpr {
 		const rv = right.value
 		if (typeof lv === 'number' && typeof rv === 'number') {
 			switch (expr.op) {
-				case '+': return { kind: 'const', value: lv + rv }
-				case '-': return { kind: 'const', value: lv - rv }
-				case '*': return { kind: 'const', value: lv * rv }
-				case '/': return rv !== 0 ? { kind: 'const', value: lv / rv } : expr
+				case '+':
+					return { kind: 'const', value: lv + rv }
+				case '-':
+					return { kind: 'const', value: lv - rv }
+				case '*':
+					return { kind: 'const', value: lv * rv }
+				case '/':
+					return rv !== 0 ? { kind: 'const', value: lv / rv } : expr
 			}
 		}
 	}
