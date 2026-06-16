@@ -1,6 +1,10 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { type AutonomousRunner, createAutonomousRunner } from '../../autonomous/index.js'
+import {
+	type AutonomousRunner,
+	createAutonomousRunner,
+	type StepExecutor,
+} from '../../autonomous/index.js'
 import { executePipeline, matchOperation } from '../../composition/index.js'
 import type { ToolExecutor as CompositionToolExecutor } from '../../composition/toolChain.js'
 import { runWithEscalation } from '../../cortex/depthEscalator.js'
@@ -23,8 +27,10 @@ import {
 	listPlans,
 	suggestNextSteps,
 } from '../../planning/projectPlanner.js'
+import { getProofEngine, type ProofEngine } from '../../proofEngine/index.js'
 import { runReasoning } from '../../reasoning/index.js'
 import type { GenerateFn, ReasoningChain, ReasoningStrategy } from '../../reasoning/types.js'
+import { createLlmAgentExecutor } from '../../swarm/llmExecutor.js'
 import { getSwarmOrchestrator } from '../../swarm/orchestrator.js'
 import type {
 	AgentRole,
@@ -35,8 +41,6 @@ import type {
 } from '../../swarm/types.js'
 import { DEFAULT_SWARM_CONFIG } from '../../swarm/types.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { type OlympusEngine, getOlympusEngine } from '../../olympus/index.js'
-import { type ProofEngine, getProofEngine } from '../../proofEngine/index.js'
 import { research } from '../../webintel/deepResearch.js'
 import type { FetchFn, ResearchResult, SearchFn } from '../../webintel/types.js'
 import type { SuperAgentConfig, SuperAgentState } from './types.js'
@@ -54,7 +58,6 @@ export class SuperAgentOrchestrator {
 	private autonomousRunner: AutonomousRunner | null = null
 	private cortexEngine: CortexEngine | null = null
 	private governanceEngine: GovernanceEngine | null = null
-	private olympusEngine: OlympusEngine | null = null
 	private proofEngine: ProofEngine | null = null
 
 	constructor(config?: Partial<SuperAgentConfig>) {
@@ -78,19 +81,13 @@ export class SuperAgentOrchestrator {
 			localDeviceSnapshot: null,
 			performanceReport: null,
 			governanceReport: null,
-			olympusCompanies: [],
-			olympusTemplates: [],
 			proofReport: null,
 			lastProofConfidence: null,
 			satPathsChecked: 0,
 			satInfeasiblePaths: 0,
-			contractCompliance: null,
 			aiSoundnessScore: null,
 			aiFindingsCount: 0,
 			fuzzCrashesFound: 0,
-			sePathsExplored: 0,
-			seFindingsCount: 0,
-			sliceReductionAvg: null,
 			sessionContext: null,
 			enabledModules: [],
 			initialized: false,
@@ -131,7 +128,24 @@ export class SuperAgentOrchestrator {
 
 		if (this.config.autonomousEnabled) {
 			try {
-				this.autonomousRunner = createAutonomousRunner()
+				// Wire a REAL step executor so milestones do actual work instead of the
+				// placeholder 'Executed' default (see taskRunner.executeMilestone).
+				// When no model is configured (createGenerateFn() → null), the executor
+				// returns an empty object — an honest no-op rather than fake success.
+				const { createGenerateFn } = await import('../../reasoning/generateFnFactory.js')
+				const generateFn = await createGenerateFn()
+				const executeStep: StepExecutor = async (step, _context) => {
+					if (!generateFn) return {}
+					const text = await generateFn(
+						`Execute this step and return ONLY a JSON object with keys "result" and "notes".\n\n${step}`,
+					)
+					try {
+						return JSON.parse(text) as Record<string, unknown>
+					} catch {
+						return { result: text }
+					}
+				}
+				this.autonomousRunner = createAutonomousRunner(undefined, { executeStep })
 				enabled.push('autonomous')
 			} catch (e) {
 				logForDebugging(`[SuperAgent] autonomous init failed: ${e}`)
@@ -194,7 +208,6 @@ export class SuperAgentOrchestrator {
 		if (this.config.swarmEnabled) enabled.push('swarm')
 		if (this.config.compositionEnabled) enabled.push('composition')
 		if (this.config.webintelEnabled) enabled.push('webintel')
-		if (this.config.multimodalEnabled) enabled.push('multimodal')
 
 		// ─── 100x Governance Engine ────────────────────────────────
 		if (this.config.governanceEnabled) {
@@ -203,17 +216,6 @@ export class SuperAgentOrchestrator {
 				enabled.push('governance')
 			} catch (e) {
 				logForDebugging(`[SuperAgent] governance init failed: ${e}`)
-			}
-		}
-
-		// ─── Olympus Industries Engine ────────────────────────────
-		if (this.config.olympusEnabled) {
-			try {
-				this.olympusEngine = getOlympusEngine()
-				this.state.olympusTemplates = this.olympusEngine.getTemplates()
-				enabled.push('olympus')
-			} catch (e) {
-				logForDebugging(`[SuperAgent] olympus init failed: ${e}`)
 			}
 		}
 
@@ -231,9 +233,6 @@ export class SuperAgentOrchestrator {
 		if (this.config.satEnabled) {
 			enabled.push('sat')
 		}
-		if (this.config.contractEnabled) {
-			enabled.push('contract')
-		}
 
 		// ─── Abstract Interpretation & Fuzzing Engine ─────────
 		if (this.config.abstractInterpretationEnabled) {
@@ -243,33 +242,27 @@ export class SuperAgentOrchestrator {
 			enabled.push('fuzzing')
 		}
 
-		// ─── Symbolic Execution & Program Slicing (Phase 4) ────
-		if (this.config.symbolicExecutionEnabled) {
-			enabled.push('symbolic-execution')
-		}
-		if (this.config.programSlicingEnabled) {
-			enabled.push('program-slicing')
-		}
-
 		// Gap 6: Wire AI-driven goal decomposition
 		if (this.config.autonomousEnabled) {
 			try {
 				const { setDecomposeFn } = await import('../../autonomous/goalManager.js')
 				const { createGenerateFn } = await import('../../reasoning/generateFnFactory.js')
 				const generateFn = await createGenerateFn()
-				setDecomposeFn(async (description: string) => {
-					const response = await generateFn(
-						`Decompose this goal into 3-7 specific, actionable sub-tasks. Return ONLY a JSON array of strings, no other text:\n\n${description}`,
-					)
-					try {
-						return JSON.parse(response)
-					} catch {
-						return response
-							.split('\n')
-							.filter((l: string) => l.trim().startsWith('-'))
-							.map((l: string) => l.replace(/^-\s*/, ''))
-					}
-				})
+				if (generateFn) {
+					setDecomposeFn(async (description: string) => {
+						const response = await generateFn(
+							`Decompose this goal into 3-7 specific, actionable sub-tasks. Return ONLY a JSON array of strings, no other text:\n\n${description}`,
+						)
+						try {
+							return JSON.parse(response)
+						} catch {
+							return response
+								.split('\n')
+								.filter((l: string) => l.trim().startsWith('-'))
+								.map((l: string) => l.replace(/^-\s*/, ''))
+						}
+					})
+				}
 			} catch {
 				// Non-critical — falls back to heuristic decomposition
 			}
@@ -308,26 +301,7 @@ export class SuperAgentOrchestrator {
 
 			let chain: ReasoningChain | null = null
 
-			// Gap 10: Use quantum-cortex bridge for quantum strategy
-			if (resolvedStrategy === 'quantum' && this.cortexEngine) {
-				try {
-					const { quantumWithCortex } = await import('../../quantum/cortexBridge.js')
-					const cortexAnalysis = this.state.activeCortexAnalysis ?? null
-					const result = await quantumWithCortex(query, cortexAnalysis)
-					chain = {
-						id: `quantum-cortex-${Date.now()}`,
-						strategy: 'quantum',
-						query,
-						steps: result.augmentedSteps,
-						conclusion: result.augmentedSteps[result.augmentedSteps.length - 1]?.content ?? '',
-						confidence: result.combinedConfidence,
-						durationMs: 0,
-						timestamp: Date.now(),
-					}
-				} catch {
-					// Fall through to standard reasoning
-				}
-			}
+			// Quantum strategy removed in v1.1 — falls through to standard reasoning
 
 			if (!chain) {
 				chain = await runWithEscalation(
@@ -513,13 +487,16 @@ export class SuperAgentOrchestrator {
 	 */
 	async executeSwarm(
 		tasks: string[],
-		executor: (task: SwarmTask, agent: SwarmAgentInfo) => Promise<SwarmTaskResult>,
+		executor?: (task: SwarmTask, agent: SwarmAgentInfo) => Promise<SwarmTaskResult>,
 		config?: Partial<SwarmConfig>,
 	) {
 		if (!this.config.swarmEnabled) return null
 
 		try {
 			const orchestrator = getSwarmOrchestrator()
+			// Default to the real LLM-backed executor so callers get working agents
+			// without knowing about createLlmAgentExecutor (src/swarm/llmExecutor.ts).
+			const resolvedExecutor = executor ?? createLlmAgentExecutor()
 			const fullConfig: SwarmConfig = { ...DEFAULT_SWARM_CONFIG, ...config }
 			const swarmId = orchestrator.createSwarm(config)
 
@@ -554,7 +531,7 @@ export class SuperAgentOrchestrator {
 				this.state.activeSwarms.shift()
 			}
 
-			const results = await orchestrator.executeSwarm(swarmId, executor)
+			const results = await orchestrator.executeSwarm(swarmId, resolvedExecutor)
 			return results
 		} catch (e) {
 			logForDebugging(`[SuperAgent] swarm execution failed: ${e}`)
@@ -784,11 +761,6 @@ export class SuperAgentOrchestrator {
 		return this.governanceEngine
 	}
 
-	/** Get the Olympus Industries engine instance */
-	getOlympusEngineInstance(): OlympusEngine | null {
-		return this.olympusEngine
-	}
-
 	/** Get the Proof Engine instance */
 	getProofEngine(): ProofEngine | null {
 		return this.proofEngine
@@ -805,11 +777,6 @@ export class SuperAgentOrchestrator {
 		this.state.satInfeasiblePaths = (this.state.satInfeasiblePaths ?? 0) + infeasible
 	}
 
-	/** Update contract compliance score (called from hooks) */
-	setContractCompliance(score: number): void {
-		this.state.contractCompliance = score
-	}
-
 	/** Update AI soundness score (called from hooks) */
 	setAISoundnessScore(score: number, findings: number): void {
 		this.state.aiSoundnessScore = score
@@ -819,27 +786,6 @@ export class SuperAgentOrchestrator {
 	/** Increment fuzzing crash count (called from hooks) */
 	incrementFuzzCrashes(count: number): void {
 		this.state.fuzzCrashesFound += count
-	}
-
-	/** Update symbolic execution stats (called from hooks) */
-	setSEStats(pathsExplored: number, findings: number): void {
-		this.state.sePathsExplored = pathsExplored
-		this.state.seFindingsCount = findings
-	}
-
-	/** Update program slicing average reduction (called from hooks) */
-	setSliceReductionAvg(avg: number): void {
-		this.state.sliceReductionAvg = avg
-	}
-
-	/** Get active Olympus companies summary */
-	getOlympusCompanies(): Array<{ companyId: string; agentCount: number; departmentCount: number }> {
-		if (!this.olympusEngine) return []
-		return this.olympusEngine.listCompanies().map((c) => ({
-			companyId: c.companyId,
-			agentCount: c.state.agents.length,
-			departmentCount: c.state.departments.length,
-		}))
 	}
 
 	getState(): Readonly<SuperAgentState> {
