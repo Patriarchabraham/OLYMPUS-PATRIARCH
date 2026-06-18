@@ -196,24 +196,21 @@ import rateLimitOptions from './commands/rate-limit-options/index.js'
 import statusline from './commands/statusline.js'
 import effort from './commands/effort/index.js'
 import stats from './commands/stats/index.js'
+import benchmarkSuite from './commands/benchmark-suite/index.js'
 // Super-agent commands
 import reason from './commands/reason/index.js'
 import swarm from './commands/swarm/index.js'
 import research from './commands/research/index.js'
 import goals from './commands/goals/index.js'
 import evolve from './commands/evolve/index.js'
+import deep from './commands/deep/index.js'
 import rag from './commands/rag/index.js'
 import visualize from './commands/visualize/index.js'
-import olympus from './commands/olympus/index.js'
 import proof from './commands/proof/index.js'
 import pbt from './commands/pbt/index.js'
-import mutationTest from './commands/mutation-test/index.js'
 import sat from './commands/sat/index.js'
-import contract from './commands/contract/index.js'
 import abstractCmd from './commands/abstract/index.js'
 import fuzz from './commands/fuzz/index.js'
-import symbolic from './commands/symbolic/index.js'
-import slice from './commands/slice/index.js'
 // insights.ts is 113KB (3200 lines, includes diffLines/html rendering). Lazy
 // shim defers the heavy module until /insights is actually invoked.
 const usageReport: Command = {
@@ -337,6 +334,7 @@ const COMMANDS = memoize((): Command[] => [
   session,
   skills,
   stats,
+  benchmarkSuite,
   status,
   statusline,
   stickers,
@@ -362,18 +360,14 @@ const COMMANDS = memoize((): Command[] => [
   research,
   goals,
   evolve,
+  deep,
   rag,
   visualize,
-  olympus,
   proof,
   pbt,
-  mutationTest,
   sat,
-  contract,
   abstractCmd,
   fuzz,
-  symbolic,
-  slice,
   ...(webCmd ? [webCmd] : []),
   ...(forkCmd ? [forkCmd] : []),
   ...(buddy ? [buddy] : []),
