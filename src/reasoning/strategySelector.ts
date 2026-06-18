@@ -38,25 +38,6 @@ const VERIFICATION_KEYWORDS = [
 	'must',
 ]
 
-const QUANTUM_KEYWORDS = [
-	'quantum',
-	'supreme',
-	'dimensional',
-	'superposition',
-	'entangle',
-	'collapse',
-	'tunnel',
-	'multi-dimensional',
-	'parallel universe',
-	'simultaneous',
-	'all dimensions',
-	'across all',
-	'holistic',
-	'all angles',
-	'every aspect',
-	'comprehensive analysis',
-]
-
 const DESIGN_KEYWORDS = [
 	'design',
 	'architect',
@@ -123,17 +104,6 @@ export function selectStrategy(
 	const lower = query.toLowerCase()
 	const len = query.length
 
-	// Check for quantum keywords first — highest priority
-	const quantumScore = QUANTUM_KEYWORDS.filter((k) => lower.includes(k)).length
-	if (quantumScore >= 2) {
-		return {
-			strategy: 'quantum',
-			reason: `Query contains ${quantumScore} quantum/multi-dimensional terms, quantum engine will evaluate across all dimensions simultaneously`,
-			estimatedComplexity: 'high',
-			estimatedSteps: 10,
-		}
-	}
-
 	// Check for verification keywords
 	const verificationScore = VERIFICATION_KEYWORDS.filter((k) => lower.includes(k)).length
 	if (verificationScore >= 2 || (verificationScore >= 1 && lower.includes('critical'))) {
@@ -190,7 +160,7 @@ export function selectStrategy(
 
 	// ─── Evolution hint fallback boost ──────────────────────────────
 	if (evolutionBoost && evolutionBoost.successRate > 0.7) {
-		const validStrategies: ReasoningStrategy[] = ['cot', 'tot', 'reflect', 'ensemble', 'quantum']
+		const validStrategies: ReasoningStrategy[] = ['cot', 'tot', 'reflect', 'ensemble']
 		if (validStrategies.includes(evolutionBoost.strategy as ReasoningStrategy)) {
 			return {
 				strategy: evolutionBoost.strategy as ReasoningStrategy,
@@ -261,7 +231,7 @@ export function resolveStrategy(
 
 /** Extract a valid strategy name from a text string */
 function extractStrategyFromText(text: string): ReasoningStrategy | null {
-	const strategies: ReasoningStrategy[] = ['cot', 'tot', 'reflect', 'ensemble', 'quantum']
+	const strategies: ReasoningStrategy[] = ['cot', 'tot', 'reflect', 'ensemble']
 	for (const s of strategies) {
 		if (
 			text.includes(s) ||

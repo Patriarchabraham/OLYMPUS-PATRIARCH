@@ -1,6 +1,5 @@
 import { cosineSimilarity, termFrequencies } from '../utils/nlp.js'
 import { runChainOfThought } from './chainOfThought.js'
-import { createTemplateOnlyGenerateFn } from './generateFnFactory.js'
 import { runSelfReflection } from './selfReflection.js'
 import type { StrategySelectionOptions } from './strategySelector.js'
 import { resolveStrategy } from './strategySelector.js'
@@ -8,7 +7,7 @@ import { runTreeOfThought } from './treeOfThought.js'
 import type { GenerateFn, ReasoningChain, ReasoningStep, ReasoningStrategy } from './types.js'
 
 export { runChainOfThought } from './chainOfThought.js'
-export { createGenerateFn, createTemplateOnlyGenerateFn } from './generateFnFactory.js'
+export { createGenerateFn } from './generateFnFactory.js'
 export { runSelfReflection } from './selfReflection.js'
 export type { StrategySelectionOptions } from './strategySelector.js'
 export { resolveStrategy, selectStrategy } from './strategySelector.js'
@@ -199,7 +198,10 @@ async function runEnsemble(
 	generateFn?: GenerateFn,
 ): Promise<ReasoningChain> {
 	const startTime = Date.now()
-	const generate = generateFn ?? createTemplateOnlyGenerateFn()
+	if (!generateFn) {
+		throw new Error('runEnsemble requires a real GenerateFn — no LLM available')
+	}
+	const generate = generateFn
 
 	// Run all three strategies in parallel
 	const [cotResult, totResult, reflectResult] = await Promise.all([
@@ -286,139 +288,6 @@ async function runEnsemble(
 }
 
 /**
- * Run quantum-enhanced reasoning using the QuantumEngine.
- * Falls back to CoT if quantum module is unavailable.
- */
-async function runQuantumReasoning(
-	query: string,
-	context?: string,
-	generateFn?: GenerateFn,
-): Promise<ReasoningChain> {
-	const startTime = Date.now()
-	const generate = generateFn ?? createTemplateOnlyGenerateFn()
-
-	try {
-		// Dynamically import to avoid hard dependency
-		const { QuantumEngine } = await import('../quantum/index.js')
-		const engine = new QuantumEngine()
-
-		// Run quantum analysis pipeline
-		const analysis = await engine.process(query)
-
-		// Extract reasoning states from quantum results
-		const steps: ReasoningStep[] = []
-
-		// PERCEIVE phase — use quantum state analysis
-		if (analysis.states.length > 0) {
-			steps.push({
-				id: `qs_perceive`,
-				type: 'analysis',
-				content: `Quantum analysis across ${analysis.dimensionsCovered.length} dimensions: ${analysis.dimensionsCovered.join(', ')}`,
-				confidence: analysis.confidence,
-				metadata: { phase: 'perceive', dimensions: analysis.dimensionsCovered },
-			})
-		}
-
-		// SUPERPOSE phase — multiple solution states
-		const topStates = analysis.states.sort((a, b) => b.confidence - a.confidence).slice(0, 5)
-
-		for (const state of topStates) {
-			steps.push({
-				id: `qs_superpose_${state.id}`,
-				type: 'hypothesis',
-				content: `[${state.dimension}] ${state.solution}`,
-				confidence: state.confidence,
-				metadata: { phase: 'superpose', dimension: state.dimension },
-			})
-		}
-
-		// ENTANGLE phase — cross-dimensional insights
-		if (analysis.entanglements.length > 0) {
-			const topEntanglements = analysis.entanglements
-				.sort((a, b) => b.concurrence - a.concurrence)
-				.slice(0, 3)
-
-			for (const ent of topEntanglements) {
-				steps.push({
-					id: `qs_entangle_${ent.id}`,
-					type: 'synthesis',
-					content: `Entangled insight: ${ent.sharedPattern} (concurrence: ${ent.concurrence.toFixed(3)}, entropy: ${ent.entropy.toFixed(3)})`,
-					confidence: Math.min(1, ent.concurrence + 0.1),
-					metadata: { phase: 'entangle', concurrence: ent.concurrence },
-				})
-			}
-		}
-
-		// COLLAPSE phase — converged solution
-		if (analysis.collapseResult) {
-			const collapsed = analysis.collapseResult
-			steps.push({
-				id: `qs_collapse`,
-				type: 'verification',
-				content: `Collapsed to optimal solution via Born rule (probability: ${collapsed.bornProbability.toFixed(4)}): ${collapsed.collapsedState.solution}`,
-				confidence: collapsed.confidence,
-				metadata: {
-					phase: 'collapse',
-					bornProbability: collapsed.bornProbability,
-					dimensionsEvaluated: collapsed.dimensionsEvaluated,
-				},
-			})
-		}
-
-		// TUNNEL phase — barrier bypass
-		for (const tunnel of analysis.tunnelResults.slice(0, 2)) {
-			steps.push({
-				id: `qs_tunnel_${tunnel.id}`,
-				type: 'hypothesis',
-				content: `Quantum tunnel through barrier "${tunnel.barrier}": ${tunnel.tunnelPath}`,
-				confidence: tunnel.confidence,
-				metadata: { phase: 'tunnel', interferenceGain: tunnel.interferenceGain },
-			})
-		}
-
-		// If quantum didn't produce enough, supplement with CoT
-		if (steps.length < 3) {
-			const cotChain = await runChainOfThought(query, context, generate)
-			steps.push(...cotChain.steps)
-		}
-
-		// Final synthesis step
-		steps.push({
-			id: `qs_synthesis`,
-			type: 'synthesis',
-			content: 'Quantum analysis complete — evaluated across multiple dimensions simultaneously',
-			confidence: analysis.confidence,
-		})
-
-		const conclusion =
-			analysis.collapseResult?.collapsedState.solution ??
-			topStates[0]?.solution ??
-			'Quantum analysis produced multi-dimensional insights'
-
-		return {
-			id: analysis.id,
-			strategy: 'quantum',
-			query,
-			steps,
-			conclusion,
-			confidence: analysis.confidence,
-			durationMs: Date.now() - startTime,
-			timestamp: Date.now(),
-			metadata: {
-				quantumDimensions: analysis.dimensionsCovered,
-				entanglementsFound: analysis.entanglements.length,
-				tunnelResults: analysis.tunnelResults.length,
-				bornProbability: analysis.collapseResult?.bornProbability ?? 0,
-			},
-		}
-	} catch {
-		// Quantum module unavailable — fall back to CoT with enriched context
-		const enrichedContext = `[Quantum fallback] Analyzing with enhanced chain-of-thought${context ? ` | ${context}` : ''}`
-		return runChainOfThought(query, enrichedContext, generate)
-	}
-}
-
-/**
  * Run reasoning with optional strategy selection hints.
  *
  * @param query - The query to reason about
@@ -445,8 +314,6 @@ export async function runReasoning(
 			return runSelfReflection(query, context, undefined, generateFn)
 		case 'ensemble':
 			return runEnsemble(query, context, generateFn)
-		case 'quantum':
-			return runQuantumReasoning(query, context, generateFn)
 		default:
 			return runChainOfThought(query, context, generateFn)
 	}
