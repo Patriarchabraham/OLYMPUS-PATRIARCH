@@ -204,6 +204,7 @@ import research from './commands/research/index.js'
 import goals from './commands/goals/index.js'
 import evolve from './commands/evolve/index.js'
 import deep from './commands/deep/index.js'
+import design from './commands/design/index.js'
 import rag from './commands/rag/index.js'
 import visualize from './commands/visualize/index.js'
 import proof from './commands/proof/index.js'
@@ -361,6 +362,7 @@ const COMMANDS = memoize((): Command[] => [
   goals,
   evolve,
   deep,
+  design,
   rag,
   visualize,
   proof,
