@@ -2,6 +2,16 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 
 const originalEnv = { ...process.env }
 
+// vi.mock() factories are hoisted to module top by Vitest and cannot close over
+// the installCommonMocks(options) parameter (ported from bun:test). Hold per-test
+// mock state in a hoisted mutable object that the factories read from.
+const mockState = vi.hoisted(() => ({
+	apiKey: null as string | null,
+	oauthToken: null as string | null,
+	hasProfileScope: false,
+	axiosReject: false,
+}))
+
 async function importFreshFastModeModule() {
 	vi.resetModules()
 	return vi.importActual<typeof import('./fastMode')>('./fastMode.ts')
@@ -14,9 +24,14 @@ function installCommonMocks(options?: {
 	hasProfileScope?: boolean
 	axiosReject?: boolean
 }) {
+	mockState.apiKey = options?.apiKey ?? null
+	mockState.oauthToken = options?.oauthToken ?? null
+	mockState.hasProfileScope = options?.hasProfileScope ?? false
+	mockState.axiosReject = options?.axiosReject ?? false
+
 	vi.mock('axios', () => ({
 		default: {
-			get: options?.axiosReject
+			get: mockState.axiosReject
 				? async () => {
 						throw new Error('network fail')
 					}
@@ -81,11 +96,11 @@ function installCommonMocks(options?: {
 	vi.mock('./auth.js', () => ({
 		isAnthropicAuthEnabled: () => true,
 		getAuthTokenSource: () => 'none',
-		getAnthropicApiKey: () => options?.apiKey ?? null,
-		hasAnthropicApiKeyAuth: () => Boolean(options?.apiKey),
+		getAnthropicApiKey: () => mockState.apiKey ?? null,
+		hasAnthropicApiKeyAuth: () => Boolean(mockState.apiKey),
 		getAnthropicApiKeyWithSource: () => ({
-			apiKey: options?.apiKey ?? null,
-			source: options?.apiKey ? 'env' : null,
+			apiKey: mockState.apiKey ?? null,
+			source: mockState.apiKey ? 'env' : null,
 		}),
 		getConfiguredApiKeyHelper: () => undefined,
 		isAwsAuthRefreshFromProjectSettings: () => false,
@@ -112,15 +127,15 @@ function installCommonMocks(options?: {
 		removeApiKey: async () => {},
 		saveOAuthTokensIfNeeded: () => ({ didSave: false }),
 		getClaudeAIOAuthTokens: () =>
-			options?.oauthToken ? { accessToken: options.oauthToken } : null,
+			mockState.oauthToken ? { accessToken: mockState.oauthToken } : null,
 		clearOAuthTokenCache: () => {},
 		handleOAuth401Error: async () => {},
 		getClaudeAIOAuthTokensAsync: async () =>
-			options?.oauthToken ? { accessToken: options.oauthToken } : null,
+			mockState.oauthToken ? { accessToken: mockState.oauthToken } : null,
 		checkAndRefreshOAuthTokenIfNeeded: async () => null,
-		isClaudeAISubscriber: () => Boolean(options?.oauthToken),
-		hasProfileScope: () => options?.hasProfileScope ?? false,
-		is1PApiCustomer: () => Boolean(options?.apiKey),
+		isClaudeAISubscriber: () => Boolean(mockState.oauthToken),
+		hasProfileScope: () => mockState.hasProfileScope ?? false,
+		is1PApiCustomer: () => Boolean(mockState.apiKey),
 		getOauthAccountInfo: () => undefined,
 		isOverageProvisioningAllowed: () => false,
 		hasOpusAccess: () => false,

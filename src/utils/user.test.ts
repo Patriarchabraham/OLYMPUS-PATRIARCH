@@ -2,6 +2,16 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 
 const originalEnv = { ...process.env }
 
+// vi.mock() factories are hoisted to module top by Vitest and cannot close over
+// the installCommonMocks(options) parameter (ported from bun:test where
+// mock.module captures closures). Hold per-test mock state in a hoisted mutable
+// object that the factories read from; installCommonMocks populates it before
+// the fresh import re-evaluates the factories.
+const mockState = vi.hoisted(() => ({
+	oauthEmail: undefined as string | undefined,
+	gitEmail: undefined as string | undefined,
+}))
+
 async function importFreshUserModule() {
 	vi.resetModules()
 	return vi.importActual<typeof import('./user')>('./user.ts')
@@ -9,17 +19,20 @@ async function importFreshUserModule() {
 
 function installCommonMocks(options?: { oauthEmail?: string; gitEmail?: string }) {
 	// NOTE: Do NOT mock ../bootstrap/state.js here.
-	// vi.mock() is process-global in bun:test and vi.restoreAllMocks() does NOT
-	// undo it. Mocking state.js leaks getSessionId = () => 'session-test' into
-	// every other test file that imports state.js (e.g. SDK CON-1 tests).
-	// The dynamic import (importFreshUserModule) will use the real state.js,
-	// which is fine — these tests only assert email, not sessionId.
+	// vi.mock() is process-global and vi.restoreAllMocks() does NOT undo it.
+	// Mocking state.js leaks getSessionId = () => 'session-test' into every other
+	// test file that imports state.js (e.g. SDK CON-1 tests). The dynamic import
+	// (importFreshUserModule) will use the real state.js, which is fine — these
+	// tests only assert email, not sessionId.
+
+	mockState.oauthEmail = options?.oauthEmail
+	mockState.gitEmail = options?.gitEmail
 
 	vi.mock('./auth.js', () => ({
 		getOauthAccountInfo: () =>
-			options?.oauthEmail
+			mockState.oauthEmail
 				? {
-						emailAddress: options.oauthEmail,
+						emailAddress: mockState.oauthEmail,
 						organizationUuid: 'org-test',
 						accountUuid: 'acct-test',
 					}
@@ -49,8 +62,8 @@ function installCommonMocks(options?: { oauthEmail?: string; gitEmail?: string }
 
 	vi.mock('execa', () => ({
 		execa: async () => ({
-			exitCode: options?.gitEmail ? 0 : 1,
-			stdout: options?.gitEmail ?? '',
+			exitCode: mockState.gitEmail ? 0 : 1,
+			stdout: mockState.gitEmail ?? '',
 		}),
 	}))
 }

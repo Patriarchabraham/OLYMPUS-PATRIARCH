@@ -2,53 +2,54 @@
  * Tests for Web Search Provider result count configurations.
  */
 
-import { describe, test, expect } from 'vitest'
-import { resolve } from 'path'
-import { fileURLToPath } from 'url'
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { describe, expect, test } from 'vitest'
+import { fileLike } from './_bunCompat.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const SRC = resolve(__dirname, '..', 'tools', 'WebSearchTool', 'providers')
-const file = (name: string) => Bun.file(resolve(SRC, name))
+const file = (name: string) => fileLike(resolve(SRC, name))
 
 describe('Provider result counts', () => {
-  const providers = [
-    'bing.ts',
-    'tavily.ts',
-    'exa.ts',
-    'firecrawl.ts',
-    'mojeek.ts',
-    'you.ts',
-    'jina.ts',
-    'duckduckgo.ts',
-    // linkup.ts excluded — uses depth param, not a result count field
-  ]
+	const providers = [
+		'bing.ts',
+		'tavily.ts',
+		'exa.ts',
+		'firecrawl.ts',
+		'mojeek.ts',
+		'you.ts',
+		'jina.ts',
+		'duckduckgo.ts',
+		// linkup.ts excluded — uses depth param, not a result count field
+	]
 
-  for (const name of providers) {
-    test(`${name} exists and is readable`, async () => {
-      const f = file(name)
-      expect(await f.exists()).toBe(true)
-      const content = await f.text()
-      expect(content.length).toBeGreaterThan(100)
-    })
-  }
+	for (const name of providers) {
+		test(`${name} exists and is readable`, async () => {
+			const f = file(name)
+			expect(await f.exists()).toBe(true)
+			const content = await f.text()
+			expect(content.length).toBeGreaterThan(100)
+		})
+	}
 
-  test('No provider hardcodes a limit below 10', async () => {
-    const suspiciousPatterns = [
-      /count['":\s]*['"]([1-9])['"]/i,
-      /limit['":\s]*([1-9])\b/,
-      /max_results['":\s]*([1-9])\b/,
-      /numResults['":\s]*([1-9])\b/,
-    ]
+	test('No provider hardcodes a limit below 10', async () => {
+		const suspiciousPatterns = [
+			/count['":\s]*['"]([1-9])['"]/i,
+			/limit['":\s]*([1-9])\b/,
+			/max_results['":\s]*([1-9])\b/,
+			/numResults['":\s]*([1-9])\b/,
+		]
 
-    for (const name of providers) {
-      const content = await file(name).text()
-      for (const pattern of suspiciousPatterns) {
-        const match = content.match(pattern)
-        if (match) {
-          const num = parseInt(match[1], 10)
-          expect(num).toBeGreaterThanOrEqual(10)
-        }
-      }
-    }
-  })
+		for (const name of providers) {
+			const content = await file(name).text()
+			for (const pattern of suspiciousPatterns) {
+				const match = content.match(pattern)
+				if (match) {
+					const num = parseInt(match[1], 10)
+					expect(num).toBeGreaterThanOrEqual(10)
+				}
+			}
+		}
+	})
 })
