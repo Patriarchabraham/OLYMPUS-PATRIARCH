@@ -131,7 +131,7 @@ describe('runCrossFileImpactCheck', () => {
 		// Import path uses no extension at all (TS convention)
 		await writeFile(
 			join(tempProject, 'src', 'imports-extless.ts'),
-			"import { v } from './target'\n",
+			"import { v } from './extless'\n",
 			'utf-8',
 		)
 
