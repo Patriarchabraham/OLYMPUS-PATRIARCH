@@ -22,6 +22,11 @@ const ENV_KEYS = [
 	'ANTHROPIC_DEFAULT_HAIKU_MODEL',
 	'ANTHROPIC_DEFAULT_HAIKU_MODEL_SUPPORTED_CAPABILITIES',
 	'USER_TYPE',
+	// resolveActiveRouteIdFromEnv checks these FIRST; this dev box has
+	// ANTHROPIC_BASE_URL set, which would collapse every route to firstParty
+	// and defeat the per-test OPENAI_BASE_URL flags above.
+	'ANTHROPIC_BASE_URL',
+	'ANTHROPIC_AUTH_TOKEN',
 ]
 
 const originalEnv: Record<string, string | undefined> = {}
