@@ -4,6 +4,10 @@ import { DEFAULT_CODEX_BASE_URL } from '../services/api/providerConfig.js'
 
 const ORIGINAL_ENV = { ...process.env }
 
+// Hoisted mutable holder so the (hoisted) vi.mock factory below can read the
+// per-call provider value — the factory cannot close over the function param.
+const { providerHolder } = vi.hoisted(() => ({ providerHolder: { current: 'openai' as string } }))
+
 function restoreEnv(): void {
 	for (const key of Object.keys(process.env)) {
 		if (!(key in ORIGINAL_ENV)) {
@@ -25,9 +29,10 @@ async function readPropertyValue(
 	provider: 'openai' | 'codex' | 'nvidia-nim' | 'minimax',
 ): Promise<unknown> {
 	vi.restoreAllMocks()
+	providerHolder.current = provider
 	vi.mock('./model/providers.js', () => ({
-		getAPIProvider: () => provider,
-		getAPIProviderForStatsig: () => provider,
+		getAPIProvider: () => providerHolder.current,
+		getAPIProviderForStatsig: () => providerHolder.current,
 		isFirstPartyAnthropicBaseUrl: () => true,
 		isGithubNativeAnthropicMode: () => false,
 	}))
