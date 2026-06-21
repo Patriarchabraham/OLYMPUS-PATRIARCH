@@ -2,7 +2,6 @@
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { registerGateway } from './index.js'
 
 const originalFetch = globalThis.fetch
 const originalEnv = {
@@ -25,7 +24,14 @@ let tempDir: string
 
 async function loadDiscoveryServiceModule() {
 	vi.resetModules()
-	return vi.importActual<typeof import('./discoveryService.js')>('./discoveryService.js')
+	const discovery =
+		await vi.importActual<typeof import('./discoveryService.js')>('./discoveryService.js')
+	// Re-import registerGateway from the SAME fresh module graph (after
+	// resetModules) so the gateway is written to the registry instance the
+	// freshly-loaded discoveryService reads from. The top-level static import
+	// points at the pre-reset registry, so getRouteCatalog would miss it.
+	const { registerGateway } = await vi.importActual<typeof import('./index.js')>('./index.js')
+	return { ...discovery, registerGateway }
 }
 
 function setMockFetch(implementation: typeof globalThis.fetch): void {
@@ -226,7 +232,7 @@ describe('discoverModelsForRoute', () => {
 	})
 
 	test('openai-compatible discovery applies descriptor static headers with auth', async () => {
-		const { discoverModelsForRoute } = await loadDiscoveryServiceModule()
+		const { discoverModelsForRoute, registerGateway } = await loadDiscoveryServiceModule()
 
 		registerGateway({
 			id: 'discovery-header-test',
@@ -288,7 +294,7 @@ describe('discoverModelsForRoute', () => {
 	})
 
 	test('openai-compatible discovery can opt out of auth', async () => {
-		const { discoverModelsForRoute } = await loadDiscoveryServiceModule()
+		const { discoverModelsForRoute, registerGateway } = await loadDiscoveryServiceModule()
 
 		registerGateway({
 			id: 'discovery-no-auth-test',
