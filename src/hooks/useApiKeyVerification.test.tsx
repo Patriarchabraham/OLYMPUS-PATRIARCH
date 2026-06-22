@@ -54,24 +54,32 @@ afterEach(() => {
 	vi.restoreAllMocks()
 })
 
-test('useApiKeyVerification resets stale missing status when the session switches to a third-party provider', async () => {
-	const authState: AuthState = {
+// vi.mock factories are hoisted above the test body by vitest, so they cannot
+// close over test-local `const`s. Hold the mutable auth state in a hoisted
+// ref that both the (hoisted) mock factory and the test body can reach.
+const authStateRef = vi.hoisted<{ current: AuthState }>(() => ({
+	current: {
 		anthropicAuthEnabled: true,
 		claudeSubscriber: false,
-	}
+	},
+}))
+
+test('useApiKeyVerification resets stale missing status when the session switches to a third-party provider', async () => {
+	const authState = authStateRef.current
 	const seenStatuses: string[] = []
 
 	vi.mock('../utils/auth.js', () => ({
 		getAnthropicApiKeyWithSource: () => ({
-			key: authState.key,
-			source: authState.source,
+			key: authStateRef.current.key,
+			source: authStateRef.current.source,
 		}),
 		getApiKeyFromApiKeyHelper: async () => undefined,
-		isAnthropicAuthEnabled: () => authState.anthropicAuthEnabled,
-		isClaudeAISubscriber: () => authState.claudeSubscriber,
+		isAnthropicAuthEnabled: () => authStateRef.current.anthropicAuthEnabled,
+		isClaudeAISubscriber: () => authStateRef.current.claudeSubscriber,
 	}))
 
-	vi.mock('../bootstrap/state.js', () => ({
+	vi.mock('../bootstrap/state.js', async (importOriginal) => ({
+		...(await importOriginal()),
 		getIsNonInteractiveSession: () => false,
 	}))
 

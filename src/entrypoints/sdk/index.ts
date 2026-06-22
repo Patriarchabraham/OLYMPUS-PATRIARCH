@@ -24,23 +24,27 @@ import { init } from '../init.js'
  * If any resolved to a stub, it means a TUI dependency leaked through.
  */
 function detectStubLeaks(): void {
-  const criticalImports: Array<{ name: string; mod: Record<string, unknown> }> = [
-    // QueryEngine is the core SDK engine — must never be a stub
-    { name: 'QueryEngine', mod: QueryEngine as unknown as Record<string, unknown> },
-    // These are imported by this file and must be real modules, not stubs
-    { name: 'getTools', mod: getTools as unknown as Record<string, unknown> },
-    { name: 'init', mod: init as unknown as Record<string, unknown> },
-  ]
+	const criticalImports: Array<{ name: string; mod: Record<string, unknown> }> = [
+		// QueryEngine is the core SDK engine — must never be a stub
+		{ name: 'QueryEngine', mod: QueryEngine as unknown as Record<string, unknown> },
+		// These are imported by this file and must be real modules, not stubs
+		{ name: 'getTools', mod: getTools as unknown as Record<string, unknown> },
+		{ name: 'init', mod: init as unknown as Record<string, unknown> },
+	]
 
-  for (const { name, mod } of criticalImports) {
-    if ('__stub' in mod && mod.__stub === true) {
-      throw new Error(
-        `SDK init error: "${name}" resolved to a build stub at runtime. ` +
-        `This means a TUI/CLI dependency leaked into the SDK bundle. ` +
-        `Report this at https://github.com/Gitlawb/Olympuz Coder/issues`,
-      )
-    }
-  }
+	for (const { name, mod } of criticalImports) {
+		// The 'in' operator throws on null/undefined. Under vitest's source-mode
+		// ESM (and any circular-import window), a binding can momentarily be
+		// undefined — that is not a stub. Only a real object carrying __stub===true
+		// (injected by the esbuild sdk-missing-stub plugin in dist/sdk.mjs) is a leak.
+		if (typeof mod === 'object' && mod !== null && '__stub' in mod && mod.__stub === true) {
+			throw new Error(
+				`SDK init error: "${name}" resolved to a build stub at runtime. ` +
+					`This means a TUI/CLI dependency leaked into the SDK bundle. ` +
+					`Report this at https://github.com/Gitlawb/Olympuz Coder/issues`,
+			)
+		}
+	}
 }
 
 // Run leak detection once at module load time.
@@ -51,20 +55,20 @@ detectStubLeaks()
 // ============================================================================
 
 export type {
-  SDKMessage,
-  SDKUserMessage,
-  SDKSessionInfo,
-  ListSessionsOptions,
-  GetSessionInfoOptions,
-  GetSessionMessagesOptions,
-  SessionMutationOptions,
-  ForkSessionOptions,
-  ForkSessionResult,
-  SessionMessage,
-  SDKPermissionRequestMessage,
-  SDKPermissionTimeoutMessage,
-  SDKAgentLoadFailureMessage,
-  QueryPermissionMode,
+	ForkSessionOptions,
+	ForkSessionResult,
+	GetSessionInfoOptions,
+	GetSessionMessagesOptions,
+	ListSessionsOptions,
+	QueryPermissionMode,
+	SDKAgentLoadFailureMessage,
+	SDKMessage,
+	SDKPermissionRequestMessage,
+	SDKPermissionTimeoutMessage,
+	SDKSessionInfo,
+	SDKUserMessage,
+	SessionMessage,
+	SessionMutationOptions,
 } from './shared.js'
 
 // ============================================================================
@@ -78,37 +82,36 @@ export type { PermissionResolveDecision } from './permissions.js'
 // ============================================================================
 
 export {
-  listSessions,
-  getSessionInfo,
-  getSessionMessages,
-  renameSession,
-  tagSession,
-  deleteSession,
-  forkSession,
+	deleteSession,
+	forkSession,
+	getSessionInfo,
+	getSessionMessages,
+	listSessions,
+	renameSession,
+	tagSession,
 } from './sessions.js'
 
 // ============================================================================
 // Re-exports from query
 // ============================================================================
 
-export type { QueryOptions } from './query.js'
+export type { Query, QueryOptions } from './query.js'
 export { query, queryAsync } from './query.js'
-export type { Query } from './query.js'
 
 // ============================================================================
 // Re-exports from v2
 // ============================================================================
 
 export type {
-  SDKSessionOptions,
-  SDKResultMessage,
+	SDKResultMessage,
+	SDKSession,
+	SDKSessionOptions,
+	SdkMcpToolDefinition,
 } from './v2.js'
-export type { SDKSession } from './v2.js'
-export type { SdkMcpToolDefinition } from './v2.js'
 export {
-  unstable_v2_createSession,
-  unstable_v2_resumeSession,
-  unstable_v2_prompt,
+	unstable_v2_createSession,
+	unstable_v2_prompt,
+	unstable_v2_resumeSession,
 } from './v2.js'
 
 // ============================================================================
@@ -137,25 +140,25 @@ export {
  * ```
  */
 export function tool<Schema = any>(
-  name: string,
-  description: string,
-  inputSchema: Schema,
-  handler: (args: any, extra: unknown) => Promise<CallToolResult>,
-  extras?: {
-    annotations?: ToolAnnotations
-    searchHint?: string
-    alwaysLoad?: boolean
-  },
+	name: string,
+	description: string,
+	inputSchema: Schema,
+	handler: (args: any, extra: unknown) => Promise<CallToolResult>,
+	extras?: {
+		annotations?: ToolAnnotations
+		searchHint?: string
+		alwaysLoad?: boolean
+	},
 ): import('./v2.js').SdkMcpToolDefinition<Schema> {
-  return {
-    name,
-    description,
-    inputSchema,
-    handler,
-    annotations: extras?.annotations,
-    searchHint: extras?.searchHint,
-    alwaysLoad: extras?.alwaysLoad,
-  }
+	return {
+		name,
+		description,
+		inputSchema,
+		handler,
+		annotations: extras?.annotations,
+		searchHint: extras?.searchHint,
+		alwaysLoad: extras?.alwaysLoad,
+	}
 }
 
 // ============================================================================
@@ -163,35 +166,39 @@ export function tool<Schema = any>(
 // ============================================================================
 
 export type SdkMcpStdioConfig = {
-  type?: 'stdio'
-  command: string
-  args?: string[]
-  env?: Record<string, string>
+	type?: 'stdio'
+	command: string
+	args?: string[]
+	env?: Record<string, string>
 }
 
 export type SdkMcpSSEConfig = {
-  type: 'sse'
-  url: string
-  headers?: Record<string, string>
+	type: 'sse'
+	url: string
+	headers?: Record<string, string>
 }
 
 export type SdkMcpHttpConfig = {
-  type: 'http'
-  url: string
-  headers?: Record<string, string>
+	type: 'http'
+	url: string
+	headers?: Record<string, string>
 }
 
 export type SdkMcpSdkConfig = {
-  type: 'sdk'
-  name: string
-  /** In-process tool definitions created via the tool() helper. */
-  tools?: import('./v2.js').SdkMcpToolDefinition[]
+	type: 'sdk'
+	name: string
+	/** In-process tool definitions created via the tool() helper. */
+	tools?: import('./v2.js').SdkMcpToolDefinition[]
 }
 
-export type SdkMcpServerConfig = SdkMcpStdioConfig | SdkMcpSSEConfig | SdkMcpHttpConfig | SdkMcpSdkConfig
+export type SdkMcpServerConfig =
+	| SdkMcpStdioConfig
+	| SdkMcpSSEConfig
+	| SdkMcpHttpConfig
+	| SdkMcpSdkConfig
 
 export type SdkScopedMcpServerConfig = SdkMcpServerConfig & {
-  scope: 'session'
+	scope: 'session'
 }
 
 // ============================================================================
@@ -223,34 +230,33 @@ export type SdkScopedMcpServerConfig = SdkMcpServerConfig & {
  * ```
  */
 export function createSdkMcpServer(config: SdkMcpServerConfig): SdkScopedMcpServerConfig {
-  return {
-    ...config,
-    scope: 'session' as const,
-  }
+	return {
+		...config,
+		scope: 'session' as const,
+	}
 }
 
 // ============================================================================
 // Re-exports — error classes and helpers
 // ============================================================================
 
+export type { SDKAssistantMessageError } from '../../utils/errors.js'
 export {
-  AbortError,
-  ClaudeError,
-  SDKError,
-  SDKAuthenticationError,
-  SDKBillingError,
-  SDKRateLimitError,
-  SDKInvalidRequestError,
-  SDKServerError,
-  SDKMaxOutputTokensError,
-  sdkErrorFromType,
+	AbortError,
+	ClaudeError,
+	SDKAuthenticationError,
+	SDKBillingError,
+	SDKError,
+	SDKInvalidRequestError,
+	SDKMaxOutputTokensError,
+	SDKRateLimitError,
+	SDKServerError,
+	sdkErrorFromType,
 } from '../../utils/errors.js'
 
-export type { SDKAssistantMessageError } from '../../utils/errors.js'
-
 export type {
-  RewindFilesResult,
-  McpServerStatus,
-  ApiKeySource,
-  PermissionResult,
+	ApiKeySource,
+	McpServerStatus,
+	PermissionResult,
+	RewindFilesResult,
 } from './coreTypes.generated.js'

@@ -1,6 +1,17 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { resetSettingsCache } from './settings/settingsCache.js'
 
+// Force the OpenAI provider path without triggering a fresh module import
+// (resetModules + re-import of the thinking module graph hangs in this
+// harness; the memoized capability-override cache is cleared per-test below
+// to defeat stale cross-test state instead).
+vi.mock('./model/providers.js', () => ({
+	getAPIProvider: () => 'openai',
+}))
+
+const { modelSupportsThinking } = await import('./thinking.js')
+const { get3PModelCapabilityOverride } = await import('./model/modelSupportOverrides.js')
+
 const ENV_KEYS = [
 	'CLAUDE_CODE_USE_OPENAI',
 	'CLAUDE_CODE_USE_GEMINI',
@@ -15,6 +26,11 @@ const ENV_KEYS = [
 	'NVIDIA_NIM',
 	'MINIMAX_API_KEY',
 	'XAI_API_KEY',
+	// resolveActiveRouteIdFromEnv short-circuits to the 'anthropic' route when
+	// either of these is set, which would mask the Z.AI route resolution these
+	// tests exercise. Clear them so the OpenAI/z.ai path is actually taken.
+	'ANTHROPIC_BASE_URL',
+	'ANTHROPIC_AUTH_TOKEN',
 	'ANTHROPIC_DEFAULT_OPUS_MODEL',
 	'ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES',
 	'ANTHROPIC_DEFAULT_SONNET_MODEL',
@@ -46,20 +62,11 @@ afterEach(() => {
 	resetSettingsCache()
 })
 
-async function importFreshThinkingModule() {
-	vi.restoreAllMocks()
-	vi.mock('./model/providers.js', () => ({
-		getAPIProvider: () => 'openai',
-	}))
-	vi.resetModules()
-	return vi.importActual<typeof import('./thinking.js')>('./thinking.js')
-}
-
 describe('modelSupportsThinking — Z.AI GLM', () => {
-	test('enables thinking for exact GLM models on api.z.ai', async () => {
+	test('enables thinking for exact GLM models on api.z.ai', () => {
 		process.env.CLAUDE_CODE_USE_OPENAI = '1'
 		process.env.OPENAI_BASE_URL = 'https://api.z.ai/api/coding/paas/v4'
-		const { modelSupportsThinking } = await importFreshThinkingModule()
+		get3PModelCapabilityOverride.cache?.clear?.()
 
 		expect(modelSupportsThinking('GLM-5.1')).toBe(true)
 		expect(modelSupportsThinking('GLM-5-Turbo')).toBe(true)
@@ -67,35 +74,36 @@ describe('modelSupportsThinking — Z.AI GLM', () => {
 		expect(modelSupportsThinking('GLM-4.5-Air')).toBe(true)
 	})
 
-	test('does not enable GLM thinking on non-Z.AI OpenAI-compatible endpoints', async () => {
+	test('does not enable GLM thinking on non-Z.AI OpenAI-compatible endpoints', () => {
 		process.env.CLAUDE_CODE_USE_OPENAI = '1'
 		process.env.OPENAI_BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1'
-		const { modelSupportsThinking } = await importFreshThinkingModule()
+		get3PModelCapabilityOverride.cache?.clear?.()
 
 		expect(modelSupportsThinking('glm-5.1')).toBe(false)
 		expect(modelSupportsThinking('GLM-5.1')).toBe(false)
 	})
 
-	test('does not match unrelated GLM-looking model names', async () => {
+	test('does not match unrelated GLM-looking model names', () => {
 		process.env.CLAUDE_CODE_USE_OPENAI = '1'
 		process.env.OPENAI_BASE_URL = 'https://api.z.ai/api/coding/paas/v4'
-		const { modelSupportsThinking } = await importFreshThinkingModule()
+		get3PModelCapabilityOverride.cache?.clear?.()
 
 		expect(modelSupportsThinking('glm-50')).toBe(false)
 	})
 
-	test('does not reuse stale capability overrides after env changes', async () => {
+	test('does not reuse stale capability overrides after env changes', () => {
 		process.env.CLAUDE_CODE_USE_OPENAI = '1'
 		process.env.OPENAI_BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1'
 		process.env.ANTHROPIC_DEFAULT_SONNET_MODEL = 'GLM-5.1'
 		process.env.ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES = ''
-		const { modelSupportsThinking } = await importFreshThinkingModule()
+		get3PModelCapabilityOverride.cache?.clear?.()
 
 		expect(modelSupportsThinking('GLM-5.1')).toBe(false)
 
 		delete process.env.ANTHROPIC_DEFAULT_SONNET_MODEL
 		delete process.env.ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES
 		process.env.OPENAI_BASE_URL = 'https://api.z.ai/api/coding/paas/v4'
+		get3PModelCapabilityOverride.cache?.clear?.()
 
 		expect(modelSupportsThinking('GLM-5.1')).toBe(true)
 	})

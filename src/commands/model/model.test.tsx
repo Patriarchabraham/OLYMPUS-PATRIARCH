@@ -17,6 +17,11 @@ const originalEnv = {
 	OPENAI_MODEL: process.env.OPENAI_MODEL,
 	ANTHROPIC_CUSTOM_HEADERS: process.env.ANTHROPIC_CUSTOM_HEADERS,
 	CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC,
+	// resolveActiveRouteIdFromEnv short-circuits to the 'anthropic' route when
+	// either is set, which masks the OpenRouter/Z.AI descriptor path these
+	// tests exercise. Capture + restore them so they can be cleared per-test.
+	ANTHROPIC_BASE_URL: process.env.ANTHROPIC_BASE_URL,
+	ANTHROPIC_AUTH_TOKEN: process.env.ANTHROPIC_AUTH_TOKEN,
 }
 
 async function importFreshModelModule(_suffix: string): Promise<typeof import('./model.js')> {
@@ -51,6 +56,8 @@ afterEach(() => {
 		'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC',
 		originalEnv.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC,
 	)
+	restoreEnv('ANTHROPIC_BASE_URL', originalEnv.ANTHROPIC_BASE_URL)
+	restoreEnv('ANTHROPIC_AUTH_TOKEN', originalEnv.ANTHROPIC_AUTH_TOKEN)
 })
 
 test('opens the model picker without awaiting local model discovery refresh', async () => {
@@ -199,6 +206,8 @@ test('/model refresh clears descriptor cache and reports updates', async () => {
 	delete process.env.CLAUDE_CODE_USE_VERTEX
 	delete process.env.CLAUDE_CODE_USE_FOUNDRY
 	delete process.env.OPENAI_API_BASE
+	delete process.env.ANTHROPIC_BASE_URL
+	delete process.env.ANTHROPIC_AUTH_TOKEN
 
 	const clearDiscoveryCache = vi.fn(async () => {})
 	const getCachedModels = vi.fn(async () => ({
@@ -263,7 +272,10 @@ test('/model refresh clears descriptor cache and reports updates', async () => {
 	expect(isCacheStale).toHaveBeenCalledWith(expectedCacheKey, 86_400_000)
 	expect(clearDiscoveryCache).toHaveBeenCalledWith(expectedCacheKey)
 	expect(messages).toContain('Updated OpenRouter models.')
-})
+}, // expensive under vitest's CJS transform and varies widely with transform // Importing model.tsx with an active descriptor route (openrouter) is
+// cache state (45s-120s+); the default 30s timeout fires before the single
+// dynamic import resolves.
+240_000)
 
 test('/model does not auto-refresh descriptor models when nonessential traffic is disabled', async () => {
 	process.env.CLAUDE_CODE_USE_OPENAI = '1'

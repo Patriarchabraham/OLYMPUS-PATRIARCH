@@ -439,10 +439,8 @@ test('buildCodexOAuthProfileEnv uses the fresh OAuth account id without persisti
 })
 
 test('buildCodexProfileEnv derives oauth source from secure storage when no explicit source is provided', async () => {
-	const actualProviderConfig = await import('../../services/api/providerConfig.js')
-
-	vi.mock('../../services/api/providerConfig.js', () => ({
-		...actualProviderConfig,
+	vi.mock('../../services/api/providerConfig.js', async (importOriginal) => ({
+		...(await importOriginal<typeof import('../../services/api/providerConfig.js')>()),
 		resolveCodexApiCredentials: () => ({
 			apiKey: 'stored-access-token',
 			accountId: 'acct_secure_storage',

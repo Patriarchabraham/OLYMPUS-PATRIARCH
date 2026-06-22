@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 
 const originalEnv = { ...process.env }
 
@@ -17,6 +17,20 @@ async function importFreshFastModeModule() {
 	return vi.importActual<typeof import('./fastMode')>('./fastMode.ts')
 }
 
+// Cached single import — paid once in beforeAll (with extended timeout) to
+// avoid per-test vi.importActual() cold-transform hangs (>30s) under the
+// esbuild CJS loader for fastMode's transitive graph (auth/providers/model/
+// settings/growthbook). The hoisted mockState above is read at call time, so a
+// single cached module still respects per-test mock configuration.
+let fastModeModule: Awaited<ReturnType<typeof importFreshFastModeModule>> | null = null
+
+async function getCachedFastModeModule() {
+	if (!fastModeModule) {
+		fastModeModule = await importFreshFastModeModule()
+	}
+	return fastModeModule
+}
+
 function installCommonMocks(options?: {
 	cachedEnabled?: boolean
 	apiKey?: string | null
@@ -31,11 +45,14 @@ function installCommonMocks(options?: {
 
 	vi.mock('axios', () => ({
 		default: {
-			get: mockState.axiosReject
-				? async () => {
-						throw new Error('network fail')
-					}
-				: async () => ({ data: { enabled: false, disabled_reason: 'preference' } }),
+			get: async () => {
+				// Read at call time so per-test mockState.axiosReject toggles apply
+				// even though the module is imported once (cached).
+				if (mockState.axiosReject) {
+					throw new Error('network fail')
+				}
+				return { data: { enabled: false, disabled_reason: 'preference' } }
+			},
 			isAxiosError: () => false,
 		},
 	}))
@@ -200,13 +217,22 @@ afterEach(async () => {
 })
 
 describe('fastMode ant-only fallback cleanup', () => {
+	beforeAll(async () => {
+		// Register hoisted mocks once and pay the one-time cold transform/import
+		// of fastMode (and its transitive graph) with an extended timeout. Under
+		// the esbuild CJS loader with Vite's inline-everything config this first
+		// import can exceed the default 30s hook timeout.
+		installCommonMocks({ cachedEnabled: false })
+		await getCachedFastModeModule()
+	}, 120_000)
+
 	test('resolveFastModeStatusFromCache does not force-enable from USER_TYPE=ant', async () => {
 		process.env.USER_TYPE = 'ant'
 		forceFirstPartyProviderEnv()
 		installCommonMocks({ cachedEnabled: false })
 
 		const { resolveFastModeStatusFromCache, getFastModeUnavailableReason } =
-			await importFreshFastModeModule()
+			await getCachedFastModeModule()
 		await prepareFastModeTestState()
 
 		resolveFastModeStatusFromCache()
@@ -219,8 +245,7 @@ describe('fastMode ant-only fallback cleanup', () => {
 		forceFirstPartyProviderEnv()
 		installCommonMocks({ cachedEnabled: false, apiKey: null, oauthToken: null })
 
-		const { prefetchFastModeStatus, getFastModeUnavailableReason } =
-			await importFreshFastModeModule()
+		const { prefetchFastModeStatus, getFastModeUnavailableReason } = await getCachedFastModeModule()
 		await prepareFastModeTestState()
 
 		await prefetchFastModeStatus()
@@ -237,8 +262,7 @@ describe('fastMode ant-only fallback cleanup', () => {
 			axiosReject: true,
 		})
 
-		const { prefetchFastModeStatus, getFastModeUnavailableReason } =
-			await importFreshFastModeModule()
+		const { prefetchFastModeStatus, getFastModeUnavailableReason } = await getCachedFastModeModule()
 		await prepareFastModeTestState()
 
 		await prefetchFastModeStatus()
