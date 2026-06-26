@@ -46,6 +46,7 @@ const extractMemoriesModule = true
 import type { QuerySource } from '../constants/querySource.js'
 import { executeAdversarialVerification } from '../services/adversarialVerification/adversarialVerification.js'
 import { executeAutoDream } from '../services/autoDream/autoDream.js'
+import { executeMetaCognition } from '../services/metaCognition/metaCognition.js'
 import { executePromptSuggestion } from '../services/PromptSuggestion/promptSuggestion.js'
 import { executeQuantumReasoning } from '../services/quantumReasoning/quantumReasoning.js'
 import { isBareMode, isEnvDefinedFalsy } from '../utils/envUtils.js'
@@ -121,6 +122,15 @@ export async function* handleStopHooks(
 			// query. Silent on success; surfaces a system message only when the
 			// collapse is low-confidence (a likely blind spot worth flagging).
 			void executeQuantumReasoning(stopHookContext, toolUseContext.appendSystemMessage)
+		}
+		if (
+			!toolUseContext.agentId &&
+			!isEnvDefinedFalsy(process.env.CLAUDE_CODE_ENABLE_META_COGNITION)
+		) {
+			// Fire-and-forget meta-cognitive audit (cortex + reason + cross-model
+			// verification), orchestrated by cognize(). Silent on success; surfaces a
+			// system message only on low measured confidence or surfaced blind spots.
+			void executeMetaCognition(stopHookContext, toolUseContext.appendSystemMessage)
 		}
 	}
 
