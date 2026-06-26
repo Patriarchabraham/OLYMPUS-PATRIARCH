@@ -2204,6 +2204,26 @@ export function REPL({
 			fileHistory: fileHistoryState,
 		})),
 	)
+	// Lazy init: useRef(createX()) would call createX on every render and
+	// discard the result. LRUCache construction inside FileStateCache is
+	// expensive (~170ms), so we use useState's lazy initializer to create
+	// it exactly once, then feed that stable reference into useRef.
+	const [initialReadFileState] = useState(() =>
+		createFileStateCacheWithSizeLimit(READ_FILE_STATE_CACHE_SIZE),
+	)
+	const readFileState = useRef(initialReadFileState)
+	const bashTools = useRef(new Set<string>())
+
+	// Helper to restore read file state from messages (used for resume flows)
+	// This allows Claude to edit files that were read in previous sessions
+	const restoreReadFileState = useCallback((messages: MessageType[], cwd: string) => {
+		const extracted = extractReadFilesFromMessages(messages, cwd, READ_FILE_STATE_CACHE_SIZE)
+		readFileState.current = mergeFileStateCaches(readFileState.current, extracted)
+		for (const tool of extractBashToolsFromMessages(messages)) {
+			bashTools.current.add(tool)
+		}
+	}, [])
+
 	const resume = useCallback(
 		async (sessionId: UUID, log: LogOption, entrypoint: ResumeEntrypoint) => {
 			const resumeStart = performance.now()
@@ -2441,15 +2461,6 @@ export function REPL({
 		],
 	)
 
-	// Lazy init: useRef(createX()) would call createX on every render and
-	// discard the result. LRUCache construction inside FileStateCache is
-	// expensive (~170ms), so we use useState's lazy initializer to create
-	// it exactly once, then feed that stable reference into useRef.
-	const [initialReadFileState] = useState(() =>
-		createFileStateCacheWithSizeLimit(READ_FILE_STATE_CACHE_SIZE),
-	)
-	const readFileState = useRef(initialReadFileState)
-	const bashTools = useRef(new Set<string>())
 	const bashToolsProcessedIdx = useRef(0)
 	// Session-scoped skill discovery tracking (feeds was_discovered on
 	// tengu_skill_tool_invocation). Must persist across getToolUseContext
@@ -2461,16 +2472,6 @@ export function REPL({
 	// readFileState is a 100-entry LRU; once it evicts a CLAUDE.md path,
 	// the next discovery cycle re-injects it. Cleared in clearConversation.
 	const loadedNestedMemoryPathsRef = useRef(new Set<string>())
-
-	// Helper to restore read file state from messages (used for resume flows)
-	// This allows Claude to edit files that were read in previous sessions
-	const restoreReadFileState = useCallback((messages: MessageType[], cwd: string) => {
-		const extracted = extractReadFilesFromMessages(messages, cwd, READ_FILE_STATE_CACHE_SIZE)
-		readFileState.current = mergeFileStateCaches(readFileState.current, extracted)
-		for (const tool of extractBashToolsFromMessages(messages)) {
-			bashTools.current.add(tool)
-		}
-	}, [])
 
 	// Extract read file state from initialMessages on mount
 	// This handles CLI flag resume (--resume-session) and ResumeConversation screen
@@ -3904,146 +3905,6 @@ export function REPL({
 		],
 	)
 
-	// Handle initial message (from CLI args or plan mode exit with context clear)
-	// This effect runs when isLoading becomes false and there's a pending message
-	const initialMessageRef = useRef(false)
-	useEffect(() => {
-		const pending = initialMessage
-		if (!pending || isLoading || initialMessageRef.current) return
-
-		// Mark as processing to prevent re-entry
-		initialMessageRef.current = true
-		async function processInitialMessage(initialMsg: NonNullable<typeof pending>) {
-			// Clear context if requested (plan mode exit)
-			if (initialMsg.clearContext) {
-				// Preserve the plan slug before clearing context, so the new session
-				// can access the same plan file after regenerateSessionId()
-				const oldPlanSlug = initialMsg.message.planContent ? getPlanSlug() : undefined
-				const { clearConversation } = await import('../commands/clear/conversation.js')
-				await clearConversation({
-					setMessages,
-					readFileState: readFileState.current,
-					discoveredSkillNames: discoveredSkillNamesRef.current,
-					loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
-					getAppState: () => store.getState(),
-					setAppState,
-					setConversationId,
-				})
-				haikuTitleAttemptedRef.current = false
-				setHaikuTitle(undefined)
-				bashTools.current.clear()
-				bashToolsProcessedIdx.current = 0
-
-				// Restore the plan slug for the new session so getPlan() finds the file
-				if (oldPlanSlug) {
-					setPlanSlug(getSessionId(), oldPlanSlug)
-				}
-			}
-
-			// Atomically: clear initial message, set permission mode and rules, and store plan for verification
-			const shouldStorePlanForVerification =
-				initialMsg.message.planContent &&
-				('external' as 'external' | 'ant') === 'ant' &&
-				isEnvTruthy(undefined)
-			setAppState((prev) => {
-				// Build and apply permission updates (mode + allowedPrompts rules)
-				let updatedToolPermissionContext = initialMsg.mode
-					? applyPermissionUpdates(
-							prev.toolPermissionContext,
-							buildPermissionUpdates(initialMsg.mode, initialMsg.allowedPrompts),
-						)
-					: prev.toolPermissionContext
-				// For auto, override the mode (buildPermissionUpdates maps
-				// it to 'default' via toExternalPermissionMode) and strip dangerous rules
-				if (true && initialMsg.mode === 'auto') {
-					updatedToolPermissionContext = stripDangerousPermissionsForAutoMode({
-						...updatedToolPermissionContext,
-						mode: 'auto',
-						prePlanMode: undefined,
-					})
-				}
-				return {
-					...prev,
-					initialMessage: null,
-					toolPermissionContext: updatedToolPermissionContext,
-					...(shouldStorePlanForVerification && {
-						pendingPlanVerification: {
-							plan: initialMsg.message.planContent!,
-							verificationStarted: false,
-							verificationCompleted: false,
-						},
-					}),
-				}
-			})
-
-			// Create file history snapshot for code rewind
-			if (fileHistoryEnabled()) {
-				void fileHistoryMakeSnapshot((updater: (prev: FileHistoryState) => FileHistoryState) => {
-					setAppState((prev) => ({
-						...prev,
-						fileHistory: updater(prev.fileHistory),
-					}))
-				}, initialMsg.message.uuid)
-			}
-
-			// Ensure SessionStart hook context is available before the first API
-			// call. onSubmit calls this internally but the onQuery path below
-			// bypasses onSubmit — hoist here so both paths see hook messages.
-			await awaitPendingHooks()
-
-			// Route all initial prompts through onSubmit to ensure UserPromptSubmit hooks fire
-			// TODO: Simplify by always routing through onSubmit once it supports
-			// ContentBlockParam arrays (images) as input
-			const content = initialMsg.message.message.content
-
-			// Route all string content through onSubmit to ensure hooks fire
-			// For complex content (images, etc.), fall back to direct onQuery
-			// Plan messages bypass onSubmit to preserve planContent metadata for rendering
-			if (typeof content === 'string' && !initialMsg.message.planContent) {
-				// Route through onSubmit for proper processing including UserPromptSubmit hooks
-				void onSubmit(content, {
-					setCursorOffset: () => {},
-					clearBuffer: () => {},
-					resetHistory: () => {},
-				})
-			} else {
-				// Plan messages or complex content (images, etc.) - send directly to model
-				// Plan messages use onQuery to preserve planContent metadata for rendering
-				// TODO: Once onSubmit supports ContentBlockParam arrays, remove this branch
-				const newAbortController = createAbortController()
-				setAbortController(newAbortController)
-				void onQuery(
-					[initialMsg.message],
-					newAbortController,
-					true,
-					// shouldQuery
-					[],
-					// additionalAllowedTools
-					mainLoopModel,
-				)
-			}
-
-			// Reset ref after a delay to allow new initial messages
-			setTimeout(
-				(ref) => {
-					ref.current = false
-				},
-				100,
-				initialMessageRef,
-			)
-		}
-		void processInitialMessage(pending)
-	}, [
-		initialMessage,
-		isLoading,
-		setMessages,
-		setAppState,
-		onQuery,
-		mainLoopModel,
-		awaitPendingHooks,
-		store.getState,
-		onSubmit,
-	])
 	const onSubmit = useCallback(
 		async (
 			input: string,
@@ -4547,6 +4408,147 @@ export function REPL({
 			abortController,
 		],
 	)
+
+	// Handle initial message (from CLI args or plan mode exit with context clear)
+	// This effect runs when isLoading becomes false and there's a pending message
+	const initialMessageRef = useRef(false)
+	useEffect(() => {
+		const pending = initialMessage
+		if (!pending || isLoading || initialMessageRef.current) return
+
+		// Mark as processing to prevent re-entry
+		initialMessageRef.current = true
+		async function processInitialMessage(initialMsg: NonNullable<typeof pending>) {
+			// Clear context if requested (plan mode exit)
+			if (initialMsg.clearContext) {
+				// Preserve the plan slug before clearing context, so the new session
+				// can access the same plan file after regenerateSessionId()
+				const oldPlanSlug = initialMsg.message.planContent ? getPlanSlug() : undefined
+				const { clearConversation } = await import('../commands/clear/conversation.js')
+				await clearConversation({
+					setMessages,
+					readFileState: readFileState.current,
+					discoveredSkillNames: discoveredSkillNamesRef.current,
+					loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
+					getAppState: () => store.getState(),
+					setAppState,
+					setConversationId,
+				})
+				haikuTitleAttemptedRef.current = false
+				setHaikuTitle(undefined)
+				bashTools.current.clear()
+				bashToolsProcessedIdx.current = 0
+
+				// Restore the plan slug for the new session so getPlan() finds the file
+				if (oldPlanSlug) {
+					setPlanSlug(getSessionId(), oldPlanSlug)
+				}
+			}
+
+			// Atomically: clear initial message, set permission mode and rules, and store plan for verification
+			const shouldStorePlanForVerification =
+				initialMsg.message.planContent &&
+				('external' as 'external' | 'ant') === 'ant' &&
+				isEnvTruthy(undefined)
+			setAppState((prev) => {
+				// Build and apply permission updates (mode + allowedPrompts rules)
+				let updatedToolPermissionContext = initialMsg.mode
+					? applyPermissionUpdates(
+							prev.toolPermissionContext,
+							buildPermissionUpdates(initialMsg.mode, initialMsg.allowedPrompts),
+						)
+					: prev.toolPermissionContext
+				// For auto, override the mode (buildPermissionUpdates maps
+				// it to 'default' via toExternalPermissionMode) and strip dangerous rules
+				if (true && initialMsg.mode === 'auto') {
+					updatedToolPermissionContext = stripDangerousPermissionsForAutoMode({
+						...updatedToolPermissionContext,
+						mode: 'auto',
+						prePlanMode: undefined,
+					})
+				}
+				return {
+					...prev,
+					initialMessage: null,
+					toolPermissionContext: updatedToolPermissionContext,
+					...(shouldStorePlanForVerification && {
+						pendingPlanVerification: {
+							plan: initialMsg.message.planContent!,
+							verificationStarted: false,
+							verificationCompleted: false,
+						},
+					}),
+				}
+			})
+
+			// Create file history snapshot for code rewind
+			if (fileHistoryEnabled()) {
+				void fileHistoryMakeSnapshot((updater: (prev: FileHistoryState) => FileHistoryState) => {
+					setAppState((prev) => ({
+						...prev,
+						fileHistory: updater(prev.fileHistory),
+					}))
+				}, initialMsg.message.uuid)
+			}
+
+			// Ensure SessionStart hook context is available before the first API
+			// call. onSubmit calls this internally but the onQuery path below
+			// bypasses onSubmit — hoist here so both paths see hook messages.
+			await awaitPendingHooks()
+
+			// Route all initial prompts through onSubmit to ensure UserPromptSubmit hooks fire
+			// TODO: Simplify by always routing through onSubmit once it supports
+			// ContentBlockParam arrays (images) as input
+			const content = initialMsg.message.message.content
+
+			// Route all string content through onSubmit to ensure hooks fire
+			// For complex content (images, etc.), fall back to direct onQuery
+			// Plan messages bypass onSubmit to preserve planContent metadata for rendering
+			if (typeof content === 'string' && !initialMsg.message.planContent) {
+				// Route through onSubmit for proper processing including UserPromptSubmit hooks
+				void onSubmit(content, {
+					setCursorOffset: () => {},
+					clearBuffer: () => {},
+					resetHistory: () => {},
+				})
+			} else {
+				// Plan messages or complex content (images, etc.) - send directly to model
+				// Plan messages use onQuery to preserve planContent metadata for rendering
+				// TODO: Once onSubmit supports ContentBlockParam arrays, remove this branch
+				const newAbortController = createAbortController()
+				setAbortController(newAbortController)
+				void onQuery(
+					[initialMsg.message],
+					newAbortController,
+					true,
+					// shouldQuery
+					[],
+					// additionalAllowedTools
+					mainLoopModel,
+				)
+			}
+
+			// Reset ref after a delay to allow new initial messages
+			setTimeout(
+				(ref) => {
+					ref.current = false
+				},
+				100,
+				initialMessageRef,
+			)
+		}
+		void processInitialMessage(pending)
+	}, [
+		initialMessage,
+		isLoading,
+		setMessages,
+		setAppState,
+		onQuery,
+		mainLoopModel,
+		awaitPendingHooks,
+		store.getState,
+		onSubmit,
+	])
 
 	// Callback for when user submits input while viewing a teammate's transcript
 	const onAgentSubmit = useCallback(
