@@ -1,5 +1,7 @@
 /**
  * ConfidenceCalibrator — Multi-signal confidence scoring across reasoning layers.
+ * v2: Adds Bayesian calibration bias (EMA-based), Dempster-Shafer evidence fusion,
+ * and Expected Calibration Error (ECE) tracking.
  * Pure calculation, no LLM calls.
  */
 
@@ -10,6 +12,52 @@ import type {
 	ReasoningPass,
 	SynthesizedKnowledge,
 } from './types.js'
+
+// ─── Bayesian calibration state (module-level) ──────────────────────────────
+
+/** Exponential moving average bias learned from prediction→outcome pairs. */
+let calibrationBias = 0 // positive = model is underconfident, negative = overconfident
+const EMA_ALPHA = 0.1 // smoothing factor for bias updates
+/** Bins for Expected Calibration Error tracking. */
+const eceBins = new Map<number, { predicted: number; actual: number; count: number }>()
+
+/**
+ * Record a calibration outcome: the model predicted `predicted` confidence,
+ * and the actual outcome was `actual` (1 = correct, 0 = wrong).
+ * Updates the Bayesian calibration bias so future scores are more accurate.
+ */
+export function recordCalibrationOutcome(predicted: number, actual: number): void {
+	const error = actual - predicted // positive if underconfident
+	calibrationBias = calibrationBias * (1 - EMA_ALPHA) + error * EMA_ALPHA
+
+	// Update ECE bins (10 bins from 0.0-0.1 to 0.9-1.0)
+	const binKey = Math.min(9, Math.floor(predicted * 10))
+	const bin = eceBins.get(binKey) ?? { predicted: 0, actual: 0, count: 0 }
+	bin.predicted += predicted
+	bin.actual += actual
+	bin.count++
+	eceBins.set(binKey, bin)
+}
+
+/** Get the Expected Calibration Error (lower = better calibrated). */
+export function getECE(): number {
+	let ece = 0
+	let totalCount = 0
+	for (const bin of eceBins.values()) {
+		if (bin.count === 0) continue
+		const avgPredicted = bin.predicted / bin.count
+		const avgActual = bin.actual / bin.count
+		ece += bin.count * Math.abs(avgPredicted - avgActual)
+		totalCount += bin.count
+	}
+	return totalCount > 0 ? ece / totalCount : 0
+}
+
+/** Reset calibration state (for testing). */
+export function resetCalibration(): void {
+	calibrationBias = 0
+	eceBins.clear()
+}
 
 /**
  * Calibrate overall confidence based on all reasoning outputs.
@@ -81,12 +129,24 @@ export function calibrate(
 	})
 
 	// Compute weighted overall score
-	const overall = signals.reduce((sum, s) => sum + s.value * s.weight, 0)
+	const rawOverall = signals.reduce((sum, s) => sum + s.value * s.weight, 0)
+
+	// Apply Bayesian calibration bias (learned from past outcomes)
+	const calibratedOverall = clamp(rawOverall + calibrationBias)
+
+	// Signal 7: Dempster-Shafer evidence fusion
+	const dsFusion = dempsterShaferFusion(signals)
+	signals.push({
+		name: 'evidence_fusion',
+		weight: 0, // informational only, doesn't affect overall
+		value: dsFusion,
+		description: `Dempster-Shafer belief mass: ${dsFusion.toFixed(3)} (conflict-adjusted)`,
+	})
 
 	return {
-		overall: clamp(overall),
-		factual: clamp(consistency * 0.6 + crossModelValue * 0.4),
-		logical: clamp(consistency * 0.7 + trend * 0.3),
+		overall: calibratedOverall,
+		factual: clamp(consistency * 0.6 + crossModelValue * 0.4 + calibrationBias * 0.5),
+		logical: clamp(consistency * 0.7 + trend * 0.3 + calibrationBias * 0.3),
 		completeness: clamp(coverage * 0.5 + gapScore * 0.5),
 		consistency: clamp(consistency),
 		signals,
@@ -180,6 +240,41 @@ function avgOutputLength(passes: ReasoningPass[]): number {
 
 function clamp(value: number): number {
 	return Math.max(0, Math.min(1, value))
+}
+
+/**
+ * Dempster-Shafer evidence fusion.
+ * Combines independent evidence sources (signals) into a single belief mass,
+ * accounting for conflict between sources. Higher conflict = less trust in the fusion.
+ */
+function dempsterShaferFusion(signals: ConfidenceSignal[]): number {
+	if (signals.length === 0) return 0.5
+
+	// Each signal becomes a belief mass assignment:
+	// m(H) = value * weight, m(¬H) = (1-value) * weight, m(Θ) = 1 - weight
+	let beliefH = signals[0]!.value
+	let beliefNotH = 1 - signals[0]!.value
+
+	for (let i = 1; i < signals.length; i++) {
+		const s = signals[i]!
+		const m2H = s.value
+		const m2NotH = 1 - s.value
+
+		// Dempster's rule of combination
+		const conflict = beliefH * m2NotH + beliefNotH * m2H
+		const normalization = 1 - conflict * 0.5 // partial conflict normalization
+
+		if (normalization < 0.01) {
+			// Complete conflict — average instead
+			beliefH = (beliefH + m2H) / 2
+			beliefNotH = (beliefNotH + m2NotH) / 2
+		} else {
+			beliefH = (beliefH * m2H) / normalization
+			beliefNotH = (beliefNotH * m2NotH) / normalization
+		}
+	}
+
+	return clamp(beliefH)
 }
 
 // ============================================================

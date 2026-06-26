@@ -10,7 +10,7 @@ test('custom error responses log the error redirect analytics event', async () =
 		metadata: Record<string, boolean | number | undefined>
 	}> = []
 
-	vi.mock('src/services/analytics/index.js', () => ({
+	vi.doMock('src/services/analytics/index.js', () => ({
 		logEvent: (name: string, metadata: Record<string, boolean | number | undefined>) => {
 			events.push({ name, metadata })
 		},
@@ -58,13 +58,13 @@ test('custom handlers that do not end the response are closed automatically and 
 		},
 	}
 
-	vi.mock('src/services/analytics/index.js', () => ({
+	vi.doMock('src/services/analytics/index.js', () => ({
 		logEvent: (name: string, metadata: Record<string, boolean | number | undefined>) => {
 			events.push({ name, metadata })
 		},
 	}))
 
-	vi.mock('../../utils/log.js', () => ({
+	vi.doMock('../../utils/log.js', () => ({
 		logError: () => {},
 	}))
 
@@ -112,13 +112,13 @@ test('custom handlers that throw are logged, converted to a fallback response, a
 		},
 	}
 
-	vi.mock('src/services/analytics/index.js', () => ({
+	vi.doMock('src/services/analytics/index.js', () => ({
 		logEvent: (name: string, metadata: Record<string, boolean | number | undefined>) => {
 			events.push({ name, metadata })
 		},
 	}))
 
-	vi.mock('../../utils/log.js', () => ({
+	vi.doMock('../../utils/log.js', () => ({
 		logError: (error: unknown) => {
 			loggedErrors.push(error)
 		},

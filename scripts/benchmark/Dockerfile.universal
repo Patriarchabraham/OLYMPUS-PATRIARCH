@@ -1,0 +1,52 @@
+# Olympuz Coder — Universal Benchmark Evaluation Image
+#
+# Supports: SWE-bench, HumanEval, LiveCodeBench, BigCodeBench,
+#           Aider Polyglot, Terminal-Bench
+#
+# Build: docker build -f scripts/benchmark/Dockerfile.universal -t olympuz-bench .
+# Run:   docker run --rm olympuz-bench --suite humaneval --max-tasks 10
+
+FROM python:3.11-slim
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    g++ \
+    golang-go \
+    cargo \
+    rustc \
+    bash \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
+
+# Install Node.js (for JavaScript/TypeScript benchmarks)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python test tools
+RUN pip install --no-cache-dir pytest swebench
+
+# Node test tools
+RUN npm install -g jest vitest
+
+# Set working directory
+WORKDIR /olympuz
+
+# Copy project files (assumes build context is project root)
+COPY package.json bun.lockb* package-lock.json* ./
+RUN bun install || npm install
+
+COPY . .
+
+# Build the project
+RUN bun run build || npm run build
+
+# Default entry point
+ENTRYPOINT ["bun", "run", "scripts/benchmark/core/runner.ts"]
+CMD ["--help"]

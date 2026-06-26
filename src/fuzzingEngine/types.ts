@@ -14,15 +14,24 @@ export type MutationStrategy =
 	| 'splice'
 	| 'havoc'
 
-/** Coverage information for a single fuzz run */
+/**
+ * Observed-behavior information for a single fuzz run.
+ *
+ * Named `CoverageInfo` for backward compatibility, but the contents are
+ * observed-behavior signatures (see `observeBehaviors` in fuzzer.ts), not
+ * code coverage. Each string in `branchesHit` represents a real execution
+ * property: return value, exception class+message, duration bucket, input
+ * signature, etc. Wire V8 Profiler.startPreciseCoverage if you need true
+ * branch coverage — the overhead is too high for the inner fuzzing loop.
+ */
 export interface CoverageInfo {
-	/** Unique branches hit */
+	/** Observed behavior signatures for this input */
 	branchesHit: Set<string>
-	/** Total unique branches seen across all runs */
+	/** Total distinct behaviors observed for this input */
 	totalBranches: number
-	/** Lines covered */
+	/** Reserved — empty unless wired to a real line-coverage source */
 	linesCovered: Set<number>
-	/** Coverage percentage */
+	/** Reserved — 0 unless wired to a real coverage source */
 	coveragePercent: number
 }
 

@@ -54,7 +54,7 @@ async function importFreshWithRetryModule(
 		| 'foundry' = 'firstParty',
 ) {
 	vi.restoreAllMocks()
-	vi.mock('src/utils/model/providers.js', () => ({
+	vi.doMock('src/utils/model/providers.js', () => ({
 		getAPIProvider: () => provider,
 		getAPIProviderForStatsig: () => provider,
 	}))

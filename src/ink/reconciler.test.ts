@@ -174,7 +174,7 @@ test('raw ink-box updates keyboard handlers and attributes in place across reren
 				{
 					autoFocus: true,
 					onKeyDown: secondHandler,
-					tabIndex: '0',
+					tabIndex: -1,
 				},
 				'second render',
 			),
@@ -184,7 +184,7 @@ test('raw ink-box updates keyboard handlers and attributes in place across reren
 
 		const secondBox = requireElement(harness.stdout, 'ink-box')
 		expect(secondBox).toBe(firstBox)
-		expect(secondBox.attributes.tabIndex).toBe(1)
+		expect(secondBox.attributes.tabIndex).toBe(-1)
 		expect(secondBox._eventHandlers?.onKeyDown).toBe(secondHandler)
 
 		getInkInstance(harness.stdout).dispatchKeyboardEvent({

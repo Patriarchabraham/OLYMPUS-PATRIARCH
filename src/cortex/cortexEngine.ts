@@ -5,10 +5,11 @@
  * Supports persistent state so learning survives restarts.
  */
 
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { GenerateFn } from '../reasoning/types.js'
+import { LRUCache } from '../utils/lruCache.js'
 import { calibrate } from './confidenceCalibrator.js'
 import { verify } from './crossModelVerifier.js'
 import { combine } from './insightCombiner.js'
@@ -31,6 +32,16 @@ import type {
 } from './types.js'
 import { CORTEX_STATE_DEFAULT, DEFAULT_CORTEX_CONFIG } from './types.js'
 
+/** Per-step timing breakdown attached to analysis metadata. */
+export interface StepTimings {
+	metaCognitionMs: number
+	decompositionMs: number
+	reasoningMs: number
+	verificationMs: number
+	synthesisMs: number
+	calibrationMs: number
+}
+
 /** Serializable subset of CortexState for persistence (excludes recentAnalyses with full objects) */
 interface PersistedCortexState {
 	totalAnalyses: number
@@ -42,6 +53,12 @@ interface PersistedCortexState {
 	lastSavedAt: number
 }
 
+/** Cache TTL for analysis results: 10 minutes */
+const ANALYSIS_CACHE_TTL_MS = 10 * 60 * 1000
+
+/** Maximum number of cached analyses */
+const ANALYSIS_CACHE_CAPACITY = 32
+
 export class CortexEngine {
 	private config: CortexConfig
 	private state: CortexState
@@ -50,6 +67,12 @@ export class CortexEngine {
 	private analysisCount = 0
 	private static readonly SAVE_INTERVAL = 10 // save every N analyses
 
+	/** LRU cache for CortexAnalysis results keyed by query hash. */
+	private analysisCache = new LRUCache<string, CortexAnalysis>(
+		ANALYSIS_CACHE_CAPACITY,
+		ANALYSIS_CACHE_TTL_MS,
+	)
+
 	constructor(config?: Partial<CortexConfig>, dataDir?: string) {
 		this.config = { ...DEFAULT_CORTEX_CONFIG, ...config }
 		this.state = { ...CORTEX_STATE_DEFAULT }
@@ -57,6 +80,13 @@ export class CortexEngine {
 		if (dataDir) {
 			this.load()
 		}
+	}
+
+	/**
+	 * Compute a deterministic SHA-256 hash of the query string for cache lookup.
+	 */
+	private hashQuery(query: string): string {
+		return createHash('sha256').update(query).digest('hex')
 	}
 
 	/**
@@ -90,9 +120,27 @@ export class CortexEngine {
 	async analyze(query: string): Promise<CortexAnalysis> {
 		const startTime = Date.now()
 
+		// ── Cache check ────────────────────────────────────────────────
+		const queryHash = this.hashQuery(query)
+		const cached = this.analysisCache.get(queryHash)
+		if (cached) {
+			return cached
+		}
+
+		// Per-step timing accumulators
+		const timings: StepTimings = {
+			metaCognitionMs: 0,
+			decompositionMs: 0,
+			reasoningMs: 0,
+			verificationMs: 0,
+			synthesisMs: 0,
+			calibrationMs: 0,
+		}
+
 		// Step 1: Meta-cognition
 		let metaInsights: MetaInsight[] = []
 		if (this.config.metaCognitionEnabled) {
+			const t0 = Date.now()
 			try {
 				metaInsights = await analyzeQuery(query)
 			} catch {
@@ -106,50 +154,108 @@ export class CortexEngine {
 					},
 				]
 			}
+			timings.metaCognitionMs = Date.now() - t0
 		}
 
 		// Step 2: Query decomposition
 		let subQueries: DecomposedQuery[] = [
 			{ id: 'q_1', query, type: 'analytical' as QueryType, priority: 1, dependencies: [] },
 		]
-		if (this.config.queryDecompositionEnabled) {
-			try {
-				const decomposed = decompose(query, metaInsights)
-				if (decomposed.length > 0) subQueries = decomposed
-			} catch {
-				// Keep default single query
+		{
+			const t0 = Date.now()
+			if (this.config.queryDecompositionEnabled) {
+				try {
+					const decomposed = decompose(query, metaInsights)
+					if (decomposed.length > 0) subQueries = decomposed
+				} catch {
+					// Keep default single query
+				}
 			}
+			timings.decompositionMs = Date.now() - t0
 		}
 
-		// Step 3: Multi-pass reasoning
+		// Step 3: Multi-pass reasoning with parallel sub-query processing
 		let reasoningPasses: ReasoningPass[] = []
-		try {
-			reasoningPasses = await reason(query, subQueries, this.config.maxPasses, this.generateFn)
-		} catch {
-			reasoningPasses = [
-				{
-					passNumber: 1,
-					strategy: 'cot' as ReasoningStrategy,
-					input: query,
-					output: 'Reasoning unavailable',
-					gaps: ['reasoning engine failed'],
-					refinement: 'Fallback: no reasoning applied',
-					confidenceDelta: 0.3,
-					durationMs: 0,
-				},
-			]
+		{
+			const t0 = Date.now()
+			try {
+				// Group sub-queries into dependency layers for parallel execution.
+				// Each layer contains independent sub-queries whose dependencies
+				// have been resolved in previous layers.
+				const layers = this.buildDependencyLayers(subQueries)
+				const allPasses: ReasoningPass[] = []
+
+				for (const layer of layers) {
+					// Run all sub-queries within a layer concurrently
+					const layerResults = await Promise.all(
+						layer.map((sq) =>
+							reason(sq.query, [sq], this.config.maxPasses, this.generateFn).catch(
+								(): ReasoningPass[] => [
+									{
+										passNumber: 1,
+										strategy: 'cot' as ReasoningStrategy,
+										input: sq.query,
+										output: 'Reasoning unavailable',
+										gaps: ['reasoning engine failed'],
+										refinement: 'Fallback: no reasoning applied',
+										confidenceDelta: 0.3,
+										durationMs: 0,
+									},
+								],
+							),
+						),
+					)
+					for (const passes of layerResults) {
+						allPasses.push(...passes)
+					}
+				}
+
+				reasoningPasses =
+					allPasses.length > 0
+						? allPasses
+						: [
+								{
+									passNumber: 1,
+									strategy: 'cot' as ReasoningStrategy,
+									input: query,
+									output: 'Reasoning unavailable',
+									gaps: ['reasoning engine failed'],
+									refinement: 'Fallback: no reasoning applied',
+									confidenceDelta: 0.3,
+									durationMs: 0,
+								},
+							]
+			} catch {
+				reasoningPasses = [
+					{
+						passNumber: 1,
+						strategy: 'cot' as ReasoningStrategy,
+						input: query,
+						output: 'Reasoning unavailable',
+						gaps: ['reasoning engine failed'],
+						refinement: 'Fallback: no reasoning applied',
+						confidenceDelta: 0.3,
+						durationMs: 0,
+					},
+				]
+			}
+			timings.reasoningMs = Date.now() - t0
 		}
 
 		// Step 4: Cross-model verification
 		let crossModelResults: CrossModelResult[] = []
-		const bestPass = reasoningPasses[reasoningPasses.length - 1]
-		if (this.config.crossModelVerification && this.config.verificationModel) {
-			try {
-				const result = await verify(query, bestPass?.output ?? '', this.config.verificationModel)
-				crossModelResults = [result]
-			} catch {
-				// Skip verification
+		{
+			const t0 = Date.now()
+			const bestPass = reasoningPasses[reasoningPasses.length - 1]
+			if (this.config.crossModelVerification && this.config.verificationModel) {
+				try {
+					const result = await verify(query, bestPass?.output ?? '', this.config.verificationModel)
+					crossModelResults = [result]
+				} catch {
+					// Skip verification
+				}
 			}
+			timings.verificationMs = Date.now() - t0
 		}
 
 		// Step 5: Knowledge synthesis
@@ -162,31 +268,39 @@ export class CortexEngine {
 			combinedSummary: 'Knowledge synthesis not performed',
 			depth: 0,
 		}
-		if (this.config.knowledgeSynthesisDepth > 0) {
-			try {
-				synthesizedKnowledge = await synthesize(query, this.config.knowledgeSynthesisDepth)
-			} catch {
-				// Keep empty synthesis
+		{
+			const t0 = Date.now()
+			if (this.config.knowledgeSynthesisDepth > 0) {
+				try {
+					synthesizedKnowledge = await synthesize(query, this.config.knowledgeSynthesisDepth)
+				} catch {
+					// Keep empty synthesis
+				}
 			}
+			timings.synthesisMs = Date.now() - t0
 		}
 
 		// Step 6: Confidence calibration
 		let confidenceScore: ConfidenceScore
-		try {
-			confidenceScore = calibrate(
-				reasoningPasses,
-				crossModelResults.length > 0 ? crossModelResults[0] : null,
-				synthesizedKnowledge,
-			)
-		} catch {
-			confidenceScore = {
-				overall: 0.5,
-				factual: 0.5,
-				logical: 0.5,
-				completeness: 0.5,
-				consistency: 0.5,
-				signals: [],
+		{
+			const t0 = Date.now()
+			try {
+				confidenceScore = calibrate(
+					reasoningPasses,
+					crossModelResults.length > 0 ? crossModelResults[0] : null,
+					synthesizedKnowledge,
+				)
+			} catch {
+				confidenceScore = {
+					overall: 0.5,
+					factual: 0.5,
+					logical: 0.5,
+					completeness: 0.5,
+					consistency: 0.5,
+					signals: [],
+				}
 			}
+			timings.calibrationMs = Date.now() - t0
 		}
 
 		// Step 7: Build analysis object
@@ -204,6 +318,11 @@ export class CortexEngine {
 			timestamp: Date.now(),
 		}
 
+		// Attach per-step timings to metadata
+		;(analysis as CortexAnalysis & { metadata?: Record<string, unknown> }).metadata = {
+			stepTimings: timings,
+		}
+
 		// Step 8: Combine into augmented context
 		analysis.augmentedContext = combine(analysis, this.config.maxTokenBudget)
 
@@ -215,6 +334,9 @@ export class CortexEngine {
 		if (this.analysisCount % CortexEngine.SAVE_INTERVAL === 0) {
 			this.save()
 		}
+
+		// Store in cache
+		this.analysisCache.set(queryHash, analysis)
 
 		return analysis
 	}
@@ -245,6 +367,20 @@ export class CortexEngine {
 	 */
 	getDataDir(): string | undefined {
 		return this.dataDir
+	}
+
+	/**
+	 * Get analysis cache stats for monitoring / diagnostics.
+	 */
+	getCacheStats(): { size: number; capacity: number; ttlEvictions: number } {
+		return this.analysisCache.stats()
+	}
+
+	/**
+	 * Invalidate the analysis cache (e.g. after config change).
+	 */
+	clearCache(): void {
+		this.analysisCache.clear()
 	}
 
 	/**
@@ -329,6 +465,10 @@ export class CortexEngine {
 			for (const qt of Object.keys(CORTEX_STATE_DEFAULT.queryTypeDistribution) as QueryType[]) {
 				this.state.queryTypeDistribution[qt] = persisted.queryTypeDistribution[qt] ?? 0
 			}
+
+			// Warm-start: pre-compute normalized strategy weights from historical
+			// effectiveness so the first analysis after restart is already optimized.
+			this.warmStartStrategyWeights()
 		} catch {
 			// Corrupted state — start fresh with defaults
 		}
@@ -417,6 +557,110 @@ export class CortexEngine {
 		this.state.recentAnalyses.push(analysis)
 		if (this.state.recentAnalyses.length > 100) {
 			this.state.recentAnalyses = this.state.recentAnalyses.slice(-100)
+		}
+	}
+
+	// ─── Parallel Sub-Query Helpers ───────────────────────────────
+
+	/**
+	 * Build dependency layers from decomposed sub-queries.
+	 * Each layer contains sub-queries that only depend on sub-queries in
+	 * earlier layers. Sub-queries within the same layer are independent
+	 * and can be processed concurrently via Promise.all().
+	 *
+	 * Uses topological sort with Kahn's algorithm.
+	 */
+	private buildDependencyLayers(subQueries: DecomposedQuery[]): DecomposedQuery[][] {
+		if (subQueries.length <= 1) return [subQueries]
+
+		const idSet = new Set(subQueries.map((sq) => sq.id))
+		const inDegree = new Map<string, number>()
+		const dependents = new Map<string, string[]>() // dep → list of sub-queries that depend on it
+		const byId = new Map<string, DecomposedQuery>()
+
+		for (const sq of subQueries) {
+			byId.set(sq.id, sq)
+			// Only count dependencies that reference sub-queries in this set
+			const validDeps = sq.dependencies.filter((d) => idSet.has(d))
+			inDegree.set(sq.id, validDeps.length)
+			for (const dep of validDeps) {
+				const arr = dependents.get(dep) ?? []
+				arr.push(sq.id)
+				dependents.set(dep, arr)
+			}
+		}
+
+		const layers: DecomposedQuery[][] = []
+		let remaining = subQueries.length
+
+		while (remaining > 0) {
+			// Collect all sub-queries with in-degree 0 (no unresolved dependencies)
+			const layer: DecomposedQuery[] = []
+			for (const [id, deg] of inDegree) {
+				if (deg === 0) {
+					layer.push(byId.get(id)!)
+				}
+			}
+
+			if (layer.length === 0) {
+				// Circular dependency detected — break cycle by adding all remaining
+				const fallback: DecomposedQuery[] = []
+				for (const [id] of inDegree) {
+					fallback.push(byId.get(id)!)
+				}
+				layers.push(fallback)
+				break
+			}
+
+			// Remove processed nodes from the graph
+			for (const sq of layer) {
+				inDegree.delete(sq.id)
+				for (const depId of dependents.get(sq.id) ?? []) {
+					const current = inDegree.get(depId)
+					if (current !== undefined) {
+						inDegree.set(depId, current - 1)
+					}
+				}
+			}
+
+			layers.push(layer)
+			remaining -= layer.length
+		}
+
+		return layers
+	}
+
+	// ─── Warm-Start Helpers ──────────────────────────────────────
+
+	/**
+	 * Normalize strategy effectiveness weights after loading persisted state.
+	 * Converts raw effectiveness scores into relative weights (sum = 1.0)
+	 * scaled around the historical average. This ensures the first analysis
+	 * after a restart benefits from all prior learning immediately.
+	 */
+	private warmStartStrategyWeights(): void {
+		const strategies = Object.keys(this.state.strategyEffectiveness) as ReasoningStrategy[]
+		if (strategies.length === 0) return
+
+		// Compute the total effectiveness to normalize
+		const total = strategies.reduce(
+			(sum, s) => sum + (this.state.strategyEffectiveness[s] ?? 0.5),
+			0,
+		)
+
+		if (total <= 0) return
+
+		// Re-scale so the best historical strategy gets boosted and the
+		// weakest gets dampened, while keeping the sum the same as before.
+		const mean = total / strategies.length
+		const WARM_START_AMPLIFICATION = 1.2 // amplify deviation from mean by 20%
+
+		for (const s of strategies) {
+			const raw = this.state.strategyEffectiveness[s] ?? 0.5
+			const deviation = raw - mean
+			const amplified = mean + deviation * WARM_START_AMPLIFICATION
+			// Clamp to [0.05, 0.99] to keep every strategy viable
+			this.state.strategyEffectiveness[s] = Math.max(0.05, Math.min(0.99, amplified))
 		}
 	}
 }

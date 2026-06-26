@@ -23,3 +23,7 @@ evolution/state.json
 web/node_modules/
 bun.lock
 *.log
+# Benchmark / build artifacts — do not commit (.benchmark-tmp/ alone is ~224M).
+.benchmark-tmp/
+benchmark-results/
+loader_log.txt

@@ -27,8 +27,6 @@ export type SuperAgentConfig = {
 	compositionEnabled: boolean
 	/** Enable web intelligence deep research */
 	webintelEnabled: boolean
-	/** Enable multimodal capabilities */
-	multimodalEnabled: boolean
 	/** Enable planning and ADR system */
 	planningEnabled: boolean
 	/** Enable cortex deep intelligence amplifier */
@@ -39,22 +37,14 @@ export type SuperAgentConfig = {
 	nativeCoreEnabled: boolean
 	/** Enable 100x code governance engine */
 	governanceEnabled: boolean
-	/** Enable Olympus Industries company orchestration engine */
-	olympusEnabled: boolean
 	/** Enable proof engine for mathematical/logical verification */
 	proofEnabled: boolean
 	/** Enable SAT solver for path feasibility and constraint solving */
 	satEnabled: boolean
-	/** Enable Design by Contract verification */
-	contractEnabled: boolean
 	/** Enable Abstract Interpretation for NASA-grade static analysis */
 	abstractInterpretationEnabled: boolean
 	/** Enable Fuzzing Engine for crash detection */
 	fuzzingEnabled: boolean
-	/** Enable Symbolic Execution for path-sensitive analysis */
-	symbolicExecutionEnabled: boolean
-	/** Enable Program Slicing for dependency reduction */
-	programSlicingEnabled: boolean
 	/** Directory for persistent state (evolution, checkpoints, ADRs) */
 	dataDir?: string
 	/** Maximum RAG context tokens to inject into system prompt */
@@ -75,20 +65,15 @@ export const DEFAULT_SUPER_AGENT_CONFIG: SuperAgentConfig = {
 	swarmEnabled: true,
 	compositionEnabled: true,
 	webintelEnabled: true,
-	multimodalEnabled: true,
 	planningEnabled: true,
 	cortexEnabled: true,
 	deviceBridgeEnabled: true,
 	nativeCoreEnabled: true,
 	governanceEnabled: true,
-	olympusEnabled: true,
 	proofEnabled: true,
 	satEnabled: true,
-	contractEnabled: true,
 	abstractInterpretationEnabled: true,
 	fuzzingEnabled: true,
-	symbolicExecutionEnabled: true,
-	programSlicingEnabled: true,
 	maxRAGTokens: 2000,
 	defaultStrategy: 'auto',
 }
@@ -124,27 +109,17 @@ export type SuperAgentState = {
 	performanceReport: PerformanceReport | null
 	// Governance
 	governanceReport: GovernanceReport | null
-	// Olympus
-	olympusCompanies: Array<{ companyId: string; agentCount: number; departmentCount: number }>
-	olympusTemplates: string[]
 	// Proof Engine
 	proofReport: ProofReport | null
 	lastProofConfidence: number | null
 	// SAT Solver
 	satPathsChecked: number
 	satInfeasiblePaths: number
-	// Design by Contract
-	contractCompliance: number | null
 	// Abstract Interpretation
 	aiSoundnessScore: number | null
 	aiFindingsCount: number
 	// Fuzzing Engine
 	fuzzCrashesFound: number
-	// Symbolic Execution
-	sePathsExplored: number
-	seFindingsCount: number
-	// Program Slicing
-	sliceReductionAvg: number | null
 	// Session Context (temporal reasoning)
 	sessionContext: SessionContext | null
 	// General

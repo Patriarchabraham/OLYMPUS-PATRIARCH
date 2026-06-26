@@ -1,84 +1,91 @@
+import {
+	getTransportKindForRoute,
+	resolveActiveRouteIdFromEnv,
+} from '../../integrations/routeMetadata.js'
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../../services/analytics/index.js'
 import { shouldUseCodexTransport } from '../../services/api/providerConfig.js'
-import {
-  getTransportKindForRoute,
-  resolveActiveRouteIdFromEnv,
-} from '../../integrations/routeMetadata.js'
 import { isEnvTruthy } from '../envUtils.js'
 
 // Legacy provider categories that older model/status/runtime callers still
 // consume. Descriptor route ids are the newer source of truth, but we keep
 // this compatibility surface stable until later cleanup packets retire it.
 export type LegacyAPIProvider =
-  | 'firstParty'
-  | 'bedrock'
-  | 'vertex'
-  | 'foundry'
-  | 'openai'
-  | 'gemini'
-  | 'github'
-  | 'codex'
-  | 'nvidia-nim'
-  | 'minimax'
-  | 'mistral'
-  | 'xai'
+	| 'firstParty'
+	| 'bedrock'
+	| 'vertex'
+	| 'foundry'
+	| 'openai'
+	| 'gemini'
+	| 'github'
+	| 'codex'
+	| 'nvidia-nim'
+	| 'minimax'
+	| 'mistral'
+	| 'xai'
+	| 'deepseek'
+	| 'together'
+	| 'fireworks'
+	| 'groq'
+	| 'cohere'
+	| 'perplexity'
+	| 'huggingface'
+	| 'replicate'
+	| 'openrouter'
+	| 'google-ai-studio'
 
 // Backward-compatible public alias. Keep importing APIProvider where callers
 // intentionally consume the legacy category surface.
 export type APIProvider = LegacyAPIProvider
 
 export function getAPIProvider(): LegacyAPIProvider {
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) {
-    return 'foundry'
-  }
+	if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) {
+		return 'foundry'
+	}
 
-  const activeRouteId = resolveActiveRouteIdFromEnv(process.env)
+	const activeRouteId = resolveActiveRouteIdFromEnv(process.env)
 
-  switch (activeRouteId) {
-    case 'gemini':
-      return 'gemini'
-    case 'mistral':
-      return 'mistral'
-    case 'github':
-      return 'github'
-    case 'bedrock':
-      return 'bedrock'
-    case 'vertex':
-      return 'vertex'
-    case 'nvidia-nim':
-      return 'nvidia-nim'
-    case 'minimax':
-      return 'minimax'
-    case 'xai':
-      return 'xai'
-    case 'openai':
-    case 'custom':
-      if (isEnvTruthy(process.env.NVIDIA_NIM)) {
-        return 'nvidia-nim'
-      }
-      return isCodexModel() ? 'codex' : 'openai'
-    case 'anthropic':
-    default:
-      if (
-        activeRouteId &&
-        activeRouteId !== 'anthropic' &&
-        ['local', 'openai-compatible'].includes(
-          getTransportKindForRoute(activeRouteId) ?? '',
-        )
-      ) {
-        return 'openai'
-      }
+	switch (activeRouteId) {
+		case 'gemini':
+			return 'gemini'
+		case 'mistral':
+			return 'mistral'
+		case 'github':
+			return 'github'
+		case 'bedrock':
+			return 'bedrock'
+		case 'vertex':
+			return 'vertex'
+		case 'nvidia-nim':
+			return 'nvidia-nim'
+		case 'minimax':
+			return 'minimax'
+		case 'xai':
+			return 'xai'
+		case 'openai':
+		case 'custom':
+			if (isEnvTruthy(process.env.NVIDIA_NIM)) {
+				return 'nvidia-nim'
+			}
+			return isCodexModel() ? 'codex' : 'openai'
+		default:
+			if (
+				activeRouteId &&
+				activeRouteId !== 'anthropic' &&
+				['local', 'openai-compatible'].includes(getTransportKindForRoute(activeRouteId) ?? '')
+			) {
+				return 'openai'
+			}
 
-      if (isEnvTruthy(process.env.NVIDIA_NIM)) {
-        return 'nvidia-nim'
-      }
+			if (isEnvTruthy(process.env.NVIDIA_NIM)) {
+				return 'nvidia-nim'
+			}
 
-      return 'firstParty'
-  }
+			return 'firstParty'
+	}
 }
 
 export function usesAnthropicAccountFlow(): boolean {
-  return getAPIProvider() === 'firstParty'
+	return getAPIProvider() === 'firstParty'
 }
 
 /**
@@ -94,19 +101,19 @@ export function usesAnthropicAccountFlow(): boolean {
  * per-turn token costs by caching the system prompt and tool definitions.
  */
 export function isGithubNativeAnthropicMode(resolvedModel?: string): boolean {
-  if (!isEnvTruthy(process.env.CLAUDE_CODE_USE_GITHUB)) return false
-  const model = resolvedModel?.trim() || process.env.OPENAI_MODEL?.trim() || ''
-  return model.toLowerCase().includes('claude-')
+	if (!isEnvTruthy(process.env.CLAUDE_CODE_USE_GITHUB)) return false
+	const model = resolvedModel?.trim() || process.env.OPENAI_MODEL?.trim() || ''
+	return model.toLowerCase().includes('claude-')
 }
 function isCodexModel(): boolean {
-  return shouldUseCodexTransport(
-    process.env.OPENAI_MODEL || '',
-    process.env.OPENAI_BASE_URL ?? process.env.OPENAI_API_BASE,
-  )
+	return shouldUseCodexTransport(
+		process.env.OPENAI_MODEL || '',
+		process.env.OPENAI_BASE_URL ?? process.env.OPENAI_API_BASE,
+	)
 }
 
 export function getAPIProviderForStatsig(): AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS {
-  return getAPIProvider() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+	return getAPIProvider() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
 }
 
 /**
@@ -115,18 +122,18 @@ export function getAPIProviderForStatsig(): AnalyticsMetadata_I_VERIFIED_THIS_IS
  * (or api-staging.anthropic.com for ant users).
  */
 export function isFirstPartyAnthropicBaseUrl(): boolean {
-  const baseUrl = process.env.ANTHROPIC_BASE_URL
-  if (!baseUrl) {
-    return true
-  }
-  try {
-    const host = new URL(baseUrl).host
-    const allowedHosts = ['api.anthropic.com']
-    if (process.env.USER_TYPE === 'ant') {
-      allowedHosts.push('api-staging.anthropic.com')
-    }
-    return allowedHosts.includes(host)
-  } catch {
-    return false
-  }
+	const baseUrl = process.env.ANTHROPIC_BASE_URL
+	if (!baseUrl) {
+		return true
+	}
+	try {
+		const host = new URL(baseUrl).host
+		const allowedHosts = ['api.anthropic.com']
+		if (process.env.USER_TYPE === 'ant') {
+			allowedHosts.push('api-staging.anthropic.com')
+		}
+		return allowedHosts.includes(host)
+	} catch {
+		return false
+	}
 }

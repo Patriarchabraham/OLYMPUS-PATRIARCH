@@ -47,6 +47,12 @@ afterEach(() => {
 	restoreEnv()
 })
 
+// NOTE: these tests re-import status.js (via vi.importActual), which triggers
+// provider auto-detection — that probes several local model-server HTTP
+// endpoints (Ollama, LM Studio, vLLM, …) each waiting on a connect/abort
+// timeout. A single test can take 30-60s, so each is given a 120s timeout,
+// well above the suite default (30s). The probing slowness itself is a
+// follow-up in providerDiscovery/providerAutoDetect.
 test('buildAPIProviderProperties labels NVIDIA NIM sessions', async () => {
 	process.env.CLAUDE_CODE_USE_OPENAI = '1'
 	process.env.NVIDIA_NIM = '1'
@@ -60,7 +66,7 @@ test('buildAPIProviderProperties labels NVIDIA NIM sessions', async () => {
 	expect(await readPropertyValue('Model', 'nvidia-nim')).toBe(
 		'nvidia/llama-3.1-nemotron-70b-instruct',
 	)
-})
+}, 120_000)
 
 test('buildAPIProviderProperties labels MiniMax sessions', async () => {
 	process.env.CLAUDE_CODE_USE_OPENAI = '1'
@@ -71,7 +77,7 @@ test('buildAPIProviderProperties labels MiniMax sessions', async () => {
 	expect(await readPropertyValue('API provider', 'minimax')).toBe('MiniMax')
 	expect(await readPropertyValue('MiniMax base URL', 'minimax')).toBe('https://api.minimax.chat/v1')
 	expect(await readPropertyValue('Model', 'minimax')).toBe('MiniMax-M2.5')
-})
+}, 120_000)
 
 test('buildAPIProviderProperties keeps Codex-specific labels on the shared OpenAI-compatible path', async () => {
 	process.env.CLAUDE_CODE_USE_OPENAI = '1'
@@ -82,4 +88,4 @@ test('buildAPIProviderProperties keeps Codex-specific labels on the shared OpenA
 	expect(await readPropertyValue('API provider', 'codex')).toBe('Codex')
 	expect(await readPropertyValue('Codex base URL', 'codex')).toBe(DEFAULT_CODEX_BASE_URL)
 	expect(await readPropertyValue('Model', 'codex')).toBe('gpt-5.5 (high)')
-})
+}, 120_000)

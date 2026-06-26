@@ -290,7 +290,7 @@ export class PromptEvolver {
 		return population.slice(0, PromptEvolver.POPULATION_SIZE)
 	}
 
-	/** Run one generation: select → crossover → mutate → evaluate */
+	/** Run one generation: select → crossover → mutate → evaluate → diversity adjust */
 	private evolveGeneration(
 		population: Chromosome[],
 		interactions: InteractionRecord[],
@@ -337,7 +337,48 @@ export class PromptEvolver {
 			nextGen.push(child)
 		}
 
+		// Diversity preservation (fitness sharing / niching)
+		// Penalize individuals that are too similar to other high-fitness ones
+		this.applyDiversityPenalty(nextGen)
+
 		return nextGen
+	}
+
+	/**
+	 * Fitness sharing: if two individuals are very similar (Jaccard > 0.85),
+	 * reduce the weaker one's fitness. This prevents the population from
+	 * converging to a single solution.
+	 */
+	private applyDiversityPenalty(population: Chromosome[]): void {
+		const SIMILARITY_THRESHOLD = 0.85
+		const PENALTY_FACTOR = 0.3
+
+		for (let i = 0; i < population.length; i++) {
+			let neighborCount = 0
+			for (let j = 0; j < population.length; j++) {
+				if (i === j) continue
+				const sim = this.chromosomeSimilarity(population[i]!, population[j]!)
+				if (sim > SIMILARITY_THRESHOLD) neighborCount++
+			}
+			// Share fitness among similar neighbors
+			if (neighborCount > 0) {
+				population[i]!.fitness *= 1 - (PENALTY_FACTOR * neighborCount) / population.length
+			}
+		}
+	}
+
+	/** Jaccard similarity between two chromosomes' keyword sets. */
+	private chromosomeSimilarity(a: Chromosome, b: Chromosome): number {
+		const aWords = new Set(tokenize(this.chromosomeToPrompt(a)))
+		const bWords = new Set(tokenize(this.chromosomeToPrompt(b)))
+		if (aWords.size === 0 && bWords.size === 0) return 1
+
+		let intersection = 0
+		for (const w of aWords) {
+			if (bWords.has(w)) intersection++
+		}
+		const union = aWords.size + bWords.size - intersection
+		return union > 0 ? intersection / union : 0
 	}
 
 	/** Tournament selection: pick k random, return best */

@@ -21,7 +21,8 @@ afterEach(() => {
 async function importFreshTeammateModelModule(providerName = 'mistral') {
 	provider.set(providerName)
 	vi.resetModules()
-	return vi.importActual<typeof import('./teammateModel.js')>('./teammateModel.js')
+	// Use `await import()` (not `vi.importActual`) so the vi.mock factory applies
+	return import('./teammateModel.js')
 }
 
 test('getHardcodedTeammateModelFallback returns a Mistral fallback in mistral mode', async () => {

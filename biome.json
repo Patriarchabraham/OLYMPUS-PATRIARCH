@@ -6,14 +6,28 @@
       "recommended": true,
       "correctness": {
         "noUnusedVariables": "warn",
-        "noUnusedImports": "warn"
+        "noUnusedImports": "warn",
+        "noConstantCondition": "warn",
+        "useExhaustiveDependencies": "warn",
+        "useHookAtTopLevel": "warn",
+        "noVoidTypeReturn": "warn",
+        "noUnusedFunctionParameters": "warn",
+        "noUnusedPrivateClassMembers": "warn",
+        "noInvalidUseBeforeDeclaration": "warn"
       },
       "style": {
         "noNonNullAssertion": "off",
         "useConst": "warn"
       },
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noImplicitAnyLet": "warn",
+        "noConsole": "warn",
+        "noAssignInExpressions": "warn",
+        "noConfusingLabels": "warn",
+        "noControlCharactersInRegex": "warn",
+        "useIterableCallbackReturn": "warn",
+        "noArrayIndexKey": "warn"
       },
       "complexity": {
         "noForEach": "off"

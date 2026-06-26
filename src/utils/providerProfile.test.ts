@@ -1,8 +1,7 @@
-﻿import assert from 'node:assert/strict'
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import test from 'node:test'
+import { expect, test } from 'vitest'
 
 import { DEFAULT_CODEX_BASE_URL } from '../services/api/providerConfig.js'
 import {
@@ -60,8 +59,8 @@ test('matching persisted ollama env is reused for ollama launch', async () => {
 		resolveOllamaDefaultModel: async () => 'llama3.1:8b',
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'http://127.0.0.1:11435/v1')
-	assert.equal(env.OPENAI_MODEL, 'mistral:7b-instruct')
+	expect(env.OPENAI_BASE_URL).toBe('http://127.0.0.1:11435/v1')
+	expect(env.OPENAI_MODEL).toBe('mistral:7b-instruct')
 })
 
 test('ollama launch ignores mismatched persisted openai env and shell model fallback', async () => {
@@ -84,11 +83,11 @@ test('ollama launch ignores mismatched persisted openai env and shell model fall
 		resolveOllamaDefaultModel: async () => 'qwen2.5-coder:7b',
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'http://localhost:11434/v1')
-	assert.equal(env.OPENAI_MODEL, 'qwen2.5-coder:7b')
-	assert.equal(env.OPENAI_API_KEY, undefined)
-	assert.equal(env.CODEX_API_KEY, undefined)
-	assert.equal(env.CHATGPT_ACCOUNT_ID, undefined)
+	expect(env.OPENAI_BASE_URL).toBe('http://localhost:11434/v1')
+	expect(env.OPENAI_MODEL).toBe('qwen2.5-coder:7b')
+	expect(env.OPENAI_API_KEY).toBeUndefined()
+	expect(env.CODEX_API_KEY).toBeUndefined()
+	expect(env.CHATGPT_ACCOUNT_ID).toBeUndefined()
 })
 
 test('openai launch ignores mismatched persisted ollama env', async () => {
@@ -108,11 +107,11 @@ test('openai launch ignores mismatched persisted ollama env', async () => {
 		resolveOllamaDefaultModel: async () => 'llama3.1:8b',
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
-	assert.equal(env.OPENAI_MODEL, 'gpt-4o-mini')
-	assert.equal(env.OPENAI_API_KEY, 'sk-live')
-	assert.equal(env.CODEX_API_KEY, undefined)
-	assert.equal(env.CHATGPT_ACCOUNT_ID, undefined)
+	expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
+	expect(env.OPENAI_MODEL).toBe('gpt-4o-mini')
+	expect(env.OPENAI_API_KEY).toBe('sk-live')
+	expect(env.CODEX_API_KEY).toBeUndefined()
+	expect(env.CHATGPT_ACCOUNT_ID).toBeUndefined()
 })
 
 test('anthropic launch preserves unmanaged process env values', async () => {
@@ -130,11 +129,11 @@ test('anthropic launch preserves unmanaged process env values', async () => {
 		},
 	})
 
-	assert.equal(env.PATH, '/usr/local/bin:/usr/bin')
-	assert.equal(env.HOME, '/Users/example')
-	assert.equal(env.ANTHROPIC_MODEL, 'claude-sonnet-4-6')
-	assert.equal(env.ANTHROPIC_API_KEY, 'sk-ant-persisted')
-	assert.equal(env.OPENAI_MODEL, undefined)
+	expect(env.PATH).toBe('/usr/local/bin:/usr/bin')
+	expect(env.HOME).toBe('/Users/example')
+	expect(env.ANTHROPIC_MODEL).toBe('claude-sonnet-4-6')
+	expect(env.ANTHROPIC_API_KEY).toBe('sk-ant-persisted')
+	expect(env.OPENAI_MODEL).toBeUndefined()
 })
 
 test('openai launch omits api key when no key is resolved', async () => {
@@ -150,9 +149,9 @@ test('openai launch omits api key when no key is resolved', async () => {
 		},
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
-	assert.equal(env.OPENAI_MODEL, 'gpt-4o')
-	assert.equal(Object.hasOwn(env, 'OPENAI_API_KEY'), false)
+	expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
+	expect(env.OPENAI_MODEL).toBe('gpt-4o')
+	expect(Object.hasOwn(env, 'OPENAI_API_KEY')).toBe(false)
 })
 
 test('xai launch uses descriptor defaults and persisted xAI key', async () => {
@@ -165,11 +164,11 @@ test('xai launch uses descriptor defaults and persisted xAI key', async () => {
 		processEnv: {},
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, '1')
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.x.ai/v1')
-	assert.equal(env.OPENAI_MODEL, 'grok-4.3')
-	assert.equal(env.OPENAI_API_KEY, 'xai-persisted-key')
-	assert.equal(env.XAI_API_KEY, 'xai-persisted-key')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBe('1')
+	expect(env.OPENAI_BASE_URL).toBe('https://api.x.ai/v1')
+	expect(env.OPENAI_MODEL).toBe('grok-4.3')
+	expect(env.OPENAI_API_KEY).toBe('xai-persisted-key')
+	expect(env.XAI_API_KEY).toBe('xai-persisted-key')
 })
 
 test('xai launch lets shell xAI key override persisted xAI key', async () => {
@@ -185,11 +184,11 @@ test('xai launch lets shell xAI key override persisted xAI key', async () => {
 		},
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, '1')
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.x.ai/v1')
-	assert.equal(env.OPENAI_MODEL, 'grok-3')
-	assert.equal(env.OPENAI_API_KEY, 'xai-shell-key')
-	assert.equal(env.XAI_API_KEY, 'xai-shell-key')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBe('1')
+	expect(env.OPENAI_BASE_URL).toBe('https://api.x.ai/v1')
+	expect(env.OPENAI_MODEL).toBe('grok-3')
+	expect(env.OPENAI_API_KEY).toBe('xai-shell-key')
+	expect(env.XAI_API_KEY).toBe('xai-shell-key')
 })
 
 test('openai launch ignores codex shell transport hints', async () => {
@@ -204,9 +203,9 @@ test('openai launch ignores codex shell transport hints', async () => {
 		},
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
-	assert.equal(env.OPENAI_MODEL, 'gpt-5.5')
-	assert.equal(env.OPENAI_API_KEY, 'sk-live')
+	expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
+	expect(env.OPENAI_MODEL).toBe('gpt-5.5')
+	expect(env.OPENAI_API_KEY).toBe('sk-live')
 })
 
 test('openai launch ignores codex persisted transport hints', async () => {
@@ -223,9 +222,9 @@ test('openai launch ignores codex persisted transport hints', async () => {
 		},
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
-	assert.equal(env.OPENAI_MODEL, 'gpt-5.5')
-	assert.equal(env.OPENAI_API_KEY, 'sk-live')
+	expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
+	expect(env.OPENAI_MODEL).toBe('gpt-5.5')
+	expect(env.OPENAI_API_KEY).toBe('sk-live')
 })
 
 test('openai launch preserves shell responses format and custom auth overrides', async () => {
@@ -252,13 +251,13 @@ test('openai launch preserves shell responses format and custom auth overrides',
 		},
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://shell.example/v1')
-	assert.equal(env.OPENAI_MODEL, 'shell-model')
-	assert.equal(env.OPENAI_API_FORMAT, 'responses')
-	assert.equal(env.OPENAI_AUTH_HEADER, 'api-key')
-	assert.equal(env.OPENAI_AUTH_SCHEME, 'raw')
-	assert.equal(env.OPENAI_AUTH_HEADER_VALUE, 'shell-secret')
-	assert.equal(env.OPENAI_API_KEY, 'sk-live')
+	expect(env.OPENAI_BASE_URL).toBe('https://shell.example/v1')
+	expect(env.OPENAI_MODEL).toBe('shell-model')
+	expect(env.OPENAI_API_FORMAT).toBe('responses')
+	expect(env.OPENAI_AUTH_HEADER).toBe('api-key')
+	expect(env.OPENAI_AUTH_SCHEME).toBe('raw')
+	expect(env.OPENAI_AUTH_HEADER_VALUE).toBe('shell-secret')
+	expect(env.OPENAI_API_KEY).toBe('sk-live')
 })
 
 test('matching persisted gemini env is reused for gemini launch', async () => {
@@ -273,11 +272,11 @@ test('matching persisted gemini env is reused for gemini launch', async () => {
 		processEnv: {},
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_GEMINI, '1')
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, undefined)
-	assert.equal(env.GEMINI_MODEL, 'gemini-2.5-flash')
-	assert.equal(env.GEMINI_API_KEY, 'gem-persisted')
-	assert.equal(env.GEMINI_BASE_URL, 'https://example.test/v1beta/openai')
+	expect(env.CLAUDE_CODE_USE_GEMINI).toBe('1')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBeUndefined()
+	expect(env.GEMINI_MODEL).toBe('gemini-2.5-flash')
+	expect(env.GEMINI_API_KEY).toBe('gem-persisted')
+	expect(env.GEMINI_BASE_URL).toBe('https://example.test/v1beta/openai')
 })
 
 test('openai env variables take precedence over gemini', async () => {
@@ -301,15 +300,15 @@ test('openai env variables take precedence over gemini', async () => {
 		},
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_GEMINI, undefined)
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, '1')
-	assert.equal(env.GEMINI_MODEL, undefined)
-	assert.equal(env.GEMINI_API_KEY, undefined)
-	assert.equal(env.GEMINI_BASE_URL, undefined)
-	assert.equal(env.GOOGLE_API_KEY, undefined)
-	assert.equal(env.OPENAI_API_KEY, 'sk-live')
-	assert.equal(env.CODEX_API_KEY, undefined)
-	assert.equal(env.CHATGPT_ACCOUNT_ID, undefined)
+	expect(env.CLAUDE_CODE_USE_GEMINI).toBeUndefined()
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBe('1')
+	expect(env.GEMINI_MODEL).toBeUndefined()
+	expect(env.GEMINI_API_KEY).toBeUndefined()
+	expect(env.GEMINI_BASE_URL).toBeUndefined()
+	expect(env.GOOGLE_API_KEY).toBeUndefined()
+	expect(env.OPENAI_API_KEY).toBe('sk-live')
+	expect(env.CODEX_API_KEY).toBeUndefined()
+	expect(env.CHATGPT_ACCOUNT_ID).toBeUndefined()
 })
 
 test('matching persisted codex env is reused for codex launch', async () => {
@@ -327,10 +326,10 @@ test('matching persisted codex env is reused for codex launch', async () => {
 		},
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://chatgpt.com/backend-api/codex')
-	assert.equal(env.OPENAI_MODEL, 'codexspark')
-	assert.equal(env.CODEX_API_KEY, 'codex-persisted')
-	assert.equal(env.CHATGPT_ACCOUNT_ID, 'acct_persisted')
+	expect(env.OPENAI_BASE_URL).toBe('https://chatgpt.com/backend-api/codex')
+	expect(env.OPENAI_MODEL).toBe('codexspark')
+	expect(env.CODEX_API_KEY).toBe('codex-persisted')
+	expect(env.CHATGPT_ACCOUNT_ID).toBe('acct_persisted')
 })
 
 test('codex launch normalizes poisoned persisted base urls', async () => {
@@ -347,8 +346,8 @@ test('codex launch normalizes poisoned persisted base urls', async () => {
 		},
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://chatgpt.com/backend-api/codex')
-	assert.equal(env.OPENAI_MODEL, 'codexspark')
+	expect(env.OPENAI_BASE_URL).toBe('https://chatgpt.com/backend-api/codex')
+	expect(env.OPENAI_MODEL).toBe('codexspark')
 })
 
 test('codex launch ignores mismatched persisted openai env', async () => {
@@ -369,11 +368,11 @@ test('codex launch ignores mismatched persisted openai env', async () => {
 		},
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'https://chatgpt.com/backend-api/codex')
-	assert.equal(env.OPENAI_MODEL, 'codexplan')
-	assert.equal(env.OPENAI_API_KEY, undefined)
-	assert.equal(env.CODEX_API_KEY, 'codex-live')
-	assert.equal(env.CHATGPT_ACCOUNT_ID, 'acct_live')
+	expect(env.OPENAI_BASE_URL).toBe('https://chatgpt.com/backend-api/codex')
+	expect(env.OPENAI_MODEL).toBe('codexplan')
+	expect(env.OPENAI_API_KEY).toBeUndefined()
+	expect(env.CODEX_API_KEY).toBe('codex-live')
+	expect(env.CHATGPT_ACCOUNT_ID).toBe('acct_live')
 })
 
 test('codex launch ignores placeholder codex env keys', async () => {
@@ -392,8 +391,8 @@ test('codex launch ignores placeholder codex env keys', async () => {
 		},
 	})
 
-	assert.equal(env.CODEX_API_KEY, 'codex-persisted')
-	assert.equal(env.CHATGPT_ACCOUNT_ID, 'acct_persisted')
+	expect(env.CODEX_API_KEY).toBe('codex-persisted')
+	expect(env.CHATGPT_ACCOUNT_ID).toBe('acct_persisted')
 })
 
 test('codex launch prefers auth account id over stale persisted value', async () => {
@@ -421,7 +420,7 @@ test('codex launch prefers auth account id over stale persisted value', async ()
 			},
 		})
 
-		assert.equal(env.CHATGPT_ACCOUNT_ID, 'acct_auth')
+		expect(env.CHATGPT_ACCOUNT_ID).toBe('acct_auth')
 	} finally {
 		rmSync(codexHome, { recursive: true, force: true })
 	}
@@ -432,11 +431,11 @@ test('ollama profiles never persist openai api keys', () => {
 		getOllamaChatBaseUrl: () => 'http://localhost:11434/v1',
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: 'http://localhost:11434/v1',
 		OPENAI_MODEL: 'llama3.1:8b',
 	})
-	assert.equal('OPENAI_API_KEY' in env, false)
+	expect('OPENAI_API_KEY' in env).toBe(false)
 })
 
 test('codex profiles accept explicit codex credentials', () => {
@@ -448,7 +447,7 @@ test('codex profiles accept explicit codex credentials', () => {
 		},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: 'https://chatgpt.com/backend-api/codex',
 		OPENAI_MODEL: 'codexspark',
 		CODEX_CREDENTIAL_SOURCE: 'existing',
@@ -466,7 +465,7 @@ test('codex profiles require a chatgpt account id', () => {
 		},
 	})
 
-	assert.equal(env, null)
+	expect(env).toBe(null)
 })
 
 test('codex launch clears openai-compatible format and custom auth env', async () => {
@@ -488,11 +487,11 @@ test('codex launch clears openai-compatible format and custom auth env', async (
 		},
 	})
 
-	assert.equal(env.OPENAI_API_FORMAT, undefined)
-	assert.equal(env.OPENAI_AUTH_HEADER, undefined)
-	assert.equal(env.OPENAI_AUTH_SCHEME, undefined)
-	assert.equal(env.OPENAI_AUTH_HEADER_VALUE, undefined)
-	assert.equal(env.CODEX_API_KEY, 'codex-live')
+	expect(env.OPENAI_API_FORMAT).toBeUndefined()
+	expect(env.OPENAI_AUTH_HEADER).toBeUndefined()
+	expect(env.OPENAI_AUTH_SCHEME).toBeUndefined()
+	expect(env.OPENAI_AUTH_HEADER_VALUE).toBeUndefined()
+	expect(env.CODEX_API_KEY).toBe('codex-live')
 })
 
 test('gemini profiles accept google api key fallback', () => {
@@ -502,7 +501,7 @@ test('gemini profiles accept google api key fallback', () => {
 		},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		GEMINI_AUTH_MODE: 'api-key',
 		GEMINI_MODEL: 'gemini-3-flash-preview',
 		GEMINI_API_KEY: 'gem-live',
@@ -517,7 +516,7 @@ test('gemini profiles use the first model from a semicolon-separated list', () =
 		processEnv: {},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		GEMINI_AUTH_MODE: 'api-key',
 		GEMINI_MODEL: 'gemini-2.5-pro',
 		GEMINI_API_KEY: 'gem-live',
@@ -531,7 +530,7 @@ test('gemini profiles support access-token auth mode without persisting a key', 
 		processEnv: {},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		GEMINI_AUTH_MODE: 'access-token',
 		GEMINI_MODEL: 'gemini-2.5-flash',
 	})
@@ -544,7 +543,7 @@ test('gemini profiles support adc auth mode without persisting a key', () => {
 		processEnv: {},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		GEMINI_AUTH_MODE: 'adc',
 		GEMINI_MODEL: 'gemini-2.5-flash',
 	})
@@ -555,7 +554,7 @@ test('gemini profiles require a key', () => {
 		processEnv: {},
 	})
 
-	assert.equal(env, null)
+	expect(env).toBe(null)
 })
 
 test('saveProfileFile writes a profile that loadProfileFile can read back', () => {
@@ -569,9 +568,9 @@ test('saveProfileFile writes a profile that loadProfileFile can read back', () =
 
 		const filePath = saveProfileFile(persisted, { cwd })
 
-		assert.equal(filePath, join(cwd, PROFILE_FILE_NAME))
-		assert.equal(JSON.parse(readFileSync(filePath, 'utf8')).profile, 'openai')
-		assert.deepEqual(loadProfileFile({ cwd }), persisted)
+		expect(filePath).toBe(join(cwd, PROFILE_FILE_NAME))
+		expect(JSON.parse(readFileSync(filePath, 'utf8')).profile).toBe('openai')
+		expect(loadProfileFile({ cwd })).toEqual(persisted)
 	} finally {
 		rmSync(cwd, { recursive: true, force: true })
 	}
@@ -595,11 +594,13 @@ test('saveProfileFile defaults to user config instead of the working directory',
 
 		const filePath = saveProfileFile(persisted)
 
-		assert.equal(filePath, join(configDir, PROFILE_FILE_NAME))
-		assert.equal(getDefaultProfileFilePath(), join(configDir, PROFILE_FILE_NAME))
-		assert.equal(existsSync(join(cwd, PROFILE_FILE_NAME)), false)
-		assert.equal(statSync(configDir).mode & 0o777, 0o700)
-		assert.deepEqual(loadProfileFile(), persisted)
+		expect(filePath).toBe(join(configDir, PROFILE_FILE_NAME))
+		expect(getDefaultProfileFilePath()).toBe(join(configDir, PROFILE_FILE_NAME))
+		expect(existsSync(join(cwd, PROFILE_FILE_NAME))).toBe(false)
+		if (process.platform !== 'win32') {
+			expect(statSync(configDir).mode & 0o777).toBe(0o700)
+		}
+		expect(loadProfileFile()).toEqual(persisted)
 	} finally {
 		process.chdir(previousCwd)
 		if (previousConfigDir === undefined) {
@@ -628,7 +629,7 @@ test('loadProfileFile keeps project-local files as a legacy fallback', () => {
 		})
 		writeFileSync(join(cwd, PROFILE_FILE_NAME), JSON.stringify(legacyProfile, null, 2), 'utf8')
 
-		assert.deepEqual(loadProfileFile(), legacyProfile)
+		expect(loadProfileFile()).toEqual(legacyProfile)
 	} finally {
 		process.chdir(previousCwd)
 		if (previousConfigDir === undefined) {
@@ -658,7 +659,7 @@ test('loadProfileFile does not fall back when user config profile is invalid', (
 		writeFileSync(join(configDir, PROFILE_FILE_NAME), '{', 'utf8')
 		writeFileSync(join(cwd, PROFILE_FILE_NAME), JSON.stringify(legacyProfile, null, 2), 'utf8')
 
-		assert.equal(loadProfileFile(), null)
+		expect(loadProfileFile()).toBe(null)
 	} finally {
 		process.chdir(previousCwd)
 		if (previousConfigDir === undefined) {
@@ -694,9 +695,9 @@ test('deleteProfileFile clears the default profile and legacy workspace fallback
 
 		deleteProfileFile()
 
-		assert.equal(existsSync(join(configDir, PROFILE_FILE_NAME)), false)
-		assert.equal(existsSync(join(cwd, PROFILE_FILE_NAME)), false)
-		assert.equal(loadProfileFile(), null)
+		expect(existsSync(join(configDir, PROFILE_FILE_NAME))).toBe(false)
+		expect(existsSync(join(cwd, PROFILE_FILE_NAME))).toBe(false)
+		expect(loadProfileFile()).toBe(null)
 	} finally {
 		process.chdir(previousCwd)
 		if (previousConfigDir === undefined) {
@@ -721,7 +722,7 @@ test('buildCodexProfileEnv tags OAuth-saved profiles so logout can remove them s
 		processEnv: {},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: DEFAULT_CODEX_BASE_URL,
 		OPENAI_MODEL: 'codexplan',
 		CODEX_CREDENTIAL_SOURCE: 'oauth',
@@ -738,9 +739,7 @@ test('clearPersistedCodexOAuthProfile removes only persisted Codex OAuth profile
 	const cwd = mkdtempSync(join(tmpdir(), 'Olympuz Coder-codex-oauth-profile-'))
 
 	try {
-		const providerProfileModule = await import(
-			'./providerProfile.js'
-		)
+		const providerProfileModule = await import('./providerProfile.js')
 		const {
 			PROFILE_FILE_NAME,
 			clearPersistedCodexOAuthProfile,
@@ -756,9 +755,9 @@ test('clearPersistedCodexOAuthProfile removes only persisted Codex OAuth profile
 			CODEX_CREDENTIAL_SOURCE: 'oauth',
 		})
 		saveProfileFile(oauthProfile, { cwd })
-		assert.equal(isPersistedCodexOAuthProfile(loadProfileFile({ cwd })), true)
-		assert.equal(clearPersistedCodexOAuthProfile({ cwd }), join(cwd, PROFILE_FILE_NAME))
-		assert.equal(loadProfileFile({ cwd }), null)
+		expect(isPersistedCodexOAuthProfile(loadProfileFile({ cwd }))).toBe(true)
+		expect(clearPersistedCodexOAuthProfile({ cwd })).toBe(join(cwd, PROFILE_FILE_NAME))
+		expect(loadProfileFile({ cwd })).toBe(null)
 
 		const existingCredentialProfile = createProfileFile('codex', {
 			OPENAI_MODEL: 'codexplan',
@@ -768,9 +767,9 @@ test('clearPersistedCodexOAuthProfile removes only persisted Codex OAuth profile
 		})
 		saveProfileFile(existingCredentialProfile, { cwd })
 
-		assert.equal(isPersistedCodexOAuthProfile(loadProfileFile({ cwd })), false)
-		assert.equal(clearPersistedCodexOAuthProfile({ cwd }), null)
-		assert.deepEqual(loadProfileFile({ cwd }), existingCredentialProfile)
+		expect(isPersistedCodexOAuthProfile(loadProfileFile({ cwd }))).toBe(false)
+		expect(clearPersistedCodexOAuthProfile({ cwd })).toBe(null)
+		expect(loadProfileFile({ cwd })).toEqual(existingCredentialProfile)
 	} finally {
 		rmSync(cwd, { recursive: true, force: true })
 	}
@@ -796,10 +795,10 @@ test('clearPersistedCodexOAuthProfile clears both default and legacy OAuth profi
 		saveProfileFile(oauthProfile)
 		writeFileSync(join(cwd, PROFILE_FILE_NAME), JSON.stringify(oauthProfile, null, 2), 'utf8')
 
-		assert.equal(clearPersistedCodexOAuthProfile(), join(configDir, PROFILE_FILE_NAME))
-		assert.equal(existsSync(join(configDir, PROFILE_FILE_NAME)), false)
-		assert.equal(existsSync(join(cwd, PROFILE_FILE_NAME)), false)
-		assert.equal(loadProfileFile(), null)
+		expect(clearPersistedCodexOAuthProfile()).toBe(join(configDir, PROFILE_FILE_NAME))
+		expect(existsSync(join(configDir, PROFILE_FILE_NAME))).toBe(false)
+		expect(existsSync(join(cwd, PROFILE_FILE_NAME))).toBe(false)
+		expect(loadProfileFile()).toBe(null)
 	} finally {
 		process.chdir(previousCwd)
 		if (previousConfigDir === undefined) {
@@ -821,10 +820,10 @@ test('buildStartupEnvFromProfile applies persisted gemini settings when no provi
 		processEnv: {},
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_GEMINI, '1')
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, undefined)
-	assert.equal(env.GEMINI_API_KEY, 'gem-test')
-	assert.equal(env.GEMINI_MODEL, 'gemini-2.5-flash')
+	expect(env.CLAUDE_CODE_USE_GEMINI).toBe('1')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBeUndefined()
+	expect(env.GEMINI_API_KEY).toBe('gem-test')
+	expect(env.GEMINI_MODEL).toBe('gemini-2.5-flash')
 })
 
 test('buildStartupEnvFromProfile rehydrates stored Gemini access token for access-token profile mode', async () => {
@@ -837,11 +836,11 @@ test('buildStartupEnvFromProfile rehydrates stored Gemini access token for acces
 		readGeminiAccessToken: () => 'token-live',
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_GEMINI, '1')
-	assert.equal(env.GEMINI_AUTH_MODE, 'access-token')
-	assert.equal(env.GEMINI_ACCESS_TOKEN, 'token-live')
-	assert.equal(env.GEMINI_API_KEY, undefined)
-	assert.equal(env.GEMINI_MODEL, 'gemini-2.5-flash')
+	expect(env.CLAUDE_CODE_USE_GEMINI).toBe('1')
+	expect(env.GEMINI_AUTH_MODE).toBe('access-token')
+	expect(env.GEMINI_ACCESS_TOKEN).toBe('token-live')
+	expect(env.GEMINI_API_KEY).toBeUndefined()
+	expect(env.GEMINI_MODEL).toBe('gemini-2.5-flash')
 })
 
 test('buildStartupEnvFromProfile does not inject stored access token for adc profile mode', async () => {
@@ -854,10 +853,10 @@ test('buildStartupEnvFromProfile does not inject stored access token for adc pro
 		readGeminiAccessToken: () => 'token-live',
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_GEMINI, '1')
-	assert.equal(env.GEMINI_AUTH_MODE, 'adc')
-	assert.equal(env.GEMINI_ACCESS_TOKEN, undefined)
-	assert.equal(env.GEMINI_API_KEY, undefined)
+	expect(env.CLAUDE_CODE_USE_GEMINI).toBe('1')
+	expect(env.GEMINI_AUTH_MODE).toBe('adc')
+	expect(env.GEMINI_ACCESS_TOKEN).toBeUndefined()
+	expect(env.GEMINI_API_KEY).toBeUndefined()
 })
 
 test('buildStartupEnvFromProfile leaves explicit provider selections untouched', async () => {
@@ -875,14 +874,14 @@ test('buildStartupEnvFromProfile leaves explicit provider selections untouched',
 		processEnv,
 	})
 
-	// Remove the strict object equality check: assert.equal(env, processEnv)
-	assert.equal(env.CLAUDE_CODE_USE_GEMINI, '1')
-	assert.equal(env.GEMINI_API_KEY, 'gem-live')
-	assert.equal(env.GEMINI_MODEL, 'gemini-2.0-flash')
+	// Remove the strict object equality check: expect(env).toBe(processEnv)
+	expect(env.CLAUDE_CODE_USE_GEMINI).toBe('1')
+	expect(env.GEMINI_API_KEY).toBe('gem-live')
+	expect(env.GEMINI_MODEL).toBe('gemini-2.0-flash')
 	// Add the new default fields injected by the function
-	assert.equal(env.GEMINI_BASE_URL, 'https://generativelanguage.googleapis.com/v1beta/openai')
-	assert.equal(env.GEMINI_AUTH_MODE, 'api-key')
-	assert.equal(env.OPENAI_API_KEY, undefined)
+	expect(env.GEMINI_BASE_URL).toBe('https://generativelanguage.googleapis.com/v1beta/openai')
+	expect(env.GEMINI_AUTH_MODE).toBe('api-key')
+	expect(env.OPENAI_API_KEY).toBeUndefined()
 })
 
 test('legacy openai saved profiles still deserialize and rebuild startup env', async () => {
@@ -899,18 +898,18 @@ test('legacy openai saved profiles still deserialize and rebuild startup env', a
 		)
 
 		const persisted = loadProfileFile({ cwd: tempDir })
-		assert.notEqual(persisted, null)
-		assert.equal(persisted?.profile, 'openai')
+		expect(persisted).not.toBe(null)
+		expect(persisted?.profile).toBe('openai')
 
 		const env = await buildStartupEnvFromProfile({
 			persisted,
 			processEnv: {},
 		})
 
-		assert.equal(env.CLAUDE_CODE_USE_OPENAI, '1')
-		assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
-		assert.equal(env.OPENAI_MODEL, 'gpt-4o')
-		assert.equal(env.OPENAI_API_KEY, 'sk-legacy-live')
+		expect(env.CLAUDE_CODE_USE_OPENAI).toBe('1')
+		expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
+		expect(env.OPENAI_MODEL).toBe('gpt-4o')
+		expect(env.OPENAI_API_KEY).toBe('sk-legacy-live')
 	} finally {
 		rmSync(tempDir, { recursive: true, force: true })
 	}
@@ -930,18 +929,18 @@ test('legacy anthropic saved profiles still deserialize and rebuild startup env'
 		)
 
 		const persisted = loadProfileFile({ cwd: tempDir })
-		assert.notEqual(persisted, null)
-		assert.equal(persisted?.profile, 'anthropic')
+		expect(persisted).not.toBe(null)
+		expect(persisted?.profile).toBe('anthropic')
 
 		const env = await buildStartupEnvFromProfile({
 			persisted,
 			processEnv: {},
 		})
 
-		assert.equal(env.CLAUDE_CODE_USE_OPENAI, undefined)
-		assert.equal(env.ANTHROPIC_BASE_URL, 'https://api.anthropic.com')
-		assert.equal(env.ANTHROPIC_MODEL, 'claude-sonnet-4-6')
-		assert.equal(env.ANTHROPIC_API_KEY, 'sk-ant-live')
+		expect(env.CLAUDE_CODE_USE_OPENAI).toBeUndefined()
+		expect(env.ANTHROPIC_BASE_URL).toBe('https://api.anthropic.com')
+		expect(env.ANTHROPIC_MODEL).toBe('claude-sonnet-4-6')
+		expect(env.ANTHROPIC_API_KEY).toBe('sk-ant-live')
 	} finally {
 		rmSync(tempDir, { recursive: true, force: true })
 	}
@@ -960,18 +959,18 @@ test('bedrock persisted profiles load and rebuild the dedicated startup env', as
 		)
 
 		const persisted = loadProfileFile({ cwd: tempDir })
-		assert.notEqual(persisted, null)
-		assert.equal(persisted?.profile, 'bedrock')
+		expect(persisted).not.toBe(null)
+		expect(persisted?.profile).toBe('bedrock')
 
 		const env = await buildStartupEnvFromProfile({
 			persisted,
 			processEnv: {},
 		})
 
-		assert.equal(env.CLAUDE_CODE_USE_BEDROCK, '1')
-		assert.equal(env.ANTHROPIC_MODEL, 'claude-sonnet-4-6')
-		assert.equal(env.ANTHROPIC_BEDROCK_BASE_URL, 'https://bedrock-proxy.example')
-		assert.equal(env.CLAUDE_CODE_USE_OPENAI, undefined)
+		expect(env.CLAUDE_CODE_USE_BEDROCK).toBe('1')
+		expect(env.ANTHROPIC_MODEL).toBe('claude-sonnet-4-6')
+		expect(env.ANTHROPIC_BEDROCK_BASE_URL).toBe('https://bedrock-proxy.example')
+		expect(env.CLAUDE_CODE_USE_OPENAI).toBeUndefined()
 	} finally {
 		rmSync(tempDir, { recursive: true, force: true })
 	}
@@ -992,12 +991,12 @@ test('buildStartupEnvFromProfile preserves explicit GitHub provider settings whe
 		processEnv,
 	})
 
-	assert.equal(env, processEnv)
-	assert.equal(env.CLAUDE_CODE_USE_GITHUB, '1')
-	assert.equal(env.OPENAI_MODEL, 'github:copilot')
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, undefined)
-	assert.equal(env.OPENAI_API_KEY, undefined)
-	assert.equal(env.OPENAI_BASE_URL, undefined)
+	expect(env).toBe(processEnv)
+	expect(env.CLAUDE_CODE_USE_GITHUB).toBe('1')
+	expect(env.OPENAI_MODEL).toBe('github:copilot')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBeUndefined()
+	expect(env.OPENAI_API_KEY).toBeUndefined()
+	expect(env.OPENAI_BASE_URL).toBeUndefined()
 })
 
 test('applySavedProfileToCurrentSession can switch away from GitHub provider env', async () => {
@@ -1015,12 +1014,12 @@ test('applySavedProfileToCurrentSession can switch away from GitHub provider env
 		processEnv,
 	})
 
-	assert.equal(error, null)
-	assert.equal(processEnv.CLAUDE_CODE_USE_GITHUB, undefined)
-	assert.equal(processEnv.CLAUDE_CODE_USE_OPENAI, '1')
-	assert.equal(processEnv.OPENAI_BASE_URL, 'http://localhost:11434/v1')
-	assert.equal(processEnv.OPENAI_MODEL, 'llama3.1:8b')
-	assert.equal(Object.hasOwn(processEnv, 'OPENAI_API_KEY'), false)
+	expect(error).toBe(null)
+	expect(processEnv.CLAUDE_CODE_USE_GITHUB).toBeUndefined()
+	expect(processEnv.CLAUDE_CODE_USE_OPENAI).toBe('1')
+	expect(processEnv.OPENAI_BASE_URL).toBe('http://localhost:11434/v1')
+	expect(processEnv.OPENAI_MODEL).toBe('llama3.1:8b')
+	expect(Object.hasOwn(processEnv, 'OPENAI_API_KEY')).toBe(false)
 })
 
 test('applySavedProfileToCurrentSession replaces empty active OpenAI key for Codex OAuth', async () => {
@@ -1044,19 +1043,19 @@ test('applySavedProfileToCurrentSession replaces empty active OpenAI key for Cod
 		processEnv,
 	})
 
-	assert.equal(error, null)
-	assert.equal(processEnv.CLAUDE_CODE_USE_OPENAI, '1')
-	assert.equal(processEnv.OPENAI_BASE_URL, DEFAULT_CODEX_BASE_URL)
-	assert.equal(processEnv.OPENAI_MODEL, 'codexplan')
-	assert.equal(Object.hasOwn(processEnv, 'OPENAI_API_KEY'), false)
-	assert.equal(processEnv.CHATGPT_ACCOUNT_ID, 'acct_oauth')
-	assert.equal(Object.hasOwn(processEnv, 'CODEX_API_KEY'), false)
+	expect(error).toBe(null)
+	expect(processEnv.CLAUDE_CODE_USE_OPENAI).toBe('1')
+	expect(processEnv.OPENAI_BASE_URL).toBe(DEFAULT_CODEX_BASE_URL)
+	expect(processEnv.OPENAI_MODEL).toBe('codexplan')
+	expect(Object.hasOwn(processEnv, 'OPENAI_API_KEY')).toBe(false)
+	expect(processEnv.CHATGPT_ACCOUNT_ID).toBe('acct_oauth')
+	expect(Object.hasOwn(processEnv, 'CODEX_API_KEY')).toBe(false)
 })
 
 test('buildStartupEnvFromProfile preserves plural-profile env when the legacy file is stale', async () => {
 	// Regression: a user saves a provider via /provider (plural system).
 	// addProviderProfile does NOT sync the legacy .openclaude-profile.json,
-	// so the legacy file retains whatever it had from an earlier setup (e.g.
+	// so the legacy file retains whatever it had from an earlier setup (e.g
 	// OpenAI defaults). At startup, applyActiveProviderProfileFromConfig()
 	// correctly applies the active plural profile (Moonshot) first, marking
 	// env with CLAUDE_CODE_PROVIDER_PROFILE_ENV_APPLIED=1. The legacy-file
@@ -1081,13 +1080,13 @@ test('buildStartupEnvFromProfile preserves plural-profile env when the legacy fi
 		processEnv,
 	})
 
-	assert.equal(env, processEnv)
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.moonshot.ai/v1')
-	assert.equal(env.OPENAI_MODEL, 'kimi-k2.6')
+	expect(env).toBe(processEnv)
+	expect(env.OPENAI_BASE_URL).toBe('https://api.moonshot.ai/v1')
+	expect(env.OPENAI_MODEL).toBe('kimi-k2.6')
 	// Plural markers are retained — downstream code uses them to verify the
 	// env still belongs to the profile it was applied from.
-	assert.equal(env.CLAUDE_CODE_PROVIDER_PROFILE_ENV_APPLIED, '1')
-	assert.equal(env.CLAUDE_CODE_PROVIDER_PROFILE_ENV_APPLIED_ID, 'saved_moonshot')
+	expect(env.CLAUDE_CODE_PROVIDER_PROFILE_ENV_APPLIED).toBe('1')
+	expect(env.CLAUDE_CODE_PROVIDER_PROFILE_ENV_APPLIED_ID).toBe('saved_moonshot')
 })
 
 test('buildStartupEnvFromProfile falls back to legacy file when plural system has not applied', async () => {
@@ -1107,10 +1106,10 @@ test('buildStartupEnvFromProfile falls back to legacy file when plural system ha
 		processEnv,
 	})
 
-	assert.notEqual(env, processEnv)
-	assert.equal(env.OPENAI_API_KEY, 'sk-legacy')
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
-	assert.equal(env.OPENAI_MODEL, 'gpt-4o')
+	expect(env).not.toBe(processEnv)
+	expect(env.OPENAI_API_KEY).toBe('sk-legacy')
+	expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
+	expect(env.OPENAI_MODEL).toBe('gpt-4o')
 })
 
 test('buildStartupEnvFromProfile treats explicit falsey provider flags as user intent', async () => {
@@ -1126,38 +1125,37 @@ test('buildStartupEnvFromProfile treats explicit falsey provider flags as user i
 		processEnv,
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, undefined)
-	assert.equal(env.CLAUDE_CODE_USE_GEMINI, '1')
-	assert.equal(env.GEMINI_API_KEY, 'gem-persisted')
-	assert.equal(env.GEMINI_MODEL, 'gemini-2.5-flash')
-	assert.equal(env.GEMINI_BASE_URL, 'https://generativelanguage.googleapis.com/v1beta/openai')
-	assert.equal(env.GEMINI_AUTH_MODE, 'api-key')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBeUndefined()
+	expect(env.CLAUDE_CODE_USE_GEMINI).toBe('1')
+	expect(env.GEMINI_API_KEY).toBe('gem-persisted')
+	expect(env.GEMINI_MODEL).toBe('gemini-2.5-flash')
+	expect(env.GEMINI_BASE_URL).toBe('https://generativelanguage.googleapis.com/v1beta/openai')
+	expect(env.GEMINI_AUTH_MODE).toBe('api-key')
 })
 
 test('maskSecretForDisplay preserves only a short prefix and suffix', () => {
-	assert.equal(maskSecretForDisplay('sk-secret-12345678'), 'sk-...678')
-	assert.equal(maskSecretForDisplay('AIzaSecret12345678'), 'AIz...678')
+	expect(maskSecretForDisplay('sk-secret-12345678')).toBe('sk-...678')
+	expect(maskSecretForDisplay('AIzaSecret12345678')).toBe('AIz...678')
 })
 
 test('redactSecretValueForDisplay masks poisoned display fields that equal configured secrets', () => {
 	const apiKey = 'sk-secret-12345678'
 	const authHeaderValue = 'hicap-header-secret'
 
-	assert.equal(redactSecretValueForDisplay(apiKey, { OPENAI_API_KEY: apiKey }), 'sk-...678')
-	assert.equal(
+	expect(redactSecretValueForDisplay(apiKey, { OPENAI_API_KEY: apiKey })).toBe('sk-...678')
+	expect(
 		redactSecretValueForDisplay(authHeaderValue, {
 			OPENAI_AUTH_HEADER_VALUE: authHeaderValue,
 		}),
-		'hic...ret',
-	)
-	assert.equal(redactSecretValueForDisplay('gpt-4o', { OPENAI_API_KEY: apiKey }), 'gpt-4o')
+	).toBe('hic...ret')
+	expect(redactSecretValueForDisplay('gpt-4o', { OPENAI_API_KEY: apiKey })).toBe('gpt-4o')
 })
 
 test('sanitizeProviderConfigValue drops secret-like poisoned values', () => {
 	const apiKey = 'sk-secret-12345678'
 
-	assert.equal(sanitizeProviderConfigValue(apiKey, { OPENAI_API_KEY: apiKey }), undefined)
-	assert.equal(sanitizeProviderConfigValue('gpt-4o', { OPENAI_API_KEY: apiKey }), 'gpt-4o')
+	expect(sanitizeProviderConfigValue(apiKey, { OPENAI_API_KEY: apiKey })).toBeUndefined()
+	expect(sanitizeProviderConfigValue('gpt-4o', { OPENAI_API_KEY: apiKey })).toBe('gpt-4o')
 })
 
 test('openai profiles ignore codex shell transport hints', () => {
@@ -1171,7 +1169,7 @@ test('openai profiles ignore codex shell transport hints', () => {
 		},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: 'https://api.openai.com/v1',
 		OPENAI_MODEL: 'gpt-5.5',
 		OPENAI_API_KEY: 'sk-live',
@@ -1189,9 +1187,9 @@ test('openai profiles keep shell base and model when shell format is responses',
 		},
 	})
 
-	assert.equal(env?.OPENAI_BASE_URL, 'https://shell.example/v1')
-	assert.equal(env?.OPENAI_MODEL, 'shell-model')
-	assert.equal(env?.OPENAI_API_KEY, 'sk-live')
+	expect(env?.OPENAI_BASE_URL).toBe('https://shell.example/v1')
+	expect(env?.OPENAI_MODEL).toBe('shell-model')
+	expect(env?.OPENAI_API_KEY).toBe('sk-live')
 })
 
 test('openai profiles use the first model from a semicolon-separated list', () => {
@@ -1202,7 +1200,7 @@ test('openai profiles use the first model from a semicolon-separated list', () =
 		processEnv: {},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: 'https://api.openai.com/v1',
 		OPENAI_MODEL: 'gpt-5.4',
 		OPENAI_API_KEY: 'sk-live',
@@ -1220,7 +1218,7 @@ test('openai profiles ignore poisoned shell model and base url values', () => {
 		},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: 'https://api.openai.com/v1',
 		OPENAI_MODEL: 'gpt-5.5',
 		OPENAI_API_KEY: 'sk-live',
@@ -1236,7 +1234,7 @@ test('openai profiles normalize multi-model profile values to the primary model'
 		processEnv: {},
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: 'https://api.deepseek.com/v1',
 		OPENAI_MODEL: 'deepseek-v4-flash',
 		OPENAI_API_KEY: 'sk-live',
@@ -1253,10 +1251,10 @@ test('startup env ignores poisoned persisted openai model and base url', async (
 		processEnv: {},
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, '1')
-	assert.equal(env.OPENAI_API_KEY, 'sk-live')
-	assert.equal(env.OPENAI_MODEL, 'gpt-5.5')
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBe('1')
+	expect(env.OPENAI_API_KEY).toBe('sk-live')
+	expect(env.OPENAI_MODEL).toBe('gpt-5.5')
+	expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
 })
 
 test('startup env normalizes a semicolon-separated persisted openai model list', async () => {
@@ -1269,15 +1267,15 @@ test('startup env normalizes a semicolon-separated persisted openai model list',
 		processEnv: {},
 	})
 
-	assert.equal(env.CLAUDE_CODE_USE_OPENAI, '1')
-	assert.equal(env.OPENAI_API_KEY, 'sk-live')
-	assert.equal(env.OPENAI_MODEL, 'gpt-5.4')
-	assert.equal(env.OPENAI_BASE_URL, 'https://api.openai.com/v1')
+	expect(env.CLAUDE_CODE_USE_OPENAI).toBe('1')
+	expect(env.OPENAI_API_KEY).toBe('sk-live')
+	expect(env.OPENAI_MODEL).toBe('gpt-5.4')
+	expect(env.OPENAI_BASE_URL).toBe('https://api.openai.com/v1')
 })
 
 test('auto profile falls back to openai when no viable ollama model exists', () => {
-	assert.equal(selectAutoProfile(null), 'openai')
-	assert.equal(selectAutoProfile('qwen2.5-coder:7b'), 'ollama')
+	expect(selectAutoProfile(null)).toBe('openai')
+	expect(selectAutoProfile('qwen2.5-coder:7b')).toBe('ollama')
 })
 
 // ── Atomic Chat profile tests ────────────────────────────────────────────────
@@ -1287,11 +1285,11 @@ test('atomic-chat profiles never persist openai api keys', () => {
 		getAtomicChatChatBaseUrl: () => 'http://127.0.0.1:1337/v1',
 	})
 
-	assert.deepEqual(env, {
+	expect(env).toEqual({
 		OPENAI_BASE_URL: 'http://127.0.0.1:1337/v1',
 		OPENAI_MODEL: 'some-local-model',
 	})
-	assert.equal('OPENAI_API_KEY' in env, false)
+	expect('OPENAI_API_KEY' in env).toBe(false)
 })
 
 test('atomic-chat profiles respect custom base url', () => {
@@ -1301,8 +1299,8 @@ test('atomic-chat profiles respect custom base url', () => {
 			baseUrl ? `${baseUrl}/v1` : 'http://127.0.0.1:1337/v1',
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'http://192.168.1.100:1337/v1')
-	assert.equal(env.OPENAI_MODEL, 'my-model')
+	expect(env.OPENAI_BASE_URL).toBe('http://192.168.1.100:1337/v1')
+	expect(env.OPENAI_MODEL).toBe('my-model')
 })
 
 test('matching persisted atomic-chat env is reused for atomic-chat launch', async () => {
@@ -1318,10 +1316,10 @@ test('matching persisted atomic-chat env is reused for atomic-chat launch', asyn
 		resolveAtomicChatDefaultModel: async () => 'other-model',
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'http://127.0.0.1:1337/v1')
-	assert.equal(env.OPENAI_MODEL, 'llama-3.1-8b')
-	assert.equal(env.OPENAI_API_KEY, undefined)
-	assert.equal(env.CODEX_API_KEY, undefined)
+	expect(env.OPENAI_BASE_URL).toBe('http://127.0.0.1:1337/v1')
+	expect(env.OPENAI_MODEL).toBe('llama-3.1-8b')
+	expect(env.OPENAI_API_KEY).toBeUndefined()
+	expect(env.CODEX_API_KEY).toBeUndefined()
 })
 
 test('atomic-chat launch ignores mismatched persisted openai env', async () => {
@@ -1342,9 +1340,9 @@ test('atomic-chat launch ignores mismatched persisted openai env', async () => {
 		resolveAtomicChatDefaultModel: async () => 'local-model',
 	})
 
-	assert.equal(env.OPENAI_BASE_URL, 'http://127.0.0.1:1337/v1')
-	assert.equal(env.OPENAI_MODEL, 'local-model')
-	assert.equal(env.OPENAI_API_KEY, undefined)
-	assert.equal(env.CODEX_API_KEY, undefined)
-	assert.equal(env.CHATGPT_ACCOUNT_ID, undefined)
+	expect(env.OPENAI_BASE_URL).toBe('http://127.0.0.1:1337/v1')
+	expect(env.OPENAI_MODEL).toBe('local-model')
+	expect(env.OPENAI_API_KEY).toBeUndefined()
+	expect(env.CODEX_API_KEY).toBeUndefined()
+	expect(env.CHATGPT_ACCOUNT_ID).toBeUndefined()
 })

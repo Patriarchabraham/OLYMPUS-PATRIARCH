@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "types": ["bun-types"],
     "declaration": false,
     "outDir": "./dist",
     "rootDir": "./src",

@@ -304,3 +304,113 @@ describe('detectBestProvider — orchestrator', () => {
 		expect(result).toBeNull()
 	})
 })
+
+describe('detectBestProvider — universal LLM API-key scanner', () => {
+	test('DEEPSEEK_API_KEY is detected via universal scan', async () => {
+		const result = await detectBestProvider({
+			env: { DEEPSEEK_API_KEY: 'sk-deepseek-12345678' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('deepseek')
+		expect(result?.baseUrl).toBe('https://api.deepseek.com/v1')
+	})
+
+	test('TOGETHER_API_KEY is detected via universal scan', async () => {
+		const result = await detectBestProvider({
+			env: { TOGETHER_API_KEY: 'together-12345678' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('together')
+		expect(result?.baseUrl).toBe('https://api.together.xyz/v1')
+	})
+
+	test('GROQ_API_KEY is detected via universal scan', async () => {
+		const result = await detectBestProvider({
+			env: { GROQ_API_KEY: 'gsk_abc12345678' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('groq')
+	})
+
+	test('FIREWORKS_API_KEY is detected via universal scan', async () => {
+		const result = await detectBestProvider({
+			env: { FIREWORKS_API_KEY: 'fw-12345678' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('fireworks')
+	})
+
+	test('OPENROUTER_API_KEY is detected via universal scan', async () => {
+		const result = await detectBestProvider({
+			env: { OPENROUTER_API_KEY: 'sk-or-12345678' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('openrouter')
+		expect(result?.baseUrl).toBe('https://openrouter.ai/api/v1')
+	})
+
+	test('PERPLEXITY_API_KEY is detected via universal scan', async () => {
+		const result = await detectBestProvider({
+			env: { PERPLEXITY_API_KEY: 'pplx-12345678' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('perplexity')
+	})
+
+	test('explicit providers win over universal scan', async () => {
+		const result = await detectBestProvider({
+			env: {
+				OPENAI_API_KEY: 'sk-openai',
+				DEEPSEEK_API_KEY: 'sk-deepseek-12345678',
+			},
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('openai')
+	})
+
+	test('universal scan skips short values (< 8 chars)', async () => {
+		const result = await detectBestProvider({
+			env: { DEEPSEEK_API_KEY: 'short' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result).toBeNull()
+	})
+
+	test('universal scan requires API_KEY-like suffix', async () => {
+		const result = await detectBestProvider({
+			env: { DEEPSEEK_CONFIG_PATH: '/some/path/that/is/long/enough' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result).toBeNull()
+	})
+})
+
+describe('detectBestProvider — Google AI Studio / ADC', () => {
+	test('GEMINI_API_KEY takes priority over ADC', async () => {
+		const result = await detectBestProvider({
+			env: { GEMINI_API_KEY: 'gem-key-12345678' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		expect(result?.kind).toBe('gemini')
+	})
+
+	test('GOOGLE_APPLICATION_CREDENTIALS with missing file does not crash', async () => {
+		const result = await detectBestProvider({
+			env: { GOOGLE_APPLICATION_CREDENTIALS: '/nonexistent/path/adc.json' },
+			skipLocal: true,
+			hasCodexAuth: () => false,
+		})
+		// File doesn't exist so returns null — validates no crash
+		expect(result).toBeNull()
+	})
+})

@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { PropertyRunner } from '../propertyRunner.js'
+import { describe, expect, it } from 'vitest'
 import * as arb from '../arbitraries.js'
 import { extractFunctionSignatures, inferProperties } from '../invariantInferrer.js'
+import { PropertyRunner } from '../propertyRunner.js'
 
 describe('Arbitraries', () => {
 	it('integer generates values in range', () => {
@@ -118,22 +118,14 @@ describe('PropertyRunner', () => {
 
 	it('fails a property that does not hold', () => {
 		const runner = new PropertyRunner({ numTests: 1000, seed: 42 })
-		const result = runner.check(
-			'x^2 > x for all x',
-			arb.integer(-100, 100),
-			(x) => x * x > x,
-		)
+		const result = runner.check('x^2 > x for all x', arb.integer(-100, 100), (x) => x * x > x)
 		expect(result.passed).toBe(false)
 		expect(result.counterexample).toBeDefined()
 	})
 
 	it('finds and shrinks counterexample', () => {
 		const runner = new PropertyRunner({ numTests: 1000, seed: 42 })
-		const result = runner.check(
-			'always positive',
-			arb.integer(-100, 100),
-			(x) => x > 0,
-		)
+		const result = runner.check('always positive', arb.integer(-100, 100), (x) => x > 0)
 		expect(result.passed).toBe(false)
 		expect(result.minimalCounterexample).toBeDefined()
 		// Minimal counterexample should be 0 or 1 (smallest non-positive)
@@ -143,14 +135,10 @@ describe('PropertyRunner', () => {
 
 	it('catches exceptions as failures', () => {
 		const runner = new PropertyRunner({ numTests: 100 })
-		const result = runner.check(
-			'throws on negative',
-			arb.integer(-10, 10),
-			(x) => {
-				if (x < 0) throw new Error('negative!')
-				return true
-			},
-		)
+		const result = runner.check('throws on negative', arb.integer(-10, 10), (x) => {
+			if (x < 0) throw new Error('negative!')
+			return true
+		})
 		expect(result.passed).toBe(false)
 		expect(result.error).toContain('negative')
 	})
@@ -161,14 +149,17 @@ describe('PropertyRunner', () => {
 			{
 				name: 'commutative add',
 				arbitrary: arb.tuple(arb.integer(), arb.integer()),
-				predicate: (p) => { const [a, b] = p as [number, number]; return a + b === b + a },
+				predicate: (p) => {
+					const [a, b] = p as [number, number]
+					return a + b === b + a
+				},
 			},
 			{
 				name: 'always positive',
 				arbitrary: arb.integer(-10, 10),
 				predicate: (x) => (x as number) > 0,
 			},
-		])
+		] as any)
 		expect(summary.totalProperties).toBe(2)
 		expect(summary.passed).toBe(1)
 		expect(summary.failed).toBe(1)
@@ -195,7 +186,15 @@ describe('InvariantInferrer', () => {
 	it('infers commutativity for binary ops', () => {
 		const add = (a: number, b: number) => a + b
 		const props = inferProperties(
-			{ name: 'add', params: [{ name: 'a', type: 'number' }, { name: 'b', type: 'number' }], returnType: 'number', body: 'return a + b' },
+			{
+				name: 'add',
+				params: [
+					{ name: 'a', type: 'number' },
+					{ name: 'b', type: 'number' },
+				],
+				returnType: 'number',
+				body: 'return a + b',
+			},
 			add,
 		)
 		const commutative = props.find((p) => p.kind === 'commutative')
@@ -206,7 +205,12 @@ describe('InvariantInferrer', () => {
 	it('infers idempotency for unary ops', () => {
 		const abs = (x: number) => Math.abs(x)
 		const props = inferProperties(
-			{ name: 'abs', params: [{ name: 'x', type: 'number' }], returnType: 'number', body: 'return Math.abs(x)' },
+			{
+				name: 'abs',
+				params: [{ name: 'x', type: 'number' }],
+				returnType: 'number',
+				body: 'return Math.abs(x)',
+			},
 			abs,
 		)
 		const idempotent = props.find((p) => p.kind === 'idempotent')
@@ -216,7 +220,12 @@ describe('InvariantInferrer', () => {
 	it('infers purity', () => {
 		const double = (x: number) => x * 2
 		const props = inferProperties(
-			{ name: 'double', params: [{ name: 'x', type: 'number' }], returnType: 'number', body: 'return x * 2' },
+			{
+				name: 'double',
+				params: [{ name: 'x', type: 'number' }],
+				returnType: 'number',
+				body: 'return x * 2',
+			},
 			double,
 		)
 		const purity = props.find((p) => p.kind === 'pure')
@@ -226,7 +235,15 @@ describe('InvariantInferrer', () => {
 	it('infers bounds for numeric functions', () => {
 		const add = (a: number, b: number) => a + b
 		const props = inferProperties(
-			{ name: 'add', params: [{ name: 'a', type: 'number' }, { name: 'b', type: 'number' }], returnType: 'number', body: 'return a + b' },
+			{
+				name: 'add',
+				params: [
+					{ name: 'a', type: 'number' },
+					{ name: 'b', type: 'number' },
+				],
+				returnType: 'number',
+				body: 'return a + b',
+			},
 			add,
 		)
 		const bounds = props.find((p) => p.kind === 'bounds')
@@ -235,7 +252,12 @@ describe('InvariantInferrer', () => {
 
 	it('returns empty for functions without implementation', () => {
 		const props = inferProperties(
-			{ name: 'mystery', params: [{ name: 'x', type: 'number' }], returnType: 'number', body: 'return x' },
+			{
+				name: 'mystery',
+				params: [{ name: 'x', type: 'number' }],
+				returnType: 'number',
+				body: 'return x',
+			},
 			undefined,
 		)
 		expect(props.length).toBe(0)

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 async function importFileModuleWithKillswitchEnabled(killswitchEnabled: boolean) {
-	vi.mock('../services/analytics/growthbook.js', () => ({
+	vi.doMock('../services/analytics/growthbook.js', () => ({
 		getFeatureValue_CACHED_MAY_BE_STALE: () => killswitchEnabled,
 	}))
 

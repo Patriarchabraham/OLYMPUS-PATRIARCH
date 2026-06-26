@@ -5,14 +5,11 @@
  * and validates dependency directions against configurable rules.
  */
 
-import type {
-	ArchitectureRule,
-	ArchitectureViolation,
-} from './types.js'
 import {
 	detectCircularDependencies as detectCycles,
 	extractModuleFromPath,
 } from './staticAnalyzer.js'
+import type { ArchitectureRule, ArchitectureViolation } from './types.js'
 
 // ============================================================
 // Default Olympuz Architecture Rules
@@ -28,31 +25,28 @@ export function getDefaultArchitectureRules(): ArchitectureRule[] {
 			sourceModule: 'governance',
 			allowedImports: ['reasoning', 'cortex', 'evolution', 'utils', 'governance'],
 			forbiddenImports: ['cli', 'bridge', 'services'],
-			description: 'Governance can import from core analysis modules and utils, but not from CLI or bridge layers',
+			description:
+				'Governance can import from core analysis modules and utils, but not from CLI or bridge layers',
 		},
 		{
 			sourceModule: 'reasoning',
-			allowedImports: ['reasoning', 'utils', 'quantum'],
+			allowedImports: ['reasoning', 'utils'],
 			forbiddenImports: ['cortex', 'cli', 'bridge', 'services', 'evolution'],
-			description: 'Reasoning is a peer to Cortex — should not import from it. Can use utils and quantum.',
+			description: 'Reasoning is a peer to Cortex — should not import from it. Can use utils.',
 		},
 		{
 			sourceModule: 'cortex',
 			allowedImports: ['cortex', 'reasoning', 'utils', 'knowledge'],
 			forbiddenImports: ['cli', 'bridge', 'services'],
-			description: 'Cortex can import from reasoning (lower layer) and utils, but not CLI or bridge',
+			description:
+				'Cortex can import from reasoning (lower layer) and utils, but not CLI or bridge',
 		},
 		{
 			sourceModule: 'autonomous',
 			allowedImports: ['autonomous', 'utils'],
 			forbiddenImports: ['cortex', 'cli', 'services'],
-			description: 'Autonomous should not import cortex directly — use orchestrator for coordination',
-		},
-		{
-			sourceModule: 'quantum',
-			allowedImports: ['quantum', 'reasoning', 'utils'],
-			forbiddenImports: ['cortex', 'cli', 'bridge', 'services'],
-			description: 'Quantum is a computation engine — should not import cortex or CLI',
+			description:
+				'Autonomous should not import cortex directly — use orchestrator for coordination',
 		},
 		{
 			sourceModule: 'swarm',
@@ -75,8 +69,9 @@ export function getDefaultArchitectureRules(): ArchitectureRule[] {
 		{
 			sourceModule: 'cli',
 			allowedImports: ['cli', 'services', 'utils'],
-			forbiddenImports: ['quantum', 'cortex', 'reasoning'],
-			description: 'CLI should only import from services (orchestrator) and utils — not directly from engines',
+			forbiddenImports: ['cortex', 'reasoning'],
+			description:
+				'CLI should only import from services (orchestrator) and utils — not directly from engines',
 		},
 	]
 }
@@ -164,9 +159,7 @@ export function enforceArchitectureRules(
  * @param importGraph - Map of file path -> imported file paths
  * @returns Array of circular dependency chains
  */
-export function detectCircularDependencies(
-	importGraph: Map<string, string[]>,
-): string[][] {
+export function detectCircularDependencies(importGraph: Map<string, string[]>): string[][] {
 	return detectCycles(importGraph)
 }
 
@@ -205,10 +198,7 @@ export function validateDependencyDirection(
 // ============================================================
 
 /** Resolve a relative import path to a module name */
-function resolveImportToModule(
-	fromFile: string,
-	relativePath: string,
-): string | null {
+function resolveImportToModule(fromFile: string, relativePath: string): string | null {
 	const normalized = fromFile.replace(/\\/g, '/')
 	const dir = normalized.substring(0, normalized.lastIndexOf('/'))
 	const parts = relativePath.split('/')
@@ -224,10 +214,7 @@ function resolveImportToModule(
 }
 
 /** Check if a module name matches a pattern (simple glob) */
-function matchesModulePattern(
-	moduleName: string,
-	pattern: string,
-): boolean {
+function matchesModulePattern(moduleName: string, pattern: string): boolean {
 	if (pattern === '*') return true
 	if (pattern === moduleName) return true
 	// Simple glob: "reasoning/*" matches "reasoning"
@@ -254,9 +241,7 @@ function checkViolation(
 	if (toModule === 'utils') return null
 
 	for (const rule of rules) {
-		const isForbidden = rule.forbiddenImports.some(
-			(p) => matchesModulePattern(toModule, p),
-		)
+		const isForbidden = rule.forbiddenImports.some((p) => matchesModulePattern(toModule, p))
 		if (isForbidden) {
 			return {
 				fromModule,
@@ -270,9 +255,7 @@ function checkViolation(
 		}
 
 		// Check wrong direction (not in allowed list)
-		const isAllowed = rule.allowedImports.some(
-			(p) => matchesModulePattern(toModule, p),
-		)
+		const isAllowed = rule.allowedImports.some((p) => matchesModulePattern(toModule, p))
 		if (!isAllowed && rule.forbiddenImports.length > 0) {
 			// Not explicitly forbidden but not in allowed list either
 			// Only flag if the rule has explicit forbidden list

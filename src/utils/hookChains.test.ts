@@ -1,4 +1,4 @@
-﻿import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
@@ -50,7 +50,7 @@ async function importHookChainsModule(options?: {
 	if (!cachedModule) {
 		cachedModule = await vi.importActual('./hookChains.js')
 	}
-	return cachedModule
+	return cachedModule!
 }
 
 // Pay the one-time cold transform/import of hookChains (and its transitive

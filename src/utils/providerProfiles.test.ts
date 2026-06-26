@@ -1,21 +1,48 @@
-﻿import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-
-import * as semver from 'semver'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-
 import type { ProviderProfile } from './config.js'
+import * as providersModule from './model/providers.js'
+import * as providerProfilesModule from './providerProfiles.js'
 
 // Keep the npm semver module available after vi.resetModules() clears the
 // module cache.  Without this, re-imported modules that depend on `require('semver')`
 // (e.g. ./semver.js) fail because the fresh module resolution can't find the package
 // in the Vitest worker's temp directory.
-vi.mock('semver', () => semver)
+vi.mock('semver', async (importOriginal) => {
+	return await importOriginal<typeof import('semver')>()
+})
+
+vi.mock('../integrations/discoveryService.js', () => ({
+	refreshStartupDiscoveryForRoute: vi.fn(async () => {}),
+}))
+
+var mockConfigState: any
+
+Object.defineProperty(globalThis, '__mockConfigState', {
+	get() {
+		return mockConfigState
+	},
+	set(val) {
+		mockConfigState = val
+	},
+	configurable: true,
+})
+
+vi.mock('./config.js', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('./config.js')>()
+	return {
+		...actual,
+		getGlobalConfig: () => mockConfigState,
+		saveGlobalConfig: (updater: any) => {
+			mockConfigState = updater(mockConfigState)
+		},
+	}
+})
 
 async function importFreshProvidersModule() {
-	vi.resetModules()
-	return vi.importActual<typeof import('./model/providers.js')>('./model/providers.ts')
+	return providersModule
 }
 
 const originalEnv = { ...process.env }
@@ -90,7 +117,7 @@ function createMockConfigState(): MockConfigState {
 	}
 }
 
-let mockConfigState: MockConfigState = createMockConfigState()
+mockConfigState = createMockConfigState()
 let testConfigDir: string | null = null
 
 function saveMockGlobalConfig(updater: (current: MockConfigState) => MockConfigState): void {
@@ -124,25 +151,9 @@ afterEach(() => {
 })
 
 async function importFreshProviderProfileModules() {
-	vi.restoreAllMocks()
-	vi.resetModules()
-	const actualConfig = await vi.importActual<typeof import('./config.js')>('./config.js')
-	vi.mock('./config.js', () => ({
-		...actualConfig,
-		getGlobalConfig: () => mockConfigState,
-		saveGlobalConfig: (updater: (current: MockConfigState) => MockConfigState) => {
-			mockConfigState = updater(mockConfigState)
-		},
-	}))
-	const registry = await import('../integrations/registry.js')
-	registry._clearRegistryForTesting()
-	await vi.importActual('../integrations/index.js')
-	const providers = await vi.importActual<typeof import('./model/providers.js')>('./model/providers.js')
-	const providerProfiles = await vi.importActual<typeof import('./providerProfiles.js')>('./providerProfiles.js')
-
 	return {
-		...providers,
-		...providerProfiles,
+		...providersModule,
+		...providerProfilesModule,
 	}
 }
 
@@ -1117,12 +1128,10 @@ describe('setActiveProviderProfile', () => {
 			}))
 
 			const result = setActiveProviderProfile('ollama_prof')
-			const persisted = JSON.parse(
-				readFileSync(join(configDir, '.openclaude-profile.json'), 'utf8'),
-			)
+			const persisted = JSON.parse(readFileSync(join(configDir, '.olympuz-profile.json'), 'utf8'))
 
 			expect(result?.id).toBe('ollama_prof')
-			expect(existsSync(join(tempDir, '.openclaude-profile.json'))).toBe(false)
+			expect(existsSync(join(tempDir, '.olympuz-profile.json'))).toBe(false)
 			expect(persisted.profile).toBe('openai')
 			expect(persisted.env).toEqual({
 				OPENAI_BASE_URL: 'http://localhost:11434/v1',
@@ -1159,12 +1168,10 @@ describe('setActiveProviderProfile', () => {
 			}))
 
 			const result = setActiveProviderProfile('deepseek_prof')
-			const persisted = JSON.parse(
-				readFileSync(join(configDir, '.openclaude-profile.json'), 'utf8'),
-			)
+			const persisted = JSON.parse(readFileSync(join(configDir, '.olympuz-profile.json'), 'utf8'))
 
 			expect(result?.id).toBe('deepseek_prof')
-			expect(existsSync(join(tempDir, '.openclaude-profile.json'))).toBe(false)
+			expect(existsSync(join(tempDir, '.olympuz-profile.json'))).toBe(false)
 			expect(persisted.profile).toBe('openai')
 			expect(persisted.env).toEqual({
 				OPENAI_BASE_URL: 'https://api.deepseek.com/v1',
@@ -1201,12 +1208,10 @@ describe('setActiveProviderProfile', () => {
 			}))
 
 			const result = setActiveProviderProfile('deepseek_vendor_prof')
-			const persisted = JSON.parse(
-				readFileSync(join(configDir, '.openclaude-profile.json'), 'utf8'),
-			)
+			const persisted = JSON.parse(readFileSync(join(configDir, '.olympuz-profile.json'), 'utf8'))
 
 			expect(result?.id).toBe('deepseek_vendor_prof')
-			expect(existsSync(join(tempDir, '.openclaude-profile.json'))).toBe(false)
+			expect(existsSync(join(tempDir, '.olympuz-profile.json'))).toBe(false)
 			expect(persisted.profile).toBe('openai')
 			expect(persisted.env).toEqual({
 				OPENAI_BASE_URL: 'https://api.deepseek.com/v1',
@@ -1239,12 +1244,10 @@ describe('setActiveProviderProfile', () => {
 			}))
 
 			const result = setActiveProviderProfile('venice_prof')
-			const persisted = JSON.parse(
-				readFileSync(join(configDir, '.openclaude-profile.json'), 'utf8'),
-			)
+			const persisted = JSON.parse(readFileSync(join(configDir, '.olympuz-profile.json'), 'utf8'))
 
 			expect(result?.id).toBe('venice_prof')
-			expect(existsSync(join(tempDir, '.openclaude-profile.json'))).toBe(false)
+			expect(existsSync(join(tempDir, '.olympuz-profile.json'))).toBe(false)
 			expect(persisted.profile).toBe('openai')
 			expect(persisted.env).toEqual({
 				OPENAI_BASE_URL: 'https://api.venice.ai/api/v1',
@@ -1281,12 +1284,10 @@ describe('setActiveProviderProfile', () => {
 			}))
 
 			const result = setActiveProviderProfile('bedrock_prof')
-			const persisted = JSON.parse(
-				readFileSync(join(configDir, '.openclaude-profile.json'), 'utf8'),
-			)
+			const persisted = JSON.parse(readFileSync(join(configDir, '.olympuz-profile.json'), 'utf8'))
 
 			expect(result?.id).toBe('bedrock_prof')
-			expect(existsSync(join(tempDir, '.openclaude-profile.json'))).toBe(false)
+			expect(existsSync(join(tempDir, '.olympuz-profile.json'))).toBe(false)
 			expect(persisted.profile).toBe('bedrock')
 			expect(persisted.env).toEqual({
 				ANTHROPIC_MODEL: 'claude-sonnet-4-6',
@@ -1322,12 +1323,10 @@ describe('setActiveProviderProfile', () => {
 			}))
 
 			const result = setActiveProviderProfile('anthro_persisted_prof')
-			const persisted = JSON.parse(
-				readFileSync(join(configDir, '.openclaude-profile.json'), 'utf8'),
-			)
+			const persisted = JSON.parse(readFileSync(join(configDir, '.olympuz-profile.json'), 'utf8'))
 
 			expect(result?.id).toBe('anthro_persisted_prof')
-			expect(existsSync(join(tempDir, '.openclaude-profile.json'))).toBe(false)
+			expect(existsSync(join(tempDir, '.olympuz-profile.json'))).toBe(false)
 			expect(persisted.profile).toBe('anthropic')
 			expect(persisted.env).toEqual({
 				ANTHROPIC_BASE_URL: 'https://api.anthropic.com',

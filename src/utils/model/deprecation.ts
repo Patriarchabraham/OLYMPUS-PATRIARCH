@@ -4,25 +4,25 @@
  * Contains information about deprecated models and their retirement dates.
  */
 
-import { type LegacyAPIProvider, getAPIProvider } from './providers.js'
+import { getAPIProvider, type LegacyAPIProvider } from './providers.js'
 
 type DeprecatedModelInfo = {
-  isDeprecated: true
-  modelName: string
-  retirementDate: string
+	isDeprecated: true
+	modelName: string
+	retirementDate: string
 }
 
 type NotDeprecatedInfo = {
-  isDeprecated: false
+	isDeprecated: false
 }
 
 type DeprecationInfo = DeprecatedModelInfo | NotDeprecatedInfo
 
 type DeprecationEntry = {
-  /** Human-readable model name */
-  modelName: string
-  /** Retirement dates by legacy provider category (null = not deprecated there) */
-  retirementDates: Record<LegacyAPIProvider, string | null>
+	/** Human-readable model name */
+	modelName: string
+	/** Retirement dates by legacy provider category (null = not deprecated there) */
+	retirementDates: Partial<Record<LegacyAPIProvider, string | null>>
 }
 
 /**
@@ -31,95 +31,93 @@ type DeprecationEntry = {
  * To add a new deprecated model, add an entry to this object.
  */
 const DEPRECATED_MODELS: Record<string, DeprecationEntry> = {
-  'claude-3-opus': {
-    modelName: 'Claude 3 Opus',
-    retirementDates: {
-      firstParty: 'January 5, 2026',
-      bedrock: 'January 15, 2026',
-      vertex: 'January 5, 2026',
-      foundry: 'January 5, 2026',
-      openai: null,
-      gemini: null,
-      github: null,
-      codex: null,
-      'nvidia-nim': null,
-      minimax: null,
-      mistral: null,
-      xai: null,
-    },
-  },
-  'claude-3-7-sonnet': {
-    modelName: 'Claude 3.7 Sonnet',
-    retirementDates: {
-      firstParty: 'February 19, 2026',
-      bedrock: 'April 28, 2026',
-      vertex: 'May 11, 2026',
-      foundry: 'February 19, 2026',
-      openai: null,
-      gemini: null,
-      github: null,
-      codex: null,
-      'nvidia-nim': null,
-      minimax: null,
-      mistral: null,
-      xai: null,
-    },
-  },
-  'claude-3-5-haiku': {
-    modelName: 'Claude 3.5 Haiku',
-    retirementDates: {
-      firstParty: 'February 19, 2026',
-      bedrock: null,
-      vertex: null,
-      foundry: null,
-      openai: null,
-      gemini: null,
-      github: null,
-      codex: null,
-      'nvidia-nim': null,
-      minimax: null,
-      mistral: null,
-      xai: null,
-    },
-  },
+	'claude-3-opus': {
+		modelName: 'Claude 3 Opus',
+		retirementDates: {
+			firstParty: 'January 5, 2026',
+			bedrock: 'January 15, 2026',
+			vertex: 'January 5, 2026',
+			foundry: 'January 5, 2026',
+			openai: null,
+			gemini: null,
+			github: null,
+			codex: null,
+			'nvidia-nim': null,
+			minimax: null,
+			mistral: null,
+			xai: null,
+		},
+	},
+	'claude-3-7-sonnet': {
+		modelName: 'Claude 3.7 Sonnet',
+		retirementDates: {
+			firstParty: 'February 19, 2026',
+			bedrock: 'April 28, 2026',
+			vertex: 'May 11, 2026',
+			foundry: 'February 19, 2026',
+			openai: null,
+			gemini: null,
+			github: null,
+			codex: null,
+			'nvidia-nim': null,
+			minimax: null,
+			mistral: null,
+			xai: null,
+		},
+	},
+	'claude-3-5-haiku': {
+		modelName: 'Claude 3.5 Haiku',
+		retirementDates: {
+			firstParty: 'February 19, 2026',
+			bedrock: null,
+			vertex: null,
+			foundry: null,
+			openai: null,
+			gemini: null,
+			github: null,
+			codex: null,
+			'nvidia-nim': null,
+			minimax: null,
+			mistral: null,
+			xai: null,
+		},
+	},
 }
 
 /**
  * Check if a model is deprecated and get its deprecation info
  */
 function getDeprecatedModelInfo(modelId: string): DeprecationInfo {
-  const lowercaseModelId = modelId.toLowerCase()
-  const provider = getAPIProvider()
+	const lowercaseModelId = modelId.toLowerCase()
+	const provider = getAPIProvider()
 
-  for (const [key, value] of Object.entries(DEPRECATED_MODELS)) {
-    const retirementDate = value.retirementDates[provider]
-    if (!lowercaseModelId.includes(key) || !retirementDate) {
-      continue
-    }
-    return {
-      isDeprecated: true,
-      modelName: value.modelName,
-      retirementDate,
-    }
-  }
+	for (const [key, value] of Object.entries(DEPRECATED_MODELS)) {
+		const retirementDate = value.retirementDates[provider]
+		if (!lowercaseModelId.includes(key) || !retirementDate) {
+			continue
+		}
+		return {
+			isDeprecated: true,
+			modelName: value.modelName,
+			retirementDate,
+		}
+	}
 
-  return { isDeprecated: false }
+	return { isDeprecated: false }
 }
 
 /**
  * Get a deprecation warning message for a model, or null if not deprecated
  */
-export function getModelDeprecationWarning(
-  modelId: string | null,
-): string | null {
-  if (!modelId) {
-    return null
-  }
+export function getModelDeprecationWarning(modelId: string | null): string | null {
+	if (!modelId) {
+		return null
+	}
 
-  const info = getDeprecatedModelInfo(modelId)
-  if (!info.isDeprecated) {
-    return null
-  }
+	const info = getDeprecatedModelInfo(modelId)
+	if (!info.isDeprecated) {
+		return null
+	}
 
-  return `⚠ ${info.modelName} will be retired on ${info.retirementDate}. Consider switching to a newer model.`
+	return `⚠ ${info.modelName} will be retired on ${info.retirementDate}. Consider switching to a newer model.`
 }

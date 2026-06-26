@@ -1,55 +1,44 @@
+import { randomUUID } from 'node:crypto'
 import Anthropic, { type ClientOptions } from '@anthropic-ai/sdk'
-import { randomUUID } from 'crypto'
 import {
-  checkAndRefreshOAuthTokenIfNeeded,
-  getAnthropicApiKey,
-  getApiKeyFromApiKeyHelper,
-  getClaudeAIOAuthTokens,
-  isClaudeAISubscriber,
-  refreshAndGetAwsCredentials,
-  refreshGcpCredentialsIfNeeded,
+	checkAndRefreshOAuthTokenIfNeeded,
+	getAnthropicApiKey,
+	getApiKeyFromApiKeyHelper,
+	getClaudeAIOAuthTokens,
+	isClaudeAISubscriber,
+	refreshAndGetAwsCredentials,
+	refreshGcpCredentialsIfNeeded,
 } from 'src/utils/auth.js'
 import {
-  convertEffortValueToLevel,
-  type EffortValue,
-  standardEffortToOpenAI,
-  type OpenAIEffortLevel,
+	convertEffortValueToLevel,
+	type EffortValue,
+	type OpenAIEffortLevel,
+	standardEffortToOpenAI,
 } from 'src/utils/effort.js'
 import { getUserAgent } from 'src/utils/http.js'
 import { getSmallFastModel } from 'src/utils/model/model.js'
 import {
-  getAPIProvider,
-  isFirstPartyAnthropicBaseUrl,
-  isGithubNativeAnthropicMode,
+	getAPIProvider,
+	isFirstPartyAnthropicBaseUrl,
+	isGithubNativeAnthropicMode,
 } from 'src/utils/model/providers.js'
 import { getProxyFetchOptions } from 'src/utils/proxy.js'
-import {
-  getIsNonInteractiveSession,
-  getSessionId,
-} from '../../bootstrap/state.js'
+import { getIsNonInteractiveSession, getSessionId } from '../../bootstrap/state.js'
 import { getOauthConfig } from '../../constants/oauth.js'
-import { isDebugToStdErr, logForDebugging } from '../../utils/debug.js'
 import {
-  getAWSRegion,
-  getVertexRegionForModel,
-  isEnvTruthy,
-} from '../../utils/envUtils.js'
-import {
-  getMiniMaxBaseUrlOverride,
-  getRouteDefaultBaseUrl,
-  getRouteDefaultModel,
-  getXaiBaseUrlOverride,
-  resolveEnvOnlyProviderRouteId,
+	getMiniMaxBaseUrlOverride,
+	getRouteDefaultBaseUrl,
+	getRouteDefaultModel,
+	getXaiBaseUrlOverride,
+	resolveEnvOnlyProviderRouteId,
 } from '../../integrations/routeMetadata.js'
-import {
-  shouldUseFirstPartyAnthropicAuth,
-  type ProviderOverride,
-} from './authRouting.js'
+import { isDebugToStdErr, logForDebugging } from '../../utils/debug.js'
+import { getAWSRegion, getVertexRegionForModel, isEnvTruthy } from '../../utils/envUtils.js'
+import { type ProviderOverride, shouldUseFirstPartyAnthropicAuth } from './authRouting.js'
 
-const importRuntimeModule = new Function(
-  'specifier',
-  'return import(specifier)',
-) as (specifier: string) => Promise<any>
+const importRuntimeModule = new Function('specifier', 'return import(specifier)') as (
+	specifier: string,
+) => Promise<any>
 
 /**
  * Environment variables for different client types:
@@ -93,463 +82,521 @@ const importRuntimeModule = new Function(
  */
 
 function createStderrLogger(): ClientOptions['logger'] {
-  return {
-    error: (msg, ...args) =>
-      // biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
-      console.error('[Anthropic SDK ERROR]', msg, ...args),
-    // biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
-    warn: (msg, ...args) => console.error('[Anthropic SDK WARN]', msg, ...args),
-    // biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
-    info: (msg, ...args) => console.error('[Anthropic SDK INFO]', msg, ...args),
-    debug: (msg, ...args) =>
-      // biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
-      console.error('[Anthropic SDK DEBUG]', msg, ...args),
-  }
+	return {
+		error: (msg, ...args) =>
+			// biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
+			console.error('[Anthropic SDK ERROR]', msg, ...args),
+		// biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
+		warn: (msg, ...args) => console.error('[Anthropic SDK WARN]', msg, ...args),
+		// biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
+		info: (msg, ...args) => console.error('[Anthropic SDK INFO]', msg, ...args),
+		debug: (msg, ...args) =>
+			// biome-ignore lint/suspicious/noConsole:: intentional console output -- SDK logger must use console
+			console.error('[Anthropic SDK DEBUG]', msg, ...args),
+	}
 }
 
 function isMiniMaxModelName(value: string | undefined): boolean {
-  const normalized = value?.trim().toLowerCase()
-  return Boolean(
-    normalized &&
-      (normalized.startsWith('minimax-') || normalized.startsWith('minimax/')),
-  )
+	const normalized = value?.trim().toLowerCase()
+	return Boolean(
+		normalized && (normalized.startsWith('minimax-') || normalized.startsWith('minimax/')),
+	)
 }
 
 function isXaiModelName(value: string | undefined): boolean {
-  const normalized = value?.trim().toLowerCase()
-  return Boolean(
-    normalized &&
-      (normalized.startsWith('grok-') || normalized.startsWith('xai/')),
-  )
+	const normalized = value?.trim().toLowerCase()
+	return Boolean(normalized && (normalized.startsWith('grok-') || normalized.startsWith('xai/')))
 }
 
 function applyMiniMaxEnvOnlyDefaults(): void {
-  const baseUrlOverride = getMiniMaxBaseUrlOverride()
-  const hasMiniMaxBaseOverride = baseUrlOverride !== undefined
-  const modelOverride = process.env.OPENAI_MODEL?.trim() || undefined
+	const baseUrlOverride = getMiniMaxBaseUrlOverride()
+	const hasMiniMaxBaseOverride = baseUrlOverride !== undefined
+	const modelOverride = process.env.OPENAI_MODEL?.trim() || undefined
 
-  process.env.CLAUDE_CODE_USE_OPENAI = '1'
-  process.env.OPENAI_BASE_URL =
-    baseUrlOverride ?? getRouteDefaultBaseUrl('minimax')
-  process.env.OPENAI_MODEL =
-    (hasMiniMaxBaseOverride || isMiniMaxModelName(modelOverride)
-      ? modelOverride
-      : undefined) ??
-    getRouteDefaultModel('minimax')
-  process.env.OPENAI_API_KEY = process.env.MINIMAX_API_KEY
-  delete process.env.OPENAI_API_FORMAT
-  delete process.env.OPENAI_AUTH_HEADER
-  delete process.env.OPENAI_AUTH_SCHEME
-  delete process.env.OPENAI_AUTH_HEADER_VALUE
+	process.env.CLAUDE_CODE_USE_OPENAI = '1'
+	process.env.OPENAI_BASE_URL = baseUrlOverride ?? getRouteDefaultBaseUrl('minimax')
+	process.env.OPENAI_MODEL =
+		(hasMiniMaxBaseOverride || isMiniMaxModelName(modelOverride) ? modelOverride : undefined) ??
+		getRouteDefaultModel('minimax')
+	process.env.OPENAI_API_KEY = process.env.MINIMAX_API_KEY
+	delete process.env.OPENAI_API_FORMAT
+	delete process.env.OPENAI_AUTH_HEADER
+	delete process.env.OPENAI_AUTH_SCHEME
+	delete process.env.OPENAI_AUTH_HEADER_VALUE
 }
 
 function applyXaiEnvOnlyDefaults(): void {
-  const baseUrlOverride = getXaiBaseUrlOverride()
-  const hasXaiBaseOverride = baseUrlOverride !== undefined
-  const modelOverride = process.env.OPENAI_MODEL?.trim() || undefined
+	const baseUrlOverride = getXaiBaseUrlOverride()
+	const hasXaiBaseOverride = baseUrlOverride !== undefined
+	const modelOverride = process.env.OPENAI_MODEL?.trim() || undefined
 
-  process.env.CLAUDE_CODE_USE_OPENAI = '1'
-  process.env.OPENAI_BASE_URL =
-    baseUrlOverride ?? getRouteDefaultBaseUrl('xai')
-  process.env.OPENAI_MODEL =
-    (hasXaiBaseOverride || isXaiModelName(modelOverride)
-      ? modelOverride
-      : undefined) ??
-    getRouteDefaultModel('xai')
-  process.env.OPENAI_API_KEY = process.env.XAI_API_KEY
-  delete process.env.OPENAI_API_FORMAT
-  delete process.env.OPENAI_AUTH_HEADER
-  delete process.env.OPENAI_AUTH_SCHEME
-  delete process.env.OPENAI_AUTH_HEADER_VALUE
+	process.env.CLAUDE_CODE_USE_OPENAI = '1'
+	process.env.OPENAI_BASE_URL = baseUrlOverride ?? getRouteDefaultBaseUrl('xai')
+	process.env.OPENAI_MODEL =
+		(hasXaiBaseOverride || isXaiModelName(modelOverride) ? modelOverride : undefined) ??
+		getRouteDefaultModel('xai')
+	process.env.OPENAI_API_KEY = process.env.XAI_API_KEY
+	delete process.env.OPENAI_API_FORMAT
+	delete process.env.OPENAI_AUTH_HEADER
+	delete process.env.OPENAI_AUTH_SCHEME
+	delete process.env.OPENAI_AUTH_HEADER_VALUE
+}
+
+function applyOllamaEnvOnlyDefaults(): void {
+	// Resolve base URL: OLLAMA_BASE_URL takes priority, falls back to localhost
+	const ollamaBase = (process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/+$/, '')
+	// Ollama's OpenAI-compatible endpoint is at <base>/v1
+	const ollamaV1Url = ollamaBase.endsWith('/v1') ? ollamaBase : `${ollamaBase}/v1`
+	const modelOverride =
+		process.env.OPENAI_MODEL?.trim() || process.env.OLLAMA_MODEL?.trim() || undefined
+
+	process.env.CLAUDE_CODE_USE_OPENAI = '1'
+	process.env.OPENAI_BASE_URL = ollamaV1Url
+	// Use the user-specified model or a sensible default
+	process.env.OPENAI_MODEL = modelOverride ?? 'llama3'
+	// Ollama does not require an API key; use empty string to satisfy OpenAI shim
+	process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || ''
+	delete process.env.OPENAI_API_FORMAT
+	delete process.env.OPENAI_AUTH_HEADER
+	delete process.env.OPENAI_AUTH_SCHEME
+	delete process.env.OPENAI_AUTH_HEADER_VALUE
 }
 
 export async function getAnthropicClient({
-  apiKey,
-  maxRetries,
-  model,
-  fetchOverride,
-  source,
-  providerOverride,
-  effortValue,
+	apiKey,
+	maxRetries,
+	model,
+	fetchOverride,
+	source,
+	providerOverride,
+	effortValue,
 }: {
-  apiKey?: string
-  maxRetries: number
-  model?: string
-  fetchOverride?: ClientOptions['fetch']
-  source?: string
-  providerOverride?: ProviderOverride
-  effortValue?: EffortValue
+	apiKey?: string
+	maxRetries: number
+	model?: string
+	fetchOverride?: ClientOptions['fetch']
+	source?: string
+	providerOverride?: ProviderOverride
+	effortValue?: EffortValue
 }): Promise<Anthropic> {
-  // Convert the runtime effort value to the OpenAI-shaped enum the shim
-  // expects. Undefined → shim falls back to descriptor/alias defaults.
-  const shimReasoningEffort: OpenAIEffortLevel | undefined =
-    effortValue !== undefined
-      ? standardEffortToOpenAI(convertEffortValueToLevel(effortValue))
-      : undefined
-  const containerId = process.env.CLAUDE_CODE_CONTAINER_ID
-  const remoteSessionId = process.env.CLAUDE_CODE_REMOTE_SESSION_ID
-  const clientApp = process.env.CLAUDE_AGENT_SDK_CLIENT_APP
-  const customHeaders = getCustomHeaders()
-  const defaultHeaders: { [key: string]: string } = {
-    'x-app': 'cli',
-    'User-Agent': getUserAgent(),
-    'X-Claude-Code-Session-Id': getSessionId(),
-    ...customHeaders,
-    ...(containerId ? { 'x-claude-remote-container-id': containerId } : {}),
-    ...(remoteSessionId
-      ? { 'x-claude-remote-session-id': remoteSessionId }
-      : {}),
-    // SDK consumers can identify their app/library for backend analytics
-    ...(clientApp ? { 'x-client-app': clientApp } : {}),
-  }
+	// Convert the runtime effort value to the OpenAI-shaped enum the shim
+	// expects. Undefined → shim falls back to descriptor/alias defaults.
+	const shimReasoningEffort: OpenAIEffortLevel | undefined =
+		effortValue !== undefined
+			? standardEffortToOpenAI(convertEffortValueToLevel(effortValue))
+			: undefined
+	const containerId = process.env.CLAUDE_CODE_CONTAINER_ID
+	const remoteSessionId = process.env.CLAUDE_CODE_REMOTE_SESSION_ID
+	const clientApp = process.env.CLAUDE_AGENT_SDK_CLIENT_APP
+	const customHeaders = getCustomHeaders()
+	const defaultHeaders: { [key: string]: string } = {
+		'x-app': 'cli',
+		'User-Agent': getUserAgent(),
+		'X-Claude-Code-Session-Id': getSessionId(),
+		...customHeaders,
+		...(containerId ? { 'x-claude-remote-container-id': containerId } : {}),
+		...(remoteSessionId ? { 'x-claude-remote-session-id': remoteSessionId } : {}),
+		// SDK consumers can identify their app/library for backend analytics
+		...(clientApp ? { 'x-client-app': clientApp } : {}),
+	}
 
-  // Log API client configuration for HFI debugging
-  logForDebugging(
-    `[API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: ${!!process.env.ANTHROPIC_CUSTOM_HEADERS}, has Authorization header: ${!!customHeaders['Authorization']}`,
-  )
+	// Log API client configuration for HFI debugging
+	logForDebugging(
+		`[API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: ${!!process.env.ANTHROPIC_CUSTOM_HEADERS}, has Authorization header: ${!!customHeaders.Authorization}`,
+	)
 
-  // Add additional protection header if enabled via env var
-  const additionalProtectionEnabled = isEnvTruthy(
-    process.env.CLAUDE_CODE_ADDITIONAL_PROTECTION,
-  )
-  if (additionalProtectionEnabled) {
-    defaultHeaders['x-anthropic-additional-protection'] = 'true'
-  }
+	// Add additional protection header if enabled via env var
+	const additionalProtectionEnabled = isEnvTruthy(process.env.CLAUDE_CODE_ADDITIONAL_PROTECTION)
+	if (additionalProtectionEnabled) {
+		defaultHeaders['x-anthropic-additional-protection'] = 'true'
+	}
 
-  const shouldUseFirstPartyAuth =
-    shouldUseFirstPartyAnthropicAuth(providerOverride)
+	const shouldUseFirstPartyAuth = shouldUseFirstPartyAnthropicAuth(providerOverride)
 
-  if (shouldUseFirstPartyAuth) {
-    logForDebugging('[API:auth] OAuth token check starting')
-    await checkAndRefreshOAuthTokenIfNeeded()
-    logForDebugging('[API:auth] OAuth token check complete')
-  }
+	if (shouldUseFirstPartyAuth) {
+		logForDebugging('[API:auth] OAuth token check starting')
+		await checkAndRefreshOAuthTokenIfNeeded()
+		logForDebugging('[API:auth] OAuth token check complete')
+	}
 
-  const isClaudeAiSubscriber =
-    shouldUseFirstPartyAuth && isClaudeAISubscriber()
+	const isClaudeAiSubscriber = shouldUseFirstPartyAuth && isClaudeAISubscriber()
 
-  if (shouldUseFirstPartyAuth && !isClaudeAiSubscriber) {
-    await configureApiKeyHeaders(defaultHeaders, getIsNonInteractiveSession())
-  }
+	// Only inject Authorization: Bearer in defaultHeaders when NOT using a custom
+	// proxy URL. When ANTHROPIC_BASE_URL is set, authentication is handled by the
+	// apiKey constructor option (→ x-api-key header). Sending both Authorization
+	// and x-api-key to proxies like BigModel causes 401 because they try to parse
+	// the Bearer value as a JWT and fail.
+	if (process.env.ANTHROPIC_AUTH_TOKEN && !process.env.ANTHROPIC_BASE_URL) {
+		defaultHeaders.Authorization = `Bearer ${process.env.ANTHROPIC_AUTH_TOKEN}`
+	}
 
-  const resolvedFetch = buildFetch(fetchOverride, source)
+	if (shouldUseFirstPartyAuth && !isClaudeAiSubscriber) {
+		await configureApiKeyHeaders(defaultHeaders, getIsNonInteractiveSession())
+	}
 
-  const ARGS = {
-    defaultHeaders,
-    maxRetries,
-    timeout: parseInt(process.env.API_TIMEOUT_MS || String(600 * 1000), 10),
-    dangerouslyAllowBrowser: true,
-    fetchOptions: getProxyFetchOptions({
-      forAnthropicAPI: true,
-    }) as ClientOptions['fetchOptions'],
-    ...(resolvedFetch && {
-      fetch: resolvedFetch,
-    }),
-  }
-  // Agent routing override: use per-agent provider when configured.
-  // Strip auth-related headers to prevent leaking Anthropic credentials
-  // to third-party endpoints (SSRF / credential forwarding mitigation).
-  if (providerOverride) {
-    const { createOpenAIShimClient } = await import('./openaiShim.js')
-    const safeHeaders: Record<string, string> = {}
-    for (const [k, v] of Object.entries(defaultHeaders)) {
-      const lower = k.toLowerCase()
-      if (lower === 'authorization' || lower === 'x-api-key' || lower === 'api-key') continue
-      safeHeaders[k] = v
-    }
-    return createOpenAIShimClient({
-      defaultHeaders: safeHeaders,
-      maxRetries,
-      timeout: parseInt(process.env.API_TIMEOUT_MS || String(600 * 1000), 10),
-      providerOverride,
-      reasoningEffort: shimReasoningEffort,
-    }) as unknown as Anthropic
-  }
-  // GitHub provider in native Anthropic API mode: send requests in Anthropic
-  // format so cache_control blocks are honoured and prompt caching works.
-  // Requires the GitHub endpoint (OPENAI_BASE_URL) to support Anthropic's
-  // messages API — set CLAUDE_CODE_GITHUB_ANTHROPIC_API=1 to opt in.
-  if (isGithubNativeAnthropicMode(model)) {
-    const githubBaseUrl =
-      process.env.OPENAI_BASE_URL?.replace(/\/$/, '') ??
-      'https://api.githubcopilot.com'
-    const githubToken =
-      process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN ?? ''
-    const nativeArgs: ConstructorParameters<typeof Anthropic>[0] = {
-      ...ARGS,
-      baseURL: githubBaseUrl,
-      authToken: githubToken,
-      // No apiKey — we authenticate via Bearer token (authToken)
-      apiKey: null,
-    }
-    return new Anthropic(nativeArgs)
-  }
-  const envOnlyProviderRouteId = resolveEnvOnlyProviderRouteId(process.env)
-  const useXaiEnvOnlyProvider = envOnlyProviderRouteId === 'xai'
-  const useMiniMaxEnvOnlyProvider = envOnlyProviderRouteId === 'minimax'
-  if (useMiniMaxEnvOnlyProvider) {
-    applyMiniMaxEnvOnlyDefaults()
-  }
-  if (useXaiEnvOnlyProvider) {
-    applyXaiEnvOnlyDefaults()
-  }
+	const resolvedFetch = buildFetch(fetchOverride, source)
 
-  if (
-    useMiniMaxEnvOnlyProvider ||
-    useXaiEnvOnlyProvider ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_OPENAI) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_GITHUB) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_GEMINI) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_MISTRAL)
-  ) {
-    const { createOpenAIShimClient } = await import('./openaiShim.js')
-    return createOpenAIShimClient({
-      defaultHeaders,
-      maxRetries,
-      timeout: parseInt(process.env.API_TIMEOUT_MS || String(600 * 1000), 10),
-      reasoningEffort: shimReasoningEffort,
-    }) as unknown as Anthropic
-  }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) {
-    const { AnthropicBedrock } = await import('@anthropic-ai/bedrock-sdk')
-    // Use region override for small fast model if specified
-    const awsRegion =
-      model === getSmallFastModel() &&
-      process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
-        ? process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
-        : getAWSRegion()
+	// When using a custom Anthropic-compatible proxy,
+	// wrap fetch to strip Anthropic-specific SDK headers that many proxies reject.
+	// These headers are Anthropic-internal and not part of the public Anthropic API spec.
+	const isCustomAnthropicProxy = !isFirstPartyAnthropicBaseUrl()
+	const proxyToken = isCustomAnthropicProxy
+		? process.env.ANTHROPIC_AUTH_TOKEN ||
+			process.env.ANTHROPIC_API_KEY ||
+			apiKey ||
+			getAnthropicApiKey()
+		: undefined
 
-    const bedrockArgs: Record<string, any> = {
-      ...ARGS,
-      awsRegion,
-      ...(isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH) && {
-        skipAuth: true,
-      }),
-      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
-    }
+	const proxyCleanFetch: ClientOptions['fetch'] | undefined = isCustomAnthropicProxy
+		? async (input, init) => {
+				const rawHeaders = new Headers(init?.headers as HeadersInit | undefined)
+				// Strip Anthropic-internal headers that proxies like BigModel may reject
+				rawHeaders.delete('anthropic-dangerous-direct-browser-access')
+				rawHeaders.delete('x-app')
+				rawHeaders.delete('x-claude-remote-container-id')
+				rawHeaders.delete('x-claude-remote-session-id')
+				rawHeaders.delete('x-client-app')
+				rawHeaders.delete('x-anthropic-additional-protection')
+				// Ensure ONLY x-api-key is used for auth (no Authorization header)
+				if (proxyToken) {
+					rawHeaders.set('x-api-key', proxyToken)
+					rawHeaders.delete('authorization')
+				}
 
-    // Add API key authentication if available
-    if (process.env.AWS_BEARER_TOKEN_BEDROCK) {
-      bedrockArgs.skipAuth = true
-      // Add the Bearer token for Bedrock API key authentication
-      bedrockArgs.defaultHeaders = {
-        ...bedrockArgs.defaultHeaders,
-        Authorization: `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`,
-      }
-    } else if (!isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH)) {
-      // Refresh auth and get credentials with cache clearing
-      const cachedCredentials = await refreshAndGetAwsCredentials()
-      if (cachedCredentials) {
-        bedrockArgs.awsAccessKey = cachedCredentials.accessKeyId
-        bedrockArgs.awsSecretKey = cachedCredentials.secretAccessKey
-        bedrockArgs.awsSessionToken = cachedCredentials.sessionToken
-      }
-    }
-    // we have always been lying about the return type - this doesn't support batching or models
-    return new AnthropicBedrock(bedrockArgs) as unknown as Anthropic
-  }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) {
-    const { AnthropicFoundry } = await importRuntimeModule(
-      '@anthropic-ai/foundry-sdk',
-    )
-    // Determine Azure AD token provider based on configuration
-    // SDK reads ANTHROPIC_FOUNDRY_API_KEY by default
-    let azureADTokenProvider: (() => Promise<string>) | undefined
-    if (!process.env.ANTHROPIC_FOUNDRY_API_KEY) {
-      if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_FOUNDRY_AUTH)) {
-        // Mock token provider for testing/proxy scenarios (similar to Vertex mock GoogleAuth)
-        azureADTokenProvider = () => Promise.resolve('')
-      } else {
-        // Use real Azure AD authentication with DefaultAzureCredential
-        const {
-          DefaultAzureCredential: AzureCredential,
-          getBearerTokenProvider,
-        } = await importRuntimeModule('@azure/identity')
-        azureADTokenProvider = getBearerTokenProvider(
-          new AzureCredential(),
-          'https://cognitiveservices.azure.com/.default',
-        )
-      }
-    }
+				const base = resolvedFetch ?? globalThis.fetch
+				return base(input as RequestInfo, { ...(init ?? {}), headers: rawHeaders })
+			}
+		: undefined
 
-    const foundryArgs = {
-      ...ARGS,
-      ...(azureADTokenProvider && { azureADTokenProvider }),
-      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
-    }
-    // we have always been lying about the return type - this doesn't support batching or models
-    return new AnthropicFoundry(foundryArgs) as unknown as Anthropic
-  }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) {
-    // Refresh GCP credentials if gcpAuthRefresh is configured and credentials are expired
-    // This is similar to how we handle AWS credential refresh for Bedrock
-    if (!isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)) {
-      await refreshGcpCredentialsIfNeeded()
-    }
+	const ARGS = {
+		defaultHeaders,
+		maxRetries,
+		timeout: parseInt(process.env.API_TIMEOUT_MS || String(600 * 1000), 10),
+		// Only set dangerouslyAllowBrowser when NOT using a custom proxy.
+		// For custom proxies, the SDK would add "anthropic-dangerous-direct-browser-access: true"
+		// which causes some proxies to reject requests.
+		...(isCustomAnthropicProxy ? {} : { dangerouslyAllowBrowser: true }),
+		fetchOptions: getProxyFetchOptions({
+			forAnthropicAPI: true,
+		}) as ClientOptions['fetchOptions'],
+		...((proxyCleanFetch ?? resolvedFetch) && {
+			fetch: proxyCleanFetch ?? resolvedFetch,
+		}),
+	}
+	// Agent routing override: use per-agent provider when configured.
+	// Strip auth-related headers to prevent leaking Anthropic credentials
+	// to third-party endpoints (SSRF / credential forwarding mitigation).
+	if (providerOverride) {
+		const { createOpenAIShimClient } = await import('./openaiShim.js')
+		const safeHeaders: Record<string, string> = {}
+		for (const [k, v] of Object.entries(defaultHeaders)) {
+			const lower = k.toLowerCase()
+			if (lower === 'authorization' || lower === 'x-api-key' || lower === 'api-key') continue
+			safeHeaders[k] = v
+		}
+		return createOpenAIShimClient({
+			defaultHeaders: safeHeaders,
+			maxRetries,
+			timeout: parseInt(process.env.API_TIMEOUT_MS || String(600 * 1000), 10),
+			providerOverride,
+			reasoningEffort: shimReasoningEffort,
+		}) as unknown as Anthropic
+	}
+	// GitHub provider in native Anthropic API mode: send requests in Anthropic
+	// format so cache_control blocks are honoured and prompt caching works.
+	// Requires the GitHub endpoint (OPENAI_BASE_URL) to support Anthropic's
+	// messages API — set CLAUDE_CODE_GITHUB_ANTHROPIC_API=1 to opt in.
+	if (isGithubNativeAnthropicMode(model)) {
+		const githubBaseUrl =
+			process.env.OPENAI_BASE_URL?.replace(/\/$/, '') ?? 'https://api.githubcopilot.com'
+		const githubToken = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN ?? ''
+		const nativeArgs: ConstructorParameters<typeof Anthropic>[0] = {
+			...ARGS,
+			baseURL: githubBaseUrl,
+			authToken: githubToken,
+			// No apiKey — we authenticate via Bearer token (authToken)
+			apiKey: null,
+		}
+		return new Anthropic(nativeArgs)
+	}
+	const envOnlyProviderRouteId = resolveEnvOnlyProviderRouteId(process.env)
+	const useXaiEnvOnlyProvider = envOnlyProviderRouteId === 'xai'
+	const useMiniMaxEnvOnlyProvider = envOnlyProviderRouteId === 'minimax'
+	const useOllamaEnvOnlyProvider = envOnlyProviderRouteId === 'ollama'
+	if (useMiniMaxEnvOnlyProvider) {
+		applyMiniMaxEnvOnlyDefaults()
+	}
+	if (useXaiEnvOnlyProvider) {
+		applyXaiEnvOnlyDefaults()
+	}
+	if (useOllamaEnvOnlyProvider) {
+		applyOllamaEnvOnlyDefaults()
+	}
 
-    const [{ AnthropicVertex }, { GoogleAuth }] = await Promise.all([
-      importRuntimeModule('@anthropic-ai/vertex-sdk'),
-      importRuntimeModule('google-auth-library'),
-    ])
-    // TODO: Cache either GoogleAuth instance or AuthClient to improve performance
-    // Currently we create a new GoogleAuth instance for every getAnthropicClient() call
-    // This could cause repeated authentication flows and metadata server checks
-    // However, caching needs careful handling of:
-    // - Credential refresh/expiration
-    // - Environment variable changes (GOOGLE_APPLICATION_CREDENTIALS, project vars)
-    // - Cross-request auth state management
-    // See: https://github.com/googleapis/google-auth-library-nodejs/issues/390 for caching challenges
+	if (
+		useMiniMaxEnvOnlyProvider ||
+		useXaiEnvOnlyProvider ||
+		useOllamaEnvOnlyProvider ||
+		isEnvTruthy(process.env.CLAUDE_CODE_USE_OPENAI) ||
+		isEnvTruthy(process.env.CLAUDE_CODE_USE_GITHUB) ||
+		isEnvTruthy(process.env.CLAUDE_CODE_USE_GEMINI) ||
+		isEnvTruthy(process.env.CLAUDE_CODE_USE_MISTRAL)
+	) {
+		const { createOpenAIShimClient } = await import('./openaiShim.js')
+		return createOpenAIShimClient({
+			defaultHeaders,
+			maxRetries,
+			timeout: parseInt(process.env.API_TIMEOUT_MS || String(600 * 1000), 10),
+			reasoningEffort: shimReasoningEffort,
+		}) as unknown as Anthropic
+	}
+	if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) {
+		const { AnthropicBedrock } = await import('@anthropic-ai/bedrock-sdk')
+		// Use region override for small fast model if specified
+		const awsRegion =
+			model === getSmallFastModel() && process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
+				? process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
+				: getAWSRegion()
 
-    // Prevent metadata server timeout by providing projectId as fallback
-    // google-auth-library checks project ID in this order:
-    // 1. Environment variables (GCLOUD_PROJECT, GOOGLE_CLOUD_PROJECT, etc.)
-    // 2. Credential files (service account JSON, ADC file)
-    // 3. gcloud config
-    // 4. GCE metadata server (causes 12s timeout outside GCP)
-    //
-    // We only set projectId if user hasn't configured other discovery methods
-    // to avoid interfering with their existing auth setup
+		const bedrockArgs: Record<string, any> = {
+			...ARGS,
+			awsRegion,
+			...(isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH) && {
+				skipAuth: true,
+			}),
+			...(isDebugToStdErr() && { logger: createStderrLogger() }),
+		}
 
-    // Check project environment variables in same order as google-auth-library
-    // See: https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/googleauth.ts
-    const hasProjectEnvVar =
-      process.env['GCLOUD_PROJECT'] ||
-      process.env['GOOGLE_CLOUD_PROJECT'] ||
-      process.env['gcloud_project'] ||
-      process.env['google_cloud_project']
+		// Add API key authentication if available
+		if (process.env.AWS_BEARER_TOKEN_BEDROCK) {
+			bedrockArgs.skipAuth = true
+			// Add the Bearer token for Bedrock API key authentication
+			bedrockArgs.defaultHeaders = {
+				...bedrockArgs.defaultHeaders,
+				Authorization: `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`,
+			}
+		} else if (!isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH)) {
+			// Refresh auth and get credentials with cache clearing
+			const cachedCredentials = await refreshAndGetAwsCredentials()
+			if (cachedCredentials) {
+				bedrockArgs.awsAccessKey = cachedCredentials.accessKeyId
+				bedrockArgs.awsSecretKey = cachedCredentials.secretAccessKey
+				bedrockArgs.awsSessionToken = cachedCredentials.sessionToken
+			}
+		}
+		// we have always been lying about the return type - this doesn't support batching or models
+		return new AnthropicBedrock(bedrockArgs) as unknown as Anthropic
+	}
+	if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) {
+		const { AnthropicFoundry } = await importRuntimeModule('@anthropic-ai/foundry-sdk')
+		// Determine Azure AD token provider based on configuration
+		// SDK reads ANTHROPIC_FOUNDRY_API_KEY by default
+		let azureADTokenProvider: (() => Promise<string>) | undefined
+		if (!process.env.ANTHROPIC_FOUNDRY_API_KEY) {
+			if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_FOUNDRY_AUTH)) {
+				// Mock token provider for testing/proxy scenarios (similar to Vertex mock GoogleAuth)
+				azureADTokenProvider = () => Promise.resolve('')
+			} else {
+				// Use real Azure AD authentication with DefaultAzureCredential
+				const { DefaultAzureCredential: AzureCredential, getBearerTokenProvider } =
+					await importRuntimeModule('@azure/identity')
+				azureADTokenProvider = getBearerTokenProvider(
+					new AzureCredential(),
+					'https://cognitiveservices.azure.com/.default',
+				)
+			}
+		}
 
-    // Check for credential file paths (service account or ADC)
-    // Note: We're checking both standard and lowercase variants to be safe,
-    // though we should verify what google-auth-library actually checks
-    const hasKeyFile =
-      process.env['GOOGLE_APPLICATION_CREDENTIALS'] ||
-      process.env['google_application_credentials']
+		const foundryArgs = {
+			...ARGS,
+			...(azureADTokenProvider && { azureADTokenProvider }),
+			...(isDebugToStdErr() && { logger: createStderrLogger() }),
+		}
+		// we have always been lying about the return type - this doesn't support batching or models
+		return new AnthropicFoundry(foundryArgs) as unknown as Anthropic
+	}
+	if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) {
+		// Refresh GCP credentials if gcpAuthRefresh is configured and credentials are expired
+		// This is similar to how we handle AWS credential refresh for Bedrock
+		if (!isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)) {
+			await refreshGcpCredentialsIfNeeded()
+		}
 
-    const googleAuth = isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)
-      ? ({
-          // Mock GoogleAuth for testing/proxy scenarios
-          getClient: () => ({
-            getRequestHeaders: () => ({}),
-          }),
-        } as {
-          getClient: () => {
-            getRequestHeaders: () => Record<string, string>
-          }
-        })
-      : new GoogleAuth({
-          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-          // Only use ANTHROPIC_VERTEX_PROJECT_ID as last resort fallback
-          // This prevents the 12-second metadata server timeout when:
-          // - No project env vars are set AND
-          // - No credential keyfile is specified AND
-          // - ADC file exists but lacks project_id field
-          //
-          // Risk: If auth project != API target project, this could cause billing/audit issues
-          // Mitigation: Users can set GOOGLE_CLOUD_PROJECT to override
-          ...(hasProjectEnvVar || hasKeyFile
-            ? {}
-            : {
-                projectId: process.env.ANTHROPIC_VERTEX_PROJECT_ID,
-              }),
-        })
+		const [{ AnthropicVertex }, { GoogleAuth }] = await Promise.all([
+			importRuntimeModule('@anthropic-ai/vertex-sdk'),
+			importRuntimeModule('google-auth-library'),
+		])
+		// TODO: Cache either GoogleAuth instance or AuthClient to improve performance
+		// Currently we create a new GoogleAuth instance for every getAnthropicClient() call
+		// This could cause repeated authentication flows and metadata server checks
+		// However, caching needs careful handling of:
+		// - Credential refresh/expiration
+		// - Environment variable changes (GOOGLE_APPLICATION_CREDENTIALS, project vars)
+		// - Cross-request auth state management
+		// See: https://github.com/googleapis/google-auth-library-nodejs/issues/390 for caching challenges
 
-    const vertexArgs = {
-      ...ARGS,
-      region: getVertexRegionForModel(model),
-      googleAuth,
-      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
-    }
-    // we have always been lying about the return type - this doesn't support batching or models
-    return new AnthropicVertex(vertexArgs) as unknown as Anthropic
-  }
+		// Prevent metadata server timeout by providing projectId as fallback
+		// google-auth-library checks project ID in this order:
+		// 1. Environment variables (GCLOUD_PROJECT, GOOGLE_CLOUD_PROJECT, etc.)
+		// 2. Credential files (service account JSON, ADC file)
+		// 3. gcloud config
+		// 4. GCE metadata server (causes 12s timeout outside GCP)
+		//
+		// We only set projectId if user hasn't configured other discovery methods
+		// to avoid interfering with their existing auth setup
 
-  // Determine authentication method based on available tokens
-  const clientConfig: ConstructorParameters<typeof Anthropic>[0] = {
-    apiKey: isClaudeAiSubscriber ? null : apiKey || getAnthropicApiKey(),
-    authToken: isClaudeAiSubscriber
-      ? getClaudeAIOAuthTokens()?.accessToken
-      : undefined,
-    // Set baseURL from OAuth config when using staging OAuth
-    ...(process.env.USER_TYPE === 'ant' &&
-    isEnvTruthy(process.env.USE_STAGING_OAUTH)
-      ? { baseURL: getOauthConfig().BASE_API_URL }
-      : {}),
-    ...ARGS,
-    ...(isDebugToStdErr() && { logger: createStderrLogger() }),
-  }
+		// Check project environment variables in same order as google-auth-library
+		// See: https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/googleauth.ts
+		const hasProjectEnvVar =
+			process.env.GCLOUD_PROJECT ||
+			process.env.GOOGLE_CLOUD_PROJECT ||
+			process.env.gcloud_project ||
+			process.env.google_cloud_project
 
-  return new Anthropic(clientConfig)
+		// Check for credential file paths (service account or ADC)
+		// Note: We're checking both standard and lowercase variants to be safe,
+		// though we should verify what google-auth-library actually checks
+		const hasKeyFile =
+			process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.google_application_credentials
+
+		const googleAuth = isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)
+			? ({
+					// Mock GoogleAuth for testing/proxy scenarios
+					getClient: () => ({
+						getRequestHeaders: () => ({}),
+					}),
+				} as {
+					getClient: () => {
+						getRequestHeaders: () => Record<string, string>
+					}
+				})
+			: new GoogleAuth({
+					scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+					// Only use ANTHROPIC_VERTEX_PROJECT_ID as last resort fallback
+					// This prevents the 12-second metadata server timeout when:
+					// - No project env vars are set AND
+					// - No credential keyfile is specified AND
+					// - ADC file exists but lacks project_id field
+					//
+					// Risk: If auth project != API target project, this could cause billing/audit issues
+					// Mitigation: Users can set GOOGLE_CLOUD_PROJECT to override
+					...(hasProjectEnvVar || hasKeyFile
+						? {}
+						: {
+								projectId: process.env.ANTHROPIC_VERTEX_PROJECT_ID,
+							}),
+				})
+
+		const vertexArgs = {
+			...ARGS,
+			region: getVertexRegionForModel(model),
+			googleAuth,
+			...(isDebugToStdErr() && { logger: createStderrLogger() }),
+		}
+		// we have always been lying about the return type - this doesn't support batching or models
+		return new AnthropicVertex(vertexArgs) as unknown as Anthropic
+	}
+
+	// Determine authentication method based on available tokens
+	const authTokenFromEnv = process.env.ANTHROPIC_AUTH_TOKEN
+	const customBaseUrl = process.env.ANTHROPIC_BASE_URL
+
+	const clientConfig: ConstructorParameters<typeof Anthropic>[0] = {
+		// When ANTHROPIC_AUTH_TOKEN + ANTHROPIC_BASE_URL are both set, treat the
+		// token as an API key (x-api-key header). The proxy already gets just this
+		// one auth header — no Authorization: Bearer sent (blocked above).
+		// When only ANTHROPIC_AUTH_TOKEN is set (no custom URL), use authToken so
+		// the SDK sends Authorization: Bearer to the real Anthropic endpoint.
+		apiKey: isClaudeAiSubscriber
+			? null
+			: authTokenFromEnv && customBaseUrl
+				? authTokenFromEnv // SDK sends x-api-key: <token> to the proxy
+				: apiKey || getAnthropicApiKey(),
+		authToken: isClaudeAiSubscriber
+			? getClaudeAIOAuthTokens()?.accessToken
+			: authTokenFromEnv && !customBaseUrl
+				? authTokenFromEnv // Bearer-only when no custom proxy URL
+				: undefined,
+		// Apply custom base URL from environment if provided
+		...(customBaseUrl ? { baseURL: customBaseUrl } : {}),
+		// Set baseURL from OAuth config when using staging OAuth
+		...(process.env.USER_TYPE === 'ant' && isEnvTruthy(process.env.USE_STAGING_OAUTH)
+			? { baseURL: getOauthConfig().BASE_API_URL }
+			: {}),
+		...ARGS,
+		...(isDebugToStdErr() && { logger: createStderrLogger() }),
+	}
+
+	return new Anthropic(clientConfig)
 }
 
 async function configureApiKeyHeaders(
-  headers: Record<string, string>,
-  isNonInteractiveSession: boolean,
+	headers: Record<string, string>,
+	isNonInteractiveSession: boolean,
 ): Promise<void> {
-  const token =
-    process.env.ANTHROPIC_AUTH_TOKEN ||
-    (await getApiKeyFromApiKeyHelper(isNonInteractiveSession))
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
+	const token =
+		process.env.ANTHROPIC_AUTH_TOKEN || (await getApiKeyFromApiKeyHelper(isNonInteractiveSession))
+	if (token) {
+		headers.Authorization = `Bearer ${token}`
+	}
 }
 
 function getCustomHeaders(): Record<string, string> {
-  const customHeaders: Record<string, string> = {}
-  const customHeadersEnv = process.env.ANTHROPIC_CUSTOM_HEADERS
+	const customHeaders: Record<string, string> = {}
+	const customHeadersEnv = process.env.ANTHROPIC_CUSTOM_HEADERS
 
-  if (!customHeadersEnv) return customHeaders
+	if (!customHeadersEnv) return customHeaders
 
-  // Split by newlines to support multiple headers
-  const headerStrings = customHeadersEnv.split(/\n|\r\n/)
+	// Split by newlines to support multiple headers
+	const headerStrings = customHeadersEnv.split(/\n|\r\n/)
 
-  for (const headerString of headerStrings) {
-    if (!headerString.trim()) continue
+	for (const headerString of headerStrings) {
+		if (!headerString.trim()) continue
 
-    // Parse header in format "Name: Value" (curl style). Split on first `:`
-    // then trim — avoids regex backtracking on malformed long header lines.
-    const colonIdx = headerString.indexOf(':')
-    if (colonIdx === -1) continue
-    const name = headerString.slice(0, colonIdx).trim()
-    const value = headerString.slice(colonIdx + 1).trim()
-    if (name) {
-      customHeaders[name] = value
-    }
-  }
+		// Parse header in format "Name: Value" (curl style). Split on first `:`
+		// then trim — avoids regex backtracking on malformed long header lines.
+		const colonIdx = headerString.indexOf(':')
+		if (colonIdx === -1) continue
+		const name = headerString.slice(0, colonIdx).trim()
+		const value = headerString.slice(colonIdx + 1).trim()
+		if (name) {
+			customHeaders[name] = value
+		}
+	}
 
-  return customHeaders
+	return customHeaders
 }
 
 export const CLIENT_REQUEST_ID_HEADER = 'x-client-request-id'
 
 function buildFetch(
-  fetchOverride: ClientOptions['fetch'],
-  source: string | undefined,
+	fetchOverride: ClientOptions['fetch'],
+	source: string | undefined,
 ): ClientOptions['fetch'] {
-  // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-  const inner = fetchOverride ?? globalThis.fetch
-  // Only send to the first-party API — Bedrock/Vertex/Foundry don't log it
-  // and unknown headers risk rejection by strict proxies (inc-4029 class).
-  const injectClientRequestId =
-    getAPIProvider() === 'firstParty' && isFirstPartyAnthropicBaseUrl()
-  return (input, init) => {
-    // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-    const headers = new Headers(init?.headers)
-    // Generate a client-side request ID so timeouts (which return no server
-    // request ID) can still be correlated with server logs by the API team.
-    // Callers that want to track the ID themselves can pre-set the header.
-    if (injectClientRequestId && !headers.has(CLIENT_REQUEST_ID_HEADER)) {
-      headers.set(CLIENT_REQUEST_ID_HEADER, randomUUID())
-    }
-    try {
-      // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-      const url = input instanceof Request ? input.url : String(input)
-      const id = headers.get(CLIENT_REQUEST_ID_HEADER)
-      logForDebugging(
-        `[API REQUEST] ${new URL(url).pathname}${id ? ` ${CLIENT_REQUEST_ID_HEADER}=${id}` : ''} source=${source ?? 'unknown'}`,
-      )
-    } catch {
-      // never let logging crash the fetch
-    }
-    return inner(input, { ...init, headers })
-  }
+	// eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
+	const inner = fetchOverride ?? globalThis.fetch
+	// Only send to the first-party API — Bedrock/Vertex/Foundry don't log it
+	// and unknown headers risk rejection by strict proxies (inc-4029 class).
+	const injectClientRequestId = getAPIProvider() === 'firstParty' && isFirstPartyAnthropicBaseUrl()
+	return (input, init) => {
+		// eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
+		const headers = new Headers(init?.headers)
+		// Generate a client-side request ID so timeouts (which return no server
+		// request ID) can still be correlated with server logs by the API team.
+		// Callers that want to track the ID themselves can pre-set the header.
+		if (injectClientRequestId && !headers.has(CLIENT_REQUEST_ID_HEADER)) {
+			headers.set(CLIENT_REQUEST_ID_HEADER, randomUUID())
+		}
+		try {
+			// eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
+			const url = input instanceof Request ? input.url : String(input)
+			const id = headers.get(CLIENT_REQUEST_ID_HEADER)
+			logForDebugging(
+				`[API REQUEST] ${new URL(url).pathname}${id ? ` ${CLIENT_REQUEST_ID_HEADER}=${id}` : ''} source=${source ?? 'unknown'}`,
+			)
+		} catch {
+			// never let logging crash the fetch
+		}
+		return inner(input, { ...init, headers })
+	}
 }

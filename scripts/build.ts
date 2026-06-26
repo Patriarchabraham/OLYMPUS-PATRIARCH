@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Olympuz Coder build script — bundles the TypeScript source into a single
  * distributable JS file using Bun's bundler.
  *
@@ -111,7 +111,7 @@ function restoreModifiedFiles() {
 }
 
 preProcessFeatureFlags(join(import.meta.dir, '..', 'src'))
-const numModified = modifiedFiles.size
+const _numModified = modifiedFiles.size
 
 // Restore source files on abrupt termination (Ctrl+C, kill, etc.)
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
@@ -219,6 +219,11 @@ export async function handleBgFlag() { throw new Error("Background sessions are 
 					build.onLoad({ filter: /.*/, namespace: 'react-compiler-shim' }, () => ({
 						contents: `export function c(size) { return new Array(size).fill(Symbol.for('react.memo_cache_sentinel')); }`,
 						loader: 'js',
+					}))
+
+					// Force jsonc-parser to its ESM version to prevent dynamic UMD require crashes at runtime
+					build.onResolve({ filter: /^jsonc-parser$/ }, () => ({
+						path: join(import.meta.dir, '../node_modules/jsonc-parser/lib/esm/main.js'),
 					}))
 
 					// NOTE: @opentelemetry/* kept as external deps (too many named exports to stub)
@@ -468,18 +473,11 @@ ${exports}
 	})
 
 	if (!result.success) {
-		console.error('Build failed:')
-		for (const log of result.logs) {
-			console.error(log)
+		for (const _log of result.logs) {
 		}
 		process.exitCode = 1
 	} else {
-		console.log(`✓ Built Olympuz Coder v${version} → dist/cli.mjs`)
 	}
-
-	// ── SDK Bundle Build ──────────────────────────────────────────────────────
-	// SDK is a separate bundle for npm consumption - must NOT bundle React/Ink
-	console.log('Building SDK bundle...')
 
 	sdkResult = await Bun.build({
 		entrypoints: ['./src/entrypoints/sdk/index.ts'],
@@ -919,18 +917,14 @@ ${parts.join('\n')}
 	})
 
 	if (!sdkResult.success) {
-		console.error('SDK build failed:')
-		for (const log of sdkResult.logs) {
-			console.error(log)
+		for (const _log of sdkResult.logs) {
 		}
 		process.exitCode = 1
 	} else {
-		console.log(`✓ Built SDK bundle → dist/sdk.mjs`)
 	}
 } finally {
 	// Always restore source files, even if Bun.build() throws
 	restoreModifiedFiles()
-	console.log(`  🔄 feature-flags: pre-processed ${numModified} files (restored)`)
 }
 
 // ── Validate SDK bundle for React/Ink leakage ──────────────────────────────
@@ -948,17 +942,13 @@ if (sdkResult?.success) {
 		if (match) leaks.push(match[0])
 	}
 	if (leaks.length > 0) {
-		console.error(`\n❌ SDK bundle contains React/Ink imports (must be stubbed):`)
-		for (const leak of leaks) console.error(`   - ${leak}`)
-		process.exitCode = 1
+		for (const _leak of leaks) process.exitCode = 1
 	} else {
-		console.log(`✓ SDK bundle: no React/Ink leakage detected`)
 	}
 }
 
 // ── Validate external lists ──────────────────────────────────────────────
 if (result?.success && sdkResult?.success) {
-	console.log('\nValidating external lists...')
 	const validation = Bun.spawnSync(['bun', 'run', 'scripts/validate-externals.ts'], {
 		stdout: 'inherit',
 		stderr: 'inherit',

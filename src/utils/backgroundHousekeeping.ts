@@ -1,22 +1,23 @@
+import { initAdversarialVerification } from '../services/adversarialVerification/adversarialVerification.js'
 import { initAutoDream } from '../services/autoDream/autoDream.js'
 import { initMagicDocs } from '../services/MagicDocs/magicDocs.js'
 import { initSkillImprovement } from './hooks/skillImprovement.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const extractMemoriesModule = true
-  ? (require('../services/extractMemories/extractMemories.js') as typeof import('../services/extractMemories/extractMemories.js'))
-  : null
+	? (require('../services/extractMemories/extractMemories.js') as typeof import('../services/extractMemories/extractMemories.js'))
+	: null
 const registerProtocolModule = false
-  ? (require('./deepLink/registerProtocol.js') as typeof import('./deepLink/registerProtocol.js'))
-  : null
+	? (require('./deepLink/registerProtocol.js') as typeof import('./deepLink/registerProtocol.js'))
+	: null
 
 /* eslint-enable @typescript-eslint/no-require-imports */
 
 import { getIsInteractive, getLastInteractionTime } from '../bootstrap/state.js'
 import {
-  cleanupNpmCacheForAnthropicPackages,
-  cleanupOldMessageFilesInBackground,
-  cleanupOldVersionsThrottled,
+	cleanupNpmCacheForAnthropicPackages,
+	cleanupOldMessageFilesInBackground,
+	cleanupOldVersionsThrottled,
 } from './cleanup.js'
 import { cleanupOldVersions } from './nativeInstaller/index.js'
 import { autoUpdateMarketplacesAndPluginsInBackground } from './plugins/pluginAutoupdate.js'
@@ -28,66 +29,52 @@ const RECURRING_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000
 const DELAY_VERY_SLOW_OPERATIONS_THAT_HAPPEN_EVERY_SESSION = 10 * 60 * 1000
 
 export function startBackgroundHousekeeping(): void {
-  void initMagicDocs()
-  void initSkillImprovement()
-  if (true) {
-    extractMemoriesModule!.initExtractMemories()
-  }
-  initAutoDream()
-  void autoUpdateMarketplacesAndPluginsInBackground()
-  if (false && getIsInteractive()) {
-    void registerProtocolModule!.ensureDeepLinkProtocolRegistered()
-  }
+	void initMagicDocs()
+	void initSkillImprovement()
+	if (true) {
+		extractMemoriesModule!.initExtractMemories()
+	}
+	initAutoDream()
+	initAdversarialVerification()
+	void autoUpdateMarketplacesAndPluginsInBackground()
+	if (false && getIsInteractive()) {
+		void registerProtocolModule!.ensureDeepLinkProtocolRegistered()
+	}
 
-  let needsCleanup = true
-  async function runVerySlowOps(): Promise<void> {
-    // If the user did something in the last minute, don't make them wait for these slow operations to run.
-    if (
-      getIsInteractive() &&
-      getLastInteractionTime() > Date.now() - 1000 * 60
-    ) {
-      setTimeout(
-        runVerySlowOps,
-        DELAY_VERY_SLOW_OPERATIONS_THAT_HAPPEN_EVERY_SESSION,
-      ).unref()
-      return
-    }
+	let needsCleanup = true
+	async function runVerySlowOps(): Promise<void> {
+		// If the user did something in the last minute, don't make them wait for these slow operations to run.
+		if (getIsInteractive() && getLastInteractionTime() > Date.now() - 1000 * 60) {
+			setTimeout(runVerySlowOps, DELAY_VERY_SLOW_OPERATIONS_THAT_HAPPEN_EVERY_SESSION).unref()
+			return
+		}
 
-    if (needsCleanup) {
-      needsCleanup = false
-      await cleanupOldMessageFilesInBackground()
-    }
+		if (needsCleanup) {
+			needsCleanup = false
+			await cleanupOldMessageFilesInBackground()
+		}
 
-    // If the user did something in the last minute, don't make them wait for these slow operations to run.
-    if (
-      getIsInteractive() &&
-      getLastInteractionTime() > Date.now() - 1000 * 60
-    ) {
-      setTimeout(
-        runVerySlowOps,
-        DELAY_VERY_SLOW_OPERATIONS_THAT_HAPPEN_EVERY_SESSION,
-      ).unref()
-      return
-    }
+		// If the user did something in the last minute, don't make them wait for these slow operations to run.
+		if (getIsInteractive() && getLastInteractionTime() > Date.now() - 1000 * 60) {
+			setTimeout(runVerySlowOps, DELAY_VERY_SLOW_OPERATIONS_THAT_HAPPEN_EVERY_SESSION).unref()
+			return
+		}
 
-    await cleanupOldVersions()
-  }
+		await cleanupOldVersions()
+	}
 
-  setTimeout(
-    runVerySlowOps,
-    DELAY_VERY_SLOW_OPERATIONS_THAT_HAPPEN_EVERY_SESSION,
-  ).unref()
+	setTimeout(runVerySlowOps, DELAY_VERY_SLOW_OPERATIONS_THAT_HAPPEN_EVERY_SESSION).unref()
 
-  // For long-running sessions, schedule recurring cleanup every 24 hours.
-  // Both cleanup functions use marker files and locks to throttle to once per day
-  // and skip immediately if another process holds the lock.
-  if (process.env.USER_TYPE === 'ant') {
-    const interval = setInterval(() => {
-      void cleanupNpmCacheForAnthropicPackages()
-      void cleanupOldVersionsThrottled()
-    }, RECURRING_CLEANUP_INTERVAL_MS)
+	// For long-running sessions, schedule recurring cleanup every 24 hours.
+	// Both cleanup functions use marker files and locks to throttle to once per day
+	// and skip immediately if another process holds the lock.
+	if (process.env.USER_TYPE === 'ant') {
+		const interval = setInterval(() => {
+			void cleanupNpmCacheForAnthropicPackages()
+			void cleanupOldVersionsThrottled()
+		}, RECURRING_CLEANUP_INTERVAL_MS)
 
-    // Don't let this interval keep the process alive
-    interval.unref()
-  }
+		// Don't let this interval keep the process alive
+		interval.unref()
+	}
 }

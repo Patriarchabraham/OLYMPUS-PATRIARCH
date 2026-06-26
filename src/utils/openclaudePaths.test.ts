@@ -1,330 +1,296 @@
-﻿import { afterEach, describe, expect, vi, test } from 'vitest'
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'fs'
-import * as fsPromises from 'fs/promises'
-import { homedir, tmpdir } from 'os'
-import { join } from 'path'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { homedir, tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterEach, describe, expect, test, vi } from 'vitest'
+import { getDefaultPlansDirectory } from './plans.js'
+import { getRelativeSettingsFilePathForSource } from './settings/settings.js'
 
 const originalEnv = { ...process.env }
 const originalArgv = [...process.argv]
 
-async function importFreshEnvUtils() {
-  vi.resetModules()
-  return vi.importActual<typeof import('./envUtils')>('./envUtils.ts')
-}
+vi.mock('fs/promises', async () => {
+	const actual = await vi.importActual<typeof import('fs/promises')>('fs/promises')
+	return {
+		...actual,
+		access: async (path: string, ...args: any[]) => {
+			const impl = (globalThis as any).__mockAccessImpl
+			if (impl) {
+				return impl(path)
+			}
+			return (actual as any).access(path, ...args)
+		},
+	}
+})
 
-async function importFreshSettings() {
-  vi.resetModules()
-  return vi.importActual<typeof import('./settings/settings')>('./settings/settings.ts')
+vi.mock('os', async () => {
+	const actual = await vi.importActual<typeof import('os')>('os')
+	return {
+		...actual,
+		homedir: () => {
+			const impl = (globalThis as any).__mockHomedirImpl
+			if (impl) {
+				return impl()
+			}
+			return actual.homedir()
+		},
+	}
+})
+
+async function importFreshEnvUtils() {
+	vi.resetModules()
+	return vi.importActual<typeof import('./envUtils')>('./envUtils.ts')
 }
 
 async function importFreshLocalInstaller() {
-  vi.resetModules()
-  return vi.importActual<typeof import('./localInstaller')>('./localInstaller.ts')
-}
-
-async function importFreshPlans() {
-  vi.resetModules()
-  return vi.importActual<typeof import('./plans')>('./plans.ts')
+	vi.resetModules()
+	return vi.importActual<typeof import('./localInstaller')>('./localInstaller.ts')
 }
 
 afterEach(() => {
-  process.env = { ...originalEnv }
-  process.argv = [...originalArgv]
-  vi.restoreAllMocks()
+	process.env = { ...originalEnv }
+	process.argv = [...originalArgv]
+	delete (globalThis as any).__mockAccessImpl
+	delete (globalThis as any).__mockHomedirImpl
+	vi.restoreAllMocks()
 })
 
 describe('Olympuz Coder paths', () => {
-  test('defaults user config home to ~/.openclaude', async () => {
-    delete process.env.CLAUDE_CONFIG_DIR
-    const { resolveClaudeConfigHomeDir } = await importFreshEnvUtils()
+	test('defaults user config home to ~/.openclaude', async () => {
+		delete process.env.CLAUDE_CONFIG_DIR
+		const { resolveClaudeConfigHomeDir } = await importFreshEnvUtils()
 
-    expect(
-      resolveClaudeConfigHomeDir({
-        homeDir: homedir(),
-      }),
-    ).toBe(join(homedir(), '.openclaude'))
-  })
+		expect(
+			resolveClaudeConfigHomeDir({
+				homeDir: homedir(),
+			}),
+		).toBe(join(homedir(), '.openclaude'))
+	})
 
-  test('hard-cuts user config home to ~/.openclaude by default', async () => {
-    delete process.env.CLAUDE_CONFIG_DIR
-    const { resolveClaudeConfigHomeDir } = await importFreshEnvUtils()
+	test('hard-cuts user config home to ~/.openclaude by default', async () => {
+		delete process.env.CLAUDE_CONFIG_DIR
+		const { resolveClaudeConfigHomeDir } = await importFreshEnvUtils()
 
-    expect(
-      resolveClaudeConfigHomeDir({
-        homeDir: homedir(),
-      }),
-    ).toBe(join(homedir(), '.openclaude'))
-  })
+		expect(
+			resolveClaudeConfigHomeDir({
+				homeDir: homedir(),
+			}),
+		).toBe(join(homedir(), '.openclaude'))
+	})
 
-  test('migrates legacy config home and global config files to .openclaude', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
-    try {
-      mkdirSync(join(tempHome, '.claude', 'skills', 'legacy-skill'), {
-        recursive: true,
-      })
-      writeFileSync(
-        join(tempHome, '.claude', 'skills', 'legacy-skill', 'SKILL.md'),
-        'legacy skill',
-      )
-      writeFileSync(join(tempHome, '.claude', 'settings.json'), '{}')
-      writeFileSync(join(tempHome, '.claude.json'), '{"legacy":true}')
-      writeFileSync(
-        join(tempHome, '.claude-custom-oauth.json'),
-        '{"custom":true}',
-      )
+	test('migrates legacy config home and global config files to .openclaude', async () => {
+		const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
+		try {
+			mkdirSync(join(tempHome, '.claude', 'skills', 'legacy-skill'), {
+				recursive: true,
+			})
+			writeFileSync(join(tempHome, '.claude', 'skills', 'legacy-skill', 'SKILL.md'), 'legacy skill')
+			writeFileSync(join(tempHome, '.claude', 'settings.json'), '{}')
+			writeFileSync(join(tempHome, '.claude.json'), '{"legacy":true}')
+			writeFileSync(join(tempHome, '.claude-custom-oauth.json'), '{"custom":true}')
 
-      const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
+			const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
 
-      expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(true)
-      expect(
-        readFileSync(
-          join(tempHome, '.openclaude', 'skills', 'legacy-skill', 'SKILL.md'),
-          'utf8',
-        ),
-      ).toBe('legacy skill')
-      expect(existsSync(join(tempHome, '.openclaude', 'settings.json'))).toBe(
-        true,
-      )
-      expect(readFileSync(join(tempHome, '.openclaude.json'), 'utf8')).toBe(
-        '{"legacy":true}',
-      )
-      expect(
-        readFileSync(join(tempHome, '.openclaude-custom-oauth.json'), 'utf8'),
-      ).toBe('{"custom":true}')
-    } finally {
-      rmSync(tempHome, { recursive: true, force: true })
-    }
-  })
+			expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(true)
+			expect(
+				readFileSync(join(tempHome, '.openclaude', 'skills', 'legacy-skill', 'SKILL.md'), 'utf8'),
+			).toBe('legacy skill')
+			expect(existsSync(join(tempHome, '.openclaude', 'settings.json'))).toBe(true)
+			expect(readFileSync(join(tempHome, '.openclaude.json'), 'utf8')).toBe('{"legacy":true}')
+			expect(readFileSync(join(tempHome, '.openclaude-custom-oauth.json'), 'utf8')).toBe(
+				'{"custom":true}',
+			)
+		} finally {
+			rmSync(tempHome, { recursive: true, force: true })
+		}
+	})
 
-  test('migration preserves existing .openclaude data while copying missing legacy data', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
-    try {
-      mkdirSync(join(tempHome, '.claude', 'skills', 'legacy-skill'), {
-        recursive: true,
-      })
-      mkdirSync(join(tempHome, '.openclaude', 'skills'), { recursive: true })
-      writeFileSync(join(tempHome, '.claude', 'settings.json'), 'legacy')
-      writeFileSync(join(tempHome, '.openclaude', 'settings.json'), 'current')
-      writeFileSync(
-        join(tempHome, '.claude', 'skills', 'legacy-skill', 'SKILL.md'),
-        'legacy skill',
-      )
+	test('migration preserves existing .openclaude data while copying missing legacy data', async () => {
+		const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
+		try {
+			mkdirSync(join(tempHome, '.claude', 'skills', 'legacy-skill'), {
+				recursive: true,
+			})
+			mkdirSync(join(tempHome, '.openclaude', 'skills'), { recursive: true })
+			writeFileSync(join(tempHome, '.claude', 'settings.json'), 'legacy')
+			writeFileSync(join(tempHome, '.openclaude', 'settings.json'), 'current')
+			writeFileSync(join(tempHome, '.claude', 'skills', 'legacy-skill', 'SKILL.md'), 'legacy skill')
 
-      const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
+			const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
 
-      expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(true)
-      expect(
-        readFileSync(join(tempHome, '.openclaude', 'settings.json'), 'utf8'),
-      ).toBe('current')
-      expect(
-        readFileSync(
-          join(tempHome, '.openclaude', 'skills', 'legacy-skill', 'SKILL.md'),
-          'utf8',
-        ),
-      ).toBe('legacy skill')
-    } finally {
-      rmSync(tempHome, { recursive: true, force: true })
-    }
-  })
+			expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(true)
+			expect(readFileSync(join(tempHome, '.openclaude', 'settings.json'), 'utf8')).toBe('current')
+			expect(
+				readFileSync(join(tempHome, '.openclaude', 'skills', 'legacy-skill', 'SKILL.md'), 'utf8'),
+			).toBe('legacy skill')
+		} finally {
+			rmSync(tempHome, { recursive: true, force: true })
+		}
+	})
 
-  test('migration skips explicit CLAUDE_CONFIG_DIR overrides', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
-    try {
-      mkdirSync(join(tempHome, '.claude'), { recursive: true })
-      writeFileSync(join(tempHome, '.claude', 'settings.json'), 'legacy')
+	test('migration skips explicit CLAUDE_CONFIG_DIR overrides', async () => {
+		const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
+		try {
+			mkdirSync(join(tempHome, '.claude'), { recursive: true })
+			writeFileSync(join(tempHome, '.claude', 'settings.json'), 'legacy')
 
-      const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
+			const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
 
-      expect(
-        migrateLegacyClaudeConfigHome({
-          configDirEnv: join(tempHome, 'custom-config'),
-          homeDir: tempHome,
-        }),
-      ).toBe(true)
-      expect(existsSync(join(tempHome, '.openclaude'))).toBe(false)
-    } finally {
-      rmSync(tempHome, { recursive: true, force: true })
-    }
-  })
+			expect(
+				migrateLegacyClaudeConfigHome({
+					configDirEnv: join(tempHome, 'custom-config'),
+					homeDir: tempHome,
+				}),
+			).toBe(true)
+			expect(existsSync(join(tempHome, '.openclaude'))).toBe(false)
+		} finally {
+			rmSync(tempHome, { recursive: true, force: true })
+		}
+	})
 
-  test('migration fails closed when .openclaude collides with a non-directory', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
-    try {
-      writeFileSync(join(tempHome, '.openclaude'), 'not a directory')
-      mkdirSync(join(tempHome, '.claude'), { recursive: true })
-      writeFileSync(join(tempHome, '.claude', 'settings.json'), 'legacy')
+	test('migration fails closed when .openclaude collides with a non-directory', async () => {
+		const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
+		try {
+			writeFileSync(join(tempHome, '.openclaude'), 'not a directory')
+			mkdirSync(join(tempHome, '.claude'), { recursive: true })
+			writeFileSync(join(tempHome, '.claude', 'settings.json'), 'legacy')
 
-      const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
+			const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
 
-      expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(false)
-    } finally {
-      rmSync(tempHome, { recursive: true, force: true })
-    }
-  })
+			expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(false)
+		} finally {
+			rmSync(tempHome, { recursive: true, force: true })
+		}
+	})
 
-  test('migration ignores non-directory legacy config homes', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
-    try {
-      writeFileSync(join(tempHome, '.claude'), 'not a directory')
+	test('migration ignores non-directory legacy config homes', async () => {
+		const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
+		try {
+			writeFileSync(join(tempHome, '.claude'), 'not a directory')
 
-      const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
+			const { migrateLegacyClaudeConfigHome } = await importFreshEnvUtils()
 
-      expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(true)
-      expect(existsSync(join(tempHome, '.openclaude'))).toBe(false)
-    } finally {
-      rmSync(tempHome, { recursive: true, force: true })
-    }
-  })
+			expect(migrateLegacyClaudeConfigHome({ homeDir: tempHome })).toBe(true)
+			expect(existsSync(join(tempHome, '.openclaude'))).toBe(false)
+		} finally {
+			rmSync(tempHome, { recursive: true, force: true })
+		}
+	})
 
-  test('config home falls back to legacy when migration fails on a non-directory .openclaude collision', async () => {
-    const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
-    try {
-      writeFileSync(join(tempHome, '.openclaude'), 'not a directory')
-      mkdirSync(join(tempHome, '.claude'), { recursive: true })
-      vi.mock('os', () => ({
-        homedir: () => tempHome,
-        tmpdir,
-      }))
-      delete process.env.CLAUDE_CONFIG_DIR
+	test('config home falls back to legacy when migration fails on a non-directory .openclaude collision', async () => {
+		const tempHome = mkdtempSync(join(tmpdir(), 'Olympuz Coder-paths-test-'))
+		try {
+			writeFileSync(join(tempHome, '.openclaude'), 'not a directory')
+			mkdirSync(join(tempHome, '.claude'), { recursive: true })
+			;(globalThis as any).__mockHomedirImpl = () => tempHome
+			delete process.env.CLAUDE_CONFIG_DIR
 
-      const { getClaudeConfigHomeDir } = await importFreshEnvUtils()
+			const { getClaudeConfigHomeDir } = await importFreshEnvUtils()
 
-      expect(getClaudeConfigHomeDir()).toBe(join(tempHome, '.claude'))
-    } finally {
-      rmSync(tempHome, { recursive: true, force: true })
-    }
-  })
+			expect(getClaudeConfigHomeDir()).toBe(join(tempHome, '.claude'))
+		} finally {
+			rmSync(tempHome, { recursive: true, force: true })
+		}
+	})
 
-  test('default plans directory uses ~/.openclaude/plans', async () => {
-    delete process.env.CLAUDE_CONFIG_DIR
-    const { getDefaultPlansDirectory } = await importFreshPlans()
+	test('default plans directory uses ~/.openclaude/plans', () => {
+		delete process.env.CLAUDE_CONFIG_DIR
+		expect(getDefaultPlansDirectory({ homeDir: homedir() })).toBe(
+			join(homedir(), '.openclaude', 'plans'),
+		)
+	})
 
-    expect(getDefaultPlansDirectory({ homeDir: homedir() })).toBe(
-      join(homedir(), '.openclaude', 'plans'),
-    )
-  })
+	test('default plans directory respects explicit CLAUDE_CONFIG_DIR', () => {
+		expect(getDefaultPlansDirectory({ configDirEnv: '/tmp/custom-Olympuz Coder' })).toBe(
+			join('/tmp/custom-Olympuz Coder', 'plans'),
+		)
+	})
 
-  test('default plans directory respects explicit CLAUDE_CONFIG_DIR', async () => {
-    const { getDefaultPlansDirectory } = await importFreshPlans()
+	test('default plans directory normalizes generated path to NFC', () => {
+		expect(getDefaultPlansDirectory({ homeDir: '/tmp/cafe\u0301' })).toBe(
+			join('/tmp/caf\u00e9', '.openclaude', 'plans'),
+		)
+	})
 
-    expect(
-      getDefaultPlansDirectory({ configDirEnv: '/tmp/custom-Olympuz Coder' }),
-    ).toBe(join('/tmp/custom-Olympuz Coder', 'plans'))
-  })
+	test('default plans directory normalizes explicit CLAUDE_CONFIG_DIR to NFC', () => {
+		expect(getDefaultPlansDirectory({ configDirEnv: '/tmp/cafe\u0301-Olympuz Coder' })).toBe(
+			join('/tmp/caf\u00e9-Olympuz Coder', 'plans'),
+		)
+	})
 
-  test('default plans directory normalizes generated path to NFC', async () => {
-    const { getDefaultPlansDirectory } = await importFreshPlans()
+	test('uses CLAUDE_CONFIG_DIR override when provided', async () => {
+		process.env.CLAUDE_CONFIG_DIR = '/tmp/custom-Olympuz Coder'
+		const { getClaudeConfigHomeDir, resolveClaudeConfigHomeDir } = await importFreshEnvUtils()
 
-    expect(
-      getDefaultPlansDirectory({ homeDir: '/tmp/cafe\u0301' }),
-    ).toBe(join('/tmp/caf\u00e9', '.openclaude', 'plans'))
-  })
+		expect(getClaudeConfigHomeDir()).toBe('/tmp/custom-Olympuz Coder')
+		expect(
+			resolveClaudeConfigHomeDir({
+				configDirEnv: '/tmp/custom-Olympuz Coder',
+			}),
+		).toBe('/tmp/custom-Olympuz Coder')
+	})
 
-  test('default plans directory normalizes explicit CLAUDE_CONFIG_DIR to NFC', async () => {
-    const { getDefaultPlansDirectory } = await importFreshPlans()
+	test('project and local settings paths use .openclaude', () => {
+		expect(getRelativeSettingsFilePathForSource('projectSettings')).toBe(
+			'.openclaude/settings.json',
+		)
+		expect(getRelativeSettingsFilePathForSource('localSettings')).toBe(
+			'.openclaude/settings.local.json',
+		)
+	})
 
-    expect(
-      getDefaultPlansDirectory({ configDirEnv: '/tmp/cafe\u0301-Olympuz Coder' }),
-    ).toBe(join('/tmp/caf\u00e9-Olympuz Coder', 'plans'))
-  })
+	test('local installer uses Olympuz Coder wrapper path', async () => {
+		// Force .openclaude config home so the test doesn't fall back to
+		// ~/.claude when ~/.openclaude doesn't exist on this machine.
+		process.env.CLAUDE_CONFIG_DIR = join(homedir(), '.openclaude')
+		const { getLocalClaudePath } = await importFreshLocalInstaller()
 
-  test('uses CLAUDE_CONFIG_DIR override when provided', async () => {
-    process.env.CLAUDE_CONFIG_DIR = '/tmp/custom-Olympuz Coder'
-    const { getClaudeConfigHomeDir, resolveClaudeConfigHomeDir } =
-      await importFreshEnvUtils()
+		expect(getLocalClaudePath()).toBe(join(homedir(), '.openclaude', 'local', 'Olympuz Coder'))
+	})
 
-    expect(getClaudeConfigHomeDir()).toBe('/tmp/custom-Olympuz Coder')
-    expect(
-      resolveClaudeConfigHomeDir({
-        configDirEnv: '/tmp/custom-Olympuz Coder',
-      }),
-    ).toBe('/tmp/custom-Olympuz Coder')
-  })
+	test('local installation detection matches .openclaude path', async () => {
+		const { isManagedLocalInstallationPath } = await importFreshLocalInstaller()
 
-  test('project and local settings paths use .openclaude', async () => {
-    const { getRelativeSettingsFilePathForSource } = await importFreshSettings()
+		expect(
+			isManagedLocalInstallationPath(
+				`${join(homedir(), '.openclaude', 'local')}/node_modules/.bin/Olympuz Coder`,
+			),
+		).toBe(true)
+	})
 
-    expect(getRelativeSettingsFilePathForSource('projectSettings')).toBe(
-      '.openclaude/settings.json',
-    )
-    expect(getRelativeSettingsFilePathForSource('localSettings')).toBe(
-      '.openclaude/settings.local.json',
-    )
-  })
+	test('local installation detection still matches legacy .claude path', async () => {
+		const { isManagedLocalInstallationPath } = await importFreshLocalInstaller()
 
-  test('local installer uses Olympuz Coder wrapper path', async () => {
-    // Force .openclaude config home so the test doesn't fall back to
-    // ~/.claude when ~/.openclaude doesn't exist on this machine.
-    process.env.CLAUDE_CONFIG_DIR = join(homedir(), '.openclaude')
-    const { getLocalClaudePath } = await importFreshLocalInstaller()
+		expect(
+			isManagedLocalInstallationPath(
+				`${join(homedir(), '.claude', 'local')}/node_modules/.bin/Olympuz Coder`,
+			),
+		).toBe(true)
+	})
 
-    expect(getLocalClaudePath()).toBe(
-      join(homedir(), '.openclaude', 'local', 'Olympuz Coder'),
-    )
-  })
+	test('candidate local install dirs include both Olympuz Coder and legacy claude paths', async () => {
+		const { getCandidateLocalInstallDirs } = await importFreshLocalInstaller()
 
-  test('local installation detection matches .openclaude path', async () => {
-    const { isManagedLocalInstallationPath } =
-      await importFreshLocalInstaller()
+		expect(
+			getCandidateLocalInstallDirs({
+				configHomeDir: join(homedir(), '.openclaude'),
+				homeDir: homedir(),
+			}),
+		).toEqual([join(homedir(), '.openclaude', 'local'), join(homedir(), '.claude', 'local')])
+	})
 
-    expect(
-      isManagedLocalInstallationPath(
-        `${join(homedir(), '.openclaude', 'local')}/node_modules/.bin/Olympuz Coder`,
-      ),
-    ).toBe(true)
-  })
+	test('legacy local installs are detected when they still expose the claude binary', async () => {
+		;(globalThis as any).__mockAccessImpl = async (path: string) => {
+			const expected = join(homedir(), '.claude', 'local', 'node_modules', '.bin', 'claude')
+			if (path === expected) {
+				return
+			}
+			throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
+		}
 
-  test('local installation detection still matches legacy .claude path', async () => {
-    const { isManagedLocalInstallationPath } =
-      await importFreshLocalInstaller()
+		const { getDetectedLocalInstallDir, localInstallationExists } =
+			await importFreshLocalInstaller()
 
-    expect(
-      isManagedLocalInstallationPath(
-        `${join(homedir(), '.claude', 'local')}/node_modules/.bin/Olympuz Coder`,
-      ),
-    ).toBe(true)
-  })
-
-  test('candidate local install dirs include both Olympuz Coder and legacy claude paths', async () => {
-    const { getCandidateLocalInstallDirs } = await importFreshLocalInstaller()
-
-    expect(
-      getCandidateLocalInstallDirs({
-        configHomeDir: join(homedir(), '.openclaude'),
-        homeDir: homedir(),
-      }),
-    ).toEqual([
-      join(homedir(), '.openclaude', 'local'),
-      join(homedir(), '.claude', 'local'),
-    ])
-  })
-
-  test('legacy local installs are detected when they still expose the claude binary', async () => {
-    vi.mock('fs/promises', () => ({
-      ...fsPromises,
-      access: async (path: string) => {
-        if (
-          path === join(homedir(), '.claude', 'local', 'node_modules', '.bin', 'claude')
-        ) {
-          return
-        }
-        throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' })
-      },
-    }))
-
-    const { getDetectedLocalInstallDir, localInstallationExists } =
-      await importFreshLocalInstaller()
-
-    expect(await localInstallationExists()).toBe(true)
-    expect(await getDetectedLocalInstallDir()).toBe(
-      join(homedir(), '.claude', 'local'),
-    )
-  })
+		expect(await localInstallationExists()).toBe(true)
+		expect(await getDetectedLocalInstallDir()).toBe(join(homedir(), '.claude', 'local'))
+	})
 })

@@ -1,35 +1,41 @@
 /**
- * Proof Engine — Public API.
+ * Static Analysis Engine (proofEngine) — Public API.
  *
- * Provides mathematical, logical, engineering, and typographical
- * verification for code artifacts. Integrates with the super-agent
- * pipeline to ensure zero-error output.
+ * Provides regex-based static analysis across four dimensions:
+ * logical (contradiction/tautology detection), engineering (style/maintainability),
+ * mathematical (numeric edge cases), and typographical (formatting conventions).
+ *
+ * Despite the "proof" branding inherited from earlier versions, this engine
+ * performs heuristic static checks — not formal mathematical proof. Confidence
+ * scores are aggregated via weighted averaging and Bayesian-style likelihood
+ * ratios, but the inputs are pattern-matched findings, not deductive verifications.
+ *
+ * Useful as a fast pre-pass before deeper verification. For real formal
+ * verification, wire in an external solver (Z3, Coq, etc.).
  */
 
-export { ProofEngine } from './proofEngine.js'
-export { verifyMathematically } from './mathematicalVerifier.js'
-export { verifyLogically } from './logicalVerifier.js'
 export { verifyEngineering } from './engineeringVerifier.js'
-export { verifyTypographically } from './typographicalVerifier.js'
+export { verifyLogically } from './logicalVerifier.js'
+export { verifyMathematically } from './mathematicalVerifier.js'
+export { ProofEngine } from './proofEngine.js'
 export { TokenMultiplierTracker } from './tokenMultiplier.js'
-
 export type {
-	ProofDimension,
-	ProofSeverity,
-	ProofFinding,
 	DimensionProofScore,
-	ProofResult,
-	ProofReport,
-	TokenEfficiencyScore,
-	TokenEfficiencyHistoryEntry,
-	TokenMultiplierState,
-	TokenMultiplierReport,
-	ProofEngineConfig,
-	VerifierContext,
 	EfficiencyTrend,
+	ProofDimension,
+	ProofEngineConfig,
+	ProofFinding,
+	ProofReport,
+	ProofResult,
+	ProofSeverity,
+	TokenEfficiencyHistoryEntry,
+	TokenEfficiencyScore,
+	TokenMultiplierReport,
+	TokenMultiplierState,
+	VerifierContext,
 } from './types.js'
-
-export { DEFAULT_PROOF_CONFIG, BAYESIAN_LIKELIHOOD_RATIOS } from './types.js'
+export { BAYESIAN_LIKELIHOOD_RATIOS, DEFAULT_PROOF_CONFIG } from './types.js'
+export { verifyTypographically } from './typographicalVerifier.js'
 
 // ─── Singleton ───────────────────────────────────────────────────────────
 
