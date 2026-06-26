@@ -9,6 +9,18 @@
 import type { GenerateFn } from './types.js'
 
 /**
+ * Whether `createGenerateFn` has successfully built an LLM-backed function in
+ * this process. Surfaced to /status (src/utils/mythosStatus.ts) as a real
+ * "LLM connected" signal instead of a hardcoded value. Best-effort, per-process.
+ */
+let generateFnAvailable = false
+
+/** True once an LLM-backed generate function has been successfully created. */
+export function isGenerateFnAvailable(): boolean {
+	return generateFnAvailable
+}
+
+/**
  * Attempt to create an LLM-backed generateFn using the project's API client.
  * Returns null if the client is not available (no API key, no network, etc).
  */
@@ -43,6 +55,7 @@ export async function createGenerateFn(): Promise<GenerateFn | null> {
 			}
 		}
 
+		generateFnAvailable = true
 		return generate
 	} catch {
 		return null

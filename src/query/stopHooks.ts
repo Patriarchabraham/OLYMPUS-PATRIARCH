@@ -47,6 +47,7 @@ import type { QuerySource } from '../constants/querySource.js'
 import { executeAdversarialVerification } from '../services/adversarialVerification/adversarialVerification.js'
 import { executeAutoDream } from '../services/autoDream/autoDream.js'
 import { executePromptSuggestion } from '../services/PromptSuggestion/promptSuggestion.js'
+import { executeQuantumReasoning } from '../services/quantumReasoning/quantumReasoning.js'
 import { isBareMode, isEnvDefinedFalsy } from '../utils/envUtils.js'
 import { createCacheSafeParams, saveCacheSafeParams } from '../utils/forkedAgent.js'
 
@@ -114,6 +115,12 @@ export async function* handleStopHooks(
 			// Silent on success; surfaces a system message only when the gate finds
 			// a real problem (failed static check, contradictions, low agreement).
 			void executeAdversarialVerification(stopHookContext, toolUseContext.appendSystemMessage)
+		}
+		if (!toolUseContext.agentId && !isEnvDefinedFalsy(process.env.CLAUDE_CODE_ENABLE_QUANTUM)) {
+			// Fire-and-forget multi-dimensional quantum reasoning over the turn's
+			// query. Silent on success; surfaces a system message only when the
+			// collapse is low-confidence (a likely blind spot worth flagging).
+			void executeQuantumReasoning(stopHookContext, toolUseContext.appendSystemMessage)
 		}
 	}
 

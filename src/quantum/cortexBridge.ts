@@ -10,7 +10,7 @@
 
 import { randomUUID } from 'node:crypto'
 import type { CortexAnalysis, MetaInsight } from '../cortex/types.js'
-import type { ReasoningStep } from '../reasoning/types.js'
+import type { GenerateFn, ReasoningStep } from '../reasoning/types.js'
 import { QuantumEngine } from './quantumEngine.js'
 import type { QuantumAnalysis, QuantumConfig } from './types.js'
 import { DEFAULT_QUANTUM_CONFIG } from './types.js'
@@ -81,12 +81,14 @@ const DEFAULT_BRIDGE_CONFIG: QuantumCortexConfig = {
  * @param cortexAnalysis - Pre-computed cortex analysis (or null if unavailable)
  * @param quantumConfig - Optional quantum engine configuration
  * @param bridgeConfig - Optional bridge configuration
+ * @param generateFn - LLM-backed generator; without it the quantum engine degrades honestly
  */
 export async function quantumWithCortex(
 	query: string,
 	cortexAnalysis: CortexAnalysis | null,
 	quantumConfig?: Partial<QuantumConfig>,
 	bridgeConfig?: Partial<QuantumCortexConfig>,
+	generateFn?: GenerateFn,
 ): Promise<QuantumCortexResult> {
 	const config = { ...DEFAULT_BRIDGE_CONFIG, ...bridgeConfig }
 	const _startTime = Date.now()
@@ -99,6 +101,7 @@ export async function quantumWithCortex(
 	// Step 2: Run quantum engine
 	const qConfig = { ...DEFAULT_QUANTUM_CONFIG, ...quantumConfig }
 	const engine = new QuantumEngine(qConfig)
+	if (generateFn) engine.setGenerateFn(generateFn)
 	const quantumAnalysis = await engine.process(query)
 
 	// Step 3: Count enhanced dimensions

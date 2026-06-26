@@ -1,6 +1,7 @@
 import { initAdversarialVerification } from '../services/adversarialVerification/adversarialVerification.js'
 import { initAutoDream } from '../services/autoDream/autoDream.js'
 import { initMagicDocs } from '../services/MagicDocs/magicDocs.js'
+import { initQuantumReasoning } from '../services/quantumReasoning/quantumReasoning.js'
 import { initSkillImprovement } from './hooks/skillImprovement.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -36,6 +37,7 @@ export function startBackgroundHousekeeping(): void {
 	}
 	initAutoDream()
 	initAdversarialVerification()
+	initQuantumReasoning()
 	void autoUpdateMarketplacesAndPluginsInBackground()
 	if (false && getIsInteractive()) {
 		void registerProtocolModule!.ensureDeepLinkProtocolRegistered()

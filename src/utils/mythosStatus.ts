@@ -78,21 +78,23 @@ export function buildOlympuzEngineProperties(): Property[] {
 }
 
 /**
- * Get quantum engine status. Safely handles the case where the quantum
- * module is not yet loaded or initialized.
+ * Get quantum engine status. Reflects real per-process state: whether an LLM
+ * generator has been wired and how many analyses have run. Falls back to a
+ * "not loaded" status if the module can't be required.
  */
 function getQuantumStatus(): QuantumEngineStatus {
 	try {
-		// Dynamic import check — quantum module may not be loaded yet
 		// eslint-disable-next-line @typescript-eslint/no-require-imports
-		const quantumModule: Record<string, unknown> = require('../../quantum/index')
-		if (quantumModule?.QuantumEngine) {
-			return {
-				initialized: true,
-				maxQubits: 10,
-				operationsPerformed: 0,
-				lastOperation: 'none',
-			}
+		const quantumModule = require('../../quantum/quantumEngine') as {
+			isQuantumGenerateFnWired?: () => boolean
+			getQuantumOpsCount?: () => number
+		}
+		const operationsPerformed = quantumModule?.getQuantumOpsCount?.() ?? 0
+		return {
+			initialized: quantumModule?.isQuantumGenerateFnWired?.() ?? false,
+			maxQubits: 10,
+			operationsPerformed,
+			lastOperation: operationsPerformed > 0 ? 'collapse' : 'none',
 		}
 	} catch {
 		// Module not available — that's fine
@@ -106,15 +108,36 @@ function getQuantumStatus(): QuantumEngineStatus {
 }
 
 /**
- * Get reasoning engine status. Checks whether the generate function
- * factory has been wired to an LLM provider.
+ * Get reasoning engine status. `llmConnected` reflects whether the generate-fn
+ * factory has actually produced an LLM-backed function in this process; the
+ * operation count mirrors quantum analyses (the reasoning pipeline we track).
  */
 function getReasoningStatus(): ReasoningEngineStatus {
+	let llmConnected = false
+	let operationsPerformed = 0
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const reasoningModule = require('../../reasoning/generateFnFactory') as {
+			isGenerateFnAvailable?: () => boolean
+		}
+		llmConnected = reasoningModule?.isGenerateFnAvailable?.() ?? false
+	} catch {
+		// module not available
+	}
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const quantumModule = require('../../quantum/quantumEngine') as {
+			getQuantumOpsCount?: () => number
+		}
+		operationsPerformed = quantumModule?.getQuantumOpsCount?.() ?? 0
+	} catch {
+		// ignore
+	}
 	return {
 		activeStrategy: 'auto',
-		llmConnected: false,
+		llmConnected,
 		strategiesAvailable: ['cot', 'tot', 'reflect', 'ensemble', 'quantum'],
-		operationsPerformed: 0,
+		operationsPerformed,
 	}
 }
 
