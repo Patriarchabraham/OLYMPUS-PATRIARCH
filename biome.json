@@ -47,7 +47,8 @@
     }
   },
   "files": {
-    "ignoreUnknown": true
+    "ignoreUnknown": true,
+    "includes": ["**/*", "!olympuz-ide/**"]
   },
   "vcs": {
     "enabled": true,

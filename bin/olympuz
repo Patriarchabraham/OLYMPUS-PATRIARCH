@@ -12,9 +12,10 @@ import { join, dirname } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { freemem } from 'os'
 
-// Heap OOM prevention: respawn with dynamically-sized heap if not yet configured.
-// Uses 50% of free RAM (clamped 1.5–4GB) instead of hardcoded 4GB to prevent
-// OOM on memory-constrained machines (e.g., 6GB total RAM with 2GB free).
+// Heap sizing to avoid "JavaScript heap out of memory" OOM crashes mid-work on
+// memory-heavy workloads. Targets ~80% of free RAM (clamped 2048–4096MB) so V8
+// has enough headroom. (cli.tsx self-respawns up to >=2048MB as a backstop too.)
+// On low-RAM boxes this will use swap under load (slow) rather than crash.
 const currentMax = parseInt(
   [...(process.env.NODE_OPTIONS || '').matchAll(/--max-old-space-size=(\d+)/g)]
     .map(m => m[1])
@@ -22,7 +23,7 @@ const currentMax = parseInt(
   10,
 )
 const freeMB = Math.floor(freemem() / 1024 / 1024)
-const dynamicHeap = Math.max(1536, Math.min(4096, Math.floor(freeMB * 0.5)))
+const dynamicHeap = Math.max(2048, Math.min(4096, Math.floor(freeMB * 0.8)))
 if (currentMax < dynamicHeap && !process.env._OLYMPUZ_HEAP_SET) {
   process.env._OLYMPUZ_HEAP_SET = '1'
   process.env.NODE_OPTIONS = [

@@ -1,0 +1,25 @@
+appId: com.olympuz.ide
+productName: Olympuz IDE
+copyright: MIT
+directories:
+  output: release
+  buildResources: assets
+files:
+  - out/**/*
+  - node_modules/node-pty/**/*
+  - package.json
+extraResources:
+  - from: ../dist/sdk.mjs
+    to: sdk.mjs
+  - from: ../bin
+    to: bin
+    filter: ['**/*']
+# Rebuild native modules (node-pty) for the target Electron version
+npmRebuild: true
+win:
+  target:
+    - nsis
+  icon: assets/icon.png
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

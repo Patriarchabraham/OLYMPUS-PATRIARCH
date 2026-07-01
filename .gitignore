@@ -27,3 +27,9 @@ bun.lock
 .benchmark-tmp/
 benchmark-results/
 loader_log.txt
+
+# Olympuz IDE — standalone Electron sub-project
+olympuz-ide/node_modules/
+olympuz-ide/out/
+olympuz-ide/release/
+olympuz-ide/dist-electron/

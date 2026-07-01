@@ -1,4 +1,10 @@
-﻿import {
+﻿// ESM import (not require()) — cli.tsx is the entrypoint of an ESM package,
+// so require() throws ReferenceError under `npm run dev` (tsx runs source as ESM).
+// esbuild bundles this identically either way for the dist build.
+import os from 'node:os'
+import v8 from 'node:v8'
+import pkg from '../../package.json'
+import {
 	applyProfileEnvToProcessEnv,
 	buildStartupEnvFromProfile,
 } from '../utils/providerProfile.js'
@@ -6,6 +12,31 @@ import {
 	getProviderValidationError,
 	validateProviderEnvForStartupOrExit,
 } from '../utils/providerValidation.js'
+
+// Dev-mode MACRO polyfill. `MACRO.*` are build-time constants that esbuild
+// inlines via `define` (scripts/build.ts), so the bundled dist has no `MACRO`
+// identifier at all. Under `npm run dev` (tsx runs source as ESM, no bundler),
+// `MACRO` is undefined → ReferenceError on first access. Provide a fallback
+// read from package.json so dev mode boots. In bundled builds this block is
+// harmless: `MACRO.*` member accesses are already replaced by literals, so the
+// globalThis assignment is never read. (Same pattern as scripts/start-grpc.ts
+// and bashPermissions.test.ts, but sourced from package.json to avoid drift.)
+// eslint-disable-next-line custom-rules/no-top-level-side-effects
+if (typeof MACRO === 'undefined') {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+	Object.assign(globalThis, {
+		MACRO: {
+			VERSION: pkg.version,
+			DISPLAY_VERSION: pkg.version,
+			BUILD_TIME: new Date().toISOString(),
+			ISSUES_EXPLAINER: '',
+			PACKAGE_URL: '',
+			NATIVE_PACKAGE_URL: undefined,
+			VERSION_CHANGELOG: '',
+			FEEDBACK_CHANNEL: '',
+		} as any,
+	})
+}
 
 // Olympuz Coder: polyfill globalThis.File for Node < 20.
 // undici v7 references `File` at module evaluation time (webidl type
@@ -45,27 +76,52 @@ process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS ??= 'true'
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 process.env.COREPACK_ENABLE_AUTO_PIN = '0'
 
-// Olympuz Coder: OOM prevention — dynamic heap sizing based on available RAM.
-// Uses 50% of free memory (capped at 4GB, min 1.5GB) to avoid allocating more
-// heap than the system can physically provide. Hardcoded 4GB on 6GB machines
-// causes guaranteed OOM because the OS + Node overhead already uses 3.5GB+.
+// Olympuz Coder: heap-OOM backstop. The previous version of this block only
+// set NODE_OPTIONS — which affects CHILD processes, NOT this process's already-
+// started V8 heap — so a memory-heavy workload (multi-file build + dev server +
+// verification agents) OOM-crashed olympuz itself mid-work ("JavaScript heap
+// out of memory") whenever it was launched without a pre-set heap (Node auto-
+// sizes its default DOWN on low-RAM boxes, e.g. ~1.2GB on a 6GB machine).
+//
+// Fix: respawn self ONCE with an adequate heap if the CURRENT V8 heap limit is
+// too small, sized to free RAM (floor 2048MB — below that this fork OOMs; ceiling
+// 4096MB). Uses v8.getHeapStatistics() so it only respawns when actually needed
+// (launchers that already set a big heap skip the respawn). Guarded by
+// _OLYMPUZ_HEAP_SET to prevent loops; mirrors bin/olympuz's respawn.
+//
+// NOTE: on a memory-constrained box (e.g. 6GB total) this makes the process use
+// swap under heavy load (slow) rather than crash — the durable fix for repeated
+// OOM is more RAM / fewer concurrent processes / a larger page file, NOT a
+// bigger heap ceiling (which just shifts the crash to a swap-thrash freeze).
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 {
-	// eslint-disable-next-line custom-rules/no-process-env-top-level
-	const existing = process.env.NODE_OPTIONS || ''
-	const hasHeapFlag = /--max-old-space-size=(\d+)/.test(existing)
-	if (!hasHeapFlag) {
-		// eslint-disable-next-line @typescript-eslint/no-require-imports
-		const os = require('node:os') as { freemem: () => number; totalmem: () => number }
-		const freeMB = Math.floor(os.freemem() / 1024 / 1024)
-		const _totalMB = Math.floor(os.totalmem() / 1024 / 1024)
-		// Use 50% of currently free memory, clamped to [1536, 4096]
-		const rawSize = Math.floor(freeMB * 0.5)
-		const size = Math.max(1536, Math.min(4096, rawSize))
+	const heapLimitMB = Math.floor(v8.getHeapStatistics().heap_size_limit / 1024 / 1024)
+	// Target ~50% of TOTAL RAM, floored above Node's auto-sized default so this
+	// actually RAISES the heap (Node defaults to ~2.2GB on a 6GB box, then V8
+	// pressure-reduces it mid-run → OOM crash). 2560 floor gives headroom over
+	// the ~1.2GB where heavy workloads OOM'd; 4096 ceiling caps swap on big boxes.
+	const targetHeap = Math.max(2560, Math.min(4096, Math.floor((os.totalmem() / 1024 / 1024) * 0.5)))
+	if (heapLimitMB < targetHeap && !process.env._OLYMPUZ_HEAP_SET) {
 		// eslint-disable-next-line custom-rules/no-process-env-top-level
-		process.env.NODE_OPTIONS = existing
-			? `${existing} --max-old-space-size=${size}`
-			: `--max-old-space-size=${size}`
+		process.env._OLYMPUZ_HEAP_SET = '1'
+		// eslint-disable-next-line custom-rules/no-process-env-top-level
+		process.env.NODE_OPTIONS = [
+			...(process.env.NODE_OPTIONS || '').split(/\s+/).filter(Boolean),
+			`--max-old-space-size=${targetHeap}`,
+		].join(' ')
+		const { spawn } = await import('node:child_process')
+		// process.argv[1] is this script's path (cli.mjs) — use it, NOT
+		// import.meta.url (a file:// URL that Node can't resolve as a spawn arg).
+		const child = spawn(process.argv[0]!, [process.argv[1]!, ...process.argv.slice(2)], {
+			stdio: 'inherit',
+			env: process.env,
+		})
+		child.on('exit', (code) => {
+			process.exitCode = code ?? 1
+		})
+		// Never resolve — the respawned child takes over. Parent stays alive only
+		// to forward the child's exit code.
+		await new Promise<void>(() => {})
 	}
 }
 

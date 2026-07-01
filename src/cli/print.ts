@@ -944,6 +944,12 @@ function runHeadlessStreaming(
 		| undefined
 	let inputClosed = false
 	let shutdownPromptInjected = false
+	// Teammate poll deadline that PERSISTS across run() re-entries. The poll
+	// loop (below) returns out to run() whenever it enqueues messages; without
+	// this hoisted timestamp the 120s deadline would reset on every re-entry,
+	// so a teammate that keeps sending without ever emitting shutdown_approved
+	// would hang the -p/headless path indefinitely.
+	let teammatePollStartedAt: number | undefined
 	let heldBackResult: StdoutMessage | null = null
 	let abortController: AbortController | undefined
 	// Same queue sendRequest() enqueues to — one FIFO for everything.
@@ -2305,7 +2311,16 @@ function runHeadlessStreaming(
 				// Poll for messages while teammates are active
 				// This is needed because teammates may send messages while we're waiting
 				// Keep polling until the team is shut down
+				// Poll for messages while teammates are active
+				// This is needed because teammates may send messages while we're waiting
+				// Keep polling until the team is shut down
 				const POLL_INTERVAL_MS = 500
+				// Safety deadline: if teammates never send shutdown_approved after 120s,
+				// break out so the process doesn't hang forever. The start time is
+				// hoisted into the run() closure (teammatePollStartedAt) so it does NOT
+				// reset each time this block re-enters after enqueueing messages.
+				const TEAMMATE_POLL_DEADLINE_MS = 120_000
+				teammatePollStartedAt ??= Date.now()
 
 				while (true) {
 					// Check if teammates are still active
@@ -2317,6 +2332,17 @@ function runHeadlessStreaming(
 
 					if (!hasActiveTeammates) {
 						logForDebugging('[print.ts] No more active teammates, stopping poll')
+						break
+					}
+
+					// Safety: break out if we've been waiting too long.
+					// Prevents indefinite hang when a teammate process dies without
+					// sending shutdown_approved (root cause of CLI freeze).
+					if (Date.now() - teammatePollStartedAt > TEAMMATE_POLL_DEADLINE_MS) {
+						logForDebugging(
+							`[print.ts] Teammate poll deadline exceeded (${TEAMMATE_POLL_DEADLINE_MS}ms), ` +
+								`breaking out — ${Object.keys(refreshedState.teamContext?.teammates ?? {}).length} teammate(s) still registered`,
+						)
 						break
 					}
 
@@ -2418,7 +2444,12 @@ function runHeadlessStreaming(
 				// Wait for any working in-process team members to finish
 				const currentAppState = getAppState()
 				if (hasWorkingInProcessTeammates(currentAppState)) {
-					await waitForTeammatesToBecomeIdle(setAppState, currentAppState)
+					// Bound the wait: if a teammate is stuck and never becomes idle,
+					// don't hang forever — give up after 60s and proceed with shutdown.
+					await Promise.race([
+						waitForTeammatesToBecomeIdle(setAppState, currentAppState),
+						sleep(60_000),
+					])
 				}
 
 				// Re-fetch state after potential wait
