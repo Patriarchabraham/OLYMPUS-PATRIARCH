@@ -140,8 +140,9 @@ export const SwarmDelegateTool = buildTool({
 		return input.task
 	},
 	renderToolUseMessage(input) {
-		const task = input.task.length > 80 ? `${input.task.slice(0, 80)}…` : input.task
-		return `Delegating to swarm: ${task}`
+		const task = input.task ?? ''
+		const trimmed = task.length > 80 ? `${task.slice(0, 80)}…` : task
+		return `Delegating to swarm: ${trimmed}`
 	},
 	async call({ task, timeout_ms }, context) {
 		const orchestrator = getSuperAgentOrchestrator()

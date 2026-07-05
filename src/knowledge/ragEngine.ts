@@ -18,6 +18,8 @@ export class RAGEngine {
 	private documents: Map<string, Document> = new Map()
 	private graph: KnowledgeGraph | null = null
 	private persistPath: string | null = null
+	/** Set once `index()` has populated the document store + graph. */
+	isIndexed = false
 
 	async index(dirPath: string, options?: IndexOptions): Promise<void> {
 		const chunkSize = options?.chunkSize ?? 500
