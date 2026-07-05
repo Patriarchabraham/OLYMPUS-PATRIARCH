@@ -1,18 +1,25 @@
 /**
- * Quantum Reasoning — turn-end advisory service.
+ * Quantum Reasoning — turn-end advisory + carry-forward loop.
  *
  * Runs the multi-dimensional quantum pipeline (`QuantumEngine`) over the turn's
  * driving query, in the background, after non-trivial file changes. It is an
- * *advisory* layer: fire-and-forget from the stop-hook, non-blocking, and
- * surfaces a system message only when the collapsed solution is low-confidence
- * (a likely blind spot worth flagging) — silent otherwise.
+ * *advisory* layer: fire-and-forget from the stop-hook, non-blocking.
+ *
+ * Closing the loop: each non-degraded analysis is recorded into a process-memory
+ * carry-forward window (`quantumLoopStore`). The window is what makes quantum
+ * reasoning accumulate across turns — without it, a flagged blind spot vanished
+ * after a single turn and a confirmed direction was never carried forward. The
+ * surfaced system message is the window's OPEN blind spots (this turn's if it's
+ * low-confidence, plus unresolved ones from prior turns), so the agent re-sees
+ * pending questions until they age out. High-confidence turns with a clean
+ * window stay silent — "speak only when there's something to say".
  *
  * Design mirrors `src/services/adversarialVerification/adversarialVerification.ts`:
  *  - Closure-scoped `runner` set by `initQuantumReasoning()` (enables dead-code
  *    elimination in external builds and clean test isolation).
  *  - Fire-and-forget from `handleStopHooks` (see `src/query/stopHooks.ts`).
- *  - "Speak only when there's something to say": silent on success / when no LLM
- *    is available; chatty only on low-confidence turns.
+ *  - "Speak only when there's something to say": silent when no LLM is available
+ *    or when there are no open blind spots to carry forward.
  *
  * Gating (cheapest first): bare mode → env kill-switch → remote mode →
  * main-thread only → non-trivial change threshold. The change scan is a compact
@@ -27,6 +34,7 @@ import type {
 
 import { getIsRemoteMode } from '../../bootstrap/state.js'
 import { QuantumEngine } from '../../quantum/quantumEngine.js'
+import { getOpenBlindSpotsContext, recordCollapse } from '../../quantum/quantumLoopStore.js'
 import type { QuantumAnalysis } from '../../quantum/types.js'
 import type { ToolUseContext } from '../../Tool.js'
 import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
@@ -41,9 +49,6 @@ type AppendSystemMessageFn = NonNullable<ToolUseContext['appendSystemMessage']>
 
 /** Env kill-switch (default ENABLED). Falsy value disables the service. */
 const QUANTUM_ENV = 'CLAUDE_CODE_ENABLE_QUANTUM'
-
-/** Surface an advisory only when collapse confidence is below this threshold. */
-const SURFACE_CONFIDENCE = 0.6
 
 /** Default thresholds for a "non-trivial" turn (mirror the adversarial gate). */
 const THRESHOLD_FILES = 3
@@ -101,9 +106,22 @@ export function initQuantumReasoning(): void {
 		// Speak only when there's something to say.
 		if (analysis.degraded || analysis.states.length === 0) return
 		if (!appendSystemMessage) return
-		if (analysis.confidence >= SURFACE_CONFIDENCE) return
 
-		appendSystemMessage(createSystemMessage(formatInsight(analysis), 'info'))
+		// Close the loop: record this turn's analysis into the carry-forward
+		// window so it isn't computed-then-discarded. Prior turns' blind spots
+		// would otherwise vanish after one turn; the window keeps them visible
+		// until they age out (TTL) or the window rolls over.
+		recordCollapse(analysis)
+
+		// Carry forward any OPEN blind spots — this turn's if it's low-confidence,
+		// plus unresolved ones from prior turns. High-confidence turns with a clean
+		// window stay silent (preserves "speak only when there's something to say"):
+		// the only reason to speak on a high-conf turn is that an earlier turn left a
+		// flagged blind spot still pending.
+		const carry = getOpenBlindSpotsContext()
+		if (!carry) return
+
+		appendSystemMessage(createSystemMessage(carry, 'info'))
 	}
 }
 
@@ -185,15 +203,4 @@ function extractLastUserQuery(messages: Message[]): string {
 	return '(no user query)'
 }
 
-/** Format a low-confidence turn into a compact advisory system message. */
-function formatInsight(analysis: QuantumAnalysis): string {
-	const top = [...analysis.states].sort((a, b) => b.confidence - a.confidence)[0]
-	const confPct = (analysis.confidence * 100).toFixed(0)
-	const dims = analysis.dimensionsCovered.length
-	const suggestion = top
-		? top.solution.length > 160
-			? `${top.solution.slice(0, 160)}...`
-			: top.solution
-		: 'no dominant approach emerged'
-	return `[quantum] low-confidence turn (confidence ${confPct}% across ${dims} dims) — consider: ${suggestion}`
-}
+// Carry-forward rendering lives in `quantumLoopStore.getOpenBlindSpotsContext`.

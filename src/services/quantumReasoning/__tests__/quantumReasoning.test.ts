@@ -24,6 +24,7 @@ vi.mock('../../../bootstrap/state.js', async (importOriginal) => {
 	return { ...actual, getIsRemoteMode: () => false }
 })
 
+import { clearQuantumLoopStore, getLoopEntryCount } from '../../../quantum/quantumLoopStore.js'
 import { executeQuantumReasoning, initQuantumReasoning } from '../quantumReasoning.js'
 
 /** Build a fake assistant message carrying the given tool_use blocks. */
@@ -68,6 +69,8 @@ function writeTurn(lines: number): Message[] {
 /** A high-confidence analysis (silent path). */
 function analysis(over: Record<string, unknown> = {}) {
 	return {
+		id: 'qa_test',
+		query: 'the driving query',
 		confidence: 0.9,
 		degraded: false,
 		states: [{ dimension: 'security', confidence: 0.9, solution: 'a strong approach' }],
@@ -75,6 +78,7 @@ function analysis(over: Record<string, unknown> = {}) {
 		entanglements: [],
 		tunnelResults: [],
 		collapseResult: null,
+		timestamp: 0,
 		...over,
 	}
 }
@@ -84,6 +88,9 @@ beforeEach(() => {
 	hoisted.process.mockReset()
 	hoisted.appendSystemMessage.mockReset()
 	delete process.env.CLAUDE_CODE_ENABLE_QUANTUM
+	// The carry-forward store is module-level (process memory); reset between
+	// tests so a prior test's recorded blind spot can't leak into the next.
+	clearQuantumLoopStore()
 	// Default: LLM available, high-confidence analysis (silent), runner wired.
 	hoisted.createGenerateFn.mockResolvedValue(async () => 'ok')
 	hoisted.process.mockResolvedValue(analysis())
@@ -177,5 +184,42 @@ describe('executeQuantumReasoning', () => {
 			hoisted.appendSystemMessage,
 		)
 		expect(hoisted.process).toHaveBeenCalledTimes(1)
+	})
+
+	it('records non-degraded analyses into the carry-forward store', async () => {
+		hoisted.process.mockResolvedValue(analysis({ confidence: 0.3 }))
+		await executeQuantumReasoning(makeContext(writeTurn(60)), hoisted.appendSystemMessage)
+		expect(getLoopEntryCount()).toBe(1)
+	})
+
+	it('does not record degraded analyses into the carry-forward store', async () => {
+		hoisted.process.mockResolvedValue(analysis({ degraded: true, states: [], confidence: 0 }))
+		await executeQuantumReasoning(makeContext(writeTurn(60)), hoisted.appendSystemMessage)
+		expect(getLoopEntryCount()).toBe(0)
+	})
+
+	it('carries forward an open blind spot to a later high-confidence turn', async () => {
+		// Turn A: low-confidence → flags a blind spot and injects the carry.
+		hoisted.process.mockResolvedValue(analysis({ confidence: 0.3 }))
+		await executeQuantumReasoning(makeContext(writeTurn(60)), hoisted.appendSystemMessage)
+		expect(hoisted.appendSystemMessage).toHaveBeenCalledTimes(1)
+
+		// Turn B: high-confidence on its own — but turn A's blind spot is still in
+		// the window, so the agent is reminded. This is the closed loop: a flagged
+		// blind spot survives past the single turn that found it.
+		hoisted.appendSystemMessage.mockClear()
+		hoisted.process.mockResolvedValue(analysis({ confidence: 0.95 }))
+		await executeQuantumReasoning(makeContext(writeTurn(60)), hoisted.appendSystemMessage)
+		expect(hoisted.appendSystemMessage).toHaveBeenCalledTimes(1)
+		const carry = hoisted.appendSystemMessage.mock.calls[0]?.[0]?.content
+		expect(carry).toContain('low-confidence')
+	})
+
+	it('goes silent once the window has no open blind spots', async () => {
+		// Two high-confidence turns → nothing is flagged → no carry to inject.
+		hoisted.process.mockResolvedValue(analysis({ confidence: 0.95 }))
+		await executeQuantumReasoning(makeContext(writeTurn(60)), hoisted.appendSystemMessage)
+		expect(hoisted.appendSystemMessage).not.toHaveBeenCalled()
+		expect(getLoopEntryCount()).toBe(1) // still recorded, just not a blind spot
 	})
 })
