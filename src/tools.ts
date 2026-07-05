@@ -46,7 +46,13 @@ import { ExitPlanModeV2Tool } from './tools/ExitPlanModeTool/ExitPlanModeV2Tool.
 import { TestingPermissionTool } from './tools/testing/TestingPermissionTool.js'
 import { GrepTool } from './tools/GrepTool/GrepTool.js'
 import { StudioBuildTool } from './tools/StudioBuildTool/StudioBuildTool.js'
+import { OpsBuildTool } from './tools/OpsBuildTool/OpsBuildTool.js'
+import { BrowserControlTool } from './tools/BrowserControlTool/BrowserControlTool.js'
+import { VisionTool } from './tools/VisionTool/VisionTool.js'
+import { SpeakTool } from './tools/SpeakTool/SpeakTool.js'
+import { ListenTool } from './tools/ListenTool/ListenTool.js'
 import { isStudioActive } from './studio/studioEngine.js'
+import { isOpsActive } from './ops/opsEngine.js'
 // Lazy require to break circular dependency: tools.ts -> TeamCreateTool/TeamDeleteTool -> ... -> tools.ts
 /* eslint-disable @typescript-eslint/no-require-imports */
 const getTeamCreateTool = () =>
@@ -205,6 +211,11 @@ export function getAllBaseTools(): Tools {
 		// Olympuz Studio build tool — dormant under vitest + when Studio is disabled,
 		// so tool-list snapshots stay byte-for-byte stable.
 		...(isStudioActive() ? [StudioBuildTool] : []),
+		// Olympuz Ops build tool — dormant under vitest + when Ops is disabled/opt-out,
+		// so tool-list snapshots stay byte-for-byte stable.
+		...(isOpsActive() ? [OpsBuildTool] : []),
+		// Olympuz Ops operator tools — same gating: dormant unless Ops is active.
+		...(isOpsActive() ? [BrowserControlTool, VisionTool, SpeakTool, ListenTool] : []),
 		...(CtxInspectTool ? [CtxInspectTool] : []),
 		...(TerminalCaptureTool ? [TerminalCaptureTool] : []),
 		LSPTool,

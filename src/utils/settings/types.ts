@@ -1088,6 +1088,24 @@ export const SettingsSchema = lazySchema(() =>
 						'the Studio PRD is appended to the system prompt and the department auto-activates ' +
 						'on detected build intent for web, Android, and Windows. Runtime control via /studio.',
 				),
+			ops: z
+				.object({
+					enabled: z.boolean().optional(),
+					autoActivate: z.boolean().optional(),
+					intensity: z.enum(['standard', 'premium', 'ultra']).optional(),
+					surfaces: z
+						.array(z.enum(['computer', 'browser', 'vision', 'voice', 'automation']))
+						.optional(),
+					approvalPolicy: z.enum(['ask-destructive', 'ask-always', 'allow']).optional(),
+				})
+				.optional()
+				.describe(
+					'Olympuz Agentic Operations Department config. OPT-IN (enabled defaults false): ' +
+						'controls Windows + browsers, sees/hears/speaks, and runs autonomous agent teams. ' +
+						'When enabled, the Ops PRD is appended to the system prompt and ops-* specialists/tools ' +
+						'register. Destructive actions require per-action approval. Runtime control via /ops; ' +
+						'OLYMPUZ_OPS_ENABLED=false is a hard kill switch.',
+				),
 		})
 		.passthrough(),
 )

@@ -129,6 +129,7 @@ import heapDump from './commands/heapdump/index.js'
 import hooks from './commands/hooks/index.js'
 import mockLimits from './commands/mock-limits/index.js'
 import model from './commands/model/index.js'
+import ops from './commands/ops/index.js'
 import outputStyle from './commands/output-style/index.js'
 import passes from './commands/passes/index.js'
 import pbt from './commands/pbt/index.js'
@@ -330,6 +331,7 @@ const COMMANDS = memoize((): Command[] => [
 	quantum,
 	design,
 	studio,
+	ops,
 	auditUI,
 	rag,
 	visualize,

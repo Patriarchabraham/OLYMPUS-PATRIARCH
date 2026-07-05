@@ -1,4 +1,5 @@
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
+import { isOpsActive } from '../../ops/opsEngine.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { isStudioActive } from '../../studio/studioEngine.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
@@ -7,6 +8,7 @@ import { CLAUDE_CODE_GUIDE_AGENT } from './built-in/claudeCodeGuideAgent.js'
 import { DATA_ANALYST_AGENT } from './built-in/dataAnalystAgent.js'
 import { EXPLORE_AGENT } from './built-in/exploreAgent.js'
 import { GENERAL_PURPOSE_AGENT } from './built-in/generalPurposeAgent.js'
+import { OPS_AGENTS } from './built-in/opsAgents.js'
 import { PLAN_AGENT } from './built-in/planAgent.js'
 import { RESEARCHER_AGENT } from './built-in/researcherAgent.js'
 import { REVIEWER_AGENT } from './built-in/reviewerAgent.js'
@@ -67,6 +69,13 @@ export function getBuiltInAgents(): AgentDefinition[] {
 	// byte-for-byte stable. Studio agents are intentionally absent in coordinator mode.
 	if (isStudioActive()) {
 		agents.push(...STUDIO_AGENTS)
+	}
+
+	// Olympuz Ops specialists — only when Ops is active. Ops is OPT-IN, so under
+	// vitest + when disabled/opt-out these are absent, keeping agent-list
+	// snapshots byte-for-byte stable.
+	if (isOpsActive()) {
+		agents.push(...OPS_AGENTS)
 	}
 
 	// Include Code Guide agent for non-SDK entrypoints
