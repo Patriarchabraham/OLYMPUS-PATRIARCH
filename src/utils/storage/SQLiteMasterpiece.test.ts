@@ -1,163 +1,174 @@
-﻿import { describe, expect, it, beforeEach, afterEach, afterAll } from 'vitest'
-import {
-  addGlobalEntity,
-  resetGlobalGraph,
-  clearMemoryOnly,
-  getGlobalGraph,
-  addGlobalRelation,
-  saveProjectGraph,
-  initOrama
-} from '../knowledgeGraph.js'
-import { mkdtempSync, rmSync, existsSync, writeFileSync, mkdirSync } from 'fs'
-import { tmpdir } from 'os'
-import { join } from 'path'
+﻿import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { getProjectsDir } from '../envUtils.js'
-import { sanitizePath } from '../sessionStoragePortable.js'
 import { getFsImplementation } from '../fsOperations.js'
+import {
+	addGlobalEntity,
+	addGlobalRelation,
+	clearMemoryOnly,
+	getGlobalGraph,
+	initOrama,
+	resetGlobalGraph,
+	shutdownGlobalGraph,
+} from '../knowledgeGraph.js'
+import { sanitizePath } from '../sessionStoragePortable.js'
 
-// Skip entire suite when better-sqlite3 is not available
+// Run when a SQLite backend is available: bun:sqlite under Bun, node:sqlite
+// (built-in, Node 22+) under Node.
 let sqliteAvailable = false
 try {
-  require('better-sqlite3')
-  sqliteAvailable = true
+	if (typeof Bun !== 'undefined') {
+		require('bun:sqlite')
+	} else {
+		require('node:sqlite')
+	}
+	sqliteAvailable = true
 } catch {}
 
-describe.skipIf(!sqliteAvailable)('SQLite Masterpiece: Edge Cases & Multi-Project Isolation', () => {
-  const originalConfigDir = process.env.CLAUDE_CONFIG_DIR
-  const rootTestDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-masterpiece-'))
-  process.env.CLAUDE_CONFIG_DIR = rootTestDir
-  
-  const project1Dir = join(rootTestDir, 'proj1')
-  const project2Dir = join(rootTestDir, 'proj2')
+describe.skipIf(!sqliteAvailable)(
+	'SQLite Masterpiece: Edge Cases & Multi-Project Isolation',
+	() => {
+		const originalConfigDir = process.env.CLAUDE_CONFIG_DIR
+		const rootTestDir = mkdtempSync(join(tmpdir(), 'Olympuz Coder-masterpiece-'))
+		process.env.CLAUDE_CONFIG_DIR = rootTestDir
 
-  beforeEach(() => {
-    resetGlobalGraph()
-    if (!existsSync(project1Dir)) mkdirSync(project1Dir, { recursive: true })
-    if (!existsSync(project2Dir)) mkdirSync(project2Dir, { recursive: true })
-  })
+		const project1Dir = join(rootTestDir, 'proj1')
+		const project2Dir = join(rootTestDir, 'proj2')
 
-  afterAll(() => {
-    resetGlobalGraph()
-    if (originalConfigDir === undefined) {
-      delete process.env.CLAUDE_CONFIG_DIR
-    } else {
-      process.env.CLAUDE_CONFIG_DIR = originalConfigDir
-    }
-    rmSync(rootTestDir, { recursive: true, force: true })
-  })
+		beforeEach(() => {
+			resetGlobalGraph()
+			if (!existsSync(project1Dir)) mkdirSync(project1Dir, { recursive: true })
+			if (!existsSync(project2Dir)) mkdirSync(project2Dir, { recursive: true })
+		})
 
-  it('guarantees strict isolation between projects (CWD Switch)', async () => {
-    const fs = getFsImplementation()
-    const originalCwd = fs.cwd()
+		afterAll(() => {
+			// Close EVERY cached SQLite provider — tests switched cwd across proj1/proj2,
+			// so resetGlobalGraph (current cwd only) would leave handles open and rmSync
+			// fails with EPERM on Windows.
+			shutdownGlobalGraph()
+			if (originalConfigDir === undefined) {
+				delete process.env.CLAUDE_CONFIG_DIR
+			} else {
+				process.env.CLAUDE_CONFIG_DIR = originalConfigDir
+			}
+			rmSync(rootTestDir, { recursive: true, force: true })
+		})
 
-    try {
-      // 1. Enter Project 1
-      fs.cwd = () => project1Dir
-      clearMemoryOnly()
-      await addGlobalEntity('type', 'entity-p1', { source: 'proj1' })
-      
-      // 2. Enter Project 2
-      fs.cwd = () => project2Dir
-      clearMemoryOnly()
-      await addGlobalEntity('type', 'entity-p2', { source: 'proj2' })
+		it('guarantees strict isolation between projects (CWD Switch)', async () => {
+			const fs = getFsImplementation()
+			const originalCwd = fs.cwd()
 
-      // 3. Verify Project 2 doesn't see Project 1
-      const graph2 = getGlobalGraph()
-      expect(Object.values(graph2.entities).some(e => e.name === 'entity-p1')).toBe(false)
-      expect(Object.values(graph2.entities).some(e => e.name === 'entity-p2')).toBe(true)
+			try {
+				// 1. Enter Project 1
+				fs.cwd = () => project1Dir
+				clearMemoryOnly()
+				await addGlobalEntity('type', 'entity-p1', { source: 'proj1' })
 
-      // 4. Switch back to Project 1 and verify isolation
-      fs.cwd = () => project1Dir
-      clearMemoryOnly()
-      const graph1 = getGlobalGraph()
-      expect(Object.values(graph1.entities).some(e => e.name === 'entity-p1')).toBe(true)
-      expect(Object.values(graph1.entities).some(e => e.name === 'entity-p2')).toBe(false)
-    } finally {
-      fs.cwd = () => originalCwd
-    }
-  })
+				// 2. Enter Project 2
+				fs.cwd = () => project2Dir
+				clearMemoryOnly()
+				await addGlobalEntity('type', 'entity-p2', { source: 'proj2' })
 
-  it('handles data divergence by prioritizing latest timestamp (Heal Logic)', async () => {
-    const fs = getFsImplementation()
-    const cwd = fs.cwd()
-    const projectDir = join(getProjectsDir(), sanitizePath(cwd))
-    const jsonPath = join(projectDir, 'knowledge_graph.json')
+				// 3. Verify Project 2 doesn't see Project 1
+				const graph2 = getGlobalGraph()
+				expect(Object.values(graph2.entities).some((e) => e.name === 'entity-p1')).toBe(false)
+				expect(Object.values(graph2.entities).some((e) => e.name === 'entity-p2')).toBe(true)
 
-    // 1. Initial sync
-    await addGlobalEntity('type', 'base', { val: '0' })
-    const baseTime = getGlobalGraph().lastUpdateTime
+				// 4. Switch back to Project 1 and verify isolation
+				fs.cwd = () => project1Dir
+				clearMemoryOnly()
+				const graph1 = getGlobalGraph()
+				expect(Object.values(graph1.entities).some((e) => e.name === 'entity-p1')).toBe(true)
+				expect(Object.values(graph1.entities).some((e) => e.name === 'entity-p2')).toBe(false)
+			} finally {
+				fs.cwd = () => originalCwd
+			}
+		})
 
-    // 2. Manually make JSON newer than SQLite (simulating failed SQL write / manual edit)
-    clearMemoryOnly()
-    const futureTime = baseTime + 10000
-    const graph = getGlobalGraph()
-    graph.lastUpdateTime = futureTime
-    graph.entities[Object.keys(graph.entities)[0]].attributes.val = 'newer-json'
-    writeFileSync(jsonPath, JSON.stringify(graph, null, 2))
+		it('handles data divergence by prioritizing latest timestamp (Heal Logic)', async () => {
+			const fs = getFsImplementation()
+			const cwd = fs.cwd()
+			const projectDir = join(getProjectsDir(), sanitizePath(cwd))
+			const jsonPath = join(projectDir, 'knowledge_graph.json')
 
-    // 3. Load should pick the future JSON and heal SQLite
-    clearMemoryOnly()
-    // Need to trigger init to see the new JSON
-    await initOrama(cwd)
-    const healedGraph = getGlobalGraph()
-    expect(healedGraph.lastUpdateTime).toBe(futureTime)
-    expect(Object.values(healedGraph.entities)[0].attributes.val).toBe('newer-json')
-  })
+			// 1. Initial sync
+			await addGlobalEntity('type', 'base', { val: '0' })
+			const baseTime = getGlobalGraph().lastUpdateTime
 
-  it('enforces referential integrity (Relations Constraint)', async () => {
-    const e1 = await addGlobalEntity('node', 'source')
-    const e2 = await addGlobalEntity('node', 'target')
-    
-    // Valid relation
-    await addGlobalRelation(e1.id, e2.id, 'links_to')
-    
-    // Invalid relation (non-existent ID) should throw
-    let error = null
-    try {
-      await addGlobalRelation(e1.id, 'ghost-id', 'links_to')
-    } catch (e) {
-      error = e as any
-    }
-    expect(error).toBeDefined()
-  })
+			// 2. Manually make JSON newer than SQLite (simulating failed SQL write / manual edit)
+			clearMemoryOnly()
+			const futureTime = baseTime + 10000
+			const graph = getGlobalGraph()
+			graph.lastUpdateTime = futureTime
+			graph.entities[Object.keys(graph.entities)[0]].attributes.val = 'newer-json'
+			writeFileSync(jsonPath, JSON.stringify(graph, null, 2))
 
-  it('recovers from corrupted SQLite header (SHORT_READ/Disk Error)', async () => {
-    const cwd = getFsImplementation().cwd()
-    const projectDir = join(getProjectsDir(), sanitizePath(cwd))
-    const sqlitePath = join(projectDir, 'knowledge.db')
+			// 3. Load should pick the future JSON and heal SQLite
+			clearMemoryOnly()
+			// Need to trigger init to see the new JSON
+			await initOrama(cwd)
+			const healedGraph = getGlobalGraph()
+			expect(healedGraph.lastUpdateTime).toBe(futureTime)
+			expect(Object.values(healedGraph.entities)[0].attributes.val).toBe('newer-json')
+		})
 
-    // 1. Add valid data
-    await addGlobalEntity('type', 'survivor', { status: 'alive' })
-    expect(existsSync(sqlitePath)).toBe(true)
+		it('enforces referential integrity (Relations Constraint)', async () => {
+			const e1 = await addGlobalEntity('node', 'source')
+			const e2 = await addGlobalEntity('node', 'target')
 
-    // 2. Corrupt SQLite file header
-    clearMemoryOnly()
-    writeFileSync(sqlitePath, Buffer.from('NOT_SQLITE_BINARY'))
+			// Valid relation
+			await addGlobalRelation(e1.id, e2.id, 'links_to')
 
-    // 3. System should detect error during init, delete corrupted db, and rebuild from JSON
-    await initOrama(cwd)
-    const graph = getGlobalGraph()
-    expect(Object.values(graph.entities).some(e => e.name === 'survivor')).toBe(true)
-    expect(existsSync(sqlitePath)).toBe(true) // Recreated
-  })
+			// Invalid relation (non-existent ID) should throw
+			let error = null
+			try {
+				await addGlobalRelation(e1.id, 'ghost-id', 'links_to')
+			} catch (e) {
+				error = e as any
+			}
+			expect(error).toBeDefined()
+		})
 
-  it('handles incremental updates (UPSERT strategy)', async () => {
-    const name = 'incremental-entity'
-    // 1. Create
-    const e = await addGlobalEntity('type', name, { step: '1' })
-    const id = e.id
+		it('recovers from corrupted SQLite header (SHORT_READ/Disk Error)', async () => {
+			const cwd = getFsImplementation().cwd()
+			const projectDir = join(getProjectsDir(), sanitizePath(cwd))
+			const sqlitePath = join(projectDir, 'knowledge.db')
 
-    // 2. Update same entity with same name/type
-    await addGlobalEntity('type', name, { step: '2', added: 'yes' })
+			// 1. Add valid data
+			await addGlobalEntity('type', 'survivor', { status: 'alive' })
+			expect(existsSync(sqlitePath)).toBe(true)
 
-    // 3. Verify SQLite merge (no duplicates, merged attributes)
-    clearMemoryOnly()
-    await initOrama(getFsImplementation().cwd())
-    const graph = getGlobalGraph()
-    const matches = Object.values(graph.entities).filter(e => e.name === name)
-    expect(matches.length).toBe(1)
-    expect(matches[0].id).toBe(id)
-    expect(matches[0].attributes.step).toBe('2')
-    expect(matches[0].attributes.added).toBe('yes')
-  })
-})
+			// 2. Corrupt SQLite file header
+			clearMemoryOnly()
+			writeFileSync(sqlitePath, Buffer.from('NOT_SQLITE_BINARY'))
+
+			// 3. System should detect error during init, delete corrupted db, and rebuild from JSON
+			await initOrama(cwd)
+			const graph = getGlobalGraph()
+			expect(Object.values(graph.entities).some((e) => e.name === 'survivor')).toBe(true)
+			expect(existsSync(sqlitePath)).toBe(true) // Recreated
+		})
+
+		it('handles incremental updates (UPSERT strategy)', async () => {
+			const name = 'incremental-entity'
+			// 1. Create
+			const e = await addGlobalEntity('type', name, { step: '1' })
+			const id = e.id
+
+			// 2. Update same entity with same name/type
+			await addGlobalEntity('type', name, { step: '2', added: 'yes' })
+
+			// 3. Verify SQLite merge (no duplicates, merged attributes)
+			clearMemoryOnly()
+			await initOrama(getFsImplementation().cwd())
+			const graph = getGlobalGraph()
+			const matches = Object.values(graph.entities).filter((e) => e.name === name)
+			expect(matches.length).toBe(1)
+			expect(matches[0].id).toBe(id)
+			expect(matches[0].attributes.step).toBe('2')
+			expect(matches[0].attributes.added).toBe('yes')
+		})
+	},
+)
