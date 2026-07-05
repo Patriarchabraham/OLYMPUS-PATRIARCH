@@ -170,6 +170,21 @@ export interface QuantumConfig {
 	maxTunnelAttempts: number
 	/** Number of measurement shots for sampling (default: 1024) */
 	measurementShots: number
+	/**
+	 * Adaptive dimension selection (default: true). When set, the engine asks the
+	 * LLM which of the 10 dimensions are actually relevant to the query and
+	 * analyzes only those (3–5), reducing noise vs. always running all 10.
+	 * Falls back to `dimensions` if the LLM gives no usable answer.
+	 */
+	adaptiveDimensions: boolean
+	/**
+	 * Semantic entanglement (default: true). When set, dimension-pair correlation
+	 * is computed via cosine similarity over solution embeddings instead of a
+	 * fixed keyword-overlap list. Uses the auto-detected embedding provider
+	 * (OpenAI → Ollama → local TF-IDF fallback). Falls back to keyword overlap if
+	 * embeddings are unavailable.
+	 */
+	semanticEntanglement: boolean
 }
 
 export const DEFAULT_QUANTUM_CONFIG: QuantumConfig = {
@@ -180,4 +195,6 @@ export const DEFAULT_QUANTUM_CONFIG: QuantumConfig = {
 	dimensions: [...QUANTUM_DIMENSIONS],
 	maxTunnelAttempts: 20,
 	measurementShots: 1024,
+	adaptiveDimensions: true,
+	semanticEntanglement: true,
 }

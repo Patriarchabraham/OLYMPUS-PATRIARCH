@@ -51,3 +51,29 @@ describe('evaluateStates (LLM-backed)', () => {
 		expect(evaluated).toEqual([])
 	})
 })
+
+describe('adaptive dimension selection', () => {
+	/** Generator that answers the relevance prompt with a subset. */
+	const adaptiveFn: GenerateFn = async (prompt) => {
+		if (prompt.includes('MOST relevant')) return 'security, performance, ux'
+		if (prompt.includes('propose exactly')) return '1. A.\n2. B.\n3. C.'
+		if (prompt.includes('Rate how strong')) return '0.8'
+		return ''
+	}
+
+	it('narrows to the LLM-selected dimensions when available', async () => {
+		const states = await superpose('design a secure fast UI', DEFAULT_QUANTUM_CONFIG, adaptiveFn)
+		const dims = new Set(states.map((s) => s.dimension))
+		expect(dims.size).toBe(3)
+		expect(dims.has('security')).toBe(true)
+		expect(dims.has('performance')).toBe(true)
+		expect(dims.has('ux')).toBe(true)
+	})
+
+	it('falls back to all configured dimensions when the LLM gives no relevance answer', async () => {
+		// `generateFn` (the default mock) returns '' for the relevance prompt.
+		const states = await superpose('x', DEFAULT_QUANTUM_CONFIG, generateFn)
+		const dims = new Set(states.map((s) => s.dimension))
+		expect(dims.size).toBe(DEFAULT_QUANTUM_CONFIG.dimensions.length)
+	})
+})

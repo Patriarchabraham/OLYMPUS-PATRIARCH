@@ -37,10 +37,18 @@ export async function superpose(
 	config: QuantumConfig,
 	generateFn: GenerateFn,
 ): Promise<QuantumReasoningState[]> {
+	// Adaptive dimension selection: when enabled, ask the LLM which of the
+	// configured dimensions are actually relevant to this query and analyze only
+	// those — less noise than running all 10 every time. Falls back to the full
+	// configured set when the LLM gives no usable answer.
+	const dimensions = config.adaptiveDimensions
+		? await detectRelevantDimensions(query, config.dimensions, generateFn)
+		: config.dimensions
+
 	// Generate query-specific candidates per dimension in parallel, bounded so
 	// we don't saturate the endpoint with all dimensions firing at once.
 	const pool = new ConcurrencyPool(CANDIDATE_CONCURRENCY)
-	const perDimension = await pool.map(config.dimensions, async (dimension) => {
+	const perDimension = await pool.map(dimensions, async (dimension) => {
 		const candidates = await generateCandidates(
 			query,
 			dimension,
@@ -252,4 +260,75 @@ async function evaluateSolution(
 	const score = match ? Number.parseFloat(match[1]!) : Number.NaN
 	if (Number.isNaN(score)) return 0.5
 	return Math.max(0, Math.min(1, score))
+}
+
+/** Min / max dimensions to keep after adaptive selection. */
+const MIN_ADAPTIVE_DIMENSIONS = 3
+const MAX_ADAPTIVE_DIMENSIONS = 5
+
+/**
+ * Ask the LLM which of `available` dimensions are most relevant to the query.
+ * Returns the selected subset (3–5), preserving the LLM's ordering. Falls back
+ * to the full `available` set when the LLM gives no usable answer so the caller
+ * degrades honestly rather than skipping analysis.
+ */
+async function detectRelevantDimensions(
+	query: string,
+	available: QuantumDimension[],
+	generateFn: GenerateFn,
+): Promise<QuantumDimension[]> {
+	// No point asking if the configured set is already small.
+	if (available.length <= MAX_ADAPTIVE_DIMENSIONS) return available
+
+	const prompt = [
+		'You are triaging which engineering dimensions matter most for this task.',
+		`Pick the 3 to 5 MOST relevant from this list, in priority order:`,
+		available.join(', '),
+		'',
+		'Reply with ONLY the dimension names, comma-separated. No prose.',
+		'',
+		`Task: ${query}`,
+	].join('\n')
+
+	let raw: string
+	try {
+		raw = await generateFn(prompt)
+	} catch {
+		return available
+	}
+
+	// Extract dimension mentions from the response (handles commas, newlines,
+	// bullets, stray prose). Only accepts names that are actually in `available`.
+	const valid = new Set(available)
+	const mentioned = raw
+		.toLowerCase()
+		.split(/[^a-z]+/)
+		.filter((token) => valid.has(token as QuantumDimension))
+
+	// Honest degradation: the LLM gave no usable dimension → analyze the full
+	// configured set rather than narrowing to the wrong slice.
+	if (mentioned.length === 0) return available
+
+	// De-duplicate while preserving the LLM's priority order.
+	const selected: QuantumDimension[] = []
+	const seen = new Set<string>()
+	for (const dim of mentioned) {
+		if (!seen.has(dim)) {
+			seen.add(dim)
+			selected.push(dim as QuantumDimension)
+		}
+	}
+
+	// Top up to the minimum with the remaining configured dimensions (preserves
+	// coverage when the LLM under-selects), then cap at the max.
+	if (selected.length < MIN_ADAPTIVE_DIMENSIONS) {
+		for (const dim of available) {
+			if (selected.length >= MIN_ADAPTIVE_DIMENSIONS) break
+			if (!seen.has(dim)) {
+				seen.add(dim)
+				selected.push(dim)
+			}
+		}
+	}
+	return selected.slice(0, MAX_ADAPTIVE_DIMENSIONS)
 }

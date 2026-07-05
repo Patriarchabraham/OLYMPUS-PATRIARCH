@@ -25,7 +25,12 @@
 import { randomUUID } from 'node:crypto'
 import type { GenerateFn } from '../reasoning/types.js'
 import { collapse, forceCollapse } from './collapse.js'
-import { entangle, generateCrossInsights, propagateConfidence } from './entanglement.js'
+import {
+	computeStateEmbeddings,
+	entangle,
+	generateCrossInsights,
+	propagateConfidence,
+} from './entanglement.js'
 import { evaluateStates, pruneStates, superpose } from './superposition.js'
 import { detectBarriers, tunnel } from './tunneling.js'
 import type {
@@ -101,8 +106,18 @@ export class QuantumEngine {
 		// Step 3: Prune — keep highest-probability states
 		states = pruneStates(states, 2)
 
-		// Step 4: Entangle — create real Bell states, measure concurrence
-		const entanglements: EntanglementLink[] = entangle(states, this.config.entanglementThreshold)
+		// Step 4: Entangle — create real Bell states, measure concurrence.
+		// Pre-compute solution embeddings once so entanglement can score pairs by
+		// cosine similarity (semantic) instead of keyword overlap. Falls back to
+		// keyword overlap if embeddings are unavailable.
+		const embeddings = this.config.semanticEntanglement
+			? await computeStateEmbeddings(states)
+			: undefined
+		const entanglements: EntanglementLink[] = entangle(
+			states,
+			this.config.entanglementThreshold,
+			embeddings,
+		)
 
 		// Step 5: Propagate — boost via real entanglement strength
 		states = propagateConfidence(states, entanglements)
