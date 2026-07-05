@@ -44,9 +44,10 @@ export class SQLiteProvider {
 			this.db.exec('PRAGMA foreign_keys = ON;')
 			this.createTables()
 			this.isInitialized = true
-		} catch (e) {
-			if (!String(e).includes('disk I/O error')) {
-			}
+		} catch {
+			// Any init failure (locked DB, disk I/O, missing native binding) is
+			// handled by self-heal, which clears sidecars and retries, then falls
+			// back to no-op (JSON provider) if it can't recover.
 			await this.selfHeal()
 		}
 	}
