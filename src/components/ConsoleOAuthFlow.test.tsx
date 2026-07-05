@@ -95,7 +95,7 @@ async function renderFrame(node: React.ReactNode): Promise<string> {
 	return stripAnsi(extractLastFrame(getOutput()))
 }
 
-// TODO(systemic): skipped because of a Vite SSR TDZ
+// TODO(systemic): historically skipped because of a Vite SSR TDZ
 // ("Cannot access '__vite_ssr_import_N__' before initialization" at
 // getDefaultAppState in AppStateStore) that ONLY manifests under the full
 // suite, never in isolation. Root cause: the codebase has thousands of circular
@@ -104,18 +104,17 @@ async function renderFrame(node: React.ReactNode): Promise<string> {
 // imports every test file into one shared module graph and leaves a binding in
 // the TDZ by the time AppStateProvider renders. These tests PASS in isolation
 // (`vitest run src/components/ConsoleOAuthFlow.test.tsx`), so the component is
-// correct. Unblock by untangling the circular deps around AppStateStore/AppState
-// (notably the settings/provider/inference modules) or by removing singleFork
-// once OOM is otherwise solved.
-test.skip('login picker shows the third-party platform option', async () => {
+// correct. Re-enabled to check whether the post-Cat-D module graph still TDZs;
+// if this regresses under the full suite, restore test.skip.
+test('login picker shows the third-party platform option', async () => {
 	const output = await renderFrame(<ConsoleOAuthFlow onDone={() => {}} />)
 
 	expect(output).toContain('Select login method:')
 	expect(output).toContain('3rd-party platform')
 })
 
-// See TODO(systemic) above — same TDZ-under-full-suite blocker.
-test.skip('third-party provider branch opens the first-run provider manager', async () => {
+// See TODO(systemic) above — re-enabled alongside the login-picker test.
+test('third-party provider branch opens the first-run provider manager', async () => {
 	const output = await renderFrame(
 		<ConsoleOAuthFlow initialStatus={{ state: 'platform_setup' }} onDone={() => {}} />,
 	)
