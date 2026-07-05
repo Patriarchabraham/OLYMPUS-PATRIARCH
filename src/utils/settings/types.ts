@@ -1072,6 +1072,22 @@ export const SettingsSchema = lazySchema(() =>
 						'Useful for enterprise administrators to add organization-specific context ' +
 						'(e.g., "All plugins from our internal marketplace are vetted and approved.").',
 				),
+			studio: z
+				.object({
+					enabled: z.boolean().optional(),
+					autoActivate: z.boolean().optional(),
+					intensity: z.enum(['standard', 'premium', 'ultra']).optional(),
+					defaultPlatform: z.enum(['web', 'android', 'windows']).optional(),
+					aesthetic: z
+						.enum(['neutral-adaptive', 'luxury-dark-gold', 'calm', 'vibrant', 'minimal', 'bold'])
+						.optional(),
+				})
+				.optional()
+				.describe(
+					'Olympuz Studio Design & Generation Department config. When enabled (default), ' +
+						'the Studio PRD is appended to the system prompt and the department auto-activates ' +
+						'on detected build intent for web, Android, and Windows. Runtime control via /studio.',
+				),
 		})
 		.passthrough(),
 )

@@ -15,34 +15,28 @@ import { BriefTool } from './tools/BriefTool/BriefTool.js'
 /* eslint-disable @typescript-eslint/no-require-imports */
 const REPLTool = null
 const SuggestBackgroundPRTool = null
-const SleepTool =
-  false || false
-    ? require('./tools/SleepTool/SleepTool.js').SleepTool
-    : null
+const SleepTool = false || false ? require('./tools/SleepTool/SleepTool.js').SleepTool : null
 const cronTools = false
-  ? [
-      require('./tools/ScheduleCronTool/CronCreateTool.js').CronCreateTool,
-      require('./tools/ScheduleCronTool/CronDeleteTool.js').CronDeleteTool,
-      require('./tools/ScheduleCronTool/CronListTool.js').CronListTool,
-    ]
-  : []
+	? [
+			require('./tools/ScheduleCronTool/CronCreateTool.js').CronCreateTool,
+			require('./tools/ScheduleCronTool/CronDeleteTool.js').CronDeleteTool,
+			require('./tools/ScheduleCronTool/CronListTool.js').CronListTool,
+		]
+	: []
 const RemoteTriggerTool = false
-  ? require('./tools/RemoteTriggerTool/RemoteTriggerTool.js').RemoteTriggerTool
-  : null
-const MonitorTool = true
-  ? require('./tools/MonitorTool/MonitorTool.js').MonitorTool
-  : null
+	? require('./tools/RemoteTriggerTool/RemoteTriggerTool.js').RemoteTriggerTool
+	: null
+const MonitorTool = true ? require('./tools/MonitorTool/MonitorTool.js').MonitorTool : null
 const SendUserFileTool = false
-  ? require('./tools/SendUserFileTool/SendUserFileTool.js').SendUserFileTool
-  : null
+	? require('./tools/SendUserFileTool/SendUserFileTool.js').SendUserFileTool
+	: null
 const PushNotificationTool =
-  false || false
-    ? require('./tools/PushNotificationTool/PushNotificationTool.js')
-        .PushNotificationTool
-    : null
+	false || false
+		? require('./tools/PushNotificationTool/PushNotificationTool.js').PushNotificationTool
+		: null
 const SubscribePRTool = false
-  ? require('./tools/SubscribePRTool/SubscribePRTool.js').SubscribePRTool
-  : null
+	? require('./tools/SubscribePRTool/SubscribePRTool.js').SubscribePRTool
+	: null
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import { TaskOutputTool } from './tools/TaskOutputTool/TaskOutputTool.js'
 import { WebSearchTool } from './tools/WebSearchTool/WebSearchTool.js'
@@ -51,17 +45,19 @@ import { TodoWriteTool } from './tools/TodoWriteTool/TodoWriteTool.js'
 import { ExitPlanModeV2Tool } from './tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
 import { TestingPermissionTool } from './tools/testing/TestingPermissionTool.js'
 import { GrepTool } from './tools/GrepTool/GrepTool.js'
+import { StudioBuildTool } from './tools/StudioBuildTool/StudioBuildTool.js'
+import { isStudioActive } from './studio/studioEngine.js'
 // Lazy require to break circular dependency: tools.ts -> TeamCreateTool/TeamDeleteTool -> ... -> tools.ts
 /* eslint-disable @typescript-eslint/no-require-imports */
 const getTeamCreateTool = () =>
-  require('./tools/TeamCreateTool/TeamCreateTool.js')
-    .TeamCreateTool as typeof import('./tools/TeamCreateTool/TeamCreateTool.js').TeamCreateTool
+	require('./tools/TeamCreateTool/TeamCreateTool.js')
+		.TeamCreateTool as typeof import('./tools/TeamCreateTool/TeamCreateTool.js').TeamCreateTool
 const getTeamDeleteTool = () =>
-  require('./tools/TeamDeleteTool/TeamDeleteTool.js')
-    .TeamDeleteTool as typeof import('./tools/TeamDeleteTool/TeamDeleteTool.js').TeamDeleteTool
+	require('./tools/TeamDeleteTool/TeamDeleteTool.js')
+		.TeamDeleteTool as typeof import('./tools/TeamDeleteTool/TeamDeleteTool.js').TeamDeleteTool
 const getSendMessageTool = () =>
-  require('./tools/SendMessageTool/SendMessageTool.js')
-    .SendMessageTool as typeof import('./tools/SendMessageTool/SendMessageTool.js').SendMessageTool
+	require('./tools/SendMessageTool/SendMessageTool.js')
+		.SendMessageTool as typeof import('./tools/SendMessageTool/SendMessageTool.js').SendMessageTool
 /* eslint-enable @typescript-eslint/no-require-imports */
 import { AskUserQuestionTool } from './tools/AskUserQuestionTool/AskUserQuestionTool.js'
 import { LSPTool } from './tools/LSPTool/LSPTool.js'
@@ -81,48 +77,42 @@ import { isTodoV2Enabled } from './utils/tasks.js'
 // Dead code elimination: conditional import for CLAUDE_CODE_VERIFY_PLAN
 /* eslint-disable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 const VerifyPlanExecutionTool =
-  process.env.CLAUDE_CODE_VERIFY_PLAN === 'true'
-    ? require('./tools/VerifyPlanExecutionTool/VerifyPlanExecutionTool.js')
-        .VerifyPlanExecutionTool
-    : null
+	process.env.CLAUDE_CODE_VERIFY_PLAN === 'true'
+		? require('./tools/VerifyPlanExecutionTool/VerifyPlanExecutionTool.js').VerifyPlanExecutionTool
+		: null
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from './tools/SyntheticOutputTool/SyntheticOutputTool.js'
 export {
-  ALL_AGENT_DISALLOWED_TOOLS,
-  CUSTOM_AGENT_DISALLOWED_TOOLS,
-  ASYNC_AGENT_ALLOWED_TOOLS,
-  COORDINATOR_MODE_ALLOWED_TOOLS,
+	ALL_AGENT_DISALLOWED_TOOLS,
+	CUSTOM_AGENT_DISALLOWED_TOOLS,
+	ASYNC_AGENT_ALLOWED_TOOLS,
+	COORDINATOR_MODE_ALLOWED_TOOLS,
 } from './constants/tools.js'
 // Dead code elimination: conditional import for OVERFLOW_TEST_TOOL
 /* eslint-disable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 const OverflowTestTool = false
-  ? require('./tools/OverflowTestTool/OverflowTestTool.js').OverflowTestTool
-  : null
+	? require('./tools/OverflowTestTool/OverflowTestTool.js').OverflowTestTool
+	: null
 const CtxInspectTool = false
-  ? require('./tools/CtxInspectTool/CtxInspectTool.js').CtxInspectTool
-  : null
+	? require('./tools/CtxInspectTool/CtxInspectTool.js').CtxInspectTool
+	: null
 const TerminalCaptureTool = false
-  ? require('./tools/TerminalCaptureTool/TerminalCaptureTool.js')
-      .TerminalCaptureTool
-  : null
+	? require('./tools/TerminalCaptureTool/TerminalCaptureTool.js').TerminalCaptureTool
+	: null
 const WebBrowserTool = false
-  ? require('./tools/WebBrowserTool/WebBrowserTool.js').WebBrowserTool
-  : null
+	? require('./tools/WebBrowserTool/WebBrowserTool.js').WebBrowserTool
+	: null
 const coordinatorModeModule = true
-  ? (require('./coordinator/coordinatorMode.js') as typeof import('./coordinator/coordinatorMode.js'))
-  : null
-const SnipTool = false
-  ? require('./tools/SnipTool/SnipTool.js').SnipTool
-  : null
-const ListPeersTool = false
-  ? require('./tools/ListPeersTool/ListPeersTool.js').ListPeersTool
-  : null
+	? (require('./coordinator/coordinatorMode.js') as typeof import('./coordinator/coordinatorMode.js'))
+	: null
+const SnipTool = false ? require('./tools/SnipTool/SnipTool.js').SnipTool : null
+const ListPeersTool = false ? require('./tools/ListPeersTool/ListPeersTool.js').ListPeersTool : null
 const WorkflowTool = false
-  ? (() => {
-      require('./tools/WorkflowTool/bundled/index.js').initBundledWorkflows()
-      return require('./tools/WorkflowTool/WorkflowTool.js').WorkflowTool
-    })()
-  : null
+	? (() => {
+			require('./tools/WorkflowTool/bundled/index.js').initBundledWorkflows()
+			return require('./tools/WorkflowTool/WorkflowTool.js').WorkflowTool
+		})()
+	: null
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import type { ToolPermissionContext } from './Tool.js'
 import { getDenyRuleForTool } from './utils/permissions/permissions.js'
@@ -131,28 +121,24 @@ import { isEnvTruthy } from './utils/envUtils.js'
 import { isPowerShellToolEnabled } from './utils/shell/shellToolUtils.js'
 import { isAgentSwarmsEnabled } from './utils/agentSwarmsEnabled.js'
 import { isWorktreeModeEnabled } from './utils/worktreeModeEnabled.js'
-import {
-  REPL_TOOL_NAME,
-  REPL_ONLY_TOOLS,
-  isReplModeEnabled,
-} from './tools/REPLTool/constants.js'
+import { REPL_TOOL_NAME, REPL_ONLY_TOOLS, isReplModeEnabled } from './tools/REPLTool/constants.js'
 export { REPL_ONLY_TOOLS }
 /* eslint-disable @typescript-eslint/no-require-imports */
 const getPowerShellTool = () => {
-  if (!isPowerShellToolEnabled()) return null
-  return (
-    require('./tools/PowerShellTool/PowerShellTool.js') as typeof import('./tools/PowerShellTool/PowerShellTool.js')
-  ).PowerShellTool
+	if (!isPowerShellToolEnabled()) return null
+	return (
+		require('./tools/PowerShellTool/PowerShellTool.js') as typeof import('./tools/PowerShellTool/PowerShellTool.js')
+	).PowerShellTool
 }
 const ComputerControlTool = isEnvTruthy(process.env.OLYMPUZ_COMPUTER_CONTROL)
-  ? require('./tools/ComputerControlTool/ComputerControlTool.js').ComputerControlTool
-  : null
+	? require('./tools/ComputerControlTool/ComputerControlTool.js').ComputerControlTool
+	: null
 const DeviceBridgeTool = isEnvTruthy(process.env.OLYMPUZ_DEVICE_BRIDGE)
-  ? require('./tools/DeviceBridgeTool/DeviceBridgeTool.js').DeviceBridgeTool
-  : null
+	? require('./tools/DeviceBridgeTool/DeviceBridgeTool.js').DeviceBridgeTool
+	: null
 const NativeCoreTool = isEnvTruthy(process.env.OLYMPUZ_NATIVE_CORE)
-  ? require('./tools/NativeCoreTool/NativeCoreTool.js').NativeCoreTool
-  : null
+	? require('./tools/NativeCoreTool/NativeCoreTool.js').NativeCoreTool
+	: null
 /* eslint-enable @typescript-eslint/no-require-imports */
 
 /**
@@ -163,11 +149,11 @@ export const TOOL_PRESETS = ['default'] as const
 export type ToolPreset = (typeof TOOL_PRESETS)[number]
 
 export function parseToolPreset(preset: string): ToolPreset | null {
-  const presetString = preset.toLowerCase()
-  if (!TOOL_PRESETS.includes(presetString as ToolPreset)) {
-    return null
-  }
-  return presetString as ToolPreset
+	const presetString = preset.toLowerCase()
+	if (!TOOL_PRESETS.includes(presetString as ToolPreset)) {
+		return null
+	}
+	return presetString as ToolPreset
 }
 
 /**
@@ -177,9 +163,9 @@ export function parseToolPreset(preset: string): ToolPreset | null {
  * @returns Array of tool names
  */
 export function getToolsForDefaultPreset(): string[] {
-  const tools = getAllBaseTools()
-  const isEnabled = tools.map(tool => tool.isEnabled())
-  return tools.filter((_, i) => isEnabled[i]).map(tool => tool.name)
+	const tools = getAllBaseTools()
+	const isEnabled = tools.map((tool) => tool.isEnabled())
+	return tools.filter((_, i) => isEnabled[i]).map((tool) => tool.name)
 }
 
 /**
@@ -191,67 +177,66 @@ export function getToolsForDefaultPreset(): string[] {
  * NOTE: This MUST stay in sync with https://console.statsig.com/4aF3Ewatb6xPVpCwxb5nA3/dynamic_configs/claude_code_global_system_caching, in order to cache the system prompt across users.
  */
 export function getAllBaseTools(): Tools {
-  return [
-    AgentTool,
-    TaskOutputTool,
-    BashTool,
-    // Ant-native builds have bfs/ugrep embedded in the bun binary (same ARGV0
-    // trick as ripgrep). When available, find/grep in Claude's shell are aliased
-    // to these fast tools, so the dedicated Glob/Grep tools are unnecessary.
-    ...(hasEmbeddedSearchTools() ? [] : [GlobTool, GrepTool]),
-    ExitPlanModeV2Tool,
-    FileReadTool,
-    FileEditTool,
-    FileWriteTool,
-    NotebookEditTool,
-    WebFetchTool,
-    TodoWriteTool,
-    WebSearchTool,
-    ...(ImageGenTool ? [ImageGenTool] : []),
-    TaskStopTool,
-    AskUserQuestionTool,
-    SkillTool,
-    EnterPlanModeTool,
-    ...(SuggestBackgroundPRTool ? [SuggestBackgroundPRTool] : []),
-    ...(WebBrowserTool ? [WebBrowserTool] : []),
-    ...(isTodoV2Enabled()
-      ? [TaskCreateTool, TaskGetTool, TaskUpdateTool, TaskListTool]
-      : []),
-    ...(OverflowTestTool ? [OverflowTestTool] : []),
-    ...(CtxInspectTool ? [CtxInspectTool] : []),
-    ...(TerminalCaptureTool ? [TerminalCaptureTool] : []),
-    LSPTool,
-    ...(isWorktreeModeEnabled() ? [EnterWorktreeTool, ExitWorktreeTool] : []),
-    // Use filter(Boolean) to handle case where getter might return null/undefined
-    ...(getSendMessageTool() ? [getSendMessageTool()] : []),
-    ...(ListPeersTool ? [ListPeersTool] : []),
-    ...(isAgentSwarmsEnabled()
-      ? [getTeamCreateTool(), getTeamDeleteTool()].filter(Boolean)
-      : []),
-    ...(VerifyPlanExecutionTool ? [VerifyPlanExecutionTool] : []),
-    ...(process.env.USER_TYPE === 'ant' && REPLTool ? [REPLTool] : []),
-    ...(WorkflowTool ? [WorkflowTool] : []),
-    ...(SleepTool ? [SleepTool] : []),
-    ...(cronTools ?? []),
-    ...(RemoteTriggerTool ? [RemoteTriggerTool] : []),
-    ...(MonitorTool ? [MonitorTool] : []),
-    BriefTool,
-    ...(SendUserFileTool ? [SendUserFileTool] : []),
-    ...(PushNotificationTool ? [PushNotificationTool] : []),
-    ...(SubscribePRTool ? [SubscribePRTool] : []),
-    ...(getPowerShellTool() ? [getPowerShellTool()] : []),
-    ...(ComputerControlTool ? [ComputerControlTool] : []),
-    ...(DeviceBridgeTool ? [DeviceBridgeTool] : []),
-    ...(NativeCoreTool ? [NativeCoreTool] : []),
-    ...(SnipTool ? [SnipTool] : []),
-    ...(process.env.NODE_ENV === 'test' ? [TestingPermissionTool] : []),
-    ListMcpResourcesTool,
-    ReadMcpResourceTool,
-    // Include ToolSearchTool when tool search might be enabled (optimistic check)
-    // The actual decision to defer tools happens at request time in claude.ts
-    ...(isToolSearchEnabledOptimistic() ? [ToolSearchTool] : []),
-    // Filter out any null/undefined tools that might have been added by getters
-  ].filter(Boolean)
+	return [
+		AgentTool,
+		TaskOutputTool,
+		BashTool,
+		// Ant-native builds have bfs/ugrep embedded in the bun binary (same ARGV0
+		// trick as ripgrep). When available, find/grep in Claude's shell are aliased
+		// to these fast tools, so the dedicated Glob/Grep tools are unnecessary.
+		...(hasEmbeddedSearchTools() ? [] : [GlobTool, GrepTool]),
+		ExitPlanModeV2Tool,
+		FileReadTool,
+		FileEditTool,
+		FileWriteTool,
+		NotebookEditTool,
+		WebFetchTool,
+		TodoWriteTool,
+		WebSearchTool,
+		...(ImageGenTool ? [ImageGenTool] : []),
+		TaskStopTool,
+		AskUserQuestionTool,
+		SkillTool,
+		EnterPlanModeTool,
+		...(SuggestBackgroundPRTool ? [SuggestBackgroundPRTool] : []),
+		...(WebBrowserTool ? [WebBrowserTool] : []),
+		...(isTodoV2Enabled() ? [TaskCreateTool, TaskGetTool, TaskUpdateTool, TaskListTool] : []),
+		...(OverflowTestTool ? [OverflowTestTool] : []),
+		// Olympuz Studio build tool — dormant under vitest + when Studio is disabled,
+		// so tool-list snapshots stay byte-for-byte stable.
+		...(isStudioActive() ? [StudioBuildTool] : []),
+		...(CtxInspectTool ? [CtxInspectTool] : []),
+		...(TerminalCaptureTool ? [TerminalCaptureTool] : []),
+		LSPTool,
+		...(isWorktreeModeEnabled() ? [EnterWorktreeTool, ExitWorktreeTool] : []),
+		// Use filter(Boolean) to handle case where getter might return null/undefined
+		...(getSendMessageTool() ? [getSendMessageTool()] : []),
+		...(ListPeersTool ? [ListPeersTool] : []),
+		...(isAgentSwarmsEnabled() ? [getTeamCreateTool(), getTeamDeleteTool()].filter(Boolean) : []),
+		...(VerifyPlanExecutionTool ? [VerifyPlanExecutionTool] : []),
+		...(process.env.USER_TYPE === 'ant' && REPLTool ? [REPLTool] : []),
+		...(WorkflowTool ? [WorkflowTool] : []),
+		...(SleepTool ? [SleepTool] : []),
+		...(cronTools ?? []),
+		...(RemoteTriggerTool ? [RemoteTriggerTool] : []),
+		...(MonitorTool ? [MonitorTool] : []),
+		BriefTool,
+		...(SendUserFileTool ? [SendUserFileTool] : []),
+		...(PushNotificationTool ? [PushNotificationTool] : []),
+		...(SubscribePRTool ? [SubscribePRTool] : []),
+		...(getPowerShellTool() ? [getPowerShellTool()] : []),
+		...(ComputerControlTool ? [ComputerControlTool] : []),
+		...(DeviceBridgeTool ? [DeviceBridgeTool] : []),
+		...(NativeCoreTool ? [NativeCoreTool] : []),
+		...(SnipTool ? [SnipTool] : []),
+		...(process.env.NODE_ENV === 'test' ? [TestingPermissionTool] : []),
+		ListMcpResourcesTool,
+		ReadMcpResourceTool,
+		// Include ToolSearchTool when tool search might be enabled (optimistic check)
+		// The actual decision to defer tools happens at request time in claude.ts
+		...(isToolSearchEnabledOptimistic() ? [ToolSearchTool] : []),
+		// Filter out any null/undefined tools that might have been added by getters
+	].filter(Boolean)
 }
 
 /**
@@ -264,77 +249,69 @@ export function getAllBaseTools(): Tools {
  * before the model sees them — not just at call time.
  */
 export function filterToolsByDenyRules<
-  T extends {
-    name: string
-    mcpInfo?: { serverName: string; toolName: string }
-  },
+	T extends {
+		name: string
+		mcpInfo?: { serverName: string; toolName: string }
+	},
 >(tools: readonly T[], permissionContext: ToolPermissionContext): T[] {
-  return tools.filter(tool => !getDenyRuleForTool(permissionContext, tool))
+	return tools.filter((tool) => !getDenyRuleForTool(permissionContext, tool))
 }
 
 export const getTools = (permissionContext: ToolPermissionContext): Tools => {
-  // Simple mode: only Bash, Read, and Edit tools
-  if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
-    // --bare + REPL mode: REPL wraps Bash/Read/Edit/etc inside the VM, so
-    // return REPL instead of the raw primitives. Matches the non-bare path
-    // below which also hides REPL_ONLY_TOOLS when REPL is enabled.
-    if (isReplModeEnabled() && REPLTool) {
-      const replSimple: Tool[] = [REPLTool]
-      if (
-        true &&
-        coordinatorModeModule?.isCoordinatorMode()
-      ) {
-        const sendMessageTool = getSendMessageTool()
-        if (sendMessageTool) replSimple.push(TaskStopTool, sendMessageTool)
-      }
-      return filterToolsByDenyRules(replSimple, permissionContext)
-    }
-    const simpleTools: Tool[] = [BashTool, FileReadTool, FileEditTool]
-    // When coordinator mode is also active, include AgentTool and TaskStopTool
-    // so the coordinator gets Task+TaskStop (via useMergedTools filtering) and
-    // workers get Bash/Read/Edit (via filterToolsForAgent filtering).
-    if (
-      true &&
-      coordinatorModeModule?.isCoordinatorMode()
-    ) {
-      simpleTools.push(AgentTool, TaskStopTool)
-      const sendMessageTool = getSendMessageTool()
-      if (sendMessageTool) simpleTools.push(sendMessageTool)
-    }
-    return filterToolsByDenyRules(simpleTools, permissionContext)
-  }
+	// Simple mode: only Bash, Read, and Edit tools
+	if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
+		// --bare + REPL mode: REPL wraps Bash/Read/Edit/etc inside the VM, so
+		// return REPL instead of the raw primitives. Matches the non-bare path
+		// below which also hides REPL_ONLY_TOOLS when REPL is enabled.
+		if (isReplModeEnabled() && REPLTool) {
+			const replSimple: Tool[] = [REPLTool]
+			if (true && coordinatorModeModule?.isCoordinatorMode()) {
+				const sendMessageTool = getSendMessageTool()
+				if (sendMessageTool) replSimple.push(TaskStopTool, sendMessageTool)
+			}
+			return filterToolsByDenyRules(replSimple, permissionContext)
+		}
+		const simpleTools: Tool[] = [BashTool, FileReadTool, FileEditTool]
+		// When coordinator mode is also active, include AgentTool and TaskStopTool
+		// so the coordinator gets Task+TaskStop (via useMergedTools filtering) and
+		// workers get Bash/Read/Edit (via filterToolsForAgent filtering).
+		if (true && coordinatorModeModule?.isCoordinatorMode()) {
+			simpleTools.push(AgentTool, TaskStopTool)
+			const sendMessageTool = getSendMessageTool()
+			if (sendMessageTool) simpleTools.push(sendMessageTool)
+		}
+		return filterToolsByDenyRules(simpleTools, permissionContext)
+	}
 
-  // Get all base tools and filter out special tools that get added conditionally
-  const specialTools = new Set([
-    ListMcpResourcesTool.name,
-    ReadMcpResourceTool.name,
-    SYNTHETIC_OUTPUT_TOOL_NAME,
-  ])
+	// Get all base tools and filter out special tools that get added conditionally
+	const specialTools = new Set([
+		ListMcpResourcesTool.name,
+		ReadMcpResourceTool.name,
+		SYNTHETIC_OUTPUT_TOOL_NAME,
+	])
 
-  const tools = getAllBaseTools().filter(tool => !specialTools.has(tool.name))
+	const tools = getAllBaseTools().filter((tool) => !specialTools.has(tool.name))
 
-  // Filter out tools that are denied by the deny rules
-  let allowedTools = filterToolsByDenyRules(tools, permissionContext)
+	// Filter out tools that are denied by the deny rules
+	let allowedTools = filterToolsByDenyRules(tools, permissionContext)
 
-  // When REPL mode is enabled, hide primitive tools from direct use.
-  // They're still accessible inside REPL via the VM context.
-  if (isReplModeEnabled()) {
-    const replEnabled = allowedTools.some(tool =>
-      toolMatchesName(tool, REPL_TOOL_NAME),
-    )
-    if (replEnabled) {
-      allowedTools = allowedTools.filter(
-        tool => !REPL_ONLY_TOOLS.has(tool.name),
-      )
-    }
-  }
+	// When REPL mode is enabled, hide primitive tools from direct use.
+	// They're still accessible inside REPL via the VM context.
+	if (isReplModeEnabled()) {
+		const replEnabled = allowedTools.some((tool) => toolMatchesName(tool, REPL_TOOL_NAME))
+		if (replEnabled) {
+			allowedTools = allowedTools.filter((tool) => !REPL_ONLY_TOOLS.has(tool.name))
+		}
+	}
 
-  // Filter out any null/undefined tools that might have slipped through
-  // (defensive check against initialization timing issues)
-  allowedTools = allowedTools.filter(Boolean)
+	// Filter out any null/undefined tools that might have slipped through
+	// (defensive check against initialization timing issues)
+	allowedTools = allowedTools.filter(Boolean)
 
-  const isEnabled = allowedTools.map(_ => typeof _.isEnabled === 'function' ? _.isEnabled() : true)
-  return allowedTools.filter((_, i) => isEnabled[i])
+	const isEnabled = allowedTools.map((_) =>
+		typeof _.isEnabled === 'function' ? _.isEnabled() : true,
+	)
+	return allowedTools.filter((_, i) => isEnabled[i])
 }
 
 /**
@@ -353,29 +330,23 @@ export const getTools = (permissionContext: ToolPermissionContext): Tools => {
  * @param mcpTools - MCP tools from appState.mcp.tools
  * @returns Combined, deduplicated array of built-in and MCP tools
  */
-export function assembleToolPool(
-  permissionContext: ToolPermissionContext,
-  mcpTools: Tools,
-): Tools {
-  const builtInTools = getTools(permissionContext)
+export function assembleToolPool(permissionContext: ToolPermissionContext, mcpTools: Tools): Tools {
+	const builtInTools = getTools(permissionContext)
 
-  // Filter out MCP tools that are in the deny list, and filter out any null/undefined
-  // tools that might have been added by MCP client initialization
-  const allowedMcpTools = filterToolsByDenyRules(mcpTools, permissionContext).filter(Boolean)
+	// Filter out MCP tools that are in the deny list, and filter out any null/undefined
+	// tools that might have been added by MCP client initialization
+	const allowedMcpTools = filterToolsByDenyRules(mcpTools, permissionContext).filter(Boolean)
 
-  // Sort each partition for prompt-cache stability, keeping built-ins as a
-  // contiguous prefix. The server's claude_code_system_cache_policy places a
-  // global cache breakpoint after the last prefix-matched built-in tool; a flat
-  // sort would interleave MCP tools into built-ins and invalidate all downstream
-  // cache keys whenever an MCP tool sorts between existing built-ins. uniqBy
-  // preserves insertion order, so built-ins win on name conflict.
-  // Avoid Array.toSorted (Node 20+) — we support Node 18. builtInTools is
-  // readonly so copy-then-sort; allowedMcpTools is a fresh .filter() result.
-  const byName = (a: Tool, b: Tool) => a.name.localeCompare(b.name)
-  return uniqBy(
-    [...builtInTools].sort(byName).concat(allowedMcpTools.sort(byName)),
-    'name',
-  )
+	// Sort each partition for prompt-cache stability, keeping built-ins as a
+	// contiguous prefix. The server's claude_code_system_cache_policy places a
+	// global cache breakpoint after the last prefix-matched built-in tool; a flat
+	// sort would interleave MCP tools into built-ins and invalidate all downstream
+	// cache keys whenever an MCP tool sorts between existing built-ins. uniqBy
+	// preserves insertion order, so built-ins win on name conflict.
+	// Avoid Array.toSorted (Node 20+) — we support Node 18. builtInTools is
+	// readonly so copy-then-sort; allowedMcpTools is a fresh .filter() result.
+	const byName = (a: Tool, b: Tool) => a.name.localeCompare(b.name)
+	return uniqBy([...builtInTools].sort(byName).concat(allowedMcpTools.sort(byName)), 'name')
 }
 
 /**
@@ -392,10 +363,7 @@ export function assembleToolPool(
  * @param mcpTools - MCP tools from appState.mcp.tools
  * @returns Combined array of built-in and MCP tools
  */
-export function getMergedTools(
-  permissionContext: ToolPermissionContext,
-  mcpTools: Tools,
-): Tools {
-  const builtInTools = getTools(permissionContext)
-  return [...builtInTools, ...mcpTools]
+export function getMergedTools(permissionContext: ToolPermissionContext, mcpTools: Tools): Tools {
+	const builtInTools = getTools(permissionContext)
+	return [...builtInTools, ...mcpTools]
 }

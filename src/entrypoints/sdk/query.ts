@@ -18,6 +18,7 @@ import {
 import { QueryEngine } from '../../QueryEngine.js'
 import { type AppState, getDefaultAppState } from '../../state/AppStateStore.js'
 import { createStore, type Store } from '../../state/store.js'
+import { composeAppendSystemPrompt } from '../../studio/inject.js'
 import { getEmptyToolPermissionContext, type ToolPermissionContext } from '../../Tool.js'
 import { getAgentDefinitionsWithOverrides } from '../../tools/AgentTool/loadAgentsDir.js'
 import { getTools } from '../../tools.js'
@@ -1116,6 +1117,9 @@ export function query(params: {
 			appendSystemPrompt = systemPrompt.append
 		}
 	}
+
+	// Olympuz Studio: append the PRD when the department is active (no-op in tests / when disabled).
+	appendSystemPrompt = composeAppendSystemPrompt(appendSystemPrompt)
 
 	// Abort controller
 	const ac = abortController ?? new AbortController()

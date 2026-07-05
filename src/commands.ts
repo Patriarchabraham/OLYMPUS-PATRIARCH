@@ -154,6 +154,7 @@ import sat from './commands/sat/index.js'
 import stats from './commands/stats/index.js'
 import statusline from './commands/statusline.js'
 import stickers from './commands/stickers/index.js'
+import studio from './commands/studio/index.js'
 import summary from './commands/summary/index.js'
 import swarm from './commands/swarm/index.js'
 import tag from './commands/tag/index.js'
@@ -328,6 +329,7 @@ const COMMANDS = memoize((): Command[] => [
 	deep,
 	quantum,
 	design,
+	studio,
 	auditUI,
 	rag,
 	visualize,

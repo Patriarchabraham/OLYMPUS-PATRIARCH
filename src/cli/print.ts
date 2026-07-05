@@ -14,6 +14,7 @@ import { assembleToolPool, filterToolsByDenyRules } from 'src/tools.js'
 import uniqBy from 'lodash-es/uniqBy.js'
 import { uniq } from 'src/utils/array.js'
 import { mergeAndFilterTools } from 'src/utils/toolPool.js'
+import { composeAppendSystemPrompt } from 'src/studio/inject.js'
 import {
 	logEvent,
 	type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -2003,7 +2004,7 @@ function runHeadlessStreaming(
 								pendingSeeds.clear()
 							},
 							customSystemPrompt: options.systemPrompt,
-							appendSystemPrompt: options.appendSystemPrompt,
+							appendSystemPrompt: composeAppendSystemPrompt(options.appendSystemPrompt),
 							getAppState,
 							setAppState,
 							abortController,
@@ -2753,7 +2754,7 @@ function runHeadlessStreaming(
 								tools: buildAllTools(appState),
 								agentDefinitions: appState.agentDefinitions,
 								customSystemPrompt: options.systemPrompt,
-								appendSystemPrompt: options.appendSystemPrompt,
+								appendSystemPrompt: composeAppendSystemPrompt(options.appendSystemPrompt),
 							},
 						})
 						sendControlResponseSuccess(message, { ...data })
@@ -3579,7 +3580,7 @@ function runHeadlessStreaming(
 										getAppState,
 										setAppState,
 										customSystemPrompt: options.systemPrompt,
-										appendSystemPrompt: options.appendSystemPrompt,
+										appendSystemPrompt: composeAppendSystemPrompt(options.appendSystemPrompt),
 										thinkingConfig: options.thinkingConfig,
 										agents: currentAgents,
 									})
