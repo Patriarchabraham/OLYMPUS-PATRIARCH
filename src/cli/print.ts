@@ -14,7 +14,7 @@ import { assembleToolPool, filterToolsByDenyRules } from 'src/tools.js'
 import uniqBy from 'lodash-es/uniqBy.js'
 import { uniq } from 'src/utils/array.js'
 import { mergeAndFilterTools } from 'src/utils/toolPool.js'
-import { composeAppendSystemPrompt } from 'src/studio/inject.js'
+import { composeAllDepartmentInjections as composeAppendSystemPrompt } from 'src/departments/inject.js'
 import {
 	logEvent,
 	type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,

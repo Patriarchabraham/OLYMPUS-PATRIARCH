@@ -15,10 +15,10 @@ import {
 	runWithSdkContext,
 	switchSession,
 } from '../../bootstrap/state.js'
+import { composeAllDepartmentInjections as composeAppendSystemPrompt } from '../../departments/inject.js'
 import { QueryEngine } from '../../QueryEngine.js'
 import { type AppState, getDefaultAppState } from '../../state/AppStateStore.js'
 import { createStore, type Store } from '../../state/store.js'
-import { composeAppendSystemPrompt } from '../../studio/inject.js'
 import { getEmptyToolPermissionContext, type ToolPermissionContext } from '../../Tool.js'
 import { getAgentDefinitionsWithOverrides } from '../../tools/AgentTool/loadAgentsDir.js'
 import { getTools } from '../../tools.js'
