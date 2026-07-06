@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Olympuz Coder — Manual Completo (Português BR)</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 20mm 18mm;
+    @bottom-center { content: "Olympuz Coder v1.0.0 — Manual Completo"; font-size: 9px; color: #888; }
+    @bottom-right  { content: "Página " counter(page) " / " counter(pages); font-size: 9px; color: #888; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", -apple-system, Roboto, Helvetica, Arial, sans-serif;
+         color: #1a1a1a; line-height: 1.55; font-size: 11pt; margin: 0; }
+  h1,h2,h3,h4 { color: #0b1f3a; line-height: 1.25; }
+  h1 { font-size: 26pt; margin: 0 0 6pt; }
+  h2 { font-size: 17pt; border-bottom: 2px solid #c9a227; padding-bottom: 4pt; margin-top: 26pt; }
+  h3 { font-size: 13pt; margin-top: 18pt; color: #14213d; }
+  h4 { font-size: 11.5pt; margin-top: 14pt; margin-bottom: 4pt; }
+  p { margin: 6pt 0; }
+  a { color: #1a5fb4; text-decoration: none; }
+  code { font-family: "Cascadia Code", "Consolas", monospace; font-size: 9.5pt;
+         background: #f3f4f6; padding: 1px 5px; border-radius: 3px; color: #b91c1c; }
+  pre { background: #0b1f3a; color: #e6edf3; padding: 11pt 13pt; border-radius: 6px;
+        font-size: 9pt; line-height: 1.5; overflow-x: auto; }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  ul,ol { margin: 6pt 0 6pt 0; padding-left: 20pt; }
+  li { margin: 3pt 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10pt 0; font-size: 9.5pt; }
+  th,td { border: 1px solid #cbd5e1; padding: 5pt 8pt; text-align: left; vertical-align: top; }
+  th { background: #14213d; color: #fff; font-weight: 600; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .cover { text-align: center; padding-top: 60mm; page-break-after: always; }
+  .cover .logo { font-size: 14pt; letter-spacing: 6px; color: #c9a227; font-weight: 700; }
+  .cover h1 { font-size: 40pt; margin: 14pt 0 4pt; }
+  .cover .sub { font-size: 14pt; color: #475569; margin-top: 8pt; }
+  .cover .meta { margin-top: 40mm; font-size: 10pt; color: #64748b; }
+  .toc { page-break-after: always; }
+  .toc ol { list-style: none; padding-left: 0; }
+  .toc > ol > li { margin: 7pt 0; font-weight: 600; }
+  .toc ol ol { padding-left: 16pt; font-weight: 400; }
+  .toc a { color: #1a1a1a; }
+  .badge { display: inline-block; font-size: 8pt; font-weight: 700; padding: 2pt 7pt; border-radius: 10pt;
+           color: #fff; vertical-align: middle; }
+  .b-studio { background: #2563eb; }
+  .b-ops    { background: #b45309; }
+  .b-mkt    { background: #be185d; }
+  .b-core   { background: #475569; }
+  .callout { border-left: 4px solid #c9a227; background: #fffbeb; padding: 8pt 12pt; margin: 10pt 0; border-radius: 0 4px 4px 0; }
+  .warn    { border-left: 4px solid #b91c1c; background: #fef2f2; padding: 8pt 12pt; margin: 10pt 0; border-radius: 0 4px 4px 0; }
+  .safe    { border-left: 4px solid #15803d; background: #f0fdf4; padding: 8pt 12pt; margin: 10pt 0; border-radius: 0 4px 4px 0; }
+  .kv { font-weight: 600; color: #14213d; }
+  .pagebreak { page-break-before: always; }
+  .small { font-size: 9pt; color: #64748b; }
+  hr { border: none; border-top: 1px solid #e2e8f0; margin: 16pt 0; }
+</style>
+</head>
+<body>
+
+<!-- ===================== CAPA ===================== -->
+<section class="cover">
+  <div class="logo">OLYMPUZ</div>
+  <h1>Olympuz Coder</h1>
+  <div class="sub">Manual Completo</div>
+  <div class="sub" style="margin-top:2pt;">Edição em Português (Brasil)</div>
+  <div class="meta">
+    Versão 1.0.0 &nbsp;·&nbsp; Revisões de PRD: Studio 2026.07.05 / Ops 2026.07.05 / Marketing 2026.07.06<br>
+    Agente de programação multi-departamentos &nbsp;·&nbsp; Autor: Patriarch
+  </div>
+</section>
+
+<!-- ===================== SUMÁRIO ===================== -->
+<section class="toc">
+  <h2>Sumário</h2>
+  <ol>
+    <li><a href="#s1">1. Introdução</a></li>
+    <li><a href="#s2">2. Instalação e Requisitos</a></li>
+    <li><a href="#s3">3. Arquitetura — O Padrão de Departamento</a></li>
+    <li><a href="#s4">4. Studio — Departamento de Design e Geração <span class="badge b-studio">STUDIO</span></a></li>
+    <li><a href="#s5">5. Ops — Departamento de Operações Autônomas <span class="badge b-ops">OPS</span></a></li>
+    <li><a href="#s6">6. Departamento de Marketing e Crescimento <span class="badge b-mkt">MARKETING</span></a></li>
+    <li><a href="#s7">7. Segurança, Portões de Aprovação e Botões de Desligar</a></li>
+    <li><a href="#s8">8. Configuração (settings.json)</a></li>
+    <li><a href="#s9">9. Variáveis de Ambiente</a></li>
+    <li><a href="#s10">10. Agentes Especialistas Embutidos</a></li>
+    <li><a href="#s11">11. Referência de Ferramentas</a></li>
+    <li><a href="#s12">12. Grafo de Conhecimento e o Curador</a></li>
+    <li><a href="#s13">13. Fluxos de Trabalho e Início Rápido</a></li>
+    <li><a href="#s14">14. Solução de Problemas</a></li>
+    <li><a href="#s15">15. Referência Rápida de Comandos</a></li>
+  </ol>
+</section>
+
+<!-- ===================== 1. INTRO ===================== -->
+<h2 id="s1">1. Introdução</h2>
+<p>O <b>Olympuz Coder</b> é um agente de programação com IA (um fork do Claude Code) ampliado com três
+<b>departamentos</b> especialistas que o transformam de um único assistente em uma organização sob
+demanda. Cada departamento é uma "equipe" autossuficiente de agentes construídos para um fim,
+compartilhando um motor comum, injetando seu próprio documento de Requisitos de Produto (PRD) no
+prompt do sistema, planejando o trabalho como um grafo de dependências e curando conhecimento
+reutilizável para um grafo de conhecimento.</p>
+
+<table>
+  <tr><th style="width:22%">Departamento</th><th style="width:10%">Padrão</th><th>O que faz</th></tr>
+  <tr><td><span class="badge b-studio">STUDIO</span> Design e Geração</td><td>Ativado</td>
+      <td>Sistemas de design e geração de tokens para web, Android e Windows; UI/UX alinhado à marca, emissão de tokens (CSS, Compose Kotlin, WinUI XAML).</td></tr>
+  <tr><td><span class="badge b-ops">OPS</span> Operações Autônomas</td><td><b>Opcional</b></td>
+      <td>Controle de computador (computer-use) do Windows e de qualquer navegador; visão, voz-para-texto (ouvidos), texto-para-voz (voz); equipes autônomas com um quadro organizacional.</td></tr>
+  <tr><td><span class="badge b-mkt">MARKETING</span> Marketing e Crescimento</td><td>Ativado</td>
+      <td>Campanhas completas de marketing: geração de imagens / vídeos / shorts, redação, criação de perfis oficiais, publicação em redes sociais, envio e recebimento de e-mail.</td></tr>
+</table>
+
+<div class="callout"><b>A promessa unificadora.</b> Todo departamento <b>planeja antes de agir</b>,
+<b>pede aprovação humana antes de qualquer ação externa ou destrutiva</b>, e <b>registra o que publica</b>
+para que possa ser revisado e revertido. Você continua no controle; os agentes fazem o trabalho pesado.</div>
+
+<!-- ===================== 2. INSTALAÇÃO ===================== -->
+<h2 id="s2" class="pagebreak">2. Instalação e Requisitos</h2>
+<h3>2.1 Requisitos do sistema</h3>
+<ul>
+  <li><b>SO:</b> Windows 11 (principal); macOS ou Linux também funcionam.</li>
+  <li><b>Node.js:</b> 22+ (o backend SQLite do grafo de conhecimento usa o <code>node:sqlite</code> embutido; no Bun usa-se <code>bun:sqlite</code> nativo).</li>
+  <li><b>RAM:</b> mínimo prático de 6&nbsp;GB; o lançador ajusta automaticamente o heap do V8 para 55% da RAM livre, na faixa <code>[768, 3072]</code> MB, para evitar travamentos por thrashing em máquinas com pouca memória.</li>
+  <li><b>Disco:</b> ~600&nbsp;MB para dependências + binários de navegador, se usar o Ops.</li>
+</ul>
+
+<h3>2.2 Instalar e compilar</h3>
+<pre><code># a partir da raiz do repositório
+npm install            # instalar dependências
+npm run build          # pacote bun esbuild → dist/cli.mjs
+npm run smoke          # compilar + verificar se o binário inicia (imprime a versão)
+
+# verificações opcionais
+npm run typecheck      # tsc --noEmit  (deve reportar 0 erros)
+npm test               # suíte vitest completa (~2639 pass | 0 falha | 7 ignorados)</code></pre>
+
+<h3>2.3 Executar</h3>
+<pre><code># TUI interativa
+node dist/cli.mjs
+
+# prompt de uma vez (headless)
+node dist/cli.mjs -p "explique este repositório"
+
+# mostrar versão
+node dist/cli.mjs --version          # → 1.0.0 (Olympuz Coder)</code></pre>
+<p class="small">O lançador <code>olympuz</code> (<code>bin/olympuz</code> / <code>olympuz.cmd</code> no Windows) envolve
+<code>dist/cli.mjs</code> e define o heap dinâmico. O modo-fonte <code>npm run dev</code> existe, mas não é um
+fluxo de produção suportado — sempre execute o pacote compilado.</p>
+
+<!-- ===================== 3. ARQUITETURA ===================== -->
+<h2 id="s3" class="pagebreak">3. Arquitetura — O Padrão de Departamento</h2>
+<p>Cada departamento é um irmão sob <code>src/&lt;dept&gt;/</code> e segue o mesmo formato consagrado.
+Um pequeno <b>núcleo compartilhado</b> (<code>src/departments/</code>) os conecta.</p>
+
+<h3>3.1 Dentro de um departamento</h3>
+<table>
+  <tr><th style="width:24%">Módulo</th><th>Responsabilidade</th></tr>
+  <tr><td><code>types.ts</code></td><td>Tipos de config, intenção, governança, papel, plano e resultado.</td></tr>
+  <tr><td><code>principles.ts</code></td><td>O PRD do departamento (completo + comprimido). Um documento de referência versionado, injetado no prompt do sistema quando ativo.</td></tr>
+  <tr><td><code>intent.ts</code></td><td>Detecta se a mensagem do usuário é um pedido para este departamento, com pontuação de confiança e gatilhos.</td></tr>
+  <tr><td><code>governance.ts</code></td><td>Resolução de políticas na hierarquia <b>Diretor &gt; domínio &gt; padrão</b>. Chaves configuráveis por domínio.</td></tr>
+  <tr><td><code>department.ts</code></td><td>O organograma especialista (papéis + missões) e o planejador que transforma intenção + governança em um grafo de tarefas ordenado por dependências.</td></tr>
+  <tr><td><code>curator.ts</code></td><td>O único módulo que toca o grafo de conhecimento — extrai ativos reutilizáveis após uma execução e os persiste sob uma chave com namespace.</td></tr>
+  <tr><td><code>&lt;dept&gt;Engine.ts</code></td><td>Singleton preguiçoso: guarda config + governança; expõe <code>is&lt;Dept&gt;Active()</code>, detecção de intenção, planejamento e executor do curador.</td></tr>
+  <tr><td><code>inject.ts</code></td><td><code>compose&lt;Dept&gt;AppendSystemPrompt(existing)</code> — anexa o PRD quando ativo; devolve a entrada inalterada quando dormente.</td></tr>
+</table>
+
+<h3>3.2 O núcleo compartilhado (<code>src/departments/</code>)</h3>
+<table>
+  <tr><th style="width:24%">Arquivo</th><th>Responsabilidade</th></tr>
+  <tr><td><code>inject.ts</code></td><td><code>composeAllDepartmentInjections(existing)</code> empilha os prompts de Studio + Ops + Marketing em sequência. Cada um retorna cedo quando inativo, então a pilha é byte-idêntica a "antes" quando nenhum departamento está ativo.</td></tr>
+  <tr><td><code>approval.ts</code></td><td><code>buildApprovalCheck</code> / <code>needsApproval(policy, destructive)</code> — a primitiva de portão usada por todas as ferramentas externas. Políticas: <code>allow</code>, <code>ask-destructive</code>, <code>ask-always</code>.</td></tr>
+  <tr><td><code>publishedLog.ts</code></td><td>JSONL somente-acréscimo de tudo que foi publicado (Marketing). <code>recordPublish</code>, <code>listPublishes</code>, <code>getPublish</code>, <code>markReversed</code>.</td></tr>
+</table>
+
+<div class="callout"><b>Invariante de segurança em testes.</b> <code>isTestEnv()</code> é verdadeiro sob vitest
+(<code>process.env.VITEST</code> ou <code>NODE_ENV === 'test'</code>). Todo departamento fica <b>dormente</b> em teste,
+independente da config, então prompts, listas de agentes e de ferramentas permanecem byte a byte estáveis.
+A suíte completa de ~2639 testes não é afetada pelos departamentos.</div>
+
+<!-- ===================== 4. STUDIO ===================== -->
+<h2 id="s4" class="pagebreak">4. Studio — Departamento de Design e Geração <span class="badge b-studio">STUDIO</span></h2>
+<p><span class="kv">PRD v2026.07.05</span> · <span class="kv">Padrão:</span> ativado · <span class="kv">Ativação:</span> automática para intenção de build/design.</p>
+<p>O Studio é o departamento de design. Ao detectar intenção de design/build, ele produz um sistema
+de design e emite <b>tokens de design</b> concretos para três plataformas a partir de uma única fonte
+de verdade, além de um plano de delegação para o quadro especialista.</p>
+
+<h3>4.1 Superfícies suportadas</h3>
+<ul>
+  <li><b>Plataformas:</b> <code>web</code>, <code>android</code>, <code>windows</code>.</li>
+  <li><b>Estéticas (moods):</b> <code>neutral-adaptive</code>, <code>luxury-dark-gold</code>, <code>calm</code>, <code>vibrant</code>, <code>minimal</code>, <code>bold</code>.</li>
+  <li><b>Saídas de tokens:</b> CSS custom properties (web), Compose Kotlin (<code>Color.kt</code>/<code>Type.kt</code>/<code>Shapes.kt</code>, Android), WinUI XAML <code>ThemeDictionaries</code> (Windows).</li>
+  <li><b>Portões de qualidade:</b> verificação de contraste WCAG (<code>contrastAA</code>), papéis semânticos de cor (bg / fg / accent), cor-base verificada.</li>
+</ul>
+
+<h3>4.2 O comando <code>/studio</code></h3>
+<pre><code>/studio                                  # ajuda
+/studio run &lt;descrição&gt;                   # plano + tokens para uma descrição
+/studio tokens [base] [mood] [--platform web|android|windows]
+/studio principles                        # imprimir o PRD completo do Studio
+/studio admin list                        # mostrar governança ativa
+/studio admin get &lt;domínio&gt; &lt;chave&gt;        # resolver uma política
+/studio admin set &lt;domínio&gt;.&lt;chave&gt;=&lt;val&gt; # definir uma política
+/studio knowledge stats                   # contagens da base de conhecimento
+/studio knowledge recall &lt;consulta&gt;       # recordar conhecimento do Studio
+/studio enable | disable                  # ligar/desligar o departamento
+/studio status                            # estado atual</code></pre>
+
+<h3>4.3 Exemplo de uso</h3>
+<pre><code>/studio run um dashboard fintech calmo para web, mood luxury
+/studio tokens #0b1f3a luxury-dark-gold --platform android</code></pre>
+
+<!-- ===================== 5. OPS ===================== -->
+<h2 id="s5" class="pagebreak">5. Ops — Departamento de Operações Autônomas <span class="badge b-ops">OPS</span></h2>
+<p><span class="kv">PRD v2026.07.05</span> · <span class="kv">Padrão:</span> <b>opcional (desativado)</b> · <span class="kv">Ativação:</span> <code>/ops enable</code> explícito ou <code>OLYMPUZ_OPS_ENABLED</code>.</p>
+<p>O Ops transforma o Olympuz num agente de computer-use. Ele controla o Windows e qualquer
+navegador, vê a tela (visão), ouve (STT), fala (TTS) e pode formar <b>equipes</b> autônomas de agentes
+coordenadas por um runtime swarm nativo com um quadro organizacional.</p>
+
+<div class="warn"><b>O Ops é opcional por segurança.</b> Controle real da máquina é poderoso e perigoso, por isso
+o Ops fica dormente até você ligá-lo explicitamente. <b>Ações destrutivas sempre pedem aprovação por
+ação</b> (mouse/teclado, shell, excluir arquivo, submeter/pagar no navegador). Ações somente-leitura —
+captura de tela, árvore de acessibilidade, visão, ouvir, falar, navegação somente-leitura — não pedem.</div>
+
+<h3>5.1 Superfícies</h3>
+<table>
+  <tr><th>Superfície</th><th>Capacidade</th></tr>
+  <tr><td><code>computer</code></td><td>Controle da área de trabalho do Windows via PowerShell + .NET (screenshot com <code>System.Drawing</code>, cursor/teclado com <code>System.Windows.Forms</code>, árvore a11y com UIAutomation).</td></tr>
+  <tr><td><code>browser</code></td><td>Playwright determinístico quando há seletores conhecidos; orientado por visão quando não. Navegação confinada a uma allowlist de governança.</td></tr>
+  <tr><td><code>vision</code></td><td>Métricas de screenshot + julgamento multimodal por LLM (descrever, OCR, comparar).</td></tr>
+  <tr><td><code>voice</code></td><td>STT (streaming ou em lote; com reforço de termos do projeto) e TTS (<code>speak()</code>: SAPI no Windows / <code>say</code> no macOS / <code>espeak</code> no Linux / provedor).</td></tr>
+  <tr><td><code>automation</code></td><td>Plano multi-etapas: grafo idempotente, fail-safe, orçamento de passos (<code>automation.maxSteps</code>).</td></tr>
+  <tr><td><code>teams</code></td><td>Companheiros autônomos via swarm nativo (<code>TeamCreate</code>, <code>SendMessage</code>, <code>Agent</code>). <code>teams.requireApproval</code> controla a criação; <code>teams.maxTeammates</code> limita o tamanho.</td></tr>
+</table>
+
+<h3>5.2 O comando <code>/ops</code></h3>
+<pre><code>/ops                                     # ajuda
+/ops run &lt;tarefa&gt;                         # planejar + delegar uma tarefa de controle
+/ops team list                            # mostrar a capacidade de equipe autônoma
+/ops team new &lt;objetivo&gt;                  # planejar uma equipe para um objetivo
+/ops team spawn &lt;papel&gt;                   # planejar o spawn de um especialista
+/ops review                               # conhecimento recente + estado
+/ops admin list | get &lt;domínio&gt; &lt;chave&gt; | set &lt;domínio&gt;.&lt;chave&gt;=&lt;val&gt;
+/ops knowledge stats | recall &lt;consulta&gt;
+/ops principles                           # imprimir o PRD completo do Ops
+/ops enable | disable                     # ligar/desligar (opcional)
+/ops status                               # estado atual</code></pre>
+
+<h3>5.3 Exemplo de uso</h3>
+<pre><code>/ops enable
+/ops run abra o navegador e ache o voo mais barato para Lisboa
+/ops new triar minha caixa de entrada todo dia às 9h</code></pre>
+
+<!-- ===================== 6. MARKETING ===================== -->
+<h2 id="s6" class="pagebreak">6. Departamento de Marketing e Crescimento <span class="badge b-mkt">MARKETING</span></h2>
+<p><span class="kv">PRD v2026.07.06</span> · <span class="kv">Padrão:</span> ativado · <span class="kv">Ativação:</span> automática para intenção de campanha/criativo/social/e-mail.</p>
+<p>O Marketing constrói campanhas completas de ponta a ponta: estratégia, copy, criativo visual
+alinhado à marca, geração de vídeo e shorts, criação de perfis oficiais, publicação em cinco
+plataformas de redes sociais e ciclo completo de e-mail (enviar + receber).</p>
+
+<div class="safe"><b>O portão de publicação (inata negociável).</b> Todo <b>publish / send / post</b> pede aprovação
+humana <b>antes</b> de sair, e em seguida é anexado ao <b>log de publicação</b> reversível. Você pode
+revisar tudo que foi publicado e reverter o que não estiver certo: <code>/marketing review</code>,
+<code>/marketing reverse &lt;id&gt;</code>. Ações de leitura (inbox) nunca pedem aprovação.</div>
+
+<h3>6.1 Capacidades</h3>
+<ul>
+  <li><b>Geração de criativos:</b> imagens (ImageGen — DALL·E 3 / Stability / local), vídeos e shorts (VideoGen — Veo&nbsp;3 / Sora&nbsp;2 / Runway Gen-5 / Kling&nbsp;3).</li>
+  <li><b>Canais:</b> X, Meta, LinkedIn, TikTok, YouTube (publicar + excluir); E-mail via SMTP + IMAP (enviar + inbox).</li>
+  <li><b>Conformidade embutida:</b> e-mail somente com permissão, double opt-in, com caminho claro de descadastro.</li>
+</ul>
+
+<h3>6.2 O comando <code>/marketing</code></h3>
+<pre><code>/marketing                               # ajuda
+/marketing run &lt;descrição&gt;                # planejar + delegar uma campanha
+/marketing review [canal]                 # ver tudo que foi publicado
+                                          #   canal: x|meta|linkedin|tiktok|youtube|email
+/marketing reverse &lt;id&gt;                   # reverter um post social publicado
+/marketing admin list | get &lt;domínio&gt; &lt;chave&gt; | set &lt;domínio&gt;.&lt;chave&gt;=&lt;val&gt;
+/marketing knowledge stats | recall &lt;consulta&gt;
+/marketing principles                     # imprimir o PRD completo do Marketing
+/marketing enable | disable               # ligar/desligar o departamento
+/marketing status                         # estado atual</code></pre>
+
+<h3>6.3 Exemplo de uso</h3>
+<pre><code>/marketing run lance uma campanha do Olympuz Coder no X e no LinkedIn
+/marketing review                         # auditar o que foi publicado
+/marketing reverse ab12cd34               # reverter um post específico</code></pre>
+
+<h3>6.4 Configurando os adaptadores</h3>
+<p>Os adaptadores são <b>no-op-quando-não-configurados</b>: sem credenciais, eles devolvem um
+<code>{ ok: false, error: "configure X" }</code> claro em vez de lança exceção, então o núcleo determinístico
+sempre é testável. Operação real exige as variáveis de ambiente relevantes (ver §9).</p>
+<table>
+  <tr><th>Adaptador</th><th>Biblioteca</th><th>Variáveis (resumo)</th></tr>
+  <tr><td>Vídeo</td><td><code>fetch</code> ao provedor</td><td><code>VEO_API_KEY</code>/<code>VEO_API_URL</code>, <code>SORA_*</code>, <code>RUNWAY_*</code>, <code>KLING_*</code></td></tr>
+  <tr><td>E-mail</td><td>nodemailer (SMTP) + imapflow (IMAP)</td><td><code>SMTP_HOST/USER/PASS/...</code>, <code>IMAP_*</code></td></tr>
+  <tr><td>Social</td><td><code>fetch</code> por canal</td><td><code>X_API_*</code>, <code>META_*</code>, <code>LINKEDIN_*</code>, <code>TIKTOK_*</code>, <code>YOUTUBE_*</code></td></tr>
+</table>
+
+<!-- ===================== 7. SEGURANÇA ===================== -->
+<h2 id="s7" class="pagebreak">7. Segurança, Portões de Aprovação e Botões de Desligar</h2>
+<p>A segurança é estrutural, não apenas recomendação. Três mecanismos independentes mantêm você no controle.</p>
+
+<h3>7.1 O portão de aprovação</h3>
+<p>Toda ferramenta externa ou destrutiva implementa <code>checkPermissions(input, context)</code>, que
+retorna um de:</p>
+<ul>
+  <li><code>{ behavior: 'allow', updatedInput }</code> — prossegue.</li>
+  <li><code>{ behavior: 'ask', message, updatedInput }</code> — pausa e mostra exatamente o que quer fazer; você aprova ou nega.</li>
+</ul>
+<p>A política é resolvida pela governança na hierarquia <b>Diretor &gt; domínio &gt; padrão</b>:</p>
+<table>
+  <tr><th>Política</th><th>Comportamento</th></tr>
+  <tr><td><code>ask-always</code></td><td>Pergunta sempre. <i>Usada nas ações de publicação do Marketing.</i></td></tr>
+  <tr><td><code>ask-destructive</code></td><td>Pergunta apenas em ações destrutivas. <i>Padrão do Ops para controle de computador/navegador.</i></td></tr>
+  <tr><td><code>allow</code></td><td>Prossegue sem perguntar. <b>Não recomendado</b> para ações externas.</td></tr>
+</table>
+
+<h3>7.2 O log de publicação (Marketing)</h3>
+<p>JSONL somente-acréscimo em <code>&lt;CLAUDE_CONFIG_DIR&gt;/marketing/published.jsonl</code>. Cada item publicado
+registra: <code>id</code>, <code>channel</code>, <code>action</code>, <code>target</code>, <code>content</code>,
+<code>timestamp</code>, <code>status</code>, <code>reversible</code> e uma <code>reversalHint</code> (dica de reversão).
+A reversão exclui/deslista o post e marca a entrada como <code>reversed</code>. (Envios de e-mail em geral
+não são mecanicamente reversíveis — envie uma correção/seguimento no lugar.)</p>
+
+<h3>7.3 Botões de desligar (absolutos)</h3>
+<p>O <code>OLYMPUZ_&lt;DEPT&gt;_ENABLED=false</code> de cada departamento é um <b>botão de desligar absoluto</b>.
+Ele é verificado <b>primeiro</b>, antes da config e antes do mecanismo de forçar ativação em testes.
+Defini-lo desativa o departamento mesmo que a config diga o contrário.</p>
+<table>
+  <tr><th>Variável</th><th>Escopo</th></tr>
+  <tr><td><code>OLYMPUZ_OPS_ENABLED=false</code></td><td>Ops totalmente desligado — sem injeção de PRD, sem agentes/ferramentas ops-*, sem controle de máquina.</td></tr>
+  <tr><td><code>OLYMPUZ_MARKETING_ENABLED=false</code></td><td>Marketing totalmente desligado — sem injeção de PRD, sem agentes/ferramentas marketing-*, sem publicação.</td></tr>
+  <tr><td><code>OLYMPUZ_COMPUTER_CONTROL</code></td><td>Controla o ComputerControlTool legado (defesa em profundidade).</td></tr>
+  <tr><td><code>OLYMPUZ_DEVICE_BRIDGE</code></td><td>Controla a ponte de dispositivos ADB.</td></tr>
+</table>
+
+<!-- ===================== 8. CONFIG ===================== -->
+<h2 id="s8" class="pagebreak">8. Configuração (settings.json)</h2>
+<p>Cada departamento tem um bloco opcional no seu schema de configurações. As configurações são
+carregadas de <code>~/.olympuz/settings.json</code> (ou equivalente da plataforma). Os comandos slash
+(<code>/studio enable</code>, etc.) modificam a config em memória em tempo de execução.</p>
+
+<h3>8.1 Studio</h3>
+<pre><code>"studio": {
+  "enabled": true,
+  "autoActivate": true,
+  "intensity": "ultra",                 // "standard" | "premium" | "ultra"
+  "defaultPlatform": "web",             // "web" | "android" | "windows"
+  "aesthetic": "neutral-adaptive"       // ver moods em §4.1
+}</code></pre>
+
+<h3>8.2 Ops</h3>
+<pre><code>"ops": {
+  "enabled": false,                     // OPCIONAL (padrão false)
+  "autoActivate": false,
+  "intensity": "standard",
+  "surfaces": ["computer","browser","vision","voice","automation"],
+  "approvalPolicy": "ask-destructive"   // "ask-destructive" | "ask-always" | "allow"
+}</code></pre>
+
+<h3>8.3 Marketing</h3>
+<pre><code>"marketing": {
+  "enabled": true,                      // espelha o Studio
+  "autoActivate": true,
+  "intensity": "ultra",
+  "channels": [],                       // allowlist; vazio = todos
+  "publish": {
+    "approvalPolicy": "ask-always",     // recomendado
+    "logging": true                     // anexar ao log de publicação
+  }
+}</code></pre>
+
+<h3>8.4 Diretivas de governança</h3>
+<p>Defina qualquer política pelo chat com <code>/&lt;dept&gt; admin set &lt;domínio&gt;.&lt;chave&gt;=&lt;valor&gt;</code>.
+Para sobreposições no nível Diretor use a forma <code>director.&lt;domínio&gt;.&lt;chave&gt;</code>, que prevalece
+sobre qualquer outra fonte. Booleanos aceitam <code>true/false</code>; valores separados por vírgula
+viram lista apenas quando há vírgula (um valor único permanece string).</p>
+
+<!-- ===================== 9. AMBIENTE ===================== -->
+<h2 id="s9" class="pagebreak">9. Variáveis de Ambiente</h2>
+<table>
+  <tr><th>Variável</th><th>Finalidade</th></tr>
+  <tr><td><code>OLYMPUZ_OPS_ENABLED</code></td><td><code>false</code> = botão de desligar absoluto do Ops.</td></tr>
+  <tr><td><code>OLYMPUZ_MARKETING_ENABLED</code></td><td><code>false</code> = botão de desligar absoluto do Marketing.</td></tr>
+  <tr><td><code>OLYMPUZ_COMPUTER_CONTROL</code></td><td>Controla o ComputerControlTool legado.</td></tr>
+  <tr><td><code>OLYMPUZ_DEVICE_BRIDGE</code></td><td>Controla a ponte de dispositivos ADB.</td></tr>
+  <tr><td><code>OLYMPUZ_NATIVE_CORE</code></td><td>Controla o núcleo nativo opcional.</td></tr>
+  <tr><td><code>OLYMPUZ_LOCAL_MODEL</code></td><td>Nome do modelo local para o provedor de inferência local.</td></tr>
+  <tr><td><code>OLYMPUZ_LOCAL_ENDPOINT</code></td><td>URL do endpoint do modelo local.</td></tr>
+  <tr><td><code>OLYMPUZ_LOCAL_AUTO_PULL</code></td><td>Baixar automaticamente o modelo local se faltar.</td></tr>
+  <tr><td><code>CLAUDE_CONFIG_DIR</code></td><td>Sobrescreve o diretório de configuração (também localiza o log de publicação).</td></tr>
+  <tr><td><code>NODE_OPTIONS</code></td><td>A suíte de testes define <code>--max-old-space-size=8192</code> por aqui (NÃO como flag do node — os workers do vitest não herdam flags V8 do pai).</td></tr>
+</table>
+<p class="small">Credenciais de provedores/canais (SMTP/IMAP, tokens X/Meta/LinkedIn/TikTok/YouTube, chaves Veo/Sora/Runway/Kling) também são lidas do ambiente; ver §6.4.</p>
+
+<!-- ===================== 10. AGENTES ===================== -->
+<h2 id="s10" class="pagebreak">10. Agentes Especialistas Embutidos</h2>
+<p>Cada departamento registra seu quadro especialista apenas quando ativo; eles aparecem como valores
+de <code>subagent_type</code> para a ferramenta <code>Agent</code>. Todo especialista carrega o PRD do seu
+departamento + a barra de segurança no prompt do sistema.</p>
+
+<h3>10.1 Quadro do Ops (10 papéis)</h3>
+<table>
+  <tr><th>Papel (subagent_type)</th><th>Missão (resumo)</th></tr>
+  <tr><td><code>ops-director</code></td><td>Admin dos admins. Dono do escopo, da fronteira de segurança e da assinatura final.</td></tr>
+  <tr><td><code>ops-computer-operator</code></td><td>Controle da área de trabalho pelo loop de computer-use; encaminha ações destrutivas pelo portão.</td></tr>
+  <tr><td><code>ops-browser-operator</code></td><td>Automação de navegador Playwright + visão; confinada à allowlist.</td></tr>
+  <tr><td><code>ops-vision</code></td><td>Olhos. Métricas de screenshot + julgamento multimodal.</td></tr>
+  <tr><td><code>ops-ears</code></td><td>STT. Transcrição streaming/lote com reforço de termos.</td></tr>
+  <tr><td><code>ops-voice</code></td><td>TTS. <code>speak()</code> — conciso, ciente do idioma.</td></tr>
+  <tr><td><code>ops-automation-engineer</code></td><td>Desenha o grafo idempotente de etapas; respeita <code>automation.maxSteps</code>.</td></tr>
+  <tr><td><code>ops-team-lead</code></td><td>Forma + coordena companheiros autônomos (swarm nativo).</td></tr>
+  <tr><td><code>ops-sentinel</code></td><td>Revisor de segurança. Rejeita adversarialmente planos com qualquer falha.</td></tr>
+  <tr><td><code>ops-curator</code></td><td>Persiste macros/seletores/workflows reutilizáveis na base de conhecimento.</td></tr>
+</table>
+
+<h3>10.2 Quadro do Marketing (9 papéis)</h3>
+<table>
+  <tr><th>Papel (subagent_type)</th><th>Missão (resumo)</th></tr>
+  <tr><td><code>marketing-director</code></td><td>Admin dos admins. Dono do objetivo, posicionamento, portão de publicação e assinatura.</td></tr>
+  <tr><td><code>marketing-strategist</code></td><td>Objetivo + público + meta mensurável; mix de canais; etapa do funil.</td></tr>
+  <tr><td><code>marketing-copywriter</code></td><td>Copy na voz da marca. Hero → prova → um CTA. AIDA/PAS/FAB.</td></tr>
+  <tr><td><code>marketing-designer</code></td><td>Criativo visual alinhado à marca (ImageGen); variantes; nunca enganoso.</td></tr>
+  <tr><td><code>marketing-videographer</code></td><td>Vídeo / shorts (VideoGen). Hook &lt;1s, payoff, CTA, legendas, ≤60s.</td></tr>
+  <tr><td><code>marketing-social-manager</code></td><td>Publica nas redes; confinado a <code>social.channels</code>; todo post aprovado + logado.</td></tr>
+  <tr><td><code>marketing-email-manager</code></td><td>Ciclo de e-mail; só com permissão, double opt-in; todo envio aprovado + logado.</td></tr>
+  <tr><td><code>marketing-analytics</code></td><td>Instrumenta desde o dia 1; atribui; corta o que não move a meta.</td></tr>
+  <tr><td><code>marketing-curator</code></td><td>Extrai ativos reutilizáveis de campanhas terminadas; persiste na base.</td></tr>
+</table>
+<p class="small">O Studio expõe seu próprio quadro especialista (líder de design system, UX, UI, brand, motion, acessibilidade, curador). Inspecione o quadro ao vivo com <code>/studio run</code> ou <code>/studio status</code>.</p>
+
+<!-- ===================== 11. FERRAMENTAS ===================== -->
+<h2 id="s11" class="pagebreak">11. Referência de Ferramentas</h2>
+<p>As ferramentas dos departamentos só são registradas quando o departamento está ativo. Todas as
+ferramentas externas passam pelo portão de aprovação (§7.1).</p>
+<table>
+  <tr><th>Ferramenta</th><th>Depto</th><th>Finalidade e controle</th></tr>
+  <tr><td><code>StudioBuild</code></td><td>Studio</td><td>Planejar + emitir tokens de design. Somente leitura.</td></tr>
+  <tr><td><code>OpsBuild</code></td><td>Ops</td><td>Planejar + delegar tarefa de controle. Somente leitura.</td></tr>
+  <tr><td><code>BrowserControl</code></td><td>Ops</td><td>Adaptador Playwright. <code>submit</code>/<code>fill</code> pedem aprovação conforme <code>browser.scope</code>.</td></tr>
+  <tr><td><code>Vision</code></td><td>Ops</td><td>Envolve <code>analyzeImage</code>/<code>analyzeScreenshot</code>/<code>judgeWithModel</code>. Somente leitura.</td></tr>
+  <tr><td><code>Speak</code> / <code>Listen</code></td><td>Ops</td><td>Wrappers de TTS / STT. Somente leitura.</td></tr>
+  <tr><td><code>ComputerControl</code></td><td>(legado)</td><td>Controlado por <code>OLYMPUZ_COMPUTER_CONTROL</code>. Defesa em profundidade.</td></tr>
+  <tr><td><code>MarketingBuild</code></td><td>Marketing</td><td>Planejar + delegar campanha. Somente leitura.</td></tr>
+  <tr><td><code>VideoGen</code></td><td>Marketing</td><td>Gerar vídeo/shorts. Interno (não externo) — sem aprovação.</td></tr>
+  <tr><td><code>Email</code></td><td>Marketing</td><td><code>send</code> (aprovação + log) / <code>inbox</code> (leitura, sem aprovação).</td></tr>
+  <tr><td><code>SocialPost</code></td><td>Marketing</td><td><code>post</code>/<code>short</code> (aprovação + log) / <code>delete</code> (aprovação + marca log como revertido).</td></tr>
+  <tr><td><code>ImageGen</code></td><td>(compartilhado)</td><td>DALL·E 3 / Stability / local; controlado por provedor.</td></tr>
+</table>
+
+<!-- ===================== 12. KG ===================== -->
+<h2 id="s12" class="pagebreak">12. Grafo de Conhecimento e o Curador</h2>
+<p>O <b>curador</b> de cada departamento é o único módulo que escreve no grafo de conhecimento. Após uma
+execução, ele extrai ativos reutilizáveis e os persiste sob uma chave com namespace, então os
+departamentos nunca colidem e os aprendizados se acumulam ao longo do tempo.</p>
+<table>
+  <tr><th>Departamento</th><th>Tipos de entidade</th></tr>
+  <tr><td>Studio</td><td><code>studio-*</code> (sistemas de design, conjuntos de tokens, ativos de marca)</td></tr>
+  <tr><td>Ops</td><td><code>ops-macro</code> (sequências de ações), <code>ops-selector</code> (seletores vencedores), <code>ops-workflow</code></td></tr>
+  <tr><td>Marketing</td><td><code>marketing-campaign</code>, <code>marketing-creative</code> (+prompt), <code>marketing-copy</code>, <code>marketing-audience</code></td></tr>
+  <tr><td>Publicação Marketing</td><td><code>marketing-publish</code> (uma entidade por item publicado — a trilha de auditoria)</td></tr>
+</table>
+<p>A persistência usa <code>node:sqlite</code> no Node (22+) e <code>bun:sqlite</code> no Bun, por trás de um
+adaptador unificado. <code>shutdownGlobalGraph()</code> fecha todos os handles do provedor em cache —
+importante no Windows para evitar <code>EPERM</code> na limpeza de diretórios. Recupere o conhecimento de
+qualquer departamento com <code>/&lt;dept&gt; knowledge recall &lt;consulta&gt;</code>.</p>
+
+<!-- ===================== 13. FLUXOS ===================== -->
+<h2 id="s13" class="pagebreak">13. Fluxos de Trabalho e Início Rápido</h2>
+
+<h3>13.1 Projetar um produto (Studio)</h3>
+<pre><code>/studio run um app de produtividade calmo para Windows, mood minimal
+# → tokens emitidos para web + Android + Windows; plano de delegação para o quadro</code></pre>
+
+<h3>13.2 Automatizar uma tarefa na área de trabalho (Ops)</h3>
+<pre><code>/ops enable
+/ops run abra o navegador, registre o preço mais barato do hub USB-C em precos.csv
+# → etapas destrutivas (salvar arquivo) pedem aprovação; leitura (navegar) não</code></pre>
+
+<h3>13.3 Lançar uma campanha (Marketing)</h3>
+<pre><code>/marketing run lance o Olympuz Coder no X e no LinkedIn com uma imagem hero
+# → estratégia + copy + criativo + itens prontos para publicar; cada post pede antes de sair
+/marketing review                  # auditar tudo que foi publicado
+/marketing reverse &lt;id&gt;            # desfazer um post que não está bom</code></pre>
+
+<h3>13.4 Checklist diário de operação</h3>
+<ol>
+  <li><code>/&lt;dept&gt; status</code> — confirme que o departamento necessário está ativo.</li>
+  <li><code>/&lt;dept&gt; run &lt;descrição&gt;</code> — revise o plano antes de delegar.</li>
+  <li>Aprove ações externas quando solicitado.</li>
+  <li><code>/&lt;dept&gt; knowledge recall &lt;consulta&gt;</code> — reutilize aprendizados anteriores.</li>
+  <li>No Marketing: <code>/marketing review</code> regularmente; reverta o que estiver errado.</li>
+</ol>
+
+<!-- ===================== 14. PROBLEMAS ===================== -->
+<h2 id="s14" class="pagebreak">14. Solução de Problemas</h2>
+<table>
+  <tr><th style="width:34%">Sintoma</th><th>Solução</th></tr>
+  <tr><td>Departamento parece inativo</td><td>Rode <code>/&lt;dept&gt; status</code>. Confira <code>enabled</code> e a variável de kill switch. O Ops exige <code>/ops enable</code> explícito.</td></tr>
+  <tr><td>Resultado "configure X" de um adaptador</td><td>As credenciais relevantes não estão definidas. Adicione as variáveis (§6.4, §9) e reinicie.</td></tr>
+  <tr><td>Ferramenta/agente ausente</td><td>Ferramentas/agentes só se registram quando ativos. Ative o departamento e tente de novo.</td></tr>
+  <tr><td>Travamentos após várias etapas (pouca RAM)</td><td>O lançador ajusta o heap para <code>[768, 3072] MB @ 55% da RAM livre</code>. Feche outros apps; reexecute <code>olympuz</code> para recalcular a RAM livre.</td></tr>
+  <tr><td>Suííte oscila sob carga</td><td>Em máquinas de 6&nbsp;GB, alguns testes com <code>import()</code> dinâmico podem estourar o tempo sob pressão de memória. Passam verde isoladamente; reexecute o arquivo específico.</td></tr>
+  <tr><td><code>EPERM</code> na limpeza no Windows</td><td>Handles do grafo de conhecimento ficaram abertos entre testes. <code>shutdownGlobalGraph()</code> os fecha; garanta que seja chamado em <code>afterAll</code>.</td></tr>
+  <tr><td>Modo-fonte <code>npm run dev</code> trava</td><td>Não é um fluxo suportado. Sempre execute o <code>dist/cli.mjs</code> compilado.</td></tr>
+</table>
+
+<!-- ===================== 15. REFERÊNCIA ===================== -->
+<h2 id="s15" class="pagebreak">15. Referência Rápida de Comandos</h2>
+<pre><code># Formato compartilhado de subcomandos nos três departamentos:
+/&lt;dept&gt; run &lt;descrição&gt;               # planejar + delegar
+/&lt;dept&gt; status                        # estado atual
+/&lt;dept&gt; enable | disable              # ligar/desligar
+/&lt;dept&gt; principles                    # imprimir o PRD
+/&lt;dept&gt; admin list|get|set            # governança (Diretor &gt; domínio &gt; padrão)
+/&lt;dept&gt; knowledge stats|recall        # conhecimento curado
+
+# Somente Studio
+/studio tokens [base] [mood] [--platform web|android|windows]
+
+# Somente Ops (opcional)
+/ops team list|new &lt;objetivo&gt;|spawn &lt;papel&gt;
+/ops review
+
+# Somente Marketing
+/marketing review [x|meta|linkedin|tiktok|youtube|email]
+/marketing reverse &lt;id&gt;
+
+# Botões de desligar absolutos (verificados primeiro)
+OLYMPUZ_OPS_ENABLED=false
+OLYMPUZ_MARKETING_ENABLED=false</code></pre>
+
+<hr>
+<p class="small">Olympuz Coder v1.0.0 — Manual Completo (Português BR). Revisões de PRD: Studio 2026.07.05,
+Ops 2026.07.05, Marketing 2026.07.06. Gerado a partir da árvore de código-fonte de <code>C:\OLYMPUZ</code>
+(branch <code>feat/multiagent-harden</code>).</p>
+
+</body>
+</html>
