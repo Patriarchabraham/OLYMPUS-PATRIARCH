@@ -32,7 +32,8 @@ param(
     [string]$InstallDir = "",
     [string]$PayloadDir = "",
     [switch]$Force,
-    [switch]$Silent
+    [switch]$Silent,
+    [switch]$SkipDeps
 )
 
 $ErrorActionPreference = 'Stop'
@@ -133,6 +134,20 @@ if (Test-Path -LiteralPath $srcNM) {
     Write-Warn2 "No node_modules in payload - the CLI may fail to import its external deps."
 }
 
+# Bundled npm -- lets the dependency doctor auto-provision missing deps
+# (Playwright, absent externals) on the target with no system Node required.
+$srcNpm = Join-Path $PayloadDir 'npm'
+if (Test-Path -LiteralPath $srcNpm) {
+    Write-Step "Copying npm (for dependency auto-provisioning)..."
+    $dstNpm = Join-Path $InstallDir 'npm'
+    $prevEAP = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    & robocopy $srcNpm $dstNpm /E /MT:8 /NJH /NJS /NFL /NDL /NP | Out-Null
+    $npmRc = $LASTEXITCODE
+    $ErrorActionPreference = $prevEAP
+    if ($npmRc -ge 8) { Write-Warn2 "npm copy exited $npmRc (doctor won't auto-download)." }
+    else { Write-Ok "npm copied" }
+}
+
 # Minimal package.json (used for version display + as a marker)
 $pkg = [pscustomobject]@{
     name    = 'olympuz-coder'
@@ -195,6 +210,21 @@ Write-Step "Registering uninstaller..."
 $uninstPs1 = Join-Path $InstallDir 'uninstall.ps1'
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'Uninstall-Olympuz.ps1') -Destination $uninstPs1 -Force
 
+# Dependency doctor script + olympuz-doctor launcher (so users can re-provision
+# anytime: auto-detects what's installed and downloads anything missing).
+$checkSrc = Join-Path $PSScriptRoot 'Check-OlympuzDependencies.ps1'
+if (Test-Path -LiteralPath $checkSrc) {
+    Copy-Item -LiteralPath $checkSrc -Destination (Join-Path $InstallDir 'Check-OlympuzDependencies.ps1') -Force
+}
+$doctorCmd = @'
+@echo off
+REM Olympuz Coder - dependency doctor (auto-detect + auto-download missing deps)
+setlocal
+set "OLYMPUZ_HOME=%~dp0.."
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%OLYMPUZ_HOME%\Check-OlympuzDependencies.ps1" -InstallDir "%OLYMPUZ_HOME%" %*
+'@
+Set-Content -LiteralPath (Join-Path $InstallDir 'bin\olympuz-doctor.cmd') -Value $doctorCmd -Encoding ASCII
+
 $regKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\$App"
 if (-not (Test-Path $regKey)) { New-Item -Path $regKey -Force | Out-Null }
 Set-ItemProperty -Path $regKey -Name 'DisplayName'    -Value "$App Coder" -Type String
@@ -245,10 +275,34 @@ if ($exitCode -ne 0) {
     Write-Ok "Smoke test passed"
 }
 
+# --- 9. Dependency readiness check + auto-download ---------------------------
+# Auto-detects what's installed on this machine and downloads anything missing
+# (Playwright + Chromium browser; any absent external dep) so Olympuz has 100%
+# of its dependencies before it runs. Non-fatal: a failed download (offline?)
+# only warns -- the core install is already complete and runnable.
+if ($SkipDeps) {
+    Write-Warn2 "-SkipDeps: dependency auto-detect/download skipped."
+} else {
+    Write-Step "Checking dependencies and auto-downloading anything missing..."
+    $checkScript = Join-Path $InstallDir 'Check-OlympuzDependencies.ps1'
+    if (Test-Path -LiteralPath $checkScript) {
+        $checkArgs = @('-NoProfile','-ExecutionPolicy','Bypass','-File',$checkScript,'-InstallDir',$InstallDir)
+        if ($Silent) { $checkArgs += '-Silent' }
+        & powershell.exe @checkArgs
+        $checkExit = $LASTEXITCODE
+        if ($checkExit -ne 0) {
+            Write-Warn2 "Dependency check reported issues (exit $checkExit). Core is installed; see the matrix above."
+        }
+    } else {
+        Write-Warn2 "Check-OlympuzDependencies.ps1 not found; skipping dependency check."
+    }
+}
+
 if (-not $Silent) {
     Write-Host ""
     Write-Ok "Installation complete."
     Write-Host "    Open a NEW terminal and run:  olympuz" -ForegroundColor White
+    Write-Host "    Re-check / download deps anytime:  olympuz-doctor" -ForegroundColor White
     Write-Host "    Or use the Start Menu shortcut: $App" -ForegroundColor DarkGray
     Write-Host "    Uninstall from:  Settings > Apps > $App Coder" -ForegroundColor DarkGray
     Write-Host ""

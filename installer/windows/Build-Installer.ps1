@@ -43,6 +43,26 @@ function Ok($m){ Write-Host "[+] $m" -ForegroundColor Green }
 function Warn2($m){ Write-Host "[!] $m" -ForegroundColor Yellow }
 function Die($m){ Write-Host "[x] $m" -ForegroundColor Red; exit 1 }
 
+function Remove-TreeLongPath {
+    # Long-path-tolerant delete (npm node_modules nests > 260 chars; PS
+    # Remove-Item -Recurse fails on those). Mirror an empty dir over the target
+    # with robocopy /MIR, then drop the now-empty shell.
+    param([string]$Path)
+    if (-not (Test-Path -LiteralPath $Path)) { return $true }
+    $empty = Join-Path ([System.IO.Path]::GetTempPath()) ("olympuz-empty-$PID")
+    New-Item -ItemType Directory -Force -Path $empty | Out-Null
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try {
+        & robocopy $empty $Path /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
+        if ($LASTEXITCODE -ge 8) { return $false }
+        Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue
+        return (-not (Test-Path -LiteralPath $Path))
+    } finally {
+        $ErrorActionPreference = $prev
+        Remove-Item -LiteralPath $empty -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 Write-Host ""
 Write-Host "  === $App Coder $Version — Build Installer ===" -ForegroundColor White
 Write-Host "  Repo:  $RepoRoot" -ForegroundColor DarkGray
@@ -65,7 +85,10 @@ Ok "dist/cli.mjs ready ($distSize MB)"
 # --- 2. Stage payload --------------------------------------------------------
 Step "Staging payload at $PayloadDir ..."
 if (Test-Path -LiteralPath $PayloadRoot) {
-    Get-ChildItem -LiteralPath $PayloadRoot -Directory | Remove-Item -Recurse -Force
+    Get-ChildItem -LiteralPath $PayloadRoot -Directory | ForEach-Object {
+        $cleared = Remove-TreeLongPath -Path $_.FullName
+        if (-not $cleared) { Die "Could not clear $($_.FullName) (long paths). Delete .\payload manually and retry." }
+    }
 }
 foreach ($sub in @('bin', 'dist', 'node')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $PayloadDir $sub) | Out-Null
@@ -120,6 +143,78 @@ $nmMB = [math]::Round((Get-ChildItem -LiteralPath $dstNodeModules -Recurse -File
     Measure-Object -Property Length -Sum).Sum / 1MB, 1)
 Ok "node_modules bundled ($nmMB MB)"
 
+# --- 3c. Bundle npm + complete external deps to 100% -------------------------
+# Bundle npm so the install-time doctor can auto-download any missing dep on the
+# target. Then install any CLI_EXTERNALS that are absent from the prod tree
+# (e.g. @azure/identity, some @opentelemetry/exporter-* are externalized but not
+# direct deps) so the payload ships 100% complete OFFLINE.
+if (-not $SkipBundleNode) {
+    Step "Bundling npm (so installs can auto-provision deps)..."
+    $nodeSrcPath = (Get-Command node -ErrorAction SilentlyContinue).Source
+    $nodeRootDir = Split-Path $nodeSrcPath -Parent
+    $npmSrcDir   = Join-Path $nodeRootDir 'node_modules\npm'
+    $npmDstDir   = Join-Path $PayloadDir 'npm'
+    if (Test-Path -LiteralPath $npmSrcDir) {
+        & robocopy $npmSrcDir $npmDstDir /E /MT:8 /NJH /NJS /NFL /NDL /NP | Out-Null
+        if ($LASTEXITCODE -ge 8) { Warn2 "robocopy of npm exited $LASTEXITCODE (doctor won't auto-download)." }
+        else { Ok "npm bundled" }
+    } else {
+        Warn2 "npm source not found at $npmSrcDir (doctor won't auto-download)."
+    }
+
+    Step "Completing external dependencies to 100%..."
+    $cliExternals = @(
+        '@opentelemetry/api','@opentelemetry/api-logs','@opentelemetry/core',
+        '@opentelemetry/exporter-trace-otlp-grpc','@opentelemetry/exporter-trace-otlp-http','@opentelemetry/exporter-trace-otlp-proto',
+        '@opentelemetry/exporter-logs-otlp-http','@opentelemetry/exporter-logs-otlp-proto','@opentelemetry/exporter-logs-otlp-grpc',
+        '@opentelemetry/exporter-metrics-otlp-proto','@opentelemetry/exporter-metrics-otlp-grpc','@opentelemetry/exporter-metrics-otlp-http',
+        '@opentelemetry/exporter-prometheus','@opentelemetry/resources','@opentelemetry/sdk-trace-base','@opentelemetry/sdk-trace-node',
+        '@opentelemetry/sdk-logs','@opentelemetry/sdk-metrics','@opentelemetry/semantic-conventions',
+        'sharp','@aws-sdk/client-bedrock','@aws-sdk/client-bedrock-runtime','@aws-sdk/client-sts','@aws-sdk/credential-providers',
+        '@azure/identity','google-auth-library','@vscode/ripgrep','@orama/orama','@orama/plugin-data-persistence'
+    )
+    $missing = @()
+    foreach ($pkg in $cliExternals) {
+        $pkgJson = Join-Path $dstNodeModules (($pkg -replace '/', '\') + '\package.json')
+        if (-not (Test-Path -LiteralPath $pkgJson)) { $missing += $pkg }
+    }
+    if ($missing.Count -eq 0) {
+        Ok "All $($cliExternals.Count) externals already present"
+    } else {
+        Step "Installing $($missing.Count) missing external(s): $($missing -join ', ')"
+        # CRITICAL: install into a TEMP staging tree, then robocopy-merge into
+        # the payload. Never run npm directly against payload\node_modules -- npm
+        # reconciles node_modules against package.json and would PRUNE the
+        # (undeclared) packages we already copied (the minimal stub has no deps).
+        $stage = Join-Path ([System.IO.Path]::GetTempPath()) ("olympuz-ext-stage-$PID")
+        if (Test-Path -LiteralPath $stage) { Remove-TreeLongPath -Path $stage | Out-Null }
+        New-Item -ItemType Directory -Force -Path $stage | Out-Null
+        @{ name = 'olympuz-ext-stage'; private = $true; dependencies = @{} } | ConvertTo-Json |
+            Set-Content -LiteralPath (Join-Path $stage 'package.json') -Encoding UTF8
+        $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+        & npm install @missing --prefix $stage --no-audit --no-fund --omit=dev 2>&1 |
+            ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+        $npmExit = $LASTEXITCODE
+        $ErrorActionPreference = $prev
+        $stageNm = Join-Path $stage 'node_modules'
+        if ($npmExit -eq 0 -and (Test-Path -LiteralPath $stageNm)) {
+            # Add-only merge (robocopy /E does NOT delete extras in the dest).
+            & robocopy $stageNm $dstNodeModules /E /MT:8 /NJH /NJS /NFL /NDL /NP | Out-Null
+            if ($LASTEXITCODE -ge 8) { Warn2 "robocopy merge exited $LASTEXITCODE." }
+            # Re-check the FULL external set (not just the originally-missing).
+            $allOk = $true
+            foreach ($pkg in $cliExternals) {
+                $pkgJson = Join-Path $dstNodeModules (($pkg -replace '/', '\') + '\package.json')
+                if (-not (Test-Path -LiteralPath $pkgJson)) { $allOk = $false; Warn2 "Still missing: $pkg" }
+            }
+            if ($allOk) { Ok "All $($cliExternals.Count) externals present (100%)" }
+        } else {
+            Warn2 "npm install exited $npmExit (the install-time doctor will retry)."
+        }
+        Remove-TreeLongPath -Path $stage | Out-Null
+    }
+}
+
 # --- 4. Smoke test -----------------------------------------------------------
 Step "Smoke-testing staged bundle..."
 $nodeExe = Join-Path $PayloadDir 'node\node.exe'
@@ -167,7 +262,7 @@ if ($CompileExe) {
 }
 
 # --- 7. Copy installers next to payload so the folder is distributable -------
-foreach ($f in @('Install-Olympuz.ps1', 'Uninstall-Olympuz.ps1', 'install.cmd')) {
+foreach ($f in @('Install-Olympuz.ps1', 'Uninstall-Olympuz.ps1', 'install.cmd', 'Check-OlympuzDependencies.ps1')) {
     $src = Join-Path $PSScriptRoot $f
     if (Test-Path -LiteralPath $src) {
         Copy-Item -LiteralPath $src -Destination (Join-Path $PayloadRoot $f) -Force
