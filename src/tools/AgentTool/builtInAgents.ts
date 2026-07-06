@@ -1,4 +1,5 @@
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
+import { isMarketingActive } from '../../marketing/marketingEngine.js'
 import { isOpsActive } from '../../ops/opsEngine.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { isStudioActive } from '../../studio/studioEngine.js'
@@ -8,6 +9,7 @@ import { CLAUDE_CODE_GUIDE_AGENT } from './built-in/claudeCodeGuideAgent.js'
 import { DATA_ANALYST_AGENT } from './built-in/dataAnalystAgent.js'
 import { EXPLORE_AGENT } from './built-in/exploreAgent.js'
 import { GENERAL_PURPOSE_AGENT } from './built-in/generalPurposeAgent.js'
+import { MARKETING_AGENTS } from './built-in/marketingAgents.js'
 import { OPS_AGENTS } from './built-in/opsAgents.js'
 import { PLAN_AGENT } from './built-in/planAgent.js'
 import { RESEARCHER_AGENT } from './built-in/researcherAgent.js'
@@ -76,6 +78,13 @@ export function getBuiltInAgents(): AgentDefinition[] {
 	// snapshots byte-for-byte stable.
 	if (isOpsActive()) {
 		agents.push(...OPS_AGENTS)
+	}
+
+	// Olympuz Marketing specialists — only when Marketing is active. Marketing is
+	// ENABLED by default (mirrors Studio) but dormant under vitest (isTestEnv) and
+	// when the kill switch is on, so agent-list snapshots stay byte-for-byte stable.
+	if (isMarketingActive()) {
+		agents.push(...MARKETING_AGENTS)
 	}
 
 	// Include Code Guide agent for non-SDK entrypoints

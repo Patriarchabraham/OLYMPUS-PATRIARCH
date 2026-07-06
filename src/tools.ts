@@ -51,8 +51,13 @@ import { BrowserControlTool } from './tools/BrowserControlTool/BrowserControlToo
 import { VisionTool } from './tools/VisionTool/VisionTool.js'
 import { SpeakTool } from './tools/SpeakTool/SpeakTool.js'
 import { ListenTool } from './tools/ListenTool/ListenTool.js'
+import { MarketingBuildTool } from './tools/MarketingBuildTool/MarketingBuildTool.js'
+import { VideoGenTool } from './tools/VideoGenTool/VideoGenTool.js'
+import { EmailTool } from './tools/EmailTool/EmailTool.js'
+import { SocialPostTool } from './tools/SocialPostTool/SocialPostTool.js'
 import { isStudioActive } from './studio/studioEngine.js'
 import { isOpsActive } from './ops/opsEngine.js'
+import { isMarketingActive } from './marketing/marketingEngine.js'
 // Lazy require to break circular dependency: tools.ts -> TeamCreateTool/TeamDeleteTool -> ... -> tools.ts
 /* eslint-disable @typescript-eslint/no-require-imports */
 const getTeamCreateTool = () =>
@@ -216,6 +221,11 @@ export function getAllBaseTools(): Tools {
 		...(isOpsActive() ? [OpsBuildTool] : []),
 		// Olympuz Ops operator tools — same gating: dormant unless Ops is active.
 		...(isOpsActive() ? [BrowserControlTool, VisionTool, SpeakTool, ListenTool] : []),
+		// Olympuz Marketing build tool — dormant under vitest + when Marketing is
+		// disabled/killed, so tool-list snapshots stay byte-for-byte stable.
+		...(isMarketingActive() ? [MarketingBuildTool] : []),
+		// Olympuz Marketing operator tools — same gating: dormant unless Marketing is active.
+		...(isMarketingActive() ? [VideoGenTool, EmailTool, SocialPostTool] : []),
 		...(CtxInspectTool ? [CtxInspectTool] : []),
 		...(TerminalCaptureTool ? [TerminalCaptureTool] : []),
 		LSPTool,

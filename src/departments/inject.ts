@@ -11,9 +11,13 @@
  * so Studio's own injector (`src/studio/inject.ts`) remains the single source of
  * truth for its contribution and its existing tests are unchanged.
  *
- * Phase 0 wires Studio only. Phase 1 adds Ops; Phase 2 adds Marketing — each is
- * one import + one line here, and each phase is independently green.
+ * All three departments (Studio, Ops, Marketing) are wired here. Each is one
+ * import + one line; each injector early-returns its input when its department is
+ * inactive, so the order is immaterial to the inactive (default) path.
  */
+
+import { composeMarketingAppendSystemPrompt as composeMarketingAppend } from '../marketing/inject.js'
+import { composeOpsAppendSystemPrompt as composeOpsAppend } from '../ops/inject.js'
 import { composeAppendSystemPrompt as composeStudioAppend } from '../studio/inject.js'
 
 /**
@@ -25,7 +29,7 @@ import { composeAppendSystemPrompt as composeStudioAppend } from '../studio/inje
 export function composeAllDepartmentInjections(existing: string | undefined): string | undefined {
 	let out = existing
 	out = composeStudioAppend(out)
-	// Phase 1: out = composeOpsAppend(out)
-	// Phase 2: out = composeMarketingAppend(out)
+	out = composeOpsAppend(out)
+	out = composeMarketingAppend(out)
 	return out
 }

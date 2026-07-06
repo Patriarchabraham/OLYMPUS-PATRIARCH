@@ -1106,6 +1106,27 @@ export const SettingsSchema = lazySchema(() =>
 						'register. Destructive actions require per-action approval. Runtime control via /ops; ' +
 						'OLYMPUZ_OPS_ENABLED=false is a hard kill switch.',
 				),
+			marketing: z
+				.object({
+					enabled: z.boolean().optional(),
+					autoActivate: z.boolean().optional(),
+					intensity: z.enum(['standard', 'premium', 'ultra']).optional(),
+					channels: z.array(z.string()).optional(),
+					publish: z
+						.object({
+							approvalPolicy: z.enum(['ask-always', 'ask-destructive', 'allow']).optional(),
+							logging: z.boolean().optional(),
+						})
+						.optional(),
+				})
+				.optional()
+				.describe(
+					'Olympuz Marketing & Growth Department config. ENABLED by default (mirrors Studio): ' +
+						'plans/runs campaigns, generates image/video creative, publishes to social, sends email. ' +
+						'When enabled, the Marketing PRD is appended to the system prompt and marketing-* ' +
+						'specialists/tools register. EVERY publish/send/post asks approval and is logged/reversible. ' +
+						'Runtime control via /marketing; OLYMPUZ_MARKETING_ENABLED=false is a hard kill switch.',
+				),
 		})
 		.passthrough(),
 )

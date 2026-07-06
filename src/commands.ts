@@ -127,6 +127,7 @@ import fuzz from './commands/fuzz/index.js'
 import goals from './commands/goals/index.js'
 import heapDump from './commands/heapdump/index.js'
 import hooks from './commands/hooks/index.js'
+import marketing from './commands/marketing/index.js'
 import mockLimits from './commands/mock-limits/index.js'
 import model from './commands/model/index.js'
 import ops from './commands/ops/index.js'
@@ -332,6 +333,7 @@ const COMMANDS = memoize((): Command[] => [
 	design,
 	studio,
 	ops,
+	marketing,
 	auditUI,
 	rag,
 	visualize,
