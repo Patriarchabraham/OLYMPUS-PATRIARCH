@@ -116,6 +116,15 @@ Section "Install" SecCore
   WriteRegStr   HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Olympuz" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Olympuz" "NoModify" 1
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Olympuz" "NoRepair" 1
+
+  ; --- Dependency readiness: auto-detect + auto-download missing deps ---------
+  ; Runs the bundled doctor so the install self-completes to 100% (Playwright +
+  ; Chromium browser; any absent external) using the bundled Node+npm. Non-fatal:
+  ; a failed download (offline target) only warns -- the core install is already
+  ; complete and runnable. Mirrors Install-Olympuz.ps1 section 9. A console window
+  ; shows the readiness matrix + download progress, then closes on completion.
+  DetailPrint "Checking dependencies and auto-downloading anything missing..."
+  ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\Check-OlympuzDependencies.ps1" -InstallDir "$INSTDIR"'
 SectionEnd
 
 ; ===========================================================================

@@ -106,6 +106,38 @@ Copy-Item -LiteralPath $distCli -Destination (Join-Path $PayloadDir 'dist\cli.mj
 $pkgPath = Join-Path $PayloadDir 'package.json'
 $pkg = [pscustomobject]@{ name = 'olympuz-coder'; version = $Version; private = $true; type = 'module' }
 $pkg | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath $pkgPath -Encoding UTF8
+
+# bin\olympuz.cmd -- Windows launcher using the BUNDLED node.exe (so Olympuz
+# runs even when Node is not on the target's PATH). Generated INTO THE PAYLOAD
+# here so the NSIS wizard (which just File's the payload) produces a COMPLETE
+# install identical to Install-Olympuz.ps1. Without it, `olympuz` would not
+# resolve on PATH after an NSIS install.
+$olympuzCmd = @'
+@echo off
+REM Olympuz Coder - Windows launcher (uses the bundled Node runtime)
+setlocal
+set "OLYMPUZ_HOME=%~dp0.."
+"%OLYMPUZ_HOME%\node\node.exe" "%~dp0olympuz" %*
+'@
+Set-Content -LiteralPath (Join-Path $PayloadDir 'bin\olympuz.cmd') -Value $olympuzCmd -Encoding ASCII
+
+# bin\olympuz-doctor.cmd -- dependency auto-detect + auto-download launcher.
+$doctorCmd = @'
+@echo off
+REM Olympuz Coder - dependency doctor (auto-detect + auto-download missing deps)
+setlocal
+set "OLYMPUZ_HOME=%~dp0.."
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%OLYMPUZ_HOME%\Check-OlympuzDependencies.ps1" -InstallDir "%OLYMPUZ_HOME%" %*
+'@
+Set-Content -LiteralPath (Join-Path $PayloadDir 'bin\olympuz-doctor.cmd') -Value $doctorCmd -Encoding ASCII
+
+# Check-OlympuzDependencies.ps1 -- the doctor engine, so `olympuz-doctor` works
+# from a fresh install (the NSIS path does not run Install-Olympuz.ps1, which
+# would otherwise copy it at install time).
+$checkSrc = Join-Path $PSScriptRoot 'Check-OlympuzDependencies.ps1'
+if (Test-Path -LiteralPath $checkSrc) {
+    Copy-Item -LiteralPath $checkSrc -Destination (Join-Path $PayloadDir 'Check-OlympuzDependencies.ps1') -Force
+}
 Ok "App files staged"
 
 # --- 3. Bundle node.exe ------------------------------------------------------
