@@ -26,6 +26,7 @@ import { SmartKickBassUnmasker } from './SmartKickBassUnmasker';
 import { TransientPunchSculptor } from './TransientPunchSculptor';
 import { RealWorldDeviceSimulator, type RealWorldDevice } from './RealWorldDeviceSimulator';
 import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom';
+import { AnalogClipperLimiterEngine, type LimiterMode } from './AnalogClipperLimiterEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -44,6 +45,7 @@ export interface ProcessMasterOptions {
   bitDepth?: '24bit' | '32bit';
   streamingPlatform?: StreamingPlatform;
   analogColorModel?: AnalogColorModel;
+  limiterMode?: LimiterMode;
   enableAiAssistant?: boolean;
   enableDynamicDeHarsh?: boolean;
   enableKickBassUnmask?: boolean;
@@ -87,6 +89,7 @@ export class AudioEngine {
       bitDepth = '24bit',
       streamingPlatform = 'cd_metal',
       analogColorModel = 'ampex_atr102',
+      limiterMode = 'soft_analog_clipper',
       enableAiAssistant = true,
       enableDynamicDeHarsh = true,
       enableKickBassUnmask = true,
@@ -336,8 +339,9 @@ export class AudioEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 9: STREAMING TARGET CALIBRATION & BRICKWALL TRUE-PEAK LIMITER
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(90, `Calibrando alvo para ${streamingPlatform.toUpperCase()} e limitando True-Peak...`);
+    onProgress?.(90, `Calibrando alvo para ${streamingPlatform.toUpperCase()} (${limiterMode === 'soft_analog_clipper' ? 'Soft Clipper' : 'Pristine Limiter'})...`);
     StreamingTargetEngine.matchPlatformSpecs(renderedMaster, streamingPlatform);
+    AnalogClipperLimiterEngine.processPeakLimiting(renderedMaster, limiterMode, -0.30);
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 10: AUDIO ENCODING & MASTERING ENGINEERING REPORT

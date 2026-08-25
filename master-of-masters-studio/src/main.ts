@@ -27,6 +27,10 @@ import { BinauralStudioMonitor } from './dsp/BinauralStudioMonitor';
 import { SongArrangerEngine, type SongSection } from './dsp/SongArrangerEngine';
 import { KeyDetectorEngine } from './dsp/KeyDetectorEngine';
 import { VoiceTimbreCloner } from './dsp/VoiceTimbreCloner';
+import { GainMatchedAbEngine } from './dsp/GainMatchedAbEngine';
+import { ReactiveTubeVisualizer } from './visualizers/ReactiveTubeVisualizer';
+import { InteractiveCurveSculptor } from './visualizers/InteractiveCurveSculptor';
+import { WaveformScrubber } from './components/WaveformScrubber';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -838,12 +842,27 @@ function setupTransportDock() {
     mainAudioPlayer.currentTime = pct * mainAudioPlayer.duration;
   });
 
+  // Jump to Loudest Section / Chorus
+  const btnJumpLoudest = document.getElementById('btn-jump-loudest') as HTMLButtonElement;
+  btnJumpLoudest?.addEventListener('click', () => {
+    if (!audioBuffer) return;
+    const loudestSec = WaveformScrubber.findLoudestSectionSec();
+    mainAudioPlayer.currentTime = loudestSec;
+    if (mainAudioPlayer.paused) {
+      mainAudioPlayer.play();
+      btnTransportPlay.textContent = '❚❚';
+    }
+  });
+
+  const chkAbGainMatch = document.getElementById('chk-ab-gain-match') as HTMLInputElement;
+
   btnAbOrig.addEventListener('click', () => {
     if (!loadedFile) return;
     const currentPlayTime = mainAudioPlayer.currentTime;
     const wasPlaying = !mainAudioPlayer.paused;
     initPlaybackMeter();
     mainAudioPlayer.src = URL.createObjectURL(loadedFile);
+    mainAudioPlayer.volume = isDim ? 0.1 : 1.0;
     mainAudioPlayer.onloadedmetadata = () => {
       mainAudioPlayer.currentTime = currentPlayTime;
       if (wasPlaying) mainAudioPlayer.play();
@@ -858,7 +877,14 @@ function setupTransportDock() {
     const currentPlayTime = mainAudioPlayer.currentTime;
     const wasPlaying = !mainAudioPlayer.paused;
     initPlaybackMeter();
+
+    let gainMatchScale = 1.0;
+    if (chkAbGainMatch?.checked && audioBuffer && lastMasterResult?.masterBuffer) {
+      gainMatchScale = GainMatchedAbEngine.computeGainMatchFactor(audioBuffer, lastMasterResult.masterBuffer);
+    }
+
     mainAudioPlayer.src = URL.createObjectURL(blob);
+    mainAudioPlayer.volume = isDim ? 0.1 : gainMatchScale;
     mainAudioPlayer.onloadedmetadata = () => {
       mainAudioPlayer.currentTime = currentPlayTime;
       if (wasPlaying) mainAudioPlayer.play();
@@ -1084,6 +1110,7 @@ function setupMasterProcessing() {
     try {
       const selectStreamingTarget = document.getElementById('select-streaming-target') as HTMLSelectElement;
       const selectAnalogTapeModel = document.getElementById('select-analog-tape-model') as HTMLSelectElement;
+      const selectLimiterMode = document.getElementById('select-limiter-mode') as HTMLSelectElement;
       const selectRealWorldDevice = document.getElementById('select-real-world-device') as HTMLSelectElement;
       const chkAiAssistantEnable = document.getElementById('chk-ai-assistant-enable') as HTMLInputElement;
       const chkDynamicDeHarsh = document.getElementById('chk-dynamic-deharsh') as HTMLInputElement;
@@ -1099,6 +1126,7 @@ function setupMasterProcessing() {
         intensityScale: parseFloat(sliderIntensity.value) / 100,
         streamingPlatform: selectStreamingTarget ? (selectStreamingTarget.value as any) : 'cd_metal',
         analogColorModel: selectAnalogTapeModel ? (selectAnalogTapeModel.value as any) : 'ampex_atr102',
+        limiterMode: selectLimiterMode ? (selectLimiterMode.value as any) : 'soft_analog_clipper',
         realWorldDevice: selectRealWorldDevice ? (selectRealWorldDevice.value as any) : 'flat_studio',
         enableAiAssistant: chkAiAssistantEnable ? chkAiAssistantEnable.checked : true,
         enableDynamicDeHarsh: chkDynamicDeHarsh ? chkDynamicDeHarsh.checked : true,
