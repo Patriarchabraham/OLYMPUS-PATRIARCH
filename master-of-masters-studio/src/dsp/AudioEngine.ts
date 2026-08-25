@@ -34,6 +34,7 @@ import { VolterraHysteresisEngine } from './VolterraHysteresisEngine';
 import { CabinetIrConvolutionEngine, type CabinetIrType } from './CabinetIrConvolutionEngine';
 import { LpcVocalFormantEngine } from './LpcVocalFormantEngine';
 import { DeHummerGroundCleaner } from './DeHummerGroundCleaner';
+import { AbbeyRoadAdtEngine } from './AbbeyRoadAdtEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -54,6 +55,8 @@ export interface ProcessMasterOptions {
   hackIntensity?: number;
   cabinetIrModel?: CabinetIrType;
   enableDeHum?: boolean;
+  enableAbbeyRoadAdt?: boolean;
+  adtBlend?: number;
   harmonyOptions?: any;
   pitchOptions?: any;
   targetCeilingDb?: number;
@@ -367,6 +370,18 @@ export class AudioEngine {
     src.start(0);
 
     const renderedMaster = await masterCtx.startRendering();
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 6.5: ABBEY ROAD AUTOMATIC DOUBLE TRACKING (ADT) REEL-TO-REEL FLANGE
+    // ─────────────────────────────────────────────────────────────────────────
+    if (enableAbbeyRoadAdt) {
+      onProgress?.(78, '📼 Aplicando dobra de fitas gêmeas Abbey Road ADT com micro-flange...');
+      const lAdt = renderedMaster.getChannelData(0);
+      const rAdt = renderedMaster.getChannelData(1);
+      const adtResult = AbbeyRoadAdtEngine.processAdt(lAdt, rAdt, { blend: adtBlend || 0.45 }, sr);
+      renderedMaster.copyToChannel(adtResult.left, 0);
+      renderedMaster.copyToChannel(adtResult.right, 1);
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 7: 4-BAND HOLOGRAPHIC 3D MID/SIDE SPATIALIZER

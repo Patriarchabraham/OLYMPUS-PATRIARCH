@@ -593,8 +593,11 @@
                   📦 EXPORTAR PACOTE DE LANÇAMENTO (ALL PLATFORMS)
                 </button>
                 <div style="display: flex; gap: 6px; width: 100%;">
-                  <button type="button" id="btn-export-32bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">WAV 32-Bit Float</button>
-                  <button type="button" id="btn-export-16bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">WAV 16-Bit CD</button>
+                  <button type="button" id="btn-generate-cover-art" class="btn-gold-action" style="flex: 1.2; font-size: 10px; padding: 5px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-color: #8b5cf6;">
+                    🎨 CAPA DE ÁLBUM 4K
+                  </button>
+                  <button type="button" id="btn-export-32bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">32-Bit Float</button>
+                  <button type="button" id="btn-export-16bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">16-Bit CD</button>
                 </div>
               </div>
 
@@ -1588,6 +1591,20 @@
       <button type="button" id="btn-download-all-bundle" class="btn-gold-action" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 800;">
         ⬇️ BAIXAR TODOS OS ARQUIVOS
       </button>
+    </div>
+  </div>
+
+  <!-- 4K COVER ART MODAL -->
+  <div id="modal-cover-art" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.90); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;">
+    <div style="background: #080c14; border: 2px solid var(--gold-primary); border-radius: 14px; max-width: 540px; width: 100%; padding: 20px; box-shadow: 0 0 50px rgba(245,158,11,0.35); display: flex; flex-direction: column; align-items: center; gap: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h3 style="font-family: var(--font-display); font-size: 15px; color: var(--gold-light); text-transform: uppercase;">🎨 Arte de Capa 4K & Selo de Masterização</h3>
+        <button type="button" id="btn-close-cover-modal" class="switch-toggle-btn" style="padding: 2px 8px; font-size: 12px;">✕</button>
+      </div>
+      <canvas id="cover-art-canvas" width="480" height="480" style="border-radius: 8px; box-shadow: 0 0 25px rgba(0,0,0,0.8); max-width: 100%;"></canvas>
+      <a id="btn-download-cover-art" href="#" download="ALBUM_COVER_4K.png" class="btn-gold-action" style="width: 100%; text-decoration: none; text-align: center; font-weight: 800;">
+        ⬇️ BAIXAR ARTE DE CAPA EM ALTA RESOLUÇÃO (PNG)
+      </a>
     </div>
   </div>
 

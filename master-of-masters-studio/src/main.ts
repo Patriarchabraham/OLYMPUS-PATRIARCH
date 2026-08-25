@@ -40,6 +40,9 @@ import { MasteringRadarBenchmark } from './visualizers/MasteringRadarBenchmark';
 import { ProKeybindingsMatrix } from './components/ProKeybindingsMatrix';
 import { AiReferenceTrackMatcher, type ReferenceTrackProfile } from './dsp/AiReferenceTrackMatcher';
 import { DeHummerGroundCleaner } from './dsp/DeHummerGroundCleaner';
+import { CoverArtGenerator } from './components/CoverArtGenerator';
+import { AiMasterCoPilotEngine } from './dsp/AiMasterCoPilotEngine';
+import { DolbyAtmos3DSphereVisualizer } from './visualizers/DolbyAtmos3DSphereVisualizer';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1310,6 +1313,30 @@ function setupMasterProcessing() {
       }
 
       if (multiFormatExportWrap) multiFormatExportWrap.classList.remove('hidden');
+
+      const btnGenerateCoverArt = document.getElementById('btn-generate-cover-art') as HTMLButtonElement;
+      const modalCoverArt = document.getElementById('modal-cover-art')!;
+      const coverArtCanvas = document.getElementById('cover-art-canvas') as HTMLCanvasElement;
+      const btnDownloadCoverArt = document.getElementById('btn-download-cover-art') as HTMLAnchorElement;
+      const btnCloseCoverModal = document.getElementById('btn-close-cover-modal') as HTMLButtonElement;
+
+      if (btnGenerateCoverArt) {
+        btnGenerateCoverArt.onclick = () => {
+          CoverArtGenerator.renderCover(
+            coverArtCanvas,
+            activeAlbum.band,
+            activeAlbum.albumTitle,
+            activeProducer ? activeProducer.name : 'Master of Masters Studio Pro'
+          );
+          btnDownloadCoverArt.href = coverArtCanvas.toDataURL('image/png');
+          btnDownloadCoverArt.download = `COVER_${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_4K.png`;
+          modalCoverArt.classList.remove('hidden');
+        };
+      }
+
+      btnCloseCoverModal?.addEventListener('click', () => {
+        modalCoverArt.classList.add('hidden');
+      });
 
       if (btnExport32bit) {
         btnExport32bit.onclick = () => {
