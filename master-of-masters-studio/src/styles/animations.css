@@ -1,0 +1,80 @@
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes tube-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.45));
+    opacity: 0.9;
+  }
+  50% {
+    filter: drop-shadow(0 0 25px rgba(239, 68, 68, 0.75));
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-led {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 4px #10b981;
+  }
+}
+
+@keyframes signal-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.tube-filament {
+  animation: tube-glow 3s infinite ease-in-out;
+}
+
+.led-live {
+  animation: pulse-led 2s infinite ease-in-out;
+}

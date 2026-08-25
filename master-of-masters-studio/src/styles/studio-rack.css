@@ -1,0 +1,253 @@
+/* ==========================================================================
+   MASTER OF MASTERS STUDIO PRO - ULTRA-LUXURY ANALOG & DIGITAL RACK THEME
+   Fusion of Vintage High-End Hardware (Neve/SSL/Studer) & Modern Cyber DSP
+   ========================================================================== */
+
+:root {
+  --rack-bg-dark: #07090e;
+  --rack-bg-panel: #0d1117;
+  --rack-border: #1f293d;
+  --rack-metal-light: #2a3449;
+  --chassis-metal: linear-gradient(180deg, #1e2430 0%, #121620 50%, #0a0d14 100%);
+  
+  --gold-glow: #f59e0b;
+  --red-glow: #ef4444;
+  --cyan-glow: #06b6d4;
+  --tube-warmth: #ff7700;
+  --meter-bg: #fbf8eb;
+  --meter-text: #1a160d;
+}
+
+/* 19" RACK CHASSIS CONTAINER */
+.rack-chassis {
+  background: var(--chassis-metal);
+  border: 2px solid #2e384d;
+  border-radius: 12px;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+/* RACK EARS & PHILLIPS SCREWS */
+.rack-ears-left, .rack-ears-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(90deg, #181d27, #0e1219);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 0;
+  align-items: center;
+  z-index: 10;
+  border-right: 1px solid #232b3b;
+}
+.rack-ears-right {
+  right: 0;
+  border-right: none;
+  border-left: 1px solid #232b3b;
+}
+
+.rack-screw {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #4a5568, #1a202c);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+.rack-screw::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: #0f141c;
+  transform: translateY(-50%) rotate(45deg);
+}
+.rack-screw::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: 50%;
+  width: 2px;
+  background: #0f141c;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* ROTARY ANALOG KNOB */
+.analog-knob-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.knob-dial-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.knob-ticks {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.knob-face {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3b4559, #151a24 70%, #0c0f17);
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.8);
+  border: 1.5px solid #48566e;
+  position: relative;
+  transition: transform 0.05s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.knob-pointer {
+  position: absolute;
+  top: 4px;
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+}
+.knob-pointer.cyan {
+  background: #06b6d4;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.8);
+}
+.knob-pointer.red {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+}
+
+/* REALISTIC VACUUM TUBE WITH FILAMENT GLOW */
+.vacuum-tube-housing {
+  width: 58px;
+  height: 90px;
+  background: rgba(10, 15, 25, 0.4);
+  border-radius: 28px 28px 8px 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+  overflow: hidden;
+}
+
+.tube-filament {
+  width: 8px;
+  height: 38px;
+  background: linear-gradient(180deg, #ffcc00 0%, #ff5500 50%, #991b1b 100%);
+  border-radius: 4px;
+  box-shadow: 
+    0 0 15px rgba(255, 119, 0, 0.9),
+    0 0 30px rgba(255, 68, 0, 0.6);
+  opacity: 0.85;
+  transition: all 0.3s ease;
+}
+
+.tube-glow-pulse {
+  animation: tube-glow 3s infinite alternate ease-in-out;
+}
+@keyframes tube-glow {
+  0% { transform: scaleY(0.95); opacity: 0.75; filter: brightness(0.9); }
+  100% { transform: scaleY(1.05); opacity: 1.0; filter: brightness(1.3); }
+}
+
+.tube-glass-reflection {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 14px;
+  height: 50px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* VINTAGE WARM BACKLIT VU METER */
+.vintage-vu-box {
+  background: #f7f3e1;
+  border: 3px solid #2d3748;
+  border-radius: 8px;
+  box-shadow: 
+    inset 0 4px 12px rgba(0, 0, 0, 0.4),
+    0 4px 15px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.vintage-vu-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 120%, rgba(255, 180, 50, 0.35) 0%, rgba(255, 240, 200, 0.1) 70%);
+  pointer-events: none;
+}
+
+/* ILLUMINATED POWER & BYPASS SWITCHES */
+.switch-power-button {
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  border: 1.5px solid #334155;
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: #94a3b8;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.switch-power-button:hover {
+  border-color: #64748b;
+  color: #ffffff;
+}
+.switch-power-button.active-on {
+  background: linear-gradient(180deg, #14532d, #052e16);
+  border-color: #22c55e;
+  color: #86efac;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+.switch-power-button.active-red {
+  background: linear-gradient(180deg, #7f1d1d, #450a0a);
+  border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+/* FLOATING DOCK TRANSPORT */
+.floating-master-dock {
+  background: rgba(10, 14, 22, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+}

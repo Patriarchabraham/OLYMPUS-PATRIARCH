@@ -1,0 +1,16 @@
+{
+  "name": "master-of-masters-studio-pro",
+  "version": "3.0.0",
+  "description": "Ultra-Premium Heavy Metal, Rock & Orchestral DSP Mastering Suite with Gem-by-Gem Stem Processing and Analog Summing Welder for Windows 10 & 11",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  }
+}
