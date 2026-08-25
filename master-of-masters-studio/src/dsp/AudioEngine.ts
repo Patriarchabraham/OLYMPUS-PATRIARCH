@@ -30,6 +30,7 @@ import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom';
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
   producer?: MasterProducer;
+  inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto';
   intensityScale?: number;
   customDrive?: number;
   customWidth?: number;
@@ -59,6 +60,7 @@ export interface MasterResult {
   downloadFilename: string;
   diagnostic?: TrackDiagnostic;
   reportHtml: string;
+  detectedSourceType?: 'studio_demo' | 'ai_generated';
 }
 
 export class AudioEngine {
@@ -72,13 +74,14 @@ export class AudioEngine {
     const {
       album,
       producer,
+      inputSourceMode = 'studio_demo',
       intensityScale = 1.0,
       customDrive,
       customWidth,
-      drumReplacementBlend = 0.65,
-      guitarReampBlend = 0.65,
-      bassReampBlend = 0.65,
-      vocalModelBlend = 0.65,
+      drumReplacementBlend = 0.0,
+      guitarReampBlend = 0.0,
+      bassReampBlend = 0.0,
+      vocalModelBlend = 0.0,
       harmonyOptions = {},
       pitchOptions = { enabled: false, rootKey: 'C', scale: 'chromatic', retuneSpeed: 0.65, amount: 0.80 },
       bitDepth = '24bit',
@@ -96,6 +99,22 @@ export class AudioEngine {
     const sr = inputBuffer.sampleRate;
     const length = inputBuffer.length;
 
+    // Detect if track is a real studio recording or AI generated
+    let isRealStudio = inputSourceMode === 'studio_demo';
+    if (inputSourceMode === 'auto') {
+      // Analyze crest factor and dynamic range
+      const chan0 = inputBuffer.getChannelData(0);
+      let peak = 0, sumSq = 0;
+      for (let i = 0; i < Math.min(length, 44100 * 30); i += 16) {
+        const abs = Math.abs(chan0[i]);
+        if (abs > peak) peak = abs;
+        sumSq += abs * abs;
+      }
+      const rms = Math.sqrt(sumSq / (Math.min(length, 44100 * 30) / 16));
+      const crest = peak > 0 && rms > 0 ? 20 * Math.log10(peak / rms) : 12;
+      isRealStudio = crest >= 11.5; // Natural studio recordings have healthy crest factor > 11.5dB
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 0: AI MASTER ASSISTANT 2.0 (SPECTRAL DIAGNOSTIC & PRE-CONDITIONING)
     // ─────────────────────────────────────────────────────────────────────────
@@ -109,21 +128,32 @@ export class AudioEngine {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 1: DYNAMIC 10-LAYER MULTI-INSTRUMENT SEPARATION & PRE-WELDING
+    // STAGE 1: SIGNAL PATH SELECTION (STUDIO MASTERING VS. AI STEM RESYNTHESIS)
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(15, `Separando e refinando 10 camadas de instrumentos para "${album.band} - ${album.albumTitle}"...`);
-    const weldedStemBuffer = await UniversalStemSeparationEngine.processAndWeld10Layers(
-      new OfflineAudioContext(2, length, sr),
-      activeInputBuffer,
-      album,
-      intensityScale,
-      drumReplacementBlend,
-      guitarReampBlend,
-      bassReampBlend,
-      vocalModelBlend,
-      harmonyOptions,
-      pitchOptions
-    );
+    let weldedStemBuffer: AudioBuffer;
+
+    if (isRealStudio && drumReplacementBlend <= 0.05 && guitarReampBlend <= 0.05 && (!harmonyOptions.guitarDoubling || harmonyOptions.guitarDoubling === 'off')) {
+      // 100% PURE AUDIOPHILE STUDIO MASTERING PATH (Zero phase-smear, pristine real drums/guitars)
+      onProgress?.(15, '🎙️ Modo Gravação de Estúdio: Preservando 100% da dinâmica natural dos instrumentos reais...');
+      weldedStemBuffer = new OfflineAudioContext(2, length, sr).createBuffer(2, length, sr);
+      weldedStemBuffer.copyToChannel(activeInputBuffer.getChannelData(0), 0);
+      weldedStemBuffer.copyToChannel(activeInputBuffer.numberOfChannels > 1 ? activeInputBuffer.getChannelData(1) : activeInputBuffer.getChannelData(0), 1);
+    } else {
+      // AI RECONSTRUCTION PATH (For Suno/Udio/Lo-Fi or when explicitly requested)
+      onProgress?.(15, `Separando e refinando camadas de instrumentos para "${album.band} - ${album.albumTitle}"...`);
+      weldedStemBuffer = await UniversalStemSeparationEngine.processAndWeld10Layers(
+        new OfflineAudioContext(2, length, sr),
+        activeInputBuffer,
+        album,
+        intensityScale,
+        drumReplacementBlend,
+        guitarReampBlend,
+        bassReampBlend,
+        vocalModelBlend,
+        harmonyOptions,
+        pitchOptions
+      );
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 2: 512-BAND SPECTRAL CLONING DIRECT FROM PRODUCER & ALBUM
@@ -135,7 +165,7 @@ export class AudioEngine {
       clonedL,
       clonedR,
       album,
-      intensityScale,
+      intensityScale * (isRealStudio ? 0.65 : 1.0), // Gentle musical curve for real studio recording
       sr
     );
     weldedStemBuffer.copyToChannel(spectralMatched.left, 0);

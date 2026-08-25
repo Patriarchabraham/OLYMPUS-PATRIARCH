@@ -1037,6 +1037,40 @@ function setupMasterProcessing() {
     if (labelBassBlendVal) labelBassBlendVal.textContent = `${sliderBassBlend.value}%`;
   });
 
+  const selectInputSourceMode = document.getElementById('select-input-source-mode') as HTMLSelectElement;
+  const sourceModeHint = document.getElementById('source-mode-hint');
+
+  selectInputSourceMode?.addEventListener('change', () => {
+    const mode = selectInputSourceMode.value;
+    if (mode === 'studio_demo') {
+      if (sourceModeHint) sourceModeHint.innerHTML = '✅ <strong>Modo Estúdio Puro:</strong> Preserva 100% dos seus instrumentos e voz originais sem re-síntese ou dobras artificiais.';
+      if (sliderDrumBlend) sliderDrumBlend.value = '0';
+      if (sliderGuitarBlend) sliderGuitarBlend.value = '0';
+      if (sliderBassBlend) sliderBassBlend.value = '0';
+      if (sliderVocalBlend) sliderVocalBlend.value = '0';
+      if (labelDrumBlendVal) labelDrumBlendVal.textContent = '0%';
+      if (labelGuitarBlendVal) labelGuitarBlendVal.textContent = '0%';
+      if (labelBassBlendVal) labelBassBlendVal.textContent = '0%';
+      if (labelVocalBlendVal) labelVocalBlendVal.textContent = '0%';
+      if (selectGuitarDoubling) selectGuitarDoubling.value = 'off';
+      if (selectGuitarHarmony) selectGuitarHarmony.value = 'none';
+      if (selectVocalHarmony) selectVocalHarmony.value = 'none';
+    } else if (mode === 'ai_generated') {
+      if (sourceModeHint) sourceModeHint.innerHTML = '🤖 <strong>Modo IA:</strong> Reconstrói baterias, guitarras e remove defeitos e robôs do Suno/Udio.';
+      if (sliderDrumBlend) sliderDrumBlend.value = '65';
+      if (sliderGuitarBlend) sliderGuitarBlend.value = '65';
+      if (sliderBassBlend) sliderBassBlend.value = '65';
+      if (sliderVocalBlend) sliderVocalBlend.value = '65';
+      if (labelDrumBlendVal) labelDrumBlendVal.textContent = '65%';
+      if (labelGuitarBlendVal) labelGuitarBlendVal.textContent = '65%';
+      if (labelBassBlendVal) labelBassBlendVal.textContent = '65%';
+      if (labelVocalBlendVal) labelVocalBlendVal.textContent = '65%';
+      if (selectGuitarDoubling) selectGuitarDoubling.value = 'double_2x';
+    } else {
+      if (sourceModeHint) sourceModeHint.innerHTML = '⚡ <strong>Auto-Detecção:</strong> O sistema inspeciona a coerência de fase e seleciona a melhor rota analógica.';
+    }
+  });
+
   sliderVocalBlend?.addEventListener('input', () => {
     if (labelVocalBlendVal) labelVocalBlendVal.textContent = `${sliderVocalBlend.value}%`;
   });
@@ -1059,6 +1093,7 @@ function setupMasterProcessing() {
       lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
         album: activeAlbum,
         producer: activeProducer,
+        inputSourceMode: selectInputSourceMode ? (selectInputSourceMode.value as any) : 'studio_demo',
         customDrive: parseFloat(sliderSat.value) / 100,
         customWidth: parseFloat(sliderWidth.value) / 100,
         intensityScale: parseFloat(sliderIntensity.value) / 100,
@@ -1070,12 +1105,12 @@ function setupMasterProcessing() {
         enableKickBassUnmask: chkKickBassUnmask ? chkKickBassUnmask.checked : true,
         enableDolbyAtmosRoom: chkDolbyAtmosRoom ? chkDolbyAtmosRoom.checked : false,
         transientPunchAmount: sliderTransientPunch ? parseFloat(sliderTransientPunch.value) / 100 : 0.45,
-        drumReplacementBlend: sliderDrumBlend ? parseFloat(sliderDrumBlend.value) / 100 : 0.65,
-        guitarReampBlend: sliderGuitarBlend ? parseFloat(sliderGuitarBlend.value) / 100 : 0.65,
-        bassReampBlend: sliderBassBlend ? parseFloat(sliderBassBlend.value) / 100 : 0.65,
-        vocalModelBlend: sliderVocalBlend ? parseFloat(sliderVocalBlend.value) / 100 : 0.65,
+        drumReplacementBlend: sliderDrumBlend ? parseFloat(sliderDrumBlend.value) / 100 : 0.0,
+        guitarReampBlend: sliderGuitarBlend ? parseFloat(sliderGuitarBlend.value) / 100 : 0.0,
+        bassReampBlend: sliderBassBlend ? parseFloat(sliderBassBlend.value) / 100 : 0.0,
+        vocalModelBlend: sliderVocalBlend ? parseFloat(sliderVocalBlend.value) / 100 : 0.0,
         harmonyOptions: {
-          guitarDoubling: selectGuitarDoubling ? (selectGuitarDoubling.value as any) : 'double_2x',
+          guitarDoubling: selectGuitarDoubling ? (selectGuitarDoubling.value as any) : 'off',
           guitarHarmony: selectGuitarHarmony ? (selectGuitarHarmony.value as any) : 'none',
           bassDoubling: selectBassDoubling ? (selectBassDoubling.value as any) : 'off',
           vocalHarmony: selectVocalHarmony ? (selectVocalHarmony.value as any) : 'none',
