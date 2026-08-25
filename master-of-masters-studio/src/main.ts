@@ -35,6 +35,7 @@ import { LiveRigAuditionEngine } from './dsp/LiveRigAuditionEngine';
 import { ReleaseBundleExportEngine, type ReleaseFileItem } from './dsp/ReleaseBundleExportEngine';
 import { VocalChoirHarmonizerEngine } from './dsp/VocalChoirHarmonizerEngine';
 import { AnsiVuMeterBallistics } from './visualizers/AnsiVuMeterBallistics';
+import { Mp3EncoderEngine } from './dsp/Mp3EncoderEngine';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1288,6 +1289,20 @@ function setupMasterProcessing() {
       btnDownloadMaster.href = masterUrl;
       btnDownloadMaster.download = lastMasterResult.downloadFilename;
       btnDownloadMaster.classList.remove('hidden');
+
+      const btnDownloadMp3 = document.getElementById('btn-download-mp3') as HTMLAnchorElement;
+      if (btnDownloadMp3 && lastMasterResult) {
+        const mp3Blob = Mp3EncoderEngine.encodeToMp3_320kbps(lastMasterResult.masterBuffer, {
+          artist: activeAlbum.band,
+          album: activeAlbum.albumTitle,
+          title: `${activeAlbum.band} - ${activeAlbum.albumTitle} (Master 320k)`,
+          year: '2026',
+        });
+        const mp3Url = URL.createObjectURL(mp3Blob);
+        btnDownloadMp3.href = mp3Url;
+        btnDownloadMp3.download = lastMasterResult.downloadFilename.replace('_24bit.wav', '_320kbps.mp3');
+        btnDownloadMp3.classList.remove('hidden');
+      }
 
       if (multiFormatExportWrap) multiFormatExportWrap.classList.remove('hidden');
 

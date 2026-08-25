@@ -2,11 +2,12 @@
  * Master of Masters Studio Pro — All-Platform Release Bundle Exporter.
  * 
  * Generates calibrated masters for Spotify, Apple Music, YouTube, CD/Metal,
- * Instrumental Playback, Acapella, and Engineering Certificate in a single click.
+ * 320 kbps HD MP3, Instrumental Playback, and Engineering Certificate in a single click.
  */
 
 import { StreamingTargetEngine, type StreamingPlatform } from './StreamingTargetEngine';
 import { audioBufferTo24BitWavBlob } from './WavEncoder';
+import { Mp3EncoderEngine } from './Mp3EncoderEngine';
 
 export interface ReleaseFileItem {
   filename: string;
@@ -22,7 +23,8 @@ export class ReleaseBundleExportEngine {
   public static async generateAllPlatformMasters(
     masterBuffer: AudioBuffer,
     baseName: string,
-    reportHtml: string
+    reportHtml: string,
+    metadata?: { band: string; albumTitle: string }
   ): Promise<ReleaseFileItem[]> {
     const items: ReleaseFileItem[] = [];
     const platforms: { platform: StreamingPlatform; filenameSuffix: string; desc: string; badge: string }[] = [
@@ -53,6 +55,22 @@ export class ReleaseBundleExportEngine {
       });
     }
 
+    // 🌟 MAXIMUM QUALITY 320 KBPS MP3 MASTER WITH ID3v2 TAGS
+    const mp3Blob = Mp3EncoderEngine.encodeToMp3_320kbps(masterBuffer, {
+      artist: metadata?.band || 'Master of Masters Studio Pro',
+      album: metadata?.albumTitle || 'Quantum Supreme Master',
+      title: `${metadata?.band || 'Master'} - ${metadata?.albumTitle || 'Master Track'}`,
+      year: '2026',
+      genre: 'Heavy Metal / Rock / Studio Master',
+      comment: 'Mastered with Master of Masters Studio Pro at 320 kbps CBR',
+    });
+    items.push({
+      filename: `${baseName}_05_MP3_320KBPS_HD.mp3`,
+      blob: mp3Blob,
+      description: 'MP3 em máxima qualidade (320 kbps CBR) com tags ID3v2 completas.',
+      badge: '320 KBPS MP3',
+    });
+
     // Instrumental Playback (Vocal Center Cut / Phase Cancelled)
     const instCtx = new OfflineAudioContext(2, len, sr);
     const instBuf = instCtx.createBuffer(2, len, sr);
@@ -64,13 +82,12 @@ export class ReleaseBundleExportEngine {
     for (let i = 0; i < len; i++) {
       const mid = (lChan[i] + rChan[i]) * 0.5;
       const side = (lChan[i] - rChan[i]) * 0.5;
-      // Attenuate mid (vocals) while keeping sides and low end
       instL[i] = side * 1.35;
       instR[i] = -side * 1.35;
     }
     const instBlob = audioBufferTo24BitWavBlob(instBuf);
     items.push({
-      filename: `${baseName}_05_INSTRUMENTAL_PLAYBACK.wav`,
+      filename: `${baseName}_06_INSTRUMENTAL_PLAYBACK.wav`,
       blob: instBlob,
       description: 'Playback instrumental sem voz para shows e apresentações.',
       badge: 'INSTRUMENTAL',
@@ -79,7 +96,7 @@ export class ReleaseBundleExportEngine {
     // Technical Report HTML Document
     const reportBlob = new Blob([reportHtml], { type: 'text/html;charset=utf-8' });
     items.push({
-      filename: `${baseName}_06_CERTIFICADO_TECNICO.html`,
+      filename: `${baseName}_07_CERTIFICADO_TECNICO.html`,
       blob: reportBlob,
       description: 'Certificado oficial de engenharia com métricas LUFS, True-Peak e LRA.',
       badge: 'HTML REPORT',

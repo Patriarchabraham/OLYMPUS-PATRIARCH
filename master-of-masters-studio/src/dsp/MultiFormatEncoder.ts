@@ -5,15 +5,16 @@
  * 1. 24-Bit HD WAV (PCM with TPDF Dither & 5th-order noise shaping)
  * 2. 32-Bit Floating Point WAV (Unlimited Headroom, 320dB dynamic range)
  * 3. 16-Bit Red Book CD WAV (44.1kHz / 16-bit Dither)
- * 4. Lossless FLAC Container Header Blob
+ * 4. 320 kbps High-Definition MP3 (ID3v2 Metadata & Maximum Quality)
  */
 
 import {
   audioBufferTo24BitWavBlob,
   audioBufferTo32BitFloatWavBlob,
 } from './WavEncoder';
+import { Mp3EncoderEngine, type Mp3TagMetadata } from './Mp3EncoderEngine';
 
-export type AudioFormatType = 'wav_24bit' | 'wav_32bit_float' | 'wav_16bit_cd';
+export type AudioFormatType = 'wav_24bit' | 'wav_32bit_float' | 'wav_16bit_cd' | 'mp3_320kbps';
 
 export class MultiFormatEncoder {
   /**
@@ -72,8 +73,17 @@ export class MultiFormatEncoder {
     return new Blob([arrayBuffer], { type: 'audio/wav' });
   }
 
-  public static encodeToFormat(buffer: AudioBuffer, format: AudioFormatType): Blob {
+  /**
+   * Encodes a 320 kbps Maximum Quality MP3 Blob with ID3 tags.
+   */
+  public static audioBufferToMp3Blob(buffer: AudioBuffer, tags?: Mp3TagMetadata): Blob {
+    return Mp3EncoderEngine.encodeToMp3_320kbps(buffer, tags);
+  }
+
+  public static encodeToFormat(buffer: AudioBuffer, format: AudioFormatType, tags?: Mp3TagMetadata): Blob {
     switch (format) {
+      case 'mp3_320kbps':
+        return this.audioBufferToMp3Blob(buffer, tags);
       case 'wav_32bit_float':
         return audioBufferTo32BitFloatWavBlob(buffer);
       case 'wav_16bit_cd':
