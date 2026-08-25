@@ -31,6 +31,10 @@ import { GainMatchedAbEngine } from './dsp/GainMatchedAbEngine';
 import { ReactiveTubeVisualizer } from './visualizers/ReactiveTubeVisualizer';
 import { InteractiveCurveSculptor } from './visualizers/InteractiveCurveSculptor';
 import { WaveformScrubber } from './components/WaveformScrubber';
+import { LiveRigAuditionEngine } from './dsp/LiveRigAuditionEngine';
+import { ReleaseBundleExportEngine, type ReleaseFileItem } from './dsp/ReleaseBundleExportEngine';
+import { VocalChoirHarmonizerEngine } from './dsp/VocalChoirHarmonizerEngine';
+import { AnsiVuMeterBallistics } from './visualizers/AnsiVuMeterBallistics';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1164,6 +1168,101 @@ function setupMasterProcessing() {
           masterProgressPct.textContent = `${pct}%`;
           masterProgressText.textContent = txt;
         }
+      });
+
+      // ─── LIVE AUDITION ENGINE WIRING ──────────────────────────────────────────
+      const btnToggleLiveAudition = document.getElementById('btn-toggle-live-audition') as HTMLButtonElement;
+      let isLiveAuditionActive = false;
+
+      const updateAudition = () => {
+        LiveRigAuditionEngine.updateLiveRig({
+          enabled: isLiveAuditionActive,
+          drumKitId: selectDrumKitModel?.value,
+          guitarRigId: selectGuitarRigModel?.value,
+          bassRigId: selectBassRigModel?.value,
+          secretHackId: selectSecretProducerHack?.value,
+        });
+      };
+
+      btnToggleLiveAudition?.addEventListener('click', () => {
+        isLiveAuditionActive = !isLiveAuditionActive;
+        btnToggleLiveAudition.textContent = isLiveAuditionActive ? '⚡ LIVE AUDITION: ON' : '⚡ LIVE AUDITION: OFF';
+        btnToggleLiveAudition.classList.toggle('active-gold', isLiveAuditionActive);
+        updateAudition();
+      });
+
+      selectDrumKitModel?.addEventListener('change', updateAudition);
+      selectGuitarRigModel?.addEventListener('change', updateAudition);
+      selectBassRigModel?.addEventListener('change', updateAudition);
+      selectSecretProducerHack?.addEventListener('change', updateAudition);
+
+      // ─── ALL-PLATFORM RELEASE BUNDLE EXPORTER ──────────────────────────────────
+      const btnExportReleaseBundle = document.getElementById('btn-export-release-bundle') as HTMLButtonElement;
+      const modalReleaseBundle = document.getElementById('modal-release-bundle')!;
+      const releaseBundleList = document.getElementById('release-bundle-list')!;
+      const btnCloseBundleModal = document.getElementById('btn-close-bundle-modal') as HTMLButtonElement;
+      const btnDownloadAllBundle = document.getElementById('btn-download-all-bundle') as HTMLButtonElement;
+      let generatedBundleItems: ReleaseFileItem[] = [];
+
+      btnExportReleaseBundle?.addEventListener('click', async () => {
+        if (!lastMasterResult) return;
+        btnExportReleaseBundle.textContent = '⏳ Gerando Pacote de Lançamento...';
+        btnExportReleaseBundle.disabled = true;
+
+        try {
+          const baseName = `MASTER_${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_${activeAlbum.albumTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+          generatedBundleItems = await ReleaseBundleExportEngine.generateAllPlatformMasters(
+            lastMasterResult.masterBuffer,
+            baseName,
+            lastMasterResult.reportHtml
+          );
+
+          releaseBundleList.innerHTML = generatedBundleItems.map(item => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #06090f; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+              <div>
+                <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: #ffffff;">${item.filename}</div>
+                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">${item.description}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge" style="font-size: 9px; background: rgba(245, 158, 11, 0.15); color: var(--gold-light); border: 1px solid var(--gold-primary); padding: 2px 6px; border-radius: 4px;">${item.badge}</span>
+                <button type="button" class="btn-single-download switch-toggle-btn" data-filename="${item.filename}" style="padding: 4px 8px; font-size: 10px;">⬇️ Baixar</button>
+              </div>
+            </div>
+          `).join('');
+
+          releaseBundleList.querySelectorAll('.btn-single-download').forEach((btn, idx) => {
+            btn.addEventListener('click', () => {
+              const item = generatedBundleItems[idx];
+              if (!item) return;
+              const url = URL.createObjectURL(item.blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = item.filename;
+              a.click();
+            });
+          });
+
+          modalReleaseBundle.classList.remove('hidden');
+        } catch (e) {
+          console.error('[ReleaseBundle] Generation error:', e);
+        } finally {
+          btnExportReleaseBundle.textContent = '📦 EXPORTAR PACOTE DE LANÇAMENTO (ALL PLATFORMS)';
+          btnExportReleaseBundle.disabled = false;
+        }
+      });
+
+      btnCloseBundleModal?.addEventListener('click', () => {
+        modalReleaseBundle.classList.add('hidden');
+      });
+
+      btnDownloadAllBundle?.addEventListener('click', () => {
+        generatedBundleItems.forEach(item => {
+          const url = URL.createObjectURL(item.blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = item.filename;
+          a.click();
+        });
       });
 
       // Update AI Diagnostic Scorecard

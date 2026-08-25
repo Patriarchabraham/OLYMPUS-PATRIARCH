@@ -480,7 +480,12 @@
                       <span style="font-size: 14px;">🎸</span>
                       <strong style="font-family: var(--font-display); font-size: 11px; color: var(--cyan-light); text-transform: uppercase;">KITS DE INSTRUMENTOS & HACKS DE PRODUTOR</strong>
                     </div>
-                    <span class="badge" style="font-size: 8px; background: rgba(6, 182, 212, 0.2); color: var(--cyan-light); border: 1px solid var(--cyan-primary); padding: 1px 5px; border-radius: 4px;">Real Physical DSP</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <button type="button" id="btn-toggle-live-audition" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 8px; border-color: #f59e0b; color: var(--gold-light);" title="Ativa o grafo DSP em tempo real para ouvir a troca dos kits instantaneamente enquanto a música toca">
+                        ⚡ LIVE AUDITION: OFF
+                      </button>
+                      <span class="badge" style="font-size: 8px; background: rgba(6, 182, 212, 0.2); color: var(--cyan-light); border: 1px solid var(--cyan-primary); padding: 1px 5px; border-radius: 4px;">Real Physical DSP</span>
+                    </div>
                   </div>
 
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -580,9 +585,14 @@
               </div>
 
               <!-- MULTI-FORMAT EXPORT BUTTONS (VISIBLE AFTER MASTERING) -->
-              <div id="multi-format-export-wrap" class="hidden" style="display: flex; gap: 6px; width: 100%;">
-                <button type="button" id="btn-export-32bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">WAV 32-Bit Float</button>
-                <button type="button" id="btn-export-16bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">WAV 16-Bit CD</button>
+              <div id="multi-format-export-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                <button type="button" id="btn-export-release-bundle" class="btn-gold-action" style="width: 100%; font-size: 11px; padding: 6px;">
+                  📦 EXPORTAR PACOTE DE LANÇAMENTO (ALL PLATFORMS)
+                </button>
+                <div style="display: flex; gap: 6px; width: 100%;">
+                  <button type="button" id="btn-export-32bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">WAV 32-Bit Float</button>
+                  <button type="button" id="btn-export-16bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">WAV 16-Bit CD</button>
+                </div>
               </div>
 
               <!-- USER PRESETS BAR -->
@@ -1551,6 +1561,29 @@
       <div id="modal-report-content"></div>
       <button type="button" id="btn-close-report-modal" class="btn-gold-action" style="width: 100%;">
         FECHAR CERTIFICADO
+      </button>
+    </div>
+  </div>
+
+  <!-- ALL-PLATFORM RELEASE BUNDLE MODAL -->
+  <div id="modal-release-bundle" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;">
+    <div style="background: #080c14; border: 2px solid var(--gold-primary); border-radius: 14px; max-width: 680px; width: 100%; padding: 24px; box-shadow: 0 0 50px rgba(245,158,11,0.35); display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">📦</span>
+          <h3 style="font-family: var(--font-display); font-size: 16px; color: var(--gold-light); text-transform: uppercase;">Pacote de Lançamento de Todas as Plataformas</h3>
+        </div>
+        <button type="button" id="btn-close-bundle-modal" class="switch-toggle-btn" style="padding: 2px 8px; font-size: 12px;">✕</button>
+      </div>
+
+      <p style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8;">
+        Todos os arquivos foram masterizados com calibração de True-Peak e LUFS específicos para as diretrizes de cada plataforma:
+      </p>
+
+      <div id="release-bundle-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; padding-right: 4px;"></div>
+
+      <button type="button" id="btn-download-all-bundle" class="btn-gold-action" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 800;">
+        ⬇️ BAIXAR TODOS OS ARQUIVOS
       </button>
     </div>
   </div>
