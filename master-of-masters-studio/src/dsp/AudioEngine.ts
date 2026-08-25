@@ -1,7 +1,9 @@
 /**
  * Master of Masters Studio Pro — Core Quantum Supreme Audio Processing Engine.
  * Multi-layer Stem Separation, AI Spectral Diagnosis, 512-Band Historical Matcher,
- * Transformer & Tape Hysteresis, 4-Band Holographic Spatializer, and Streaming Targets.
+ * Dynamic Resonance Suppressor (Soothe/Gullfoss), Smart Kick/Bass Unmasker,
+ * Transient Punch Sculptor, Transformer Hysteresis, 4-Band Holographic Spatializer,
+ * Real-World Device Simulation, and Streaming Targets.
  */
 
 import { type MasterAlbumSetup, type MasterProducer } from '../database/masters-database';
@@ -19,6 +21,11 @@ import { AnalogTapeTransformerEngine, type AnalogColorModel } from './AnalogTape
 import { HolographicSpatialEngine } from './HolographicSpatialEngine';
 import { StreamingTargetEngine, type StreamingPlatform } from './StreamingTargetEngine';
 import { BatchExportReportEngine } from './BatchExportReportEngine';
+import { DynamicResonanceSuppressor } from './DynamicResonanceSuppressor';
+import { SmartKickBassUnmasker } from './SmartKickBassUnmasker';
+import { TransientPunchSculptor } from './TransientPunchSculptor';
+import { RealWorldDeviceSimulator, type RealWorldDevice } from './RealWorldDeviceSimulator';
+import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -37,6 +44,11 @@ export interface ProcessMasterOptions {
   streamingPlatform?: StreamingPlatform;
   analogColorModel?: AnalogColorModel;
   enableAiAssistant?: boolean;
+  enableDynamicDeHarsh?: boolean;
+  enableKickBassUnmask?: boolean;
+  transientPunchAmount?: number;
+  realWorldDevice?: RealWorldDevice;
+  enableDolbyAtmosRoom?: boolean;
   onProgress?: (percent: number, status: string) => void;
 }
 
@@ -73,6 +85,11 @@ export class AudioEngine {
       streamingPlatform = 'cd_metal',
       analogColorModel = 'ampex_atr102',
       enableAiAssistant = true,
+      enableDynamicDeHarsh = true,
+      enableKickBassUnmask = true,
+      transientPunchAmount = 0.45,
+      realWorldDevice = 'flat_studio',
+      enableDolbyAtmosRoom = false,
       onProgress,
     } = options;
 
@@ -82,7 +99,7 @@ export class AudioEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 0: AI MASTER ASSISTANT 2.0 (SPECTRAL DIAGNOSTIC & PRE-CONDITIONING)
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(5, '🧠 Analisando balanço espectral e ressonâncias com AI Master Assistant 2.0...');
+    onProgress?.(5, '🧠 Analisando balanço espectral com AI Master Assistant 2.0...');
     let activeInputBuffer = inputBuffer;
     let diagnostic: TrackDiagnostic | undefined;
 
@@ -111,7 +128,7 @@ export class AudioEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 2: 512-BAND SPECTRAL CLONING DIRECT FROM PRODUCER & ALBUM
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(30, `Clonando curva espectral analógica de 512 bandas do álbum "${album.albumTitle}"...`);
+    onProgress?.(28, `Clonando curva espectral analógica de 512 bandas do álbum "${album.albumTitle}"...`);
     const clonedL = weldedStemBuffer.getChannelData(0);
     const clonedR = weldedStemBuffer.numberOfChannels > 1 ? weldedStemBuffer.getChannelData(1) : clonedL;
     const spectralMatched = SpectralClonerEngine.processSpectralCloning(
@@ -125,9 +142,45 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(spectralMatched.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 3: ANALOG TAPE & TRANSFORMER HYSTERESIS MODELING
+    // STAGE 3: SMART KICK & BASS UNMASKING + DYNAMIC RESONANCE SUPPRESSOR (SOOTHE)
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(45, `Injetando saturação de fita analógica e transformadores (${analogColorModel.toUpperCase()})...`);
+    if (enableKickBassUnmask || enableDynamicDeHarsh) {
+      onProgress?.(38, '🌊 Suprimindo ressonâncias dinâmicas (Soothe/Gullfoss) e desmascarando Bumbo/Baixo...');
+      let lChan = weldedStemBuffer.getChannelData(0);
+      let rChan = weldedStemBuffer.getChannelData(1);
+
+      if (enableKickBassUnmask) {
+        const unmasked = SmartKickBassUnmasker.processUnmask(lChan, rChan, 0.55 * intensityScale, sr);
+        lChan = unmasked.left;
+        rChan = unmasked.right;
+      }
+
+      if (enableDynamicDeHarsh) {
+        const deHarshed = DynamicResonanceSuppressor.processAdaptiveDeHarsh(lChan, rChan, 0.60 * intensityScale, sr);
+        lChan = deHarshed.left;
+        rChan = deHarshed.right;
+      }
+
+      weldedStemBuffer.copyToChannel(lChan, 0);
+      weldedStemBuffer.copyToChannel(rChan, 1);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 4: TRANSIENT PUNCH & ATTACK SCULPTING
+    // ─────────────────────────────────────────────────────────────────────────
+    if (transientPunchAmount > 0.05) {
+      onProgress?.(45, '🥊 Esculpindo ataque de transientes e punch de bateria/guitarras...');
+      const lChan = weldedStemBuffer.getChannelData(0);
+      const rChan = weldedStemBuffer.getChannelData(1);
+      const punchResult = TransientPunchSculptor.processTransientPunch(lChan, rChan, transientPunchAmount * intensityScale, sr);
+      weldedStemBuffer.copyToChannel(punchResult.left, 0);
+      weldedStemBuffer.copyToChannel(punchResult.right, 1);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 5: ANALOG TAPE & TRANSFORMER HYSTERESIS MODELING
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(52, `Injetando saturação de fita analógica e transformadores (${analogColorModel.toUpperCase()})...`);
     const tapeL = weldedStemBuffer.getChannelData(0);
     const tapeR = weldedStemBuffer.getChannelData(1);
     const tapeDrive = customDrive !== undefined ? customDrive : album.saturation.drive || 0.45;
@@ -142,9 +195,9 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(tapeProcessed.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 4: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR
+    // STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(60, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`);
+    onProgress?.(65, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`);
     const masterCtx = new OfflineAudioContext(2, length, sr);
     const src = masterCtx.createBufferSource();
     src.buffer = weldedStemBuffer;
@@ -214,7 +267,7 @@ export class AudioEngine {
     const renderedMaster = await masterCtx.startRendering();
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 5: 4-BAND HOLOGRAPHIC 3D MID/SIDE SPATIALIZER
+    // STAGE 7: 4-BAND HOLOGRAPHIC 3D MID/SIDE SPATIALIZER
     // ─────────────────────────────────────────────────────────────────────────
     onProgress?.(80, 'Ajustando imagem 3D holográfica e travando mono sub-bass (<90Hz)...');
     const width = customWidth !== undefined ? customWidth : album.stereoWidth || 1.35;
@@ -230,13 +283,34 @@ export class AudioEngine {
     renderedMaster.copyToChannel(spatialResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 6: STREAMING TARGET CALIBRATION & BRICKWALL TRUE-PEAK LIMITER
+    // STAGE 8: OPTIONAL DOLBY ATMOS 7.1.4 BINAURAL ROOM / REAL-WORLD SIMULATION
+    // ─────────────────────────────────────────────────────────────────────────
+    if (enableDolbyAtmosRoom) {
+      onProgress?.(85, '🏰 Renderizando simulação acústica de sala Dolby Atmos 7.1.4...');
+      const lAtm = renderedMaster.getChannelData(0);
+      const rAtm = renderedMaster.getChannelData(1);
+      const atmosResult = DolbyAtmosBinauralRoom.processBinauralRoom(lAtm, rAtm, true, sr);
+      renderedMaster.copyToChannel(atmosResult.left, 0);
+      renderedMaster.copyToChannel(atmosResult.right, 1);
+    }
+
+    if (realWorldDevice !== 'flat_studio') {
+      onProgress?.(87, `📱 Aplicando simulação acústica de dispositivo (${realWorldDevice.toUpperCase()})...`);
+      const lDev = renderedMaster.getChannelData(0);
+      const rDev = renderedMaster.getChannelData(1);
+      const devResult = RealWorldDeviceSimulator.processDeviceSimulation(lDev, rDev, realWorldDevice, sr);
+      renderedMaster.copyToChannel(devResult.left, 0);
+      renderedMaster.copyToChannel(devResult.right, 1);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 9: STREAMING TARGET CALIBRATION & BRICKWALL TRUE-PEAK LIMITER
     // ─────────────────────────────────────────────────────────────────────────
     onProgress?.(90, `Calibrando alvo para ${streamingPlatform.toUpperCase()} e limitando True-Peak...`);
     StreamingTargetEngine.matchPlatformSpecs(renderedMaster, streamingPlatform);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 7: AUDIO ENCODING & MASTERING ENGINEERING REPORT
+    // STAGE 10: AUDIO ENCODING & MASTERING ENGINEERING REPORT
     // ─────────────────────────────────────────────────────────────────────────
     onProgress?.(95, `Codificando WAV ${bitDepth === '24bit' ? '24-Bit HD com Dither TPDF' : '32-Bit Float'} e gerando relatório técnico...`);
     const wavBlob =

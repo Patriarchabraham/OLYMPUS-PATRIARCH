@@ -427,10 +427,40 @@
                   </div>
                 </div>
 
+                <!-- 🌟 NEXT-GEN MASTERING PROCESSORS (SOOTHE, UNMASK, PUNCH & DEVICES) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                  <div>
+                    <label style="font-family: var(--font-mono); font-size: 9px; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 3px;">📱 SIMULADOR DE DISPOSITIVO:</label>
+                    <select id="select-real-world-device" class="studio-select" style="font-size: 10px; padding: 4px;">
+                      <option value="flat_studio" selected>🎧 Estúdio Flat Reference</option>
+                      <option value="car_subwoofer">🚗 Carro c/ Subwoofer (50Hz Bump)</option>
+                      <option value="iphone_speaker">📱 iPhone / Smartphone (Small Driver)</option>
+                      <option value="airpods_harman">🎧 AirPods Pro (Harman Curve)</option>
+                      <option value="jbl_bluetooth">📻 Caixa JBL Bluetooth</option>
+                    </select>
+                  </div>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                      <span style="color: #f59e0b; font-weight: 700;">🥊 PUNCH & ATAQUE DE TRANSIENTES:</span>
+                      <span id="label-transient-punch-val" style="color: var(--gold-light); font-weight: 700;">45%</span>
+                    </div>
+                    <input type="range" id="slider-transient-punch" min="0" max="100" value="45" style="width: 100%; height: 4px; accent-color: #f59e0b; cursor: pointer; margin-top: 6px;" />
+                  </div>
+                </div>
+
                 <!-- SPECIAL ADVANCED TOGGLES -->
                 <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
                   <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--gold-light); cursor: pointer;">
-                    <input type="checkbox" id="chk-ai-assistant-enable" checked /> 🧠 AI Master Diagnostician 2.0
+                    <input type="checkbox" id="chk-ai-assistant-enable" checked /> 🧠 AI Diagnostician 2.0
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: #38bdf8; cursor: pointer;">
+                    <input type="checkbox" id="chk-dynamic-deharsh" checked /> 🌊 Soothe De-Harsh
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--emerald-primary); cursor: pointer;">
+                    <input type="checkbox" id="chk-kick-bass-unmask" checked /> 🥊 Unmask Bumbo/Baixo
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: #a855f7; cursor: pointer;">
+                    <input type="checkbox" id="chk-dolby-atmos-room" /> 🏰 Dolby Atmos 7.1.4
                   </label>
                   <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: #ec4899; cursor: pointer;">
                     <input type="checkbox" id="chk-bruce-dickinson-god" checked /> 👑 Bruce Dickinson Vocal God 2.0

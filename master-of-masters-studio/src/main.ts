@@ -1027,6 +1027,12 @@ function setupMasterProcessing() {
     if (labelGuitarBlendVal) labelGuitarBlendVal.textContent = `${sliderGuitarBlend.value}%`;
   });
 
+  const sliderTransientPunch = document.getElementById('slider-transient-punch') as HTMLInputElement;
+  const labelTransientPunchVal = document.getElementById('label-transient-punch-val');
+  sliderTransientPunch?.addEventListener('input', () => {
+    if (labelTransientPunchVal) labelTransientPunchVal.textContent = `${sliderTransientPunch.value}%`;
+  });
+
   sliderBassBlend?.addEventListener('input', () => {
     if (labelBassBlendVal) labelBassBlendVal.textContent = `${sliderBassBlend.value}%`;
   });
@@ -1044,7 +1050,11 @@ function setupMasterProcessing() {
     try {
       const selectStreamingTarget = document.getElementById('select-streaming-target') as HTMLSelectElement;
       const selectAnalogTapeModel = document.getElementById('select-analog-tape-model') as HTMLSelectElement;
+      const selectRealWorldDevice = document.getElementById('select-real-world-device') as HTMLSelectElement;
       const chkAiAssistantEnable = document.getElementById('chk-ai-assistant-enable') as HTMLInputElement;
+      const chkDynamicDeHarsh = document.getElementById('chk-dynamic-deharsh') as HTMLInputElement;
+      const chkKickBassUnmask = document.getElementById('chk-kick-bass-unmask') as HTMLInputElement;
+      const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement;
 
       lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
         album: activeAlbum,
@@ -1054,7 +1064,12 @@ function setupMasterProcessing() {
         intensityScale: parseFloat(sliderIntensity.value) / 100,
         streamingPlatform: selectStreamingTarget ? (selectStreamingTarget.value as any) : 'cd_metal',
         analogColorModel: selectAnalogTapeModel ? (selectAnalogTapeModel.value as any) : 'ampex_atr102',
+        realWorldDevice: selectRealWorldDevice ? (selectRealWorldDevice.value as any) : 'flat_studio',
         enableAiAssistant: chkAiAssistantEnable ? chkAiAssistantEnable.checked : true,
+        enableDynamicDeHarsh: chkDynamicDeHarsh ? chkDynamicDeHarsh.checked : true,
+        enableKickBassUnmask: chkKickBassUnmask ? chkKickBassUnmask.checked : true,
+        enableDolbyAtmosRoom: chkDolbyAtmosRoom ? chkDolbyAtmosRoom.checked : false,
+        transientPunchAmount: sliderTransientPunch ? parseFloat(sliderTransientPunch.value) / 100 : 0.45,
         drumReplacementBlend: sliderDrumBlend ? parseFloat(sliderDrumBlend.value) / 100 : 0.65,
         guitarReampBlend: sliderGuitarBlend ? parseFloat(sliderGuitarBlend.value) / 100 : 0.65,
         bassReampBlend: sliderBassBlend ? parseFloat(sliderBassBlend.value) / 100 : 0.65,
