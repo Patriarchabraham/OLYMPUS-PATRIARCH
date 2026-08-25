@@ -1112,6 +1112,10 @@ function setupMasterProcessing() {
       const selectAnalogTapeModel = document.getElementById('select-analog-tape-model') as HTMLSelectElement;
       const selectLimiterMode = document.getElementById('select-limiter-mode') as HTMLSelectElement;
       const selectRealWorldDevice = document.getElementById('select-real-world-device') as HTMLSelectElement;
+      const selectDrumKitModel = document.getElementById('select-drum-kit-model') as HTMLSelectElement;
+      const selectGuitarRigModel = document.getElementById('select-guitar-rig-model') as HTMLSelectElement;
+      const selectBassRigModel = document.getElementById('select-bass-rig-model') as HTMLSelectElement;
+      const selectSecretProducerHack = document.getElementById('select-secret-producer-hack') as HTMLSelectElement;
       const chkAiAssistantEnable = document.getElementById('chk-ai-assistant-enable') as HTMLInputElement;
       const chkDynamicDeHarsh = document.getElementById('chk-dynamic-deharsh') as HTMLInputElement;
       const chkKickBassUnmask = document.getElementById('chk-kick-bass-unmask') as HTMLInputElement;
@@ -1128,6 +1132,10 @@ function setupMasterProcessing() {
         analogColorModel: selectAnalogTapeModel ? (selectAnalogTapeModel.value as any) : 'ampex_atr102',
         limiterMode: selectLimiterMode ? (selectLimiterMode.value as any) : 'soft_analog_clipper',
         realWorldDevice: selectRealWorldDevice ? (selectRealWorldDevice.value as any) : 'flat_studio',
+        drumKitModelId: selectDrumKitModel ? selectDrumKitModel.value : 'bypass',
+        guitarRigModelId: selectGuitarRigModel ? selectGuitarRigModel.value : 'bypass',
+        bassRigModelId: selectBassRigModel ? selectBassRigModel.value : 'bypass',
+        secretProducerHackId: selectSecretProducerHack ? selectSecretProducerHack.value : 'bypass',
         enableAiAssistant: chkAiAssistantEnable ? chkAiAssistantEnable.checked : true,
         enableDynamicDeHarsh: chkDynamicDeHarsh ? chkDynamicDeHarsh.checked : true,
         enableKickBassUnmask: chkKickBassUnmask ? chkKickBassUnmask.checked : true,

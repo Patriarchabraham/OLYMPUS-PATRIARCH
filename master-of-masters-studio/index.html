@@ -473,6 +473,68 @@
                   </div>
                 </div>
 
+                <!-- 🎸 MATRIX DE KITS DE INSTRUMENTOS & HACKS SECRETOS -->
+                <div style="background: linear-gradient(135deg, #101726, #090e17); border: 1px solid var(--cyan-primary); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 15px rgba(6, 182, 212, 0.20);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(6, 182, 212, 0.3); padding-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 14px;">🎸</span>
+                      <strong style="font-family: var(--font-display); font-size: 11px; color: var(--cyan-light); text-transform: uppercase;">KITS DE INSTRUMENTOS & HACKS DE PRODUTOR</strong>
+                    </div>
+                    <span class="badge" style="font-size: 8px; background: rgba(6, 182, 212, 0.2); color: var(--cyan-light); border: 1px solid var(--cyan-primary); padding: 1px 5px; border-radius: 4px;">Real Physical DSP</span>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                      <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 2px;">🥁 KIT DE BATERIA / CAIXA:</label>
+                      <select id="select-drum-kit-model" class="studio-select" style="font-size: 10px; padding: 4px;">
+                        <option value="bypass" selected>⚡ Original / Sem Troca de Kit</option>
+                        <option value="ludwig_black_beauty">🥁 Ludwig Black Beauty 1970 (Lars Ulrich / Bob Rock)</option>
+                        <option value="tama_starclassic">🥁 Tama Starclassic Bubinga (Dave Grohl / Nevermind)</option>
+                        <option value="sonor_cast_bronze">🥁 Sonor Signature Cast Bronze (Danny Carey / Tool)</option>
+                        <option value="gms_custom_sneap">🥁 GMS Custom 8x14 (Andy Sneap / Metalcore)</option>
+                        <option value="slingerland_bonham">🥁 Slingerland Radio King (John Bonham / Led Zeppelin)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-family: var(--font-mono); font-size: 9px; color: #ec4899; font-weight: 700; display: block; margin-bottom: 2px;">⚡ RIG DE GUITARRA & AMP:</label>
+                      <select id="select-guitar-rig-model" class="studio-select" style="font-size: 10px; padding: 4px;">
+                        <option value="bypass" selected>⚡ Original / Sem Re-Amp</option>
+                        <option value="peavey_5150_mesa_os">⚡ Peavey 5150 + Mesa 4x12 OS (Sneap / Richardson)</option>
+                        <option value="marshall_jcm800_greenback">⚡ Marshall JCM800 + Greenbacks (Martin Birch / Maiden)</option>
+                        <option value="mesa_dual_rectifier_bogner">⚡ Mesa Dual Rectifier + Bogner (Flemming / Metallica)</option>
+                        <option value="soldano_slo100">⚡ Soldano SLO-100 Super Lead (Van Halen / Clapton)</option>
+                        <option value="fender_twin_reverb_1965">⚡ Fender Twin Reverb 1965 (David Gilmour / Pink Floyd)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                      <label style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); font-weight: 700; display: block; margin-bottom: 2px;">🎸 RIG DE BAIXO & PREAMP:</label>
+                      <select id="select-bass-rig-model" class="studio-select" style="font-size: 10px; padding: 4px;">
+                        <option value="bypass" selected>⚡ Original / Sem Rig de Baixo</option>
+                        <option value="spector_ampeg_svt">🎸 Spector NS-2 + Ampeg SVT-CL 8x10 (Bob Rock / Newsted)</option>
+                        <option value="fender_precision_sansamp">🎸 Fender Precision + SansAmp (Steve Harris / Maiden)</option>
+                        <option value="rickenbacker_cliff_burton">🎸 Rickenbacker 4001 + Marshall Major (Cliff Burton)</option>
+                        <option value="musicman_gk800rb">🎸 Music Man + GK 800RB (Flea / RHCP)</option>
+                        <option value="warwick_darkglass_b7k">🎸 Warwick 5-String + Darkglass B7K (Modern Metal)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-family: var(--font-mono); font-size: 9px; color: #a855f7; font-weight: 700; display: block; margin-bottom: 2px;">🪄 HACK SECRETO DE PRODUTOR:</label>
+                      <select id="select-secret-producer-hack" class="studio-select" style="font-size: 10px; padding: 4px;">
+                        <option value="bypass" selected>✨ Nenhum (Master Puro)</option>
+                        <option value="black_album_fatness">🪄 The Black Album Fatness (Bob Rock)</option>
+                        <option value="abbey_road_glue">🪄 Abbey Road 1969 Vintage Glue (Geoff Emerick)</option>
+                        <option value="sneap_metal_wall">🪄 Andy Sneap Metalcore Wall of Sound</option>
+                        <option value="max_martin_diamond">🪄 Max Martin Diamond Pop Air</option>
+                        <option value="radioactive_tape_warmth">🪄 Radioactive Analog Tape & Iron Transformers</option>
+                        <option value="bruce_vocal_god">🪄 Bruce Dickinson Vocal God Presence</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- SPECIAL ADVANCED TOGGLES -->
                 <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
                   <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--gold-light); cursor: pointer;">

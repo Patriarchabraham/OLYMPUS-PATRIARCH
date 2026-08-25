@@ -27,6 +27,8 @@ import { TransientPunchSculptor } from './TransientPunchSculptor';
 import { RealWorldDeviceSimulator, type RealWorldDevice } from './RealWorldDeviceSimulator';
 import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom';
 import { AnalogClipperLimiterEngine, type LimiterMode } from './AnalogClipperLimiterEngine';
+import { InstrumentKitMatrixEngine } from './InstrumentKitMatrixEngine';
+import { SecretProducerHacksEngine } from './SecretProducerHacksEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -39,6 +41,12 @@ export interface ProcessMasterOptions {
   guitarReampBlend?: number;
   bassReampBlend?: number;
   vocalModelBlend?: number;
+  drumKitModelId?: string;
+  guitarRigModelId?: string;
+  bassRigModelId?: string;
+  vocalRigModelId?: string;
+  secretProducerHackId?: string;
+  hackIntensity?: number;
   harmonyOptions?: any;
   pitchOptions?: any;
   targetCeilingDb?: number;
@@ -84,6 +92,12 @@ export class AudioEngine {
       guitarReampBlend = 0.0,
       bassReampBlend = 0.0,
       vocalModelBlend = 0.0,
+      drumKitModelId = 'bypass',
+      guitarRigModelId = 'bypass',
+      bassRigModelId = 'bypass',
+      vocalRigModelId = 'bypass',
+      secretProducerHackId = 'bypass',
+      hackIntensity = 0.65,
       harmonyOptions = {},
       pitchOptions = { enabled: false, rootKey: 'C', scale: 'chromatic', retuneSpeed: 0.65, amount: 0.80 },
       bitDepth = '24bit',
@@ -173,6 +187,44 @@ export class AudioEngine {
     );
     weldedStemBuffer.copyToChannel(spectralMatched.left, 0);
     weldedStemBuffer.copyToChannel(spectralMatched.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 2.5: INSTRUMENT KIT RIGS & SECRET PRODUCER HACKS
+    // ─────────────────────────────────────────────────────────────────────────
+    if (drumKitModelId !== 'bypass' || guitarRigModelId !== 'bypass' || bassRigModelId !== 'bypass' || vocalRigModelId !== 'bypass') {
+      onProgress?.(32, '🎸 Aplicando simulação física de Kit de Instrumentos & Rigs...');
+      const rigL = weldedStemBuffer.getChannelData(0);
+      const rigR = weldedStemBuffer.getChannelData(1);
+      const rigResult = InstrumentKitMatrixEngine.processRigSimulation(
+        rigL,
+        rigR,
+        {
+          drumKitId: drumKitModelId,
+          guitarRigId: guitarRigModelId,
+          bassRigId: bassRigModelId,
+          vocalRigId: vocalRigModelId,
+          intensity: 0.65 * intensityScale,
+        },
+        sr
+      );
+      weldedStemBuffer.copyToChannel(rigResult.left, 0);
+      weldedStemBuffer.copyToChannel(rigResult.right, 1);
+    }
+
+    if (secretProducerHackId && secretProducerHackId !== 'bypass') {
+      onProgress?.(35, `🪄 Injetando Hack Secreto de Produtor (${secretProducerHackId.toUpperCase()})...`);
+      const hackL = weldedStemBuffer.getChannelData(0);
+      const hackR = weldedStemBuffer.getChannelData(1);
+      const hackResult = SecretProducerHacksEngine.processHack(
+        hackL,
+        hackR,
+        secretProducerHackId,
+        hackIntensity * intensityScale,
+        sr
+      );
+      weldedStemBuffer.copyToChannel(hackResult.left, 0);
+      weldedStemBuffer.copyToChannel(hackResult.right, 1);
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 3: SMART KICK & BASS UNMASKING + DYNAMIC RESONANCE SUPPRESSOR (SOOTHE)
