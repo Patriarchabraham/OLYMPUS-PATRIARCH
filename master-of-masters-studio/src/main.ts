@@ -36,6 +36,10 @@ import { ReleaseBundleExportEngine, type ReleaseFileItem } from './dsp/ReleaseBu
 import { VocalChoirHarmonizerEngine } from './dsp/VocalChoirHarmonizerEngine';
 import { AnsiVuMeterBallistics } from './visualizers/AnsiVuMeterBallistics';
 import { Mp3EncoderEngine } from './dsp/Mp3EncoderEngine';
+import { MasteringRadarBenchmark } from './visualizers/MasteringRadarBenchmark';
+import { ProKeybindingsMatrix } from './components/ProKeybindingsMatrix';
+import { AiReferenceTrackMatcher, type ReferenceTrackProfile } from './dsp/AiReferenceTrackMatcher';
+import { DeHummerGroundCleaner } from './dsp/DeHummerGroundCleaner';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -289,6 +293,7 @@ function init() {
   setupAiMatchModule();
   setupBatchProcessing();
   setupArrangerModule();
+  ProKeybindingsMatrix.init();
 }
 
 // ─── ROTARY KNOBS INITIALIZATION ─────────────────────────────────────────────

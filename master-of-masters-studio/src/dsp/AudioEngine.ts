@@ -29,6 +29,11 @@ import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom';
 import { AnalogClipperLimiterEngine, type LimiterMode } from './AnalogClipperLimiterEngine';
 import { InstrumentKitMatrixEngine } from './InstrumentKitMatrixEngine';
 import { SecretProducerHacksEngine } from './SecretProducerHacksEngine';
+import { SpectralClonerEngine1024 } from './SpectralClonerEngine1024';
+import { VolterraHysteresisEngine } from './VolterraHysteresisEngine';
+import { CabinetIrConvolutionEngine, type CabinetIrType } from './CabinetIrConvolutionEngine';
+import { LpcVocalFormantEngine } from './LpcVocalFormantEngine';
+import { DeHummerGroundCleaner } from './DeHummerGroundCleaner';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -47,6 +52,8 @@ export interface ProcessMasterOptions {
   vocalRigModelId?: string;
   secretProducerHackId?: string;
   hackIntensity?: number;
+  cabinetIrModel?: CabinetIrType;
+  enableDeHum?: boolean;
   harmonyOptions?: any;
   pitchOptions?: any;
   targetCeilingDb?: number;
@@ -173,20 +180,30 @@ export class AudioEngine {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 2: 512-BAND SPECTRAL CLONING DIRECT FROM PRODUCER & ALBUM
+    // STAGE 2: 1024-BAND MINIMUM-PHASE SPECTRAL CLONING (PRODUCER & ALBUM)
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(28, `Clonando curva espectral analógica de 512 bandas do álbum "${album.albumTitle}"...`);
+    onProgress?.(28, `Clonando curva espectral analógica de 1024 bandas do álbum "${album.albumTitle}"...`);
     const clonedL = weldedStemBuffer.getChannelData(0);
     const clonedR = weldedStemBuffer.numberOfChannels > 1 ? weldedStemBuffer.getChannelData(1) : clonedL;
-    const spectralMatched = SpectralClonerEngine.processSpectralCloning(
+    const spectralMatched = SpectralClonerEngine1024.process1024BandCloning(
       clonedL,
       clonedR,
       album,
-      intensityScale * (isRealStudio ? 0.65 : 1.0), // Gentle musical curve for real studio recording
+      intensityScale * (isRealStudio ? 0.70 : 1.0),
       sr
     );
     weldedStemBuffer.copyToChannel(spectralMatched.left, 0);
     weldedStemBuffer.copyToChannel(spectralMatched.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 2.3: VOLTERRA NON-LINEAR HYSTERESIS & POWER SUPPLY SAG
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(30, '⚡ Processando histerese não-linear Volterra de 3ª/5ª ordem e Sag de válvulas...');
+    const voltL = weldedStemBuffer.getChannelData(0);
+    const voltR = weldedStemBuffer.getChannelData(1);
+    const voltResult = VolterraHysteresisEngine.processHysteresisAndSag(voltL, voltR, (customDrive || 0.40) * intensityScale, sr);
+    weldedStemBuffer.copyToChannel(voltResult.left, 0);
+    weldedStemBuffer.copyToChannel(voltResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 2.5: INSTRUMENT KIT RIGS & SECRET PRODUCER HACKS
