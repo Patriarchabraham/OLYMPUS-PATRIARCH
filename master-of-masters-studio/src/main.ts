@@ -50,6 +50,8 @@ import { SpectralClonerEngine2048 } from './dsp/SpectralClonerEngine2048';
 import { AiMasterAutoCalibrator } from './dsp/AiMasterAutoCalibrator';
 import { MasteringStandardsCompliance } from './components/MasteringStandardsCompliance';
 import { SocialVideoTeaserGenerator } from './components/SocialVideoTeaserGenerator';
+import { PresetBackupRestoreManager } from './components/PresetBackupRestoreManager';
+import { AlbumBatchMasterEngine, type AlbumTrackItem } from './dsp/AlbumBatchMasterEngine';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1543,6 +1545,114 @@ function setupMasterProcessing() {
     });
     refreshPresetsDropdown();
     alert('✅ Preset salvo com sucesso no navegador!');
+  });
+
+  const btnBackupPresetsJson = document.getElementById('btn-backup-presets-json') as HTMLButtonElement;
+  if (btnBackupPresetsJson) {
+    btnBackupPresetsJson.addEventListener('click', () => {
+      const blob = PresetBackupRestoreManager.exportPresetsToJson();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `MASTER_OF_MASTERS_PRESETS_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    });
+  }
+
+  const inputRestorePresetsJson = document.getElementById('input-restore-presets-json') as HTMLInputElement;
+  if (inputRestorePresetsJson) {
+    inputRestorePresetsJson.addEventListener('change', async (e: any) => {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      const res = await PresetBackupRestoreManager.importPresetsFromJson(file);
+      alert(res.message);
+      refreshPresetsDropdown();
+    });
+  }
+
+  // ─── ALBUM BATCH MASTER MODAL WIRING ───────────────────────────────────────
+  const btnOpenAlbumBatch = document.getElementById('btn-open-album-batch') as HTMLButtonElement;
+  const modalAlbumBatch = document.getElementById('modal-album-batch')!;
+  const btnCloseBatchModal = document.getElementById('btn-close-batch-modal') as HTMLButtonElement;
+  const inputBatchFiles = document.getElementById('input-batch-files') as HTMLInputElement;
+  const batchTracksList = document.getElementById('batch-tracks-list')!;
+  const btnStartAlbumBatch = document.getElementById('btn-start-album-batch') as HTMLButtonElement;
+  const batchProgressStatus = document.getElementById('batch-progress-status')!;
+
+  let albumBatchQueue: AlbumTrackItem[] = [];
+
+  if (btnOpenAlbumBatch) {
+    btnOpenAlbumBatch.addEventListener('click', () => {
+      modalAlbumBatch.classList.remove('hidden');
+    });
+  }
+
+  btnCloseBatchModal?.addEventListener('click', () => {
+    modalAlbumBatch.classList.add('hidden');
+  });
+
+  inputBatchFiles?.addEventListener('change', (e: any) => {
+    const files: FileList = e.target?.files;
+    if (!files || files.length === 0) return;
+
+    albumBatchQueue = Array.from(files).map((f, idx) => ({
+      id: `track-${idx}-${Date.now()}`,
+      file: f,
+      title: f.name.replace(/\.[^/.]+$/, ''),
+      status: 'PENDING',
+    }));
+
+    renderBatchList();
+    btnStartAlbumBatch.disabled = albumBatchQueue.length === 0;
+  });
+
+  function renderBatchList() {
+    if (albumBatchQueue.length === 0) {
+      batchTracksList.innerHTML = '<div style="font-size: 11px; color: #64748b; text-align: center; padding: 20px;">Nenhuma faixa adicionada à fila ainda.</div>';
+      return;
+    }
+
+    batchTracksList.innerHTML = albumBatchQueue.map((item, idx) => `
+      <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: var(--font-mono); font-size: 11px; color: #f1f5f9;">
+          <strong>${(idx + 1).toString().padStart(2, '0')}.</strong> ${item.title}
+        </span>
+        <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: ${item.status === 'COMPLETED' ? '#10b981' : item.status === 'PROCESSING' ? '#f59e0b' : '#94a3b8'};">
+          ${item.status === 'COMPLETED' ? '✅ MASTERIZADO' : item.status === 'PROCESSING' ? '⏳ PROCESSANDO...' : 'PENDENTE'}
+        </span>
+      </div>
+    `).join('');
+  }
+
+  btnStartAlbumBatch?.addEventListener('click', async () => {
+    if (albumBatchQueue.length === 0) return;
+    btnStartAlbumBatch.disabled = true;
+    btnStartAlbumBatch.textContent = '⏳ Masterizando Ábum em Lote...';
+
+    await AlbumBatchMasterEngine.processAlbumBatch(
+      albumBatchQueue,
+      activeAlbum,
+      activeProducer,
+      (tIdx, pct, msg) => {
+        batchProgressStatus.textContent = `[Faixa ${tIdx + 1}/${albumBatchQueue.length}] ${pct}%: ${msg}`;
+        renderBatchList();
+      }
+    );
+
+    batchProgressStatus.textContent = '🎉 ÁLBUM COMPLETO MASTERIZADO COM SUCESSO!';
+    btnStartAlbumBatch.disabled = false;
+    btnStartAlbumBatch.textContent = '🚀 INICIAR MASTERIZAÇÃO EM LOTE DO ÁLBUM';
+
+    // Download all completed tracks
+    albumBatchQueue.forEach((track, i) => {
+      if (track.result) {
+        const url = URL.createObjectURL(track.result.wavBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${(i + 1).toString().padStart(2, '0')}_${track.result.downloadFilename}`;
+        a.click();
+      }
+    });
   });
 
   selectUserPresets?.addEventListener('change', () => {

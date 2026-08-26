@@ -612,12 +612,26 @@
               </div>
 
               <!-- USER PRESETS BAR -->
-              <div style="display: flex; gap: 6px; align-items: center; width: 100%; margin-top: 4px; background: #05070c; padding: 6px; border-radius: 6px; border: 1px solid var(--border-subtle);">
-                <select id="select-user-presets" class="studio-select" style="flex: 1; font-size: 10px; padding: 4px;">
-                  <option value="">💾 Meus Presets Salvos...</option>
-                </select>
-                <button type="button" id="btn-save-current-preset" class="switch-toggle-btn" style="padding: 4px 8px; font-size: 10px;" title="Salvar Ajustes Atuais">➕ Salvar</button>
+              <div style="display: flex; flex-direction: column; gap: 4px; width: 100%; margin-top: 4px; background: #05070c; padding: 6px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <div style="display: flex; gap: 6px; align-items: center; width: 100%;">
+                  <select id="select-user-presets" class="studio-select" style="flex: 1; font-size: 10px; padding: 4px;">
+                    <option value="">💾 Meus Presets Salvos...</option>
+                  </select>
+                  <button type="button" id="btn-save-current-preset" class="switch-toggle-btn" style="padding: 4px 8px; font-size: 10px;" title="Salvar Ajustes Atuais">➕ Salvar</button>
+                </div>
+                <div style="display: flex; gap: 6px; width: 100%;">
+                  <button type="button" id="btn-backup-presets-json" class="switch-toggle-btn" style="flex: 1; font-size: 9px; padding: 3px;" title="Baixar Presets em JSON">⬇️ Backup JSON</button>
+                  <label class="switch-toggle-btn" style="flex: 1; font-size: 9px; padding: 3px; text-align: center; cursor: pointer;" title="Restaurar Presets de JSON">
+                    ⬆️ Restaurar JSON
+                    <input type="file" id="input-restore-presets-json" accept=".json" style="display: none;" />
+                  </label>
+                </div>
               </div>
+
+              <!-- ALBUM BATCH MASTER TRIGGER -->
+              <button type="button" id="btn-open-album-batch" class="btn-gold-action" style="width: 100%; margin-top: 6px; font-size: 11px; padding: 6px; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8;">
+                💿 MASTERIZAR ÁLBUM COMPLETO EM LOTE (BATCH)
+              </button>
             </div>
 
           </div>
@@ -1633,6 +1647,35 @@
       <a id="btn-download-video-teaser" href="#" download="TEASER_VIDEO_4K.mp4" class="btn-gold-action hidden" style="width: 100%; text-decoration: none; text-align: center; font-weight: 800; background: linear-gradient(135deg, #059669, #047857); border-color: #10b981;">
         ⬇️ BAIXAR VÍDEO TEASER (.MP4 / .WEBM)
       </a>
+    </div>
+  </div>
+
+  <!-- ALBUM BATCH MASTER MODAL -->
+  <div id="modal-album-batch" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;">
+    <div style="background: #080c14; border: 2px solid #38bdf8; border-radius: 14px; max-width: 600px; width: 100%; padding: 20px; box-shadow: 0 0 50px rgba(56,189,248,0.35); display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h3 style="font-family: var(--font-display); font-size: 15px; color: #38bdf8; text-transform: uppercase;">💿 Masterização em Lote de Álbuns (Batch Queue)</h3>
+        <button type="button" id="btn-close-batch-modal" class="switch-toggle-btn" style="padding: 2px 8px; font-size: 12px;">✕</button>
+      </div>
+      
+      <p style="font-size: 11px; color: #94a3b8;">
+        Carregue múltiplas faixas (WAV/MP3). Todas serão masterizadas em sequência com a mesma assinatura acústica e volume perceptivo balanceado para o álbum.
+      </p>
+
+      <label class="btn-gold-action" style="text-align: center; cursor: pointer; padding: 8px;">
+        📁 Selecionar Faixas do Álbum (Múltiplos Arquivos)
+        <input type="file" id="input-batch-files" multiple accept="audio/*" style="display: none;" />
+      </label>
+
+      <div id="batch-tracks-list" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;">
+        <div style="font-size: 11px; color: #64748b; text-align: center; padding: 20px;">Nenhuma faixa adicionada à fila ainda.</div>
+      </div>
+
+      <div id="batch-progress-status" style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-light);"></div>
+
+      <button type="button" id="btn-start-album-batch" class="btn-red-action" style="width: 100%; font-weight: 800;" disabled>
+        🚀 INICIAR MASTERIZAÇÃO EM LOTE DO ÁLBUM
+      </button>
     </div>
   </div>
 
