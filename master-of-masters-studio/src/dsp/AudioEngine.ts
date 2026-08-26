@@ -301,35 +301,21 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(punchResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 4.5: AUTONOMOUS AI KEYBOARD-TO-GUITAR TRANSMUTER & GUARDIAN AGENT
+    // STAGE 4.5: AUTONOMOUS AI RHYTHM GUITAR GUARDIAN & INTELLIGENT DOSAGE
     // ─────────────────────────────────────────────────────────────────────────
     if (enableGuitarRescue) {
-      onProgress?.(52, '🤖 Agente AI Autônomo detectando teclados/synths e transmutando em guitarras base 5150...');
+      onProgress?.(52, '🤖 Agente AI Autônomo dosando e injetando guitarras base pesadas (Celestion V30)...');
       const rL = weldedStemBuffer.getChannelData(0);
       const rR = weldedStemBuffer.getChannelData(1);
 
-      // 1. Precise Tonality Index Keyboard Transmutation
-      const transmuteResult = SunoKeyboardToGuitarTransmuterEngine.transmuteKeyboardsToGuitars(
+      const rescueResult = AutonomousRhythmGuitarGuardianAgent.auditAndRescueRhythmGuitars(
         rL,
         rR,
         {
-          sensitivity: 0.90, // High sensitivity to catch all organ/synth backings
+          sensitivity: 0.85,
           ampModel: album.saturation.type || 'peavey_5150',
           distortionDrive: customDrive !== undefined ? customDrive : (album.saturation.drive || 0.90),
-          blendRatio: 0.85,
-        },
-        sr
-      );
-
-      // 2. Extra Guardian Agent reinforcement
-      const rescueResult = AutonomousRhythmGuitarGuardianAgent.auditAndRescueRhythmGuitars(
-        transmuteResult.left,
-        transmuteResult.right,
-        {
-          sensitivity: 0.80,
-          ampModel: album.saturation.type || 'peavey_5150',
-          distortionDrive: customDrive !== undefined ? customDrive : (album.saturation.drive || 0.88),
-          blendIntensity: 0.75,
+          blendIntensity: 0.70,
         },
         sr
       );

@@ -41,12 +41,12 @@ export class AuralAirExciterEngine {
       prevInR = sR;
       prevHpR = hpR;
 
-      // 2nd-order even harmonic generation (f^2)
-      const airHarmonicL = (hpL * hpL) * Math.sign(hpL);
-      const airHarmonicR = (hpR * hpR) * Math.sign(hpR);
+      // 2nd-order even harmonic generation (f^2) with soft-limiting to eliminate any treble crackle
+      const airHarmonicL = Math.tanh((hpL * hpL) * 1.5) * Math.sign(hpL);
+      const airHarmonicR = Math.tanh((hpR * hpR) * 1.5) * Math.sign(hpR);
 
-      outL[i] = sL + airHarmonicL * airIntensity * 0.55;
-      outR[i] = sR + airHarmonicR * airIntensity * 0.55;
+      outL[i] = sL + airHarmonicL * airIntensity * 0.25;
+      outR[i] = sR + airHarmonicR * airIntensity * 0.25;
     }
 
     return { left: outL, right: outR };
