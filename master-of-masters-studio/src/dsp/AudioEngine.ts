@@ -121,6 +121,8 @@ export class AudioEngine {
       transientPunchAmount = 0.45,
       realWorldDevice = 'flat_studio',
       enableDolbyAtmosRoom = false,
+      enableAbbeyRoadAdt = false,
+      adtBlend = 0.45,
       onProgress,
     } = options;
 
