@@ -1784,7 +1784,7 @@ function setupMasterProcessing() {
   // Generate Song Trigger
   btnGenerateAiSong?.addEventListener('click', async () => {
     const promptText = inputSongPrompt.value.trim() || `${activeAlbum.band} ${activeAlbum.albumTitle} style track with guitars, bass and drums`;
-    const durationSeconds = parseInt(selectSongDuration.value, 10) || 45;
+    const durationSeconds = parseInt(selectSongDuration.value, 10) || 210;
     const enableTwinSolo = selectSoloMode.value !== 'none';
     const complexityLevel = parseInt(sliderSongComplexity?.value || '8', 10);
 

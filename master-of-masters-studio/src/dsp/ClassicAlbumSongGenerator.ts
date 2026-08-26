@@ -121,7 +121,7 @@ export class ClassicAlbumSongGenerator {
       promptText,
       lyricsText = '',
       album,
-      durationSeconds = 60,
+      durationSeconds = 210,
       complexityLevel = 8,
       userVoiceBuffer = null,
       enableAutoPitchCorrection = true,
