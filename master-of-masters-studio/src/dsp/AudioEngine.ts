@@ -44,6 +44,7 @@ import { TapeHeadPhysicsEngine } from './TapeHeadPhysicsEngine';
 import { TapeFormulationEngine, type TapeFormulationType } from './TapeFormulationEngine';
 import { CabMicPositioningEngine } from './CabMicPositioningEngine';
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine';
+import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -277,14 +278,17 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(rChan, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 4: TRANSIENT PUNCH & ATTACK SCULPTING (CLEAN TRANSIENTS)
+    // STAGE 4: MULTI-BAND TRANSIENT & VISCERAL PUNCH ENGINE (SUB-KICK & SNARE SNAP)
     // ─────────────────────────────────────────────────────────────────────────
-    if (transientPunchAmount > 0.05) {
-      onProgress?.(48, '🥊 Esculpindo transientes e clareza de ataque...');
-      const punchResult = TransientPunchSculptor.processTransientPunch(lChan, rChan, transientPunchAmount * 0.50 * intensityScale, sr);
-      weldedStemBuffer.copyToChannel(punchResult.left, 0);
-      weldedStemBuffer.copyToChannel(punchResult.right, 1);
-    }
+    onProgress?.(48, '🥊 Esculpindo punch visceral de sub-bumbo (<120Hz) e estalo de caixa (3kHz)...');
+    const punchResult = MultiBandTransientPunchEngine.processMultiBandPunch(
+      lChan,
+      rChan,
+      (transientPunchAmount || 0.75) * 1.25 * intensityScale,
+      sr
+    );
+    weldedStemBuffer.copyToChannel(punchResult.left, 0);
+    weldedStemBuffer.copyToChannel(punchResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 5: UNIFIED CLEAN ANALOG TAPE SATURATION (ZERO MULTI-STACKING CLIPPING)
@@ -304,7 +308,7 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(tapeProcessed.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR
+    // STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR (PUNCH MAXIMIZED)
     // ─────────────────────────────────────────────────────────────────────────
     onProgress?.(68, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`);
     const masterCtx = new OfflineAudioContext(2, length, sr);
@@ -312,26 +316,26 @@ export class AudioEngine {
     src.buffer = weldedStemBuffer;
 
     const inputPad = masterCtx.createGain();
-    inputPad.gain.value = 0.85; // -1.4dB clean headroom
+    inputPad.gain.value = 0.95; // Full solid analog drive
 
     const subHp = masterCtx.createBiquadFilter();
     subHp.type = 'highpass';
-    subHp.frequency.value = 32;
+    subHp.frequency.value = 28; // Preserves 35Hz-60Hz sub-punch
     subHp.Q.value = 0.7071;
 
-    // 10-Band Precision EQ (Gentle master curve)
+    // 10-Band Precision Punch EQ
     const eq = album.eq10Band;
-    const eqScale = 0.18 * intensityScale;
-    const f30 = masterCtx.createBiquadFilter(); f30.type = 'lowshelf'; f30.frequency.value = 35; f30.gain.value = eq.hz30 * eqScale;
-    const f60 = masterCtx.createBiquadFilter(); f60.type = 'peaking'; f60.frequency.value = 60; f60.Q.value = 1.0; f60.gain.value = eq.hz60 * eqScale;
+    const eqScale = 0.25 * intensityScale;
+    const f30 = masterCtx.createBiquadFilter(); f30.type = 'lowshelf'; f30.frequency.value = 40; f30.gain.value = (eq.hz30 * eqScale) + 1.2;
+    const f60 = masterCtx.createBiquadFilter(); f60.type = 'peaking'; f60.frequency.value = 65; f60.Q.value = 1.1; f60.gain.value = (eq.hz60 * eqScale) + 2.4; // 65Hz Kick Thump
     const f120 = masterCtx.createBiquadFilter(); f120.type = 'peaking'; f120.frequency.value = 120; f120.Q.value = 1.0; f120.gain.value = eq.hz120 * eqScale;
-    const f250 = masterCtx.createBiquadFilter(); f250.type = 'peaking'; f250.frequency.value = 250; f250.Q.value = 1.2; f250.gain.value = Math.min(0, eq.hz250 * eqScale - 1.2); // Clean 250Hz
+    const f250 = masterCtx.createBiquadFilter(); f250.type = 'peaking'; f250.frequency.value = 250; f250.Q.value = 1.4; f250.gain.value = -1.2; // Clean mud
     const f500 = masterCtx.createBiquadFilter(); f500.type = 'peaking'; f500.frequency.value = 500; f500.Q.value = 1.0; f500.gain.value = eq.hz500 * eqScale;
     const f1000 = masterCtx.createBiquadFilter(); f1000.type = 'peaking'; f1000.frequency.value = 1000; f1000.Q.value = 1.0; f1000.gain.value = eq.hz1000 * eqScale;
-    const f2500 = masterCtx.createBiquadFilter(); f2500.type = 'peaking'; f2500.frequency.value = 2500; f2500.Q.value = 1.0; f2500.gain.value = eq.hz2500 * eqScale;
-    const f4000 = masterCtx.createBiquadFilter(); f4000.type = 'peaking'; f4000.frequency.value = 4000; f4000.Q.value = 1.0; f4000.gain.value = eq.hz4000 * eqScale;
+    const f2500 = masterCtx.createBiquadFilter(); f2500.type = 'peaking'; f2500.frequency.value = 2800; f2500.Q.value = 1.0; f2500.gain.value = (eq.hz2500 * eqScale) + 1.8; // Snare Attack Crack
+    const f4000 = masterCtx.createBiquadFilter(); f4000.type = 'peaking'; f4000.frequency.value = 4200; f4000.Q.value = 1.0; f4000.gain.value = eq.hz4000 * eqScale;
     const f8000 = masterCtx.createBiquadFilter(); f8000.type = 'peaking'; f8000.frequency.value = 8000; f8000.Q.value = 0.9; f8000.gain.value = eq.hz8000 * eqScale;
-    const f16000 = masterCtx.createBiquadFilter(); f16000.type = 'highshelf'; f16000.frequency.value = 14000; f16000.gain.value = eq.hz16000 * eqScale;
+    const f16000 = masterCtx.createBiquadFilter(); f16000.type = 'highshelf'; f16000.frequency.value = 14000; f16000.gain.value = (eq.hz16000 * eqScale) + 1.0;
 
     src.connect(inputPad);
     inputPad.connect(subHp);
@@ -347,15 +351,15 @@ export class AudioEngine {
     f8000.connect(f16000);
 
     const compNode = masterCtx.createDynamicsCompressor();
-    compNode.threshold.value = -12;
-    compNode.ratio.value = 1.8;
-    compNode.attack.value = 0.030; // 30ms slow attack to preserve punch
-    compNode.release.value = 0.120; // 120ms release
-    compNode.knee.value = 6;
+    compNode.threshold.value = -14;
+    compNode.ratio.value = 2.0;
+    compNode.attack.value = 0.035; // 35ms punchy slow attack (lets kick/snare attack punch through cleanly!)
+    compNode.release.value = 0.090; // 90ms punchy musical release
+    compNode.knee.value = 4;
     f16000.connect(compNode);
 
     const masterGain = masterCtx.createGain();
-    masterGain.gain.value = 1.0;
+    masterGain.gain.value = 1.18; // Drives solid punch into soft-clipper
     compNode.connect(masterGain);
     masterGain.connect(masterCtx.destination);
     src.start(0);
