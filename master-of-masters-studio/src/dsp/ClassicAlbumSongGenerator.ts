@@ -24,6 +24,9 @@ import { AcousticToHeavyDynamicEngine } from './AcousticToHeavyDynamicEngine';
 import { SymphonicOrganMellotronEngine } from './SymphonicOrganMellotronEngine';
 import { NeoClassicalSweepSoloistEngine } from './NeoClassicalSweepSoloistEngine';
 import { VirtuosoInstrumentArrangerEngine } from './VirtuosoInstrumentArrangerEngine';
+import { HybridFirPhaseEngine } from './HybridFirPhaseEngine';
+import { BinauralHolographicStageEngine } from './BinauralHolographicStageEngine';
+import { DynamicSpectralClarityEngine } from './DynamicSpectralClarityEngine';
 import type { MasterAlbumSetup } from '../database/masters-database';
 
 export interface SupremeSongOptions {
@@ -419,17 +422,25 @@ export class ClassicAlbumSongGenerator {
 
     // ─── 9. FINAL MASTER MIXING BUS ───
     onProgress?.(96, '🔥 Somando faixas no barramento de masterização...');
-    const masterBuffer = AudioBufferHelper.createAudioBuffer(2, totalSamples, sr);
-    const outL = masterBuffer.getChannelData(0);
-    const outR = masterBuffer.getChannelData(1);
+    const rawSumL = new Float32Array(totalSamples);
+    const rawSumR = new Float32Array(totalSamples);
 
     for (let i = 0; i < totalSamples; i++) {
       const sumL = drumL[i] * 0.75 + bassL[i] * 0.65 + gtrL[i] * 0.70 + neuralVox.left[i] * 0.85;
       const sumR = drumR[i] * 0.75 + bassR[i] * 0.65 + gtrR[i] * 0.70 + neuralVox.right[i] * 0.85;
-
-      outL[i] = Math.tanh(sumL * 0.85);
-      outR[i] = Math.tanh(sumR * 0.85);
+      rawSumL[i] = Math.tanh(sumL * 0.85);
+      rawSumR[i] = Math.tanh(sumR * 0.85);
     }
+
+    // ─── 10. ULTRA-AUDIOPHILE HYBRID PHASE, 3D STAGE & SPECTRAL CLARITY ───
+    onProgress?.(98, '💎 Aplicando alinhamento FIR híbrido, palco holográfico 3D e desmascaramento 512 bandas...');
+    const phaseRes = HybridFirPhaseEngine.processHybridPhase(rawSumL, rawSumR, sr);
+    const holoRes = BinauralHolographicStageEngine.processHolographicStage(phaseRes.left, phaseRes.right, 0.65, sr);
+    const clarityRes = DynamicSpectralClarityEngine.processClarity(holoRes.left, holoRes.right, 0.45, sr);
+
+    const masterBuffer = AudioBufferHelper.createAudioBuffer(2, totalSamples, sr);
+    masterBuffer.copyToChannel(clarityRes.left, 0);
+    masterBuffer.copyToChannel(clarityRes.right, 1);
 
     onProgress?.(100, '✨ Obra musical complexa gerada com sucesso!');
 
