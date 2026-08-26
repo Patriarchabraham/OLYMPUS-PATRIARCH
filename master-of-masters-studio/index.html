@@ -151,10 +151,29 @@
                 <span style="color: #94a3b8;">Espectro FFT 4096 vs Curva Alvo</span>
                 <span style="color: var(--emerald-primary); font-weight: 700;">Match: 99.8%</span>
               </div>
-              <canvas id="main-spectrum-canvas" width="480" height="150" style="width: 100%; height: 130px; background: #080c14; border-radius: 6px;"></canvas>
+              <canvas id="main-spectrum-canvas" width="480" height="130" style="width: 100%; height: 110px; background: #080c14; border-radius: 6px;"></canvas>
+
+              <!-- LIVE 24-FRET GUITAR & BASS CANVAS -->
+              <div style="margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; color: #f472b6; margin-bottom: 2px;">
+                  <span>🎸 BRAÇO DE GUITARRA 24 CASAS (LIVE FRETBOARD):</span>
+                  <span style="color: #34d399;">Sincronizado</span>
+                </div>
+                <canvas id="canvas-fretboard-player" width="480" height="60" style="width: 100%; height: 50px; border-radius: 4px; border: 1px solid rgba(236,72,153,0.3);"></canvas>
+              </div>
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-around; background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
+              <!-- TRANSFORMER COLORATION SELECTOR -->
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700;">TRANSFORMADOR ANALÓGICO:</label>
+                <select id="select-console-transformer" class="studio-select" style="font-size: 10px; padding: 3px;">
+                  <option value="neve_1073" selected>🇬🇧 Neve 1073 (Marinair Ferro Warmth)</option>
+                  <option value="api_512c">🇺🇸 API 512c (AP2503 Aço Punch Bite)</option>
+                  <option value="ssl_4000g">🏴󠁧󠁢󠁥󠁮󠁧󠁿 SSL 4000G (Jensen Clean VCA Glue)</option>
+                </select>
+              </div>
+
               <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="vacuum-tube-housing">
                   <div class="tube-glass-reflection"></div>
@@ -600,6 +619,9 @@
 
               <!-- MULTI-FORMAT EXPORT BUTTONS (VISIBLE AFTER MASTERING) -->
               <div id="multi-format-export-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                <button type="button" id="btn-export-box-set" class="btn-gold-action" style="width: 100%; font-size: 11px; padding: 7px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; font-weight: 800;">
+                  👑 BAIXAR MASTER BOX SET COMPLETO (MASTER + STEMS + MIDI + SCORE)
+                </button>
                 <button type="button" id="btn-export-release-bundle" class="btn-gold-action" style="width: 100%; font-size: 11px; padding: 6px;">
                   📦 EXPORTAR PACOTE DE LANÇAMENTO (ALL PLATFORMS)
                 </button>

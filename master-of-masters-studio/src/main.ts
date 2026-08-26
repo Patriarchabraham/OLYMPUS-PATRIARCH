@@ -57,6 +57,9 @@ import { AiMaestroConductorEngine, type MaestroOrchestraScore } from './dsp/AiMa
 import { LiveStemMixerEngine, type StemMixerConfig } from './dsp/LiveStemMixerEngine';
 import { MidiFileExportEngine } from './dsp/MidiFileExportEngine';
 import { LyricVideo4kGenerator } from './components/LyricVideo4kGenerator';
+import { ConsoleTransformerMatrixEngine, type TransformerType } from './dsp/ConsoleTransformerMatrixEngine';
+import { LiveFretboardVisualizer } from './components/LiveFretboardVisualizer';
+import { MasterBoxSetExporter } from './components/MasterBoxSetExporter';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -2014,6 +2017,34 @@ Master of Masters Studio Pro — 64-Bit Quantum Analog DSP & AI Maestro Orchestr
     a.download = `PARTITURA_MAESTRO_${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}.txt`;
     a.click();
   });
+
+  // ─── 1-CLICK MASTER BOX SET EXPORT WIRING ─────────────────────────────────
+  const btnExportBoxSet = document.getElementById('btn-export-box-set') as HTMLButtonElement;
+  btnExportBoxSet?.addEventListener('click', () => {
+    if (!lastMasterResult && !audioBuffer) {
+      alert('Carregue ou processe um master primeiro para exportar o Box Set!');
+      return;
+    }
+    const buf = lastMasterResult?.masteredBuffer || audioBuffer!;
+    const baseName = activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const scoreText = currentMaestroScore?.fullConductorScoreHtml || 'Partitura Oficial Master of Masters Studio Pro';
+
+    MasterBoxSetExporter.exportFullBoxSet(buf, currentGeneratedStems, baseName, scoreText);
+    alert('👑 MASTER BOX SET COMPLETO EXPORTADO COM SUCESSO!\n(Master 24-bit, Stems individuais, MIDI e Partitura baixados sequencialmente)');
+  });
+
+  // ─── LIVE 24-FRET GUITAR & BASS FRETBOARD ANIMATION ───────────────────────
+  const canvasFretboard = document.getElementById('canvas-fretboard-player') as HTMLCanvasElement;
+  if (canvasFretboard) {
+    const animFretboard = () => {
+      if (canvasFretboard) {
+        const curTime = audioCtx ? audioCtx.currentTime : 0;
+        LiveFretboardVisualizer.drawFretboard(canvasFretboard, curTime, 145);
+      }
+      requestAnimationFrame(animFretboard);
+    };
+    requestAnimationFrame(animFretboard);
+  }
 
   selectUserPresets?.addEventListener('change', () => {
     const id = selectUserPresets.value;
