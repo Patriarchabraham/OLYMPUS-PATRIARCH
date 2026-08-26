@@ -219,14 +219,14 @@ export class AudioEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 2: 2048-POINT CONTINUOUS FFT SPECTRAL CLONING & MICRO-RESONANCES
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(28, `Clonando curva espectral analógica de 2048 pontos FFT do álbum "${album.albumTitle}"...`);
+    onProgress?.(28, `Clonando curva espectral analógica do álbum "${album.albumTitle}"...`);
     const clonedL = weldedStemBuffer.getChannelData(0);
     const clonedR = weldedStemBuffer.numberOfChannels > 1 ? weldedStemBuffer.getChannelData(1) : clonedL;
     const spectralMatched = SpectralClonerEngine2048.process2048Cloning(
       clonedL,
       clonedR,
       album,
-      intensityScale * (isRealStudio ? 0.85 : 1.15),
+      intensityScale * (isRealStudio ? 0.60 : 0.85),
       sr
     );
     weldedStemBuffer.copyToChannel(spectralMatched.left, 0);
@@ -235,192 +235,97 @@ export class AudioEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 2.1: MULTIBAND DYNAMIC BREATHING & CREST FACTOR MATCHING
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(29, '🌊 Clonando dinâmica multibanda, respiração RMS e fator de crista do álbum...');
+    onProgress?.(32, '🌊 Ajustando dinâmica e respiração RMS...');
     const dynL = weldedStemBuffer.getChannelData(0);
     const dynR = weldedStemBuffer.getChannelData(1);
-    const dynMatched = MultibandDynamicMatcher.processDynamicMatching(dynL, dynR, album, intensityScale, sr);
+    const dynMatched = MultibandDynamicMatcher.processDynamicMatching(dynL, dynR, album, intensityScale * 0.50, sr);
     weldedStemBuffer.copyToChannel(dynMatched.left, 0);
     weldedStemBuffer.copyToChannel(dynMatched.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 2.2: ALBUM-SPECIFIC HARMONIC THD SPECTRUM PROFILER
+    // STAGE 3: SMART KICK & BASS UNMASKING + DYNAMIC DE-MUDDING & SOOTHE DE-HARSH
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(30, '⚡ Injetando espectro de distorção harmônica THD (2ª, 3ª e 5ª ordem) do disco...');
-    const thdL = weldedStemBuffer.getChannelData(0);
-    const thdR = weldedStemBuffer.getChannelData(1);
-    const thdMatched = HarmonicThdProfilerEngine.processHarmonicProfile(thdL, thdR, album, (customDrive || 0.40) * intensityScale);
-    weldedStemBuffer.copyToChannel(thdMatched.left, 0);
-    weldedStemBuffer.copyToChannel(thdMatched.right, 1);
+    onProgress?.(40, '🌊 Desmascarando Bumbo/Baixo e limpando frequências emboladas (250Hz-450Hz)...');
+    let lChan = weldedStemBuffer.getChannelData(0);
+    let rChan = weldedStemBuffer.getChannelData(1);
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 2.3: ANALOG CONSOLE CROSSTALK & INTER-CHANNEL 3D PHASE MATRIX
-    // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(31, '🎛️ Emulando diafonia analógica física (-72dB) e cola de fase do console original...');
-    const deskType = producer?.consoleDesk?.toLowerCase().includes('neve')
-      ? 'neve_8078'
-      : producer?.consoleDesk?.toLowerCase().includes('trident')
-      ? 'trident_a_range'
-      : producer?.consoleDesk?.toLowerCase().includes('mci')
-      ? 'mci_jh500'
-      : producer?.consoleDesk?.toLowerCase().includes('harrison')
-      ? 'harrison_32c'
-      : 'ssl_4000g';
-    const crossL = weldedStemBuffer.getChannelData(0);
-    const crossR = weldedStemBuffer.getChannelData(1);
-    const crossResult = ConsoleCrosstalkEngine.processCrosstalk(crossL, crossR, deskType, intensityScale, sr);
-    weldedStemBuffer.copyToChannel(crossResult.left, 0);
-    weldedStemBuffer.copyToChannel(crossResult.right, 1);
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 2.4: VOLTERRA NON-LINEAR HYSTERESIS & POWER SUPPLY SAG
-    // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(32, '⚡ Processando histerese não-linear Volterra de 3ª/5ª ordem e Sag de válvulas...');
-    const voltL = weldedStemBuffer.getChannelData(0);
-    const voltR = weldedStemBuffer.getChannelData(1);
-    const voltResult = VolterraHysteresisEngine.processHysteresisAndSag(voltL, voltR, (customDrive || 0.40) * intensityScale, sr);
-    weldedStemBuffer.copyToChannel(voltResult.left, 0);
-    weldedStemBuffer.copyToChannel(voltResult.right, 1);
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 2.5: INSTRUMENT KIT RIGS & SECRET PRODUCER HACKS
-    // ─────────────────────────────────────────────────────────────────────────
-    if (drumKitModelId !== 'bypass' || guitarRigModelId !== 'bypass' || bassRigModelId !== 'bypass' || vocalRigModelId !== 'bypass') {
-      onProgress?.(32, '🎸 Aplicando simulação física de Kit de Instrumentos & Rigs...');
-      const rigL = weldedStemBuffer.getChannelData(0);
-      const rigR = weldedStemBuffer.getChannelData(1);
-      const rigResult = InstrumentKitMatrixEngine.processRigSimulation(
-        rigL,
-        rigR,
-        {
-          drumKitId: drumKitModelId,
-          guitarRigId: guitarRigModelId,
-          bassRigId: bassRigModelId,
-          vocalRigId: vocalRigModelId,
-          intensity: 0.65 * intensityScale,
-        },
-        sr
-      );
-      weldedStemBuffer.copyToChannel(rigResult.left, 0);
-      weldedStemBuffer.copyToChannel(rigResult.right, 1);
+    if (enableKickBassUnmask) {
+      const unmasked = SmartKickBassUnmasker.processUnmask(lChan, rChan, 0.65 * intensityScale, sr);
+      lChan = unmasked.left;
+      rChan = unmasked.right;
     }
 
-    if (secretProducerHackId && secretProducerHackId !== 'bypass') {
-      onProgress?.(35, `🪄 Injetando Hack Secreto de Produtor (${secretProducerHackId.toUpperCase()})...`);
-      const hackL = weldedStemBuffer.getChannelData(0);
-      const hackR = weldedStemBuffer.getChannelData(1);
-      const hackResult = SecretProducerHacksEngine.processHack(
-        hackL,
-        hackR,
-        secretProducerHackId,
-        hackIntensity * intensityScale,
-        sr
-      );
-      weldedStemBuffer.copyToChannel(hackResult.left, 0);
-      weldedStemBuffer.copyToChannel(hackResult.right, 1);
+    if (enableDynamicDeHarsh) {
+      const deHarshed = DynamicResonanceSuppressor.processAdaptiveDeHarsh(lChan, rChan, 0.70 * intensityScale, sr);
+      lChan = deHarshed.left;
+      rChan = deHarshed.right;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 3: SMART KICK & BASS UNMASKING + DYNAMIC RESONANCE SUPPRESSOR (SOOTHE)
-    // ─────────────────────────────────────────────────────────────────────────
-    if (enableKickBassUnmask || enableDynamicDeHarsh) {
-      onProgress?.(38, '🌊 Suprimindo ressonâncias dinâmicas (Soothe/Gullfoss) e desmascarando Bumbo/Baixo...');
-      let lChan = weldedStemBuffer.getChannelData(0);
-      let rChan = weldedStemBuffer.getChannelData(1);
-
-      if (enableKickBassUnmask) {
-        const unmasked = SmartKickBassUnmasker.processUnmask(lChan, rChan, 0.55 * intensityScale, sr);
-        lChan = unmasked.left;
-        rChan = unmasked.right;
-      }
-
-      if (enableDynamicDeHarsh) {
-        const deHarshed = DynamicResonanceSuppressor.processAdaptiveDeHarsh(lChan, rChan, 0.60 * intensityScale, sr);
-        lChan = deHarshed.left;
-        rChan = deHarshed.right;
-      }
-
-      weldedStemBuffer.copyToChannel(lChan, 0);
-      weldedStemBuffer.copyToChannel(rChan, 1);
+    // Dynamic Low-Mid De-Mudding Notch (Removes boomy/dirty 320Hz cardboard buildup)
+    const dt = 1.0 / sr;
+    const rcMud = 1.0 / (2.0 * Math.PI * 340.0);
+    const alphaMud = dt / (rcMud + dt);
+    let mudL = 0, mudR = 0;
+    for (let i = 0; i < length; i++) {
+      mudL += alphaMud * (lChan[i] - mudL);
+      mudR += alphaMud * (rChan[i] - mudR);
+      lChan[i] = lChan[i] - mudL * 0.15; // -2.0dB precise mud attenuation
+      rChan[i] = rChan[i] - mudR * 0.15;
     }
 
+    weldedStemBuffer.copyToChannel(lChan, 0);
+    weldedStemBuffer.copyToChannel(rChan, 1);
+
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 4: TRANSIENT PUNCH & ATTACK SCULPTING
+    // STAGE 4: TRANSIENT PUNCH & ATTACK SCULPTING (CLEAN TRANSIENTS)
     // ─────────────────────────────────────────────────────────────────────────
     if (transientPunchAmount > 0.05) {
-      onProgress?.(45, '🥊 Esculpindo ataque de transientes e punch de bateria/guitarras...');
-      const lChan = weldedStemBuffer.getChannelData(0);
-      const rChan = weldedStemBuffer.getChannelData(1);
-      const punchResult = TransientPunchSculptor.processTransientPunch(lChan, rChan, transientPunchAmount * intensityScale, sr);
+      onProgress?.(48, '🥊 Esculpindo transientes e clareza de ataque...');
+      const punchResult = TransientPunchSculptor.processTransientPunch(lChan, rChan, transientPunchAmount * 0.50 * intensityScale, sr);
       weldedStemBuffer.copyToChannel(punchResult.left, 0);
       weldedStemBuffer.copyToChannel(punchResult.right, 1);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 5: ANALOG TAPE & TRANSFORMER HYSTERESIS MODELING
+    // STAGE 5: UNIFIED CLEAN ANALOG TAPE SATURATION (ZERO MULTI-STACKING CLIPPING)
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(52, `Injetando saturação de fita analógica e transformadores (${analogColorModel.toUpperCase()})...`);
+    onProgress?.(58, `Injetando calor analógico de fita (${analogColorModel.toUpperCase()})...`);
     const tapeL = weldedStemBuffer.getChannelData(0);
     const tapeR = weldedStemBuffer.getChannelData(1);
-    const tapeDrive = customDrive !== undefined ? customDrive : album.saturation.drive || 0.45;
+    const tapeDrive = customDrive !== undefined ? customDrive : (album.saturation.drive || 0.35) * 0.40;
     const tapeProcessed = AnalogTapeTransformerEngine.processAnalogColor(
       tapeL,
       tapeR,
       analogColorModel,
-      tapeDrive * intensityScale,
+      Math.min(0.25, tapeDrive),
       sr
     );
     weldedStemBuffer.copyToChannel(tapeProcessed.left, 0);
     weldedStemBuffer.copyToChannel(tapeProcessed.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 5.1: TAPE HEAD MAGNETIC ASYMMETRY & CAPSTAN MOTOR MICRO-FLUTTER
-    // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(56, '📼 Emulando assimetria magnética de cabeçotes e micro-flutter de fita de 1/2"...');
-    const physL = weldedStemBuffer.getChannelData(0);
-    const physR = weldedStemBuffer.getChannelData(1);
-    const physResult = TapeHeadPhysicsEngine.processTapePhysics(physL, physR, 0.35 * intensityScale, sr);
-    weldedStemBuffer.copyToChannel(physResult.left, 0);
-    weldedStemBuffer.copyToChannel(physResult.right, 1);
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 5.2: MASTER TAPE FORMULATION & VINTAGE MAGNETIC BIAS
-    // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(60, '📼 Aplicando formulação física de fita Studer A800 / Ampex 456 Grand Master...');
-    const formL = weldedStemBuffer.getChannelData(0);
-    const formR = weldedStemBuffer.getChannelData(1);
-    const formResult = TapeFormulationEngine.processFormulation(formL, formR, 'vintage_1984_ampex456', (customDrive || 0.40) * intensityScale, sr);
-    weldedStemBuffer.copyToChannel(formResult.left, 0);
-    weldedStemBuffer.copyToChannel(formResult.right, 1);
-
-    // ─────────────────────────────────────────────────────────────────────────
     // STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(65, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`);
+    onProgress?.(68, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`);
     const masterCtx = new OfflineAudioContext(2, length, sr);
     const src = masterCtx.createBufferSource();
     src.buffer = weldedStemBuffer;
 
     const inputPad = masterCtx.createGain();
-    inputPad.gain.value = 0.75; // -2.5dB sweet-spot headroom
+    inputPad.gain.value = 0.85; // -1.4dB clean headroom
 
     const subHp = masterCtx.createBiquadFilter();
     subHp.type = 'highpass';
-    subHp.frequency.value = 30;
+    subHp.frequency.value = 32;
     subHp.Q.value = 0.7071;
 
-    const tuningResonance = masterCtx.createBiquadFilter();
-    tuningResonance.type = 'peaking';
-    tuningResonance.frequency.value = album.tuningSignature?.harmonicResonanceCenterHz || 82.41;
-    tuningResonance.Q.value = 1.4;
-    tuningResonance.gain.value = 0.5 * intensityScale;
-
-    // 10-Band Precision EQ
+    // 10-Band Precision EQ (Gentle master curve)
     const eq = album.eq10Band;
-    const eqScale = 0.30 * intensityScale;
+    const eqScale = 0.18 * intensityScale;
     const f30 = masterCtx.createBiquadFilter(); f30.type = 'lowshelf'; f30.frequency.value = 35; f30.gain.value = eq.hz30 * eqScale;
     const f60 = masterCtx.createBiquadFilter(); f60.type = 'peaking'; f60.frequency.value = 60; f60.Q.value = 1.0; f60.gain.value = eq.hz60 * eqScale;
     const f120 = masterCtx.createBiquadFilter(); f120.type = 'peaking'; f120.frequency.value = 120; f120.Q.value = 1.0; f120.gain.value = eq.hz120 * eqScale;
-    const f250 = masterCtx.createBiquadFilter(); f250.type = 'peaking'; f250.frequency.value = 250; f250.Q.value = 1.0; f250.gain.value = eq.hz250 * eqScale;
+    const f250 = masterCtx.createBiquadFilter(); f250.type = 'peaking'; f250.frequency.value = 250; f250.Q.value = 1.2; f250.gain.value = Math.min(0, eq.hz250 * eqScale - 1.2); // Clean 250Hz
     const f500 = masterCtx.createBiquadFilter(); f500.type = 'peaking'; f500.frequency.value = 500; f500.Q.value = 1.0; f500.gain.value = eq.hz500 * eqScale;
     const f1000 = masterCtx.createBiquadFilter(); f1000.type = 'peaking'; f1000.frequency.value = 1000; f1000.Q.value = 1.0; f1000.gain.value = eq.hz1000 * eqScale;
     const f2500 = masterCtx.createBiquadFilter(); f2500.type = 'peaking'; f2500.frequency.value = 2500; f2500.Q.value = 1.0; f2500.gain.value = eq.hz2500 * eqScale;
@@ -430,8 +335,7 @@ export class AudioEngine {
 
     src.connect(inputPad);
     inputPad.connect(subHp);
-    subHp.connect(tuningResonance);
-    tuningResonance.connect(f30);
+    subHp.connect(f30);
     f30.connect(f60);
     f60.connect(f120);
     f120.connect(f250);
@@ -442,22 +346,16 @@ export class AudioEngine {
     f4000.connect(f8000);
     f8000.connect(f16000);
 
-    const satNode = masterCtx.createWaveShaper();
-    const targetDrive = Math.min(0.20, (customDrive !== undefined ? customDrive : album.saturation.drive) * 0.20);
-    satNode.curve = generateSaturationCurve(album.saturation.type, targetDrive);
-    satNode.oversample = '4x';
-    f16000.connect(satNode);
-
     const compNode = masterCtx.createDynamicsCompressor();
-    compNode.threshold.value = Math.max(-18, album.compressor.threshold || -14);
-    compNode.ratio.value = Math.min(2.5, album.compressor.ratio || 2.0);
-    compNode.attack.value = Math.max(0.030, (album.compressor.attack || 30) / 1000);
-    compNode.release.value = Math.max(0.100, (album.compressor.release || 100) / 1000);
-    compNode.knee.value = 8;
-    satNode.connect(compNode);
+    compNode.threshold.value = -12;
+    compNode.ratio.value = 1.8;
+    compNode.attack.value = 0.030; // 30ms slow attack to preserve punch
+    compNode.release.value = 0.120; // 120ms release
+    compNode.knee.value = 6;
+    f16000.connect(compNode);
 
     const masterGain = masterCtx.createGain();
-    masterGain.gain.value = 1.05;
+    masterGain.gain.value = 1.0;
     compNode.connect(masterGain);
     masterGain.connect(masterCtx.destination);
     src.start(0);
