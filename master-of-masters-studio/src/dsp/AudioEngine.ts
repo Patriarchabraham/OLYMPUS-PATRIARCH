@@ -45,6 +45,8 @@ import { TapeFormulationEngine, type TapeFormulationType } from './TapeFormulati
 import { CabMicPositioningEngine } from './CabMicPositioningEngine';
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine';
 import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine';
+import { AuralAirExciterEngine } from './AuralAirExciterEngine';
+import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -424,6 +426,17 @@ export class AudioEngine {
       renderedMaster.copyToChannel(devResult.left, 0);
       renderedMaster.copyToChannel(devResult.right, 1);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 8.5: SUB-BASS ELLIPTICAL ANCHOR (<90Hz MONO) & 18k-24kHz AIR EXCITER
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(89, '✨ Ancorando sub-graves em mono (<90Hz) e excitando harmônicos de ar 18kHz-24kHz...');
+    const lPreLim = renderedMaster.getChannelData(0);
+    const rPreLim = renderedMaster.getChannelData(1);
+    const anchored = SubBassEllipticalAnchorEngine.processEllipticalMono(lPreLim, rPreLim, 90, sr);
+    const excited = AuralAirExciterEngine.processAirExciter(anchored.left, anchored.right, 0.40, sr);
+    renderedMaster.copyToChannel(excited.left, 0);
+    renderedMaster.copyToChannel(excited.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 9: STREAMING TARGET CALIBRATION & BRICKWALL TRUE-PEAK LIMITER
