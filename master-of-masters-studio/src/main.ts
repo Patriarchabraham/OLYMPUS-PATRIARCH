@@ -49,6 +49,7 @@ import { PerceptualLoudnessMatcher } from './dsp/PerceptualLoudnessMatcher';
 import { SpectralClonerEngine2048 } from './dsp/SpectralClonerEngine2048';
 import { AiMasterAutoCalibrator } from './dsp/AiMasterAutoCalibrator';
 import { MasteringStandardsCompliance } from './components/MasteringStandardsCompliance';
+import { SocialVideoTeaserGenerator } from './components/SocialVideoTeaserGenerator';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1383,6 +1384,59 @@ function setupMasterProcessing() {
       btnCloseCoverModal?.addEventListener('click', () => {
         modalCoverArt.classList.add('hidden');
       });
+
+      const btnGenerateSocialVideo = document.getElementById('btn-generate-social-video') as HTMLButtonElement;
+      const modalSocialVideo = document.getElementById('modal-social-video')!;
+      const socialVideoCanvas = document.getElementById('social-video-canvas') as HTMLCanvasElement;
+      const btnRenderVideoTeaser = document.getElementById('btn-render-video-teaser') as HTMLButtonElement;
+      const btnDownloadVideoTeaser = document.getElementById('btn-download-video-teaser') as HTMLAnchorElement;
+      const btnCloseVideoModal = document.getElementById('btn-close-video-modal') as HTMLButtonElement;
+      const videoRenderProgress = document.getElementById('video-render-progress')!;
+
+      if (btnGenerateSocialVideo) {
+        btnGenerateSocialVideo.onclick = () => {
+          modalSocialVideo.classList.remove('hidden');
+        };
+      }
+
+      btnCloseVideoModal?.addEventListener('click', () => {
+        modalSocialVideo.classList.add('hidden');
+      });
+
+      if (btnRenderVideoTeaser) {
+        btnRenderVideoTeaser.onclick = async () => {
+          if (!lastMasterResult) return;
+          btnRenderVideoTeaser.disabled = true;
+          btnRenderVideoTeaser.textContent = '⏳ Renderizando Vídeo 4K...';
+          
+          try {
+            const videoBlob = await SocialVideoTeaserGenerator.generateTeaserVideo(
+              socialVideoCanvas,
+              lastMasterResult.masterBuffer,
+              {
+                artist: activeAlbum.band,
+                album: activeAlbum.albumTitle,
+                producer: activeProducer ? activeProducer.name : 'Master of Masters Studio Pro',
+              },
+              (pct) => {
+                videoRenderProgress.textContent = `Gravando vídeo: ${pct}% concluído...`;
+              }
+            );
+
+            const videoUrl = URL.createObjectURL(videoBlob);
+            btnDownloadVideoTeaser.href = videoUrl;
+            btnDownloadVideoTeaser.download = `TEASER_${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_4K.mp4`;
+            btnDownloadVideoTeaser.classList.remove('hidden');
+            videoRenderProgress.textContent = '✅ Vídeo Teaser Renderizado com Sucesso!';
+          } catch (vErr) {
+            console.error('[VideoTeaser] Render error:', vErr);
+            videoRenderProgress.textContent = '❌ Erro ao renderizar vídeo';
+          } finally {
+            btnRenderVideoTeaser.disabled = false;
+            btnRenderVideoTeaser.textContent = '🎥 RENDERIZAR CLIPE COM VINIL GIRANDO E ESPECTRO';
+          }
+        };
+      }
 
       if (btnExport32bit) {
         btnExport32bit.onclick = () => {

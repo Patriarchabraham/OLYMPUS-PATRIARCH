@@ -603,6 +603,9 @@
                   <button type="button" id="btn-export-32bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">32-Bit Float</button>
                   <button type="button" id="btn-export-16bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">16-Bit CD</button>
                 </div>
+                <button type="button" id="btn-generate-social-video" class="btn-gold-action" style="width: 100%; font-size: 10px; padding: 5px; background: linear-gradient(135deg, #e11d48, #be123c); border-color: #f43f5e;">
+                  🎬 GERAR VÍDEO TEASER 4K (REELS / TIKTOK / SHORTS)
+                </button>
               </div>
 
               <!-- USER PRESETS BAR -->
@@ -1608,6 +1611,24 @@
       <canvas id="cover-art-canvas" width="480" height="480" style="border-radius: 8px; box-shadow: 0 0 25px rgba(0,0,0,0.8); max-width: 100%;"></canvas>
       <a id="btn-download-cover-art" href="#" download="ALBUM_COVER_4K.png" class="btn-gold-action" style="width: 100%; text-decoration: none; text-align: center; font-weight: 800;">
         ⬇️ BAIXAR ARTE DE CAPA EM ALTA RESOLUÇÃO (PNG)
+      </a>
+    </div>
+  </div>
+
+  <!-- 4K SOCIAL VIDEO TEASER MODAL -->
+  <div id="modal-social-video" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;">
+    <div style="background: #080c14; border: 2px solid #f43f5e; border-radius: 14px; max-width: 500px; width: 100%; padding: 20px; box-shadow: 0 0 50px rgba(244,63,94,0.35); display: flex; flex-direction: column; align-items: center; gap: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h3 style="font-family: var(--font-display); font-size: 15px; color: #f43f5e; text-transform: uppercase;">🎬 Vídeo Teaser 4K para Redes Sociais</h3>
+        <button type="button" id="btn-close-video-modal" class="switch-toggle-btn" style="padding: 2px 8px; font-size: 12px;">✕</button>
+      </div>
+      <canvas id="social-video-canvas" width="400" height="500" style="border-radius: 8px; box-shadow: 0 0 25px rgba(0,0,0,0.8); max-width: 100%; background: #05070a;"></canvas>
+      <div id="video-render-progress" style="font-family: var(--font-mono); font-size: 11px; color: #fbbf24;">Clique abaixo para renderizar o clipe animado de 15s</div>
+      <button type="button" id="btn-render-video-teaser" class="btn-gold-action" style="width: 100%; background: linear-gradient(135deg, #e11d48, #be123c); border-color: #f43f5e; font-weight: 800;">
+        🎥 RENDERIZAR CLIPE COM VINIL GIRANDO E ESPECTRO
+      </button>
+      <a id="btn-download-video-teaser" href="#" download="TEASER_VIDEO_4K.mp4" class="btn-gold-action hidden" style="width: 100%; text-decoration: none; text-align: center; font-weight: 800; background: linear-gradient(135deg, #059669, #047857); border-color: #10b981;">
+        ⬇️ BAIXAR VÍDEO TEASER (.MP4 / .WEBM)
       </a>
     </div>
   </div>

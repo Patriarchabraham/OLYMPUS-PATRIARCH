@@ -41,6 +41,8 @@ import { ConsoleCrosstalkEngine } from './ConsoleCrosstalkEngine';
 import { HarmonicThdProfilerEngine } from './HarmonicThdProfilerEngine';
 import { BlumleinPhaseLockEngine } from './BlumleinPhaseLockEngine';
 import { TapeHeadPhysicsEngine } from './TapeHeadPhysicsEngine';
+import { TapeFormulationEngine, type TapeFormulationType } from './TapeFormulationEngine';
+import { CabMicPositioningEngine } from './CabMicPositioningEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -355,6 +357,16 @@ export class AudioEngine {
     const physResult = TapeHeadPhysicsEngine.processTapePhysics(physL, physR, 0.35 * intensityScale, sr);
     weldedStemBuffer.copyToChannel(physResult.left, 0);
     weldedStemBuffer.copyToChannel(physResult.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 5.2: MASTER TAPE FORMULATION & VINTAGE MAGNETIC BIAS
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(60, '📼 Aplicando formulação física de fita Studer A800 / Ampex 456 Grand Master...');
+    const formL = weldedStemBuffer.getChannelData(0);
+    const formR = weldedStemBuffer.getChannelData(1);
+    const formResult = TapeFormulationEngine.processFormulation(formL, formR, 'vintage_1984_ampex456', (customDrive || 0.40) * intensityScale, sr);
+    weldedStemBuffer.copyToChannel(formResult.left, 0);
+    weldedStemBuffer.copyToChannel(formResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR
