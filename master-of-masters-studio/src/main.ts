@@ -739,7 +739,7 @@ function setupAudioLoading() {
     e.preventDefault();
     audioDropzone.classList.remove('border-amber-400');
     const file = e.dataTransfer?.files[0];
-    if (file && file.type.startsWith('audio/')) loadAudioFile(file);
+    if (file) loadAudioFile(file);
   });
 }
 
@@ -1115,10 +1115,21 @@ function setupMasterProcessing() {
   });
 
   btnProcessMaster.addEventListener('click', async () => {
-    if (!audioBuffer) return;
+    if (!audioBuffer) {
+      audioFileInput.click();
+      const sourceModeHint = document.getElementById('source-mode-hint');
+      if (sourceModeHint) {
+        sourceModeHint.innerHTML = '⚠️ <strong>Por favor, selecione seu arquivo de áudio (WAV, MP3) primeiro!</strong>';
+        sourceModeHint.style.color = '#f59e0b';
+      }
+      return;
+    }
     btnProcessMaster.disabled = true;
     btnProcessMaster.classList.add('opacity-50');
     masterProgressWrap.classList.remove('hidden');
+    masterProgressBar.style.width = '2%';
+    masterProgressPct.textContent = '2%';
+    masterProgressText.textContent = 'Iniciando Masterização Quântica Analógica...';
 
     try {
       const selectStreamingTarget = document.getElementById('select-streaming-target') as HTMLSelectElement;
