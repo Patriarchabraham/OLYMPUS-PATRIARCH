@@ -1395,12 +1395,23 @@ function setupMasterProcessing() {
 
       btnAbMaster.disabled = false;
       btnAbMaster.classList.remove('opacity-50', 'cursor-not-allowed', 'text-slate-500');
-      btnAbMaster.classList.add('text-slate-300');
+      btnAbMaster.classList.add('text-slate-300', 'active-gold');
+      btnAbOrig.className = 'switch-toggle-btn';
 
       mainAudioPlayer.src = masterUrl;
-      mainAudioPlayer.play();
-      btnTransportPlay.textContent = '❚❚';
-      btnAbMaster.click();
+      try {
+        const p = mainAudioPlayer.play();
+        if (p) {
+          p.then(() => {
+            btnTransportPlay.textContent = '❚❚';
+          }).catch(pErr => {
+            console.warn('[MasterStudio] Autoplay was blocked by browser, click play to listen:', pErr);
+            btnTransportPlay.textContent = '▶';
+          });
+        }
+      } catch (e) {
+        console.warn('[MasterStudio] Audio play error:', e);
+      }
     } catch (eErr: any) {
       console.error('[MasterStudio] Mastering failed:', eErr);
       masterProgressText.textContent = `❌ Erro: ${eErr.message || String(eErr)}`;
