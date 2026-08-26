@@ -50,6 +50,7 @@ import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine';
 import { BiBandSaturationEngine } from './BiBandSaturationEngine';
 import { SunoDistortionRescueEngine, type GuitarRescueMode } from './SunoDistortionRescueEngine';
 import { AutonomousRhythmGuitarGuardianAgent } from './AutonomousRhythmGuitarGuardianAgent';
+import { SunoKeyboardToGuitarTransmuterEngine } from './SunoKeyboardToGuitarTransmuterEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -300,17 +301,32 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(punchResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 4.5: AUTONOMOUS AI RHYTHM GUITAR GUARDIAN AGENT (SUNO RESCUE)
+    // STAGE 4.5: AUTONOMOUS AI KEYBOARD-TO-GUITAR TRANSMUTER & GUARDIAN AGENT
     // ─────────────────────────────────────────────────────────────────────────
     if (enableGuitarRescue) {
-      onProgress?.(52, '🤖 Agente AI Autônomo auditando falhas do Suno e injetando guitarras base...');
+      onProgress?.(52, '🤖 Agente AI Autônomo detectando teclados/synths e transmutando em guitarras base 5150...');
       const rL = weldedStemBuffer.getChannelData(0);
       const rR = weldedStemBuffer.getChannelData(1);
-      const rescueResult = AutonomousRhythmGuitarGuardianAgent.auditAndRescueRhythmGuitars(
+
+      // 1. Precise Tonality Index Keyboard Transmutation
+      const transmuteResult = SunoKeyboardToGuitarTransmuterEngine.transmuteKeyboardsToGuitars(
         rL,
         rR,
         {
-          sensitivity: 0.75,
+          sensitivity: 0.90, // High sensitivity to catch all organ/synth backings
+          ampModel: album.saturation.type || 'peavey_5150',
+          distortionDrive: customDrive !== undefined ? customDrive : (album.saturation.drive || 0.90),
+          blendRatio: 0.85,
+        },
+        sr
+      );
+
+      // 2. Extra Guardian Agent reinforcement
+      const rescueResult = AutonomousRhythmGuitarGuardianAgent.auditAndRescueRhythmGuitars(
+        transmuteResult.left,
+        transmuteResult.right,
+        {
+          sensitivity: 0.80,
           ampModel: album.saturation.type || 'peavey_5150',
           distortionDrive: customDrive !== undefined ? customDrive : (album.saturation.drive || 0.88),
           blendIntensity: 0.75,
