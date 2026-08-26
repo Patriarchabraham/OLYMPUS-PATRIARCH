@@ -27,6 +27,7 @@ import { VirtuosoInstrumentArrangerEngine } from './VirtuosoInstrumentArrangerEn
 import { HybridFirPhaseEngine } from './HybridFirPhaseEngine';
 import { BinauralHolographicStageEngine } from './BinauralHolographicStageEngine';
 import { DynamicSpectralClarityEngine } from './DynamicSpectralClarityEngine';
+import { DynamicLyricArrangerEngine } from './DynamicLyricArrangerEngine';
 import type { MasterAlbumSetup } from '../database/masters-database';
 
 export interface SupremeSongOptions {
@@ -188,6 +189,7 @@ export class ClassicAlbumSongGenerator {
     const snareLag = Math.floor(sr * 0.007); // 7ms behind-the-beat human pocket
 
     for (let bar = introBars; bar < totalBars; bar++) {
+      if (bar % 16 === 0) await new Promise(r => setTimeout(r, 0));
       const barStart = bar * samplesPerBar;
       const isFillBar = (bar + 1) % 4 === 0;
 
@@ -256,6 +258,7 @@ export class ClassicAlbumSongGenerator {
     const quadR2 = new Float32Array(totalSamples);
 
     for (let bar = introBars; bar < totalBars; bar++) {
+      if (bar % 16 === 0) await new Promise(r => setTimeout(r, 0));
       const chordIdx = chordProgression[bar % chordProgression.length];
       const chordRootSemi = scaleIntervals[chordIdx % scaleIntervals.length];
       const rootFreq = baseRootFreq * Math.pow(2.0, chordRootSemi / 12.0);
