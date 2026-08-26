@@ -53,6 +53,7 @@ import { SocialVideoTeaserGenerator } from './components/SocialVideoTeaserGenera
 import { PresetBackupRestoreManager } from './components/PresetBackupRestoreManager';
 import { AlbumBatchMasterEngine, type AlbumTrackItem } from './dsp/AlbumBatchMasterEngine';
 import { ClassicAlbumSongGenerator } from './dsp/ClassicAlbumSongGenerator';
+import { AiMaestroConductorEngine, type MaestroOrchestraScore } from './dsp/AiMaestroConductorEngine';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1815,8 +1816,82 @@ function setupMasterProcessing() {
       songGenProgressStatus.textContent = `❌ Erro na composição: ${gErr.message || String(gErr)}`;
     } finally {
       btnGenerateAiSong.disabled = false;
-      btnGenerateAiSong.textContent = '✨ GERAR MÚSICA & CARREGAR NA MASTERIZAÇÃO';
+      btnGenerateAiSong.textContent = '✨ GERAR MÚSICA & CARREGAR';
     }
+  });
+
+  // ─── AI MAESTRO CONDUCTOR & SCORES WIRING ─────────────────────────────────
+  const btnViewMaestroScores = document.getElementById('btn-view-maestro-scores') as HTMLButtonElement;
+  const modalMaestroScore = document.getElementById('modal-maestro-score')!;
+  const btnCloseMaestroModal = document.getElementById('btn-close-maestro-modal') as HTMLButtonElement;
+  const maestroScoreContent = document.getElementById('maestro-score-content')!;
+  const btnDownloadSheetMusic = document.getElementById('btn-download-sheet-music') as HTMLButtonElement;
+
+  let currentMaestroScore: MaestroOrchestraScore | null = null;
+
+  if (btnViewMaestroScores) {
+    btnViewMaestroScores.addEventListener('click', () => {
+      const promptText = inputSongPrompt.value.trim() || `${activeAlbum.band} ${activeAlbum.albumTitle} style track`;
+      const lyricsText = inputSongLyrics?.value.trim() || '';
+
+      currentMaestroScore = AiMaestroConductorEngine.conductScore(
+        promptText,
+        lyricsText,
+        `${activeAlbum.band} - ${activeAlbum.albumTitle}`,
+        145,
+        'E Minor'
+      );
+
+      maestroScoreContent.innerHTML = currentMaestroScore.fullConductorScoreHtml;
+      modalMaestroScore.classList.remove('hidden');
+    });
+  }
+
+  btnCloseMaestroModal?.addEventListener('click', () => {
+    modalMaestroScore.classList.add('hidden');
+  });
+
+  btnDownloadSheetMusic?.addEventListener('click', () => {
+    if (!currentMaestroScore) return;
+    const scoreText = `
+================================================================================
+🎼 PARTITURA GERAL DO MAESTRO AI & TABLATURAS DA BANDA VIRTUAL
+================================================================================
+Música: ${currentMaestroScore.songTitle}
+Tonalidade: ${currentMaestroScore.keySignature} | Andamento: ${currentMaestroScore.tempoBpm} BPM | Fórmula: ${currentMaestroScore.timeSignature}
+
+--------------------------------------------------------------------------------
+DIRETRIZES DO MAESTRO CONDUTOR:
+--------------------------------------------------------------------------------
+${currentMaestroScore.maestroDirectives.join('\n')}
+
+--------------------------------------------------------------------------------
+PARTITURAS E TABLATURAS INDIVIDUAIS DOS AGENTES:
+--------------------------------------------------------------------------------
+1. GUITARRAS (Virtuoso Guitars Agent):
+${currentMaestroScore.agents.guitars.asciiScoreText}
+
+2. BATERIA (Thunder Drummer Agent):
+${currentMaestroScore.agents.drums.asciiScoreText}
+
+3. BAIXO (Iron Bassist Agent):
+${currentMaestroScore.agents.bass.asciiScoreText}
+
+4. TECLADOS & HAMMOND B3 (Symphonic Keys Agent):
+${currentMaestroScore.agents.keys.asciiScoreText}
+
+5. VOCAL & LETRA (Vocal God Agent):
+${currentMaestroScore.agents.vocals.asciiScoreText}
+================================================================================
+Master of Masters Studio Pro — 64-Bit Quantum Analog DSP & AI Maestro Orchestra
+`;
+
+    const blob = new Blob([scoreText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PARTITURA_MAESTRO_${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}.txt`;
+    a.click();
   });
 
   selectUserPresets?.addEventListener('change', () => {

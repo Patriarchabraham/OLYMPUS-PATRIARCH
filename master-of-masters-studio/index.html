@@ -1765,8 +1765,29 @@
 
       <div id="song-gen-progress-status" style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-light);"></div>
 
-      <button type="button" id="btn-generate-ai-song" class="btn-red-action" style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #f472b6;">
-        ✨ GERAR MÚSICA & CARREGAR NA MASTERIZAÇÃO
+      <div style="display: flex; gap: 8px;">
+        <button type="button" id="btn-generate-ai-song" class="btn-red-action" style="flex: 1.5; font-weight: 800; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #f472b6;">
+          ✨ GERAR MÚSICA & CARREGAR
+        </button>
+        <button type="button" id="btn-view-maestro-scores" class="btn-gold-action" style="flex: 1; font-size: 10px; padding: 6px; background: linear-gradient(135deg, #4f46e5, #4338ca); border-color: #6366f1;">
+          🎼 PARTITURAS MAESTRO
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAESTRO & ORCHESTRA SCORES MODAL -->
+  <div id="modal-maestro-score" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.94); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;">
+    <div style="background: #080c14; border: 2px solid var(--gold-primary); border-radius: 14px; max-width: 700px; width: 100%; max-height: 85vh; padding: 20px; box-shadow: 0 0 50px rgba(245,158,11,0.35); display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h3 style="font-family: var(--font-display); font-size: 15px; color: var(--gold-light); text-transform: uppercase;">🎼 Partituras, Tablaturas & Diálogo dos Agentes</h3>
+        <button type="button" id="btn-close-maestro-modal" class="switch-toggle-btn" style="padding: 2px 8px; font-size: 12px;">✕</button>
+      </div>
+
+      <div id="maestro-score-content" style="flex: 1; overflow-y: auto; padding-right: 6px;"></div>
+
+      <button type="button" id="btn-download-sheet-music" class="btn-gold-action" style="width: 100%; font-weight: 800;">
+        ⬇️ BAIXAR PARTITURA & TABLATURAS COMPLETAS (.TXT / .HTML)
       </button>
     </div>
   </div>
