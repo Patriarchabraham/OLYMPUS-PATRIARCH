@@ -52,6 +52,7 @@ import { MasteringStandardsCompliance } from './components/MasteringStandardsCom
 import { SocialVideoTeaserGenerator } from './components/SocialVideoTeaserGenerator';
 import { PresetBackupRestoreManager } from './components/PresetBackupRestoreManager';
 import { AlbumBatchMasterEngine, type AlbumTrackItem } from './dsp/AlbumBatchMasterEngine';
+import { ClassicAlbumSongGenerator } from './dsp/ClassicAlbumSongGenerator';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1653,6 +1654,149 @@ function setupMasterProcessing() {
         a.click();
       }
     });
+  });
+
+  // ─── AI SONG & CUSTOM VOICE GENERATOR WIRING ──────────────────────────────
+  const btnOpenSongGenerator = document.getElementById('btn-open-song-generator') as HTMLButtonElement;
+  const modalAiSongGenerator = document.getElementById('modal-ai-song-generator')!;
+  const btnCloseSongGenModal = document.getElementById('btn-close-song-generator-modal') as HTMLButtonElement;
+  const inputSongPrompt = document.getElementById('input-song-prompt') as HTMLTextAreaElement;
+  const btnRecordUserVoice = document.getElementById('btn-record-user-voice') as HTMLButtonElement;
+  const inputUserVoiceFile = document.getElementById('input-user-voice-file') as HTMLInputElement;
+  const voiceUploadStatus = document.getElementById('voice-upload-status')!;
+  const selectSongDuration = document.getElementById('select-song-duration') as HTMLSelectElement;
+  const selectSoloMode = document.getElementById('select-solo-mode') as HTMLSelectElement;
+  const songGenProgressStatus = document.getElementById('song-gen-progress-status')!;
+  const btnGenerateAiSong = document.getElementById('btn-generate-ai-song') as HTMLButtonElement;
+
+  let customUserVoiceBuffer: AudioBuffer | null = null;
+  let mediaRecorder: MediaRecorder | null = null;
+  let voiceChunks: Blob[] = [];
+
+  if (btnOpenSongGenerator) {
+    btnOpenSongGenerator.addEventListener('click', () => {
+      modalAiSongGenerator.classList.remove('hidden');
+    });
+  }
+
+  btnCloseSongGenModal?.addEventListener('click', () => {
+    modalAiSongGenerator.classList.add('hidden');
+  });
+
+  // Prompt Presets click
+  document.querySelectorAll('.btn-prompt-preset').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const preset = (btn as HTMLElement).dataset.preset;
+      if (preset === 'iron_maiden') {
+        inputSongPrompt.value = 'Iron Maiden fast galloping heavy metal song with twin harmonized guitar solo in E minor, aggressive energy, 160 BPM, punchy Steve Harris bass and epic chorus.';
+      } else if (preset === 'metallica') {
+        inputSongPrompt.value = 'Metallica Black Album heavy mid-tempo groove riff in E minor, punchy Lars Ulrich drum slam, heavy Hetfield downpicking rhythm guitars, 110 BPM.';
+      } else if (preset === 'judas_priest') {
+        inputSongPrompt.value = 'Judas Priest Painkiller speed metal explosive double-bass drum track, screaming lead arpeggios, razor sharp distortion, 175 BPM.';
+      } else if (preset === 'pink_floyd') {
+        inputSongPrompt.value = 'Pink Floyd Dark Side of the Moon atmospheric progressive rock with soaring David Gilmour bluesy stratocaster solo, 85 BPM.';
+      } else if (preset === 'queen') {
+        inputSongPrompt.value = 'Queen Bohemian style grand operatic rock with multi-layered Brian May red special harmonized lead guitars, 120 BPM.';
+      }
+    });
+  });
+
+  // User Voice Upload File
+  inputUserVoiceFile?.addEventListener('change', async (e: any) => {
+    const file = e.target?.files?.[0];
+    if (!file) return;
+    try {
+      voiceUploadStatus.textContent = '⏳ Decodificando áudio da sua voz...';
+      const arrayBuf = await file.arrayBuffer();
+      const ctx = new AudioContext();
+      customUserVoiceBuffer = await ctx.decodeAudioData(arrayBuf);
+      await ctx.close();
+      voiceUploadStatus.textContent = `✅ Voz carregada com sucesso: "${file.name}" (${customUserVoiceBuffer.duration.toFixed(1)}s)`;
+      voiceUploadStatus.style.color = '#10b981';
+    } catch (err: any) {
+      voiceUploadStatus.textContent = `❌ Erro ao ler voz: ${err.message || String(err)}`;
+      voiceUploadStatus.style.color = '#f43f5e';
+    }
+  });
+
+  // User Voice Microphone Recording
+  btnRecordUserVoice?.addEventListener('click', async () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      btnRecordUserVoice.textContent = '🎙️ Gravar Minha Voz (Mic)';
+      btnRecordUserVoice.style.background = '';
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      voiceChunks = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) voiceChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+        const arrayBuf = await blob.arrayBuffer();
+        const ctx = new AudioContext();
+        customUserVoiceBuffer = await ctx.decodeAudioData(arrayBuf);
+        await ctx.close();
+        stream.getTracks().forEach((t) => t.stop());
+        voiceUploadStatus.textContent = `✅ Voz gravada via microfone (${customUserVoiceBuffer.duration.toFixed(1)}s)`;
+        voiceUploadStatus.style.color = '#10b981';
+      };
+
+      mediaRecorder.start();
+      btnRecordUserVoice.textContent = '⏹️ Parar Gravação';
+      btnRecordUserVoice.style.background = '#dc2626';
+      voiceUploadStatus.textContent = '🔴 Gravando sua voz pelo microfone...';
+    } catch (err: any) {
+      alert(`Permissão de microfone necessária: ${err.message || String(err)}`);
+    }
+  });
+
+  // Generate Song Trigger
+  btnGenerateAiSong?.addEventListener('click', async () => {
+    const promptText = inputSongPrompt.value.trim() || `${activeAlbum.band} ${activeAlbum.albumTitle} style track with guitars, bass and drums`;
+    const durationSeconds = parseInt(selectSongDuration.value, 10) || 45;
+    const enableTwinSolo = selectSoloMode.value !== 'none';
+
+    btnGenerateAiSong.disabled = true;
+    btnGenerateAiSong.textContent = '⏳ Compondo e Sintetizando Arranjo...';
+
+    try {
+      const generatedBuffer = await ClassicAlbumSongGenerator.generateSong(
+        {
+          promptText,
+          album: activeAlbum,
+          durationSeconds,
+          userVoiceBuffer: customUserVoiceBuffer,
+          enableTwinGuitarSolo: enableTwinSolo,
+        },
+        (pct, msg) => {
+          songGenProgressStatus.textContent = `${pct}%: ${msg}`;
+        }
+      );
+
+      // Set as main studio buffer
+      audioBuffer = generatedBuffer;
+      loadedFile = new File([new Uint8Array(100)], `${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_ORIGINAL_COMPOSED.wav`, { type: 'audio/wav' });
+
+      updateTrackInfo(`${activeAlbum.band} - Composição Inédita Gerada`, generatedBuffer.duration);
+      drawWaveform(generatedBuffer);
+      drawSpectrum(generatedBuffer);
+      modalAiSongGenerator.classList.add('hidden');
+
+      alert(`🎉 Música inédita composta com sucesso no estilo de "${activeAlbum.band} - ${activeAlbum.albumTitle}"!\nEla foi carregada no estúdio e já está pronta para masterização analógica!`);
+    } catch (gErr: any) {
+      console.error('[SongGenerator] Error:', gErr);
+      songGenProgressStatus.textContent = `❌ Erro na composição: ${gErr.message || String(gErr)}`;
+    } finally {
+      btnGenerateAiSong.disabled = false;
+      btnGenerateAiSong.textContent = '✨ GERAR MÚSICA & CARREGAR NA MASTERIZAÇÃO';
+    }
   });
 
   selectUserPresets?.addEventListener('change', () => {
