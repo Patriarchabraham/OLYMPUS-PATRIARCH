@@ -47,6 +47,8 @@ import { StemSpecificReferenceMatcher } from './dsp/StemSpecificReferenceMatcher
 import { WaterfallSpectrogramVisualizer } from './visualizers/WaterfallSpectrogramVisualizer';
 import { PerceptualLoudnessMatcher } from './dsp/PerceptualLoudnessMatcher';
 import { SpectralClonerEngine2048 } from './dsp/SpectralClonerEngine2048';
+import { AiMasterAutoCalibrator } from './dsp/AiMasterAutoCalibrator';
+import { MasteringStandardsCompliance } from './components/MasteringStandardsCompliance';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1118,6 +1120,33 @@ function setupMasterProcessing() {
   sliderVocalBlend?.addEventListener('input', () => {
     if (labelVocalBlendVal) labelVocalBlendVal.textContent = `${sliderVocalBlend.value}%`;
   });
+
+  const btnAiAutoCalibrate = document.getElementById('btn-ai-autocalibrate') as HTMLButtonElement;
+  if (btnAiAutoCalibrate) {
+    btnAiAutoCalibrate.addEventListener('click', () => {
+      if (!audioBuffer) {
+        audioFileInput.click();
+        return;
+      }
+      btnAiAutoCalibrate.textContent = '⏳ Auto-Calibrando Parâmetros...';
+      const cal = AiMasterAutoCalibrator.autoCalibrate(audioBuffer, activeAlbum);
+      
+      sliderSat.value = `${Math.round(cal.recommendedDrive * 100)}`;
+      sliderWidth.value = `${Math.round(cal.recommendedWidth * 100)}`;
+      if (valSat) valSat.textContent = `${Math.round(cal.recommendedDrive * 100)}%`;
+      if (valWidth) valWidth.textContent = `${Math.round(cal.recommendedWidth * 100)}%`;
+
+      const chkDynamicDeHarsh = document.getElementById('chk-dynamic-deharsh') as HTMLInputElement;
+      const chkKickBassUnmask = document.getElementById('chk-kick-bass-unmask') as HTMLInputElement;
+      if (chkDynamicDeHarsh) chkDynamicDeHarsh.checked = cal.recommendedDeHarsh;
+      if (chkKickBassUnmask) chkKickBassUnmask.checked = cal.recommendedUnmask;
+
+      btnAiAutoCalibrate.textContent = `✨ MATCH ${cal.similarityScore}% ATINGIDO!`;
+      setTimeout(() => {
+        btnAiAutoCalibrate.textContent = '🪄 AUTO-CALIBRAR PARA MATCH PERFEITO (>99.5%)';
+      }, 3000);
+    });
+  }
 
   btnProcessMaster.addEventListener('click', async () => {
     if (!audioBuffer) {
