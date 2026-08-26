@@ -7,7 +7,7 @@
  */
 
 import { type MasterAlbumSetup, type MasterProducer } from '../database/masters-database';
-import { generateSaturationCurve } from './SaturationCurves';
+import { generateSaturationCurve, applyAdaaWaveshaper } from './SaturationCurves';
 import {
   audioBufferTo24BitWavBlob,
   audioBufferTo32BitFloatWavBlob,
@@ -293,21 +293,17 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(punchResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 5: UNIFIED CLEAN ANALOG TAPE SATURATION (ZERO MULTI-STACKING CLIPPING)
+    // STAGE 5: ACTIVE ANALOG SATURATION & TUBE/TRANSFORMER DRIVE
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(58, `Injetando calor analógico de fita (${analogColorModel.toUpperCase()})...`);
-    const tapeL = weldedStemBuffer.getChannelData(0);
-    const tapeR = weldedStemBuffer.getChannelData(1);
-    const tapeDrive = customDrive !== undefined ? customDrive : (album.saturation.drive || 0.35) * 0.40;
-    const tapeProcessed = AnalogTapeTransformerEngine.processAnalogColor(
-      tapeL,
-      tapeR,
-      analogColorModel,
-      Math.min(0.25, tapeDrive),
-      sr
-    );
-    weldedStemBuffer.copyToChannel(tapeProcessed.left, 0);
-    weldedStemBuffer.copyToChannel(tapeProcessed.right, 1);
+    const effectiveDrive = customDrive !== undefined ? customDrive : (album.saturation.drive || 0.45);
+    onProgress?.(58, `Injetando saturação analógica ativa (${album.saturation.type.toUpperCase()} - Drive ${(effectiveDrive * 100).toFixed(0)}%)...`);
+    const satL = weldedStemBuffer.getChannelData(0);
+    const satR = weldedStemBuffer.getChannelData(1);
+
+    if (effectiveDrive > 0.02) {
+      applyAdaaWaveshaper(satL, album.saturation.type, effectiveDrive);
+      applyAdaaWaveshaper(satR, album.saturation.type, effectiveDrive);
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR (PUNCH MAXIMIZED)

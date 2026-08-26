@@ -263,7 +263,7 @@ function evaluateNonlinearAndAntiderivative(
     case 'fairchild_mu':
     case 'la2a_opto':
     case 'pultec_tube': {
-      const k = 1.0 + d * 1.5;
+      const k = 1.0 + d * 3.5;
       const scale = 0.96 / Math.tanh(k);
       const f = Math.tanh(k * x) * scale;
       const F1 = (1.0 / k) * lnCosh(k * x) * scale;
@@ -274,7 +274,7 @@ function evaluateNonlinearAndAntiderivative(
     // F1(x) = (2/PI) * [ x * atan(k*x) - (1/(2k)) * ln(1 + (k*x)^2) ]
     case 'neve_tube':
     case 'ts9_screamer': {
-      const k = 1.0 + d * 2.0;
+      const k = 1.0 + d * 4.5;
       const scale = 0.96;
       const kx = k * x;
       const atanVal = Math.atan(kx);
@@ -289,7 +289,7 @@ function evaluateNonlinearAndAntiderivative(
     case 'mesa_rectifier':
     case 'soldano_slo100':
     case 'boss_hm2_buzzsaw': {
-      const k = 1.2 + d * 3.0;
+      const k = 1.2 + d * 7.5;
       const scale = 0.95;
       const kx = k * x;
       const radical = Math.sqrt(1.0 + kx * kx);
@@ -301,7 +301,7 @@ function evaluateNonlinearAndAntiderivative(
     // ─── RANDALL RG100 SOLID-STATE (PANTERA / DIMEBAG): f(x) = (k*x) / (1 + (k*x)^4)^(1/4)
     // Fast odd-harmonic bipolar diode clipping with razor-sharp attack
     case 'randall_rg100': {
-      const k = 1.4 + d * 3.8;
+      const k = 1.4 + d * 8.0;
       const scale = 0.95;
       const kx = k * x;
       const kx4 = kx * kx * kx * kx;
@@ -316,7 +316,7 @@ function evaluateNonlinearAndAntiderivative(
     case 'shadow_hills':
     case 'ssl_vca':
     case 'api_thrust': {
-      const k = 1.0 + d * 2.2;
+      const k = 1.0 + d * 5.0;
       const scale = 0.95 / Math.tanh(k);
       const f = Math.tanh(k * x) * scale;
       const F1 = (1.0 / k) * lnCosh(k * x) * scale;
@@ -332,7 +332,7 @@ function evaluateNonlinearAndAntiderivative(
     case 'distressor_nuke':
     case 'dbx160_vca':
     case 'bigmuff_bass_fuzz': {
-      const k = 1.0 + d * 2.5;
+      const k = 1.0 + d * 6.0;
       const scale = 0.94;
       const kx = k * x;
       const absKx = Math.abs(kx);

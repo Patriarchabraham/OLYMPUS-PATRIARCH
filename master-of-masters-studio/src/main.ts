@@ -324,7 +324,7 @@ function setupRotaryKnobs() {
 
   knobMasterSat = new RotaryKnob({
     element: elSat,
-    min: 30,
+    min: 0,
     max: 200,
     initialValue: 100,
     unit: '%',
@@ -333,6 +333,7 @@ function setupRotaryKnobs() {
       sliderSat.value = String(v);
       labelSatVal.textContent = `${v}%`;
       updateTubeGlow(v);
+      LiveRigAuditionEngine.setSaturation(activeAlbum.saturation.type, v / 100);
     }
   });
 
@@ -360,6 +361,26 @@ function setupRotaryKnobs() {
       sliderIntensity.value = String(v);
       labelIntensityVal.textContent = `${v}%`;
     }
+  });
+
+  sliderSat?.addEventListener('input', () => {
+    const v = parseFloat(sliderSat.value);
+    labelSatVal.textContent = `${v}%`;
+    knobMasterSat?.setValue(v, false);
+    updateTubeGlow(v);
+    LiveRigAuditionEngine.setSaturation(activeAlbum.saturation.type, v / 100);
+  });
+
+  sliderWidth?.addEventListener('input', () => {
+    const v = parseFloat(sliderWidth.value);
+    labelWidthVal.textContent = `${v}%`;
+    knobMasterWidth?.setValue(v, false);
+  });
+
+  sliderIntensity?.addEventListener('input', () => {
+    const v = parseFloat(sliderIntensity.value);
+    labelIntensityVal.textContent = `${v}%`;
+    knobMasterIntensity?.setValue(v, false);
   });
 
   // Vocal Knobs
@@ -598,6 +619,7 @@ function selectMasterSetup(producerId: string, albumId?: string) {
   gemCardVocals.textContent = activeAlbum.gemSetup.vocals.description;
   gemCardSynths.textContent = activeAlbum.gemSetup.synthsFx.description;
 
+  LiveRigAuditionEngine.setSaturation(activeAlbum.saturation.type, activeAlbum.saturation.drive);
   spectrumVisualizer.setTargetAlbum(activeAlbum);
 }
 

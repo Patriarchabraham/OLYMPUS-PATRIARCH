@@ -139,4 +139,16 @@ export class LiveRigAuditionEngine {
       }
     }
   }
+
+  /**
+   * Updates live analog saturation drive and model in real-time.
+   */
+  public static setSaturation(type: any, drive: number): void {
+    if (!this.satNode) return;
+    try {
+      this.satNode.curve = generateSaturationCurve(type || 'marshall_jcm800', Math.max(0.05, drive));
+    } catch {
+      // Fallback
+    }
+  }
 }
