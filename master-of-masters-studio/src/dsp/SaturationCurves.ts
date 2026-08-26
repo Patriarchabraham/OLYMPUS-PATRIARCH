@@ -249,7 +249,7 @@ function lnCosh(u: number): number {
 /**
  * Evaluates the nonlinear function f(x) and its analytical antiderivative F1(x)
  */
-function evaluateNonlinearAndAntiderivative(
+export function evaluateNonlinearAndAntiderivative(
   x: number,
   type: SaturationType,
   drive: number

@@ -47,6 +47,7 @@ import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine';
 import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine';
 import { AuralAirExciterEngine } from './AuralAirExciterEngine';
 import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine';
+import { BiBandSaturationEngine } from './BiBandSaturationEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -293,16 +294,17 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(punchResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 5: ACTIVE ANALOG SATURATION & TUBE/TRANSFORMER DRIVE
+    // STAGE 5: BI-BAND SPLIT SATURATION (<250Hz CLEAN PUNCH + >250Hz TUBE DRIVE)
     // ─────────────────────────────────────────────────────────────────────────
     const effectiveDrive = customDrive !== undefined ? customDrive : (album.saturation.drive || 0.45);
-    onProgress?.(58, `Injetando saturação analógica ativa (${album.saturation.type.toUpperCase()} - Drive ${(effectiveDrive * 100).toFixed(0)}%)...`);
+    onProgress?.(58, `Injetando saturação bi-banda analógica (${album.saturation.type.toUpperCase()} - Drive ${(effectiveDrive * 100).toFixed(0)}%)...`);
     const satL = weldedStemBuffer.getChannelData(0);
     const satR = weldedStemBuffer.getChannelData(1);
 
     if (effectiveDrive > 0.02) {
-      applyAdaaWaveshaper(satL, album.saturation.type, effectiveDrive);
-      applyAdaaWaveshaper(satR, album.saturation.type, effectiveDrive);
+      const biBandResult = BiBandSaturationEngine.processBiBandSaturation(satL, satR, album.saturation.type, effectiveDrive, 250, sr);
+      weldedStemBuffer.copyToChannel(biBandResult.left, 0);
+      weldedStemBuffer.copyToChannel(biBandResult.right, 1);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
