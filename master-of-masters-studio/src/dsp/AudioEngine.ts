@@ -48,6 +48,7 @@ import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine';
 import { AuralAirExciterEngine } from './AuralAirExciterEngine';
 import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine';
 import { BiBandSaturationEngine } from './BiBandSaturationEngine';
+import { SunoDistortionRescueEngine, type GuitarRescueMode } from './SunoDistortionRescueEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -80,6 +81,8 @@ export interface ProcessMasterOptions {
   enableAiAssistant?: boolean;
   enableDynamicDeHarsh?: boolean;
   enableKickBassUnmask?: boolean;
+  enableGuitarRescue?: boolean;
+  guitarRescueMode?: GuitarRescueMode;
   transientPunchAmount?: number;
   realWorldDevice?: RealWorldDevice;
   enableDolbyAtmosRoom?: boolean;
@@ -131,6 +134,8 @@ export class AudioEngine {
       enableAiAssistant = true,
       enableDynamicDeHarsh = true,
       enableKickBassUnmask = true,
+      enableGuitarRescue = true,
+      guitarRescueMode = 'auto_detect_fill',
       transientPunchAmount = 0.45,
       realWorldDevice = 'flat_studio',
       enableDolbyAtmosRoom = false,
@@ -292,6 +297,28 @@ export class AudioEngine {
     );
     weldedStemBuffer.copyToChannel(punchResult.left, 0);
     weldedStemBuffer.copyToChannel(punchResult.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 4.5: SUNO DISTORTION RESCUE & HEAVY GUITAR WALL RE-SYNTHESIS
+    // ─────────────────────────────────────────────────────────────────────────
+    if (enableGuitarRescue) {
+      onProgress?.(52, '🛡️ Escaneando falhas do Suno e injetando muralha de guitarras distorcidas...');
+      const rL = weldedStemBuffer.getChannelData(0);
+      const rR = weldedStemBuffer.getChannelData(1);
+      const rescueResult = SunoDistortionRescueEngine.rescueSongWithGuitars(
+        rL,
+        rR,
+        {
+          mode: guitarRescueMode,
+          guitarAmpModel: album.saturation.type || 'peavey_5150',
+          distortionGain: customDrive !== undefined ? customDrive : (album.saturation.drive || 0.85),
+          blendAmount: 0.70,
+        },
+        sr
+      );
+      weldedStemBuffer.copyToChannel(rescueResult.left, 0);
+      weldedStemBuffer.copyToChannel(rescueResult.right, 1);
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 5: BI-BAND SPLIT SATURATION (<250Hz CLEAN PUNCH + >250Hz TUBE DRIVE)
