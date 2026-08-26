@@ -5,13 +5,13 @@
    ========================================================================== */
 
 :root {
-  --bg-deep: #05070a;
-  --bg-surface: #0a0e16;
-  --bg-card: #0f1522;
-  --bg-inset: #070a10;
+  --bg-deep: #030508;
+  --bg-surface: #070b12;
+  --bg-card: #0c121e;
+  --bg-inset: #04070d;
   
-  --border-subtle: #1c2638;
-  --border-medium: #2a374f;
+  --border-subtle: rgba(245, 158, 11, 0.12);
+  --border-medium: #1e293b;
   --border-gold: #f59e0b;
   --border-cyan: #06b6d4;
   --border-red: #ef4444;
@@ -19,6 +19,7 @@
   --gold-primary: #f59e0b;
   --gold-light: #fbbf24;
   --gold-dark: #b45309;
+  --gold-glow: rgba(245, 158, 11, 0.35);
   
   --cyan-primary: #06b6d4;
   --cyan-light: #22d3ee;
@@ -35,6 +36,21 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.6); }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -44,21 +60,23 @@
 body {
   background-color: var(--bg-deep);
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.05) 0%, transparent 60%),
-    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 0% 100%, rgba(239, 68, 68, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(239, 68, 68, 0.04) 0%, transparent 50%);
   color: #f1f5f9;
   font-family: var(--font-body);
   font-size: 13px;
   min-height: 100vh;
-  padding-bottom: 90px;
+  padding-bottom: 95px;
   -webkit-font-smoothing: antialiased;
+  animation: fade-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* TOP APPLICATION BAR */
 .top-menu-bar {
-  background: rgba(8, 12, 20, 0.98);
-  backdrop-filter: blur(24px);
+  background: rgba(6, 10, 18, 0.95);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border-bottom: 1px solid var(--border-subtle);
   padding: 10px 24px;
   display: flex;
@@ -67,7 +85,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
 }
 
 .brand-badge {
@@ -77,38 +95,41 @@ body {
 }
 
 .brand-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #d97706, #b45309, #78350f);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
-  border: 1px solid rgba(251, 191, 36, 0.6);
+  font-size: 24px;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.45);
+  border: 1px solid rgba(251, 191, 36, 0.7);
+  animation: pulse-gold 3s infinite ease-in-out;
 }
 
 .brand-title {
   font-family: var(--font-brand);
   font-weight: 900;
-  font-size: 17px;
-  letter-spacing: 0.12em;
+  font-size: 18px;
+  letter-spacing: 0.14em;
   color: #ffffff;
   text-transform: uppercase;
 }
 .brand-title span {
   color: var(--gold-primary);
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
 }
 
 .nav-pills-container {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: #06090f;
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid var(--border-subtle);
+  gap: 6px;
+  background: rgba(4, 7, 13, 0.9);
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid var(--border-medium);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 .nav-pill-btn {
@@ -118,35 +139,37 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 .nav-pill-btn:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
 }
 .nav-pill-btn.active {
-  background: linear-gradient(180deg, #241b0e 0%, #150f06 100%);
+  background: linear-gradient(180deg, #2b1f10 0%, #171007 100%);
   color: var(--gold-light);
-  box-shadow: inset 0 1px 0 rgba(251, 191, 36, 0.3), 0 2px 8px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 0 rgba(251, 191, 36, 0.4), 0 3px 12px rgba(0, 0, 0, 0.7);
   border-color: var(--gold-primary);
 }
 
 /* WORKSPACE RACK */
 .rack-workspace {
-  max-width: 1320px;
-  margin: 20px auto;
-  padding: 0 20px;
+  max-width: 1400px;
+  margin: 24px auto;
+  padding: 0 24px;
 }
 
 .rack-chassis {
-  background: linear-gradient(180deg, #131a26 0%, #0c111a 50%, #070a10 100%);
+  background: linear-gradient(180deg, #101622 0%, #0a0e16 50%, #05080e 100%);
   border: 1px solid var(--border-medium);
   border-radius: 14px;
   box-shadow: 
@@ -156,6 +179,7 @@ body {
   padding: 24px;
   position: relative;
   overflow: hidden;
+  margin-bottom: 24px;
 }
 
 .rack-header {
