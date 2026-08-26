@@ -49,6 +49,7 @@ import { AuralAirExciterEngine } from './AuralAirExciterEngine';
 import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine';
 import { BiBandSaturationEngine } from './BiBandSaturationEngine';
 import { SunoDistortionRescueEngine, type GuitarRescueMode } from './SunoDistortionRescueEngine';
+import { AutonomousRhythmGuitarGuardianAgent } from './AutonomousRhythmGuitarGuardianAgent';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -299,20 +300,20 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(punchResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 4.5: SUNO DISTORTION RESCUE & HEAVY GUITAR WALL RE-SYNTHESIS
+    // STAGE 4.5: AUTONOMOUS AI RHYTHM GUITAR GUARDIAN AGENT (SUNO RESCUE)
     // ─────────────────────────────────────────────────────────────────────────
     if (enableGuitarRescue) {
-      onProgress?.(52, '🛡️ Escaneando falhas do Suno e injetando muralha de guitarras distorcidas...');
+      onProgress?.(52, '🤖 Agente AI Autônomo auditando falhas do Suno e injetando guitarras base...');
       const rL = weldedStemBuffer.getChannelData(0);
       const rR = weldedStemBuffer.getChannelData(1);
-      const rescueResult = SunoDistortionRescueEngine.rescueSongWithGuitars(
+      const rescueResult = AutonomousRhythmGuitarGuardianAgent.auditAndRescueRhythmGuitars(
         rL,
         rR,
         {
-          mode: guitarRescueMode,
-          guitarAmpModel: album.saturation.type || 'peavey_5150',
-          distortionGain: customDrive !== undefined ? customDrive : (album.saturation.drive || 0.85),
-          blendAmount: 0.70,
+          sensitivity: 0.75,
+          ampModel: album.saturation.type || 'peavey_5150',
+          distortionDrive: customDrive !== undefined ? customDrive : (album.saturation.drive || 0.88),
+          blendIntensity: 0.75,
         },
         sr
       );
