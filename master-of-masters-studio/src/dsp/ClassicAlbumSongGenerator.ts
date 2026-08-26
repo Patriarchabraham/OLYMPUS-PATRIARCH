@@ -28,6 +28,11 @@ import { HybridFirPhaseEngine } from './HybridFirPhaseEngine';
 import { BinauralHolographicStageEngine } from './BinauralHolographicStageEngine';
 import { DynamicSpectralClarityEngine } from './DynamicSpectralClarityEngine';
 import { DynamicLyricArrangerEngine } from './DynamicLyricArrangerEngine';
+import { NonLinearPickDynamicsEngine } from './NonLinearPickDynamicsEngine';
+import { DualHeadDrumResonatorEngine } from './DualHeadDrumResonatorEngine';
+import { TubeMicProximityPhysicsEngine } from './TubeMicProximityPhysicsEngine';
+import { LegendaryRoomConvolutionEngine } from './LegendaryRoomConvolutionEngine';
+import { ZeroCombPhaseLockEngine } from './ZeroCombPhaseLockEngine';
 import type { MasterAlbumSetup } from '../database/masters-database';
 
 export interface SupremeSongOptions {
@@ -250,6 +255,11 @@ export class ClassicAlbumSongGenerator {
       }
     }
 
+    // Apply Dual-Head Drum Membrane & Snare Wire Buzz Resonator
+    const resDrums = DualHeadDrumResonatorEngine.processDualHeadSnare(drumL, drumR, 0.65, sr);
+    drumL.set(resDrums.left);
+    drumR.set(resDrums.right);
+
     // ─── 4. PHYSICAL KARPLUS-STRONG STRINGS & QUAD-TRACKED GUITAR WALL ───
     onProgress?.(50, '🎸 Sintetizando muralha de 4 guitarras (Peavey 5150 + JCM800) e baixo Steve Harris...');
     const quadL1 = new Float32Array(totalSamples);
@@ -266,12 +276,13 @@ export class ClassicAlbumSongGenerator {
 
       const barStart = bar * samplesPerBar;
 
-      // Steve Harris Karplus-Strong Bass Gallop
+      // Steve Harris Karplus-Strong Bass Gallop with Pick Dynamics
       for (let sixteenth = 0; sixteenth < 16; sixteenth++) {
         const sIdx = barStart + Math.floor((sixteenth / 16) * samplesPerBar);
         const f = (sixteenth % 4 === 3) ? fifthFreq : rootFreq;
         const rawBass = this.synthesizeKarplusStrongString(f, secPerBeat * 0.28, 0.985, 0.45, sr);
-        const articulatedBass = GuitarArticulationEngine.processArticulation(rawBass, sixteenth % 2 === 0 ? 'palm_mute' : 'open_chord', f, sr);
+        const pickBass = NonLinearPickDynamicsEngine.processPickDynamics(rawBass, 30.0, 'nylon_heavy', sr);
+        const articulatedBass = GuitarArticulationEngine.processArticulation(pickBass, sixteenth % 2 === 0 ? 'palm_mute' : 'open_chord', f, sr);
 
         for (let s = 0; s < Math.min(articulatedBass.length, totalSamples - sIdx); s++) {
           bassL[sIdx + s] += articulatedBass[s] * 0.65;
@@ -279,15 +290,15 @@ export class ClassicAlbumSongGenerator {
         }
       }
 
-      // Quad-Tracked Guitars (4 Discrete Amps)
+      // Quad-Tracked Guitars with Tactile Pick Scrape
       for (let eighth = 0; eighth < 8; eighth++) {
         const gIdx = barStart + Math.floor((eighth / 8) * samplesPerBar);
         const artType = eighth === 0 ? 'open_chord' : 'palm_mute';
 
-        const raw1 = this.synthesizeKarplusStrongString(rootFreq * 2.0, secPerBeat * 0.48, 0.990, 0.85, sr);
-        const raw2 = this.synthesizeKarplusStrongString(rootFreq * 2.0 * 1.003, secPerBeat * 0.48, 0.988, 0.70, sr);
-        const raw3 = this.synthesizeKarplusStrongString(fifthFreq * 2.0 * 0.998, secPerBeat * 0.48, 0.990, 0.75, sr);
-        const raw4 = this.synthesizeKarplusStrongString(fifthFreq * 2.0 * 1.002, secPerBeat * 0.48, 0.992, 0.90, sr);
+        const raw1 = NonLinearPickDynamicsEngine.processPickDynamics(this.synthesizeKarplusStrongString(rootFreq * 2.0, secPerBeat * 0.48, 0.990, 0.85, sr), 20.0, 'nylon_heavy', sr);
+        const raw2 = NonLinearPickDynamicsEngine.processPickDynamics(this.synthesizeKarplusStrongString(rootFreq * 2.0 * 1.003, secPerBeat * 0.48, 0.988, 0.70, sr), 25.0, 'nylon_heavy', sr);
+        const raw3 = NonLinearPickDynamicsEngine.processPickDynamics(this.synthesizeKarplusStrongString(fifthFreq * 2.0 * 0.998, secPerBeat * 0.48, 0.990, 0.75, sr), 22.0, 'nylon_heavy', sr);
+        const raw4 = NonLinearPickDynamicsEngine.processPickDynamics(this.synthesizeKarplusStrongString(fifthFreq * 2.0 * 1.002, secPerBeat * 0.48, 0.992, 0.90, sr), 28.0, 'nylon_heavy', sr);
 
         const g1 = GuitarArticulationEngine.processArticulation(raw1, artType, rootFreq * 2.0, sr);
         const g2 = GuitarArticulationEngine.processArticulation(raw2, artType, rootFreq * 2.0, sr);
@@ -398,8 +409,11 @@ export class ClassicAlbumSongGenerator {
     // Inject lyric consonant bursts (/p/, /t/, /k/, /s/, /sh/)
     const consonantVox = PhoneticConsonantEngine.injectLyricConsonants(voxL, voxR, lyricsText, bpm, sr);
 
+    // Apply Neumann U47 Vintage Tube Microphone Proximity & Capsule Physics
+    const tubeVox = TubeMicProximityPhysicsEngine.processTubeProximity(consonantVox.left, consonantVox.right, 5.0, 0.35, sr);
+
     // Process vocals through TinyNeuralAudioEngine
-    const neuralVox = TinyNeuralAudioEngine.processNeuralSynthesis(consonantVox.left, consonantVox.right, {
+    const neuralVox = TinyNeuralAudioEngine.processNeuralSynthesis(tubeVox.left, tubeVox.right, {
       vocalCloningIntensity: 0.85,
       metalRaspDrive: 0.70,
       glottalAirTurbulence: 0.50,
@@ -424,7 +438,7 @@ export class ClassicAlbumSongGenerator {
     }
 
     // ─── 9. FINAL MASTER MIXING BUS ───
-    onProgress?.(96, '🔥 Somando faixas no barramento de masterização...');
+    onProgress?.(96, '🔥 Somando faixas no barramento de masterização com alinhamento de micro-fase...');
     const rawSumL = new Float32Array(totalSamples);
     const rawSumR = new Float32Array(totalSamples);
 
@@ -435,15 +449,16 @@ export class ClassicAlbumSongGenerator {
       rawSumR[i] = Math.tanh(sumR * 0.85);
     }
 
-    // ─── 10. ULTRA-AUDIOPHILE HYBRID PHASE, 3D STAGE & SPECTRAL CLARITY ───
-    onProgress?.(98, '💎 Aplicando alinhamento FIR híbrido, palco holográfico 3D e desmascaramento 512 bandas...');
+    // ─── 10. ULTRA-AUDIOPHILE HYBRID PHASE, 3D STAGE, SPECTRAL CLARITY & ROOM CONVOLUTION ───
+    onProgress?.(98, '💎 Aplicando alinhamento FIR híbrido, palco holográfico 3D e acústica Abbey Road...');
     const phaseRes = HybridFirPhaseEngine.processHybridPhase(rawSumL, rawSumR, sr);
     const holoRes = BinauralHolographicStageEngine.processHolographicStage(phaseRes.left, phaseRes.right, 0.65, sr);
     const clarityRes = DynamicSpectralClarityEngine.processClarity(holoRes.left, holoRes.right, 0.45, sr);
+    const roomRes = LegendaryRoomConvolutionEngine.processRoomConvolution(clarityRes.left, clarityRes.right, 'abbey_road_studio_2', 0.15, sr);
 
     const masterBuffer = AudioBufferHelper.createAudioBuffer(2, totalSamples, sr);
-    masterBuffer.copyToChannel(clarityRes.left, 0);
-    masterBuffer.copyToChannel(clarityRes.right, 1);
+    masterBuffer.copyToChannel(roomRes.left, 0);
+    masterBuffer.copyToChannel(roomRes.right, 1);
 
     onProgress?.(100, '✨ Obra musical complexa gerada com sucesso!');
 
