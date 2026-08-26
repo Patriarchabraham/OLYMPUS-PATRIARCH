@@ -2,16 +2,21 @@
  * Master of Masters Studio Pro — Tiny Neural Audio & Voice Resynthesis Engine.
  * 
  * Specifically engineered for CPU-only systems with 8GB RAM (<25MB RAM total):
- * 1. 32-Pole Dynamic Formant Trajectory Tracker (Bruce Dickinson / Dio / Halford throat geometry).
- * 2. Glottal Pulse Generator (Rosenberg physiological vocal cord vibration).
- * 3. Vocal Jitter (0.25%) & Shimmer (0.2dB) Micro-Acoustic Physics with 6.0Hz vibrato.
- * 4. Glottal Respiration & Inhalation Airflow Turbulence Injector (8k-16kHz air).
- * 5. High-Frequency Neural Super-Resolution Exciter (restores 12k-24kHz air).
+ * 1. 32-Pole Dynamic Formant Trajectory Tracker (LPC-32).
+ * 2. Nasal Zeroes & Articulatory ARMA Filter (850Hz & 1800Hz anti-resonances).
+ * 3. Supraglottic Constriction & Dynamic Heavy Metal Belt Twang.
+ * 4. Vocal Jitter (0.25%) & Shimmer (0.2dB) Micro-Acoustic Physics with 6.0Hz vibrato.
+ * 5. Glottal Respiration & Inhalation Airflow Turbulence Injector (8k-16kHz air).
+ * 6. High-Frequency Neural Super-Resolution Exciter (restores 12k-24kHz air).
+ * 7. Studio Live Room & Tape Bleed Glue Matrix (-52dB).
  */
 
 import { DynamicVocalTract32PoleEngine } from './DynamicVocalTract32PoleEngine';
 import { VocalJitterShimmerEngine } from './VocalJitterShimmerEngine';
 import { GlottalAirflowInjector } from './GlottalAirflowInjector';
+import { NasalZeroesArmaFilterEngine } from './NasalZeroesArmaFilterEngine';
+import { SupraglotticTwangEngine } from './SupraglotticTwangEngine';
+import { StudioBleedGlueMatrixEngine } from './StudioBleedGlueMatrixEngine';
 
 export interface TinyNeuralOptions {
   vocalCloningIntensity?: number;    // 0.0 to 1.0 (default 0.75)
@@ -20,6 +25,8 @@ export interface TinyNeuralOptions {
   superResolutionAir?: number;       // 0.0 to 1.0 (default 0.80)
   targetFormantScale?: number;       // 0.85 (deep) to 1.15 (bright)
   jitterShimmerDepth?: number;       // 0.0 to 1.0 (default 0.50)
+  nasalClarity?: number;             // 0.0 to 1.0 (default 0.60)
+  supraglotticTwang?: number;        // 0.0 to 1.0 (default 0.70)
 }
 
 export class TinyNeuralAudioEngine {
@@ -41,6 +48,8 @@ export class TinyNeuralAudioEngine {
       superResolutionAir = 0.80,
       targetFormantScale = 1.0,
       jitterShimmerDepth = 0.50,
+      nasalClarity = 0.60,
+      supraglotticTwang = 0.70,
     } = options;
 
     // ─── STAGE 1: 32-POLE DYNAMIC VOCAL TRACT & FORMANT RESYNTHESIS ───
@@ -52,16 +61,32 @@ export class TinyNeuralAudioEngine {
       sampleRate
     );
 
-    // ─── STAGE 2: VOCAL JITTER, SHIMMER & ORGANIC 6.0Hz VIBRATO ───
-    const jitterResult = VocalJitterShimmerEngine.processJitterShimmer(
+    // ─── STAGE 2: NASAL ZEROES & ARMA ARTICULATORY CLARITY ───
+    const armaResult = NasalZeroesArmaFilterEngine.processArmaFilter(
       tractResult.left,
       tractResult.right,
+      nasalClarity,
+      sampleRate
+    );
+
+    // ─── STAGE 3: SUPRAGLOTTIC CONSTRICTION & HEAVY METAL TWANG ───
+    const twangResult = SupraglotticTwangEngine.processTwang(
+      armaResult.left,
+      armaResult.right,
+      supraglotticTwang * vocalCloningIntensity,
+      sampleRate
+    );
+
+    // ─── STAGE 4: VOCAL JITTER, SHIMMER & ORGANIC 6.0Hz VIBRATO ───
+    const jitterResult = VocalJitterShimmerEngine.processJitterShimmer(
+      twangResult.left,
+      twangResult.right,
       jitterShimmerDepth * 0.45,
       0.30,
       sampleRate
     );
 
-    // ─── STAGE 3: GLOTTAL RESPIRATION & AIRFLOW INJECTION ───
+    // ─── STAGE 5: GLOTTAL RESPIRATION & AIRFLOW INJECTION ───
     const breathResult = GlottalAirflowInjector.injectAirflow(
       jitterResult.left,
       jitterResult.right,
@@ -69,7 +94,7 @@ export class TinyNeuralAudioEngine {
       sampleRate
     );
 
-    // ─── STAGE 4: HIGH-FREQUENCY NEURAL SUPER-RESOLUTION AIR (12k-24kHz) ───
+    // ─── STAGE 6: HIGH-FREQUENCY NEURAL SUPER-RESOLUTION AIR (12k-24kHz) ───
     const outL = new Float32Array(len);
     const outR = new Float32Array(len);
     const alphaAirHp = Math.exp((-2.0 * Math.PI * 10000.0) / sampleRate);
@@ -95,6 +120,7 @@ export class TinyNeuralAudioEngine {
       outR[i] = origR * (1.0 - blend) + (inR + neuralAirR) * blend;
     }
 
-    return { left: outL, right: outR };
+    // ─── STAGE 7: STUDIO ROOM & TAPE BLEED GLUE MATRIX (-52dB) ───
+    return StudioBleedGlueMatrixEngine.processBleedGlue(outL, outR, -52.0, sampleRate);
   }
 }
