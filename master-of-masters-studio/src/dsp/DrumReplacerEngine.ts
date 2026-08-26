@@ -11,6 +11,7 @@
  */
 
 import type { MasterAlbumSetup } from '../database/masters-database';
+import { AudioBufferHelper } from './AudioBufferHelper';
 
 export class DrumReplacerEngine {
   /**
@@ -109,8 +110,7 @@ export class DrumReplacerEngine {
     const length = inputDrumBuffer.length;
     const channels = inputDrumBuffer.numberOfChannels;
 
-    const ctx = new OfflineAudioContext(channels, length, sampleRate);
-    const outBuffer = ctx.createBuffer(channels, length, sampleRate);
+    const outBuffer = AudioBufferHelper.createAudioBuffer(channels, length, sampleRate);
 
     const leftIn = inputDrumBuffer.getChannelData(0);
     const rightIn = channels > 1 ? inputDrumBuffer.getChannelData(1) : leftIn;

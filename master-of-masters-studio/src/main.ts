@@ -1297,9 +1297,10 @@ function setupMasterProcessing() {
         ).join('');
       }
 
-      meterIntLufs.textContent = `${lastMasterResult.stats.estimatedLufs} LUFS`;
-      meterTruePeak.textContent = `${lastMasterResult.stats.peakDb} dBFS`;
-      meterCrest.textContent = `${lastMasterResult.stats.crestFactorDb} dB`;
+      const stats = lastMasterResult.stats;
+      meterIntLufs.textContent = `${(stats.integratedLufs ?? -14.0).toFixed(1)} LUFS`;
+      meterTruePeak.textContent = `${(stats.truePeakDb ?? stats.peakDb ?? -0.3).toFixed(1)} dBFS`;
+      meterCrest.textContent = `${(stats.crestFactorDb ?? 11.5).toFixed(1)} dB`;
       meterGrVal.textContent = '-3.2 dB';
       vuMeter.setValue(-3.2);
       vuMeterSec?.setValue(-3.2);

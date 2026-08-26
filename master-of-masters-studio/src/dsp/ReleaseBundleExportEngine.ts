@@ -8,6 +8,7 @@
 import { StreamingTargetEngine, type StreamingPlatform } from './StreamingTargetEngine';
 import { audioBufferTo24BitWavBlob } from './WavEncoder';
 import { Mp3EncoderEngine } from './Mp3EncoderEngine';
+import { AudioBufferHelper } from './AudioBufferHelper';
 
 export interface ReleaseFileItem {
   filename: string;
@@ -38,9 +39,8 @@ export class ReleaseBundleExportEngine {
     const len = masterBuffer.length;
 
     for (const p of platforms) {
-      // Clone master buffer
-      const cloneCtx = new OfflineAudioContext(2, len, sr);
-      const clonedBuf = cloneCtx.createBuffer(2, len, sr);
+      // Clone master buffer safely
+      const clonedBuf = AudioBufferHelper.createAudioBuffer(2, len, sr);
       clonedBuf.copyToChannel(masterBuffer.getChannelData(0), 0);
       clonedBuf.copyToChannel(masterBuffer.numberOfChannels > 1 ? masterBuffer.getChannelData(1) : masterBuffer.getChannelData(0), 1);
 
@@ -72,8 +72,7 @@ export class ReleaseBundleExportEngine {
     });
 
     // Instrumental Playback (Vocal Center Cut / Phase Cancelled)
-    const instCtx = new OfflineAudioContext(2, len, sr);
-    const instBuf = instCtx.createBuffer(2, len, sr);
+    const instBuf = AudioBufferHelper.createAudioBuffer(2, len, sr);
     const lChan = masterBuffer.getChannelData(0);
     const rChan = masterBuffer.numberOfChannels > 1 ? masterBuffer.getChannelData(1) : lChan;
     const instL = instBuf.getChannelData(0);

@@ -35,6 +35,7 @@ import { CabinetIrConvolutionEngine, type CabinetIrType } from './CabinetIrConvo
 import { LpcVocalFormantEngine } from './LpcVocalFormantEngine';
 import { DeHummerGroundCleaner } from './DeHummerGroundCleaner';
 import { AbbeyRoadAdtEngine } from './AbbeyRoadAdtEngine';
+import { AudioBufferHelper } from './AudioBufferHelper';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -162,7 +163,7 @@ export class AudioEngine {
     if (isRealStudio && drumReplacementBlend <= 0.05 && guitarReampBlend <= 0.05 && (!harmonyOptions.guitarDoubling || harmonyOptions.guitarDoubling === 'off')) {
       // 100% PURE AUDIOPHILE STUDIO MASTERING PATH (Zero phase-smear, pristine real drums/guitars)
       onProgress?.(15, '🎙️ Modo Gravação de Estúdio: Preservando 100% da dinâmica natural dos instrumentos reais...');
-      weldedStemBuffer = new OfflineAudioContext(2, length, sr).createBuffer(2, length, sr);
+      weldedStemBuffer = AudioBufferHelper.createAudioBuffer(2, length, sr);
       weldedStemBuffer.copyToChannel(activeInputBuffer.getChannelData(0), 0);
       weldedStemBuffer.copyToChannel(activeInputBuffer.numberOfChannels > 1 ? activeInputBuffer.getChannelData(1) : activeInputBuffer.getChannelData(0), 1);
     } else {

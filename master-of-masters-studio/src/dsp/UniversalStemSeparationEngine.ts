@@ -8,7 +8,7 @@
  * 4. Additive Delta Augmentation for Acoustic Drums, Re-Amp Guitars, Sub-Bass, and Tube Mic presence.
  */
 
-import type { MasterAlbumSetup } from '../data/masters';
+import type { MasterAlbumSetup } from '../database/masters-database';
 import { generateSaturationCurve } from './SaturationCurves';
 import { DrumReplacerEngine } from './DrumReplacerEngine';
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine';
@@ -16,6 +16,7 @@ import { VocalPitchCorrector, type PitchCorrectionOptions } from './VocalPitchCo
 import { VoiceTimbreCloner } from './VoiceTimbreCloner';
 import { AIVocalDeArtifactEngine } from './AIVocalDeArtifactEngine';
 import { SupremeVoiceClonerEngine } from './SupremeVoiceClonerEngine';
+import { AudioBufferHelper } from './AudioBufferHelper';
 
 export class UniversalStemSeparationEngine {
   /**
@@ -48,18 +49,18 @@ export class UniversalStemSeparationEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // STEP 1: PRISTINE STEREO MASTER BUS (BASE AUDIO: 100% TRANSPARENT)
     // ─────────────────────────────────────────────────────────────────────────
-    const baseMasterBuf = masterCtx.createBuffer(2, length, sampleRate);
+    const baseMasterBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate);
     const baseL = baseMasterBuf.getChannelData(0);
     const baseR = baseMasterBuf.getChannelData(1);
 
     // ─────────────────────────────────────────────────────────────────────────
     // STEP 2: ISOLATE VOCAL, DRUMS, BASS, GUITAR DELTAS
     // ─────────────────────────────────────────────────────────────────────────
-    const kickBuf = masterCtx.createBuffer(2, length, sampleRate);
-    const snareBuf = masterCtx.createBuffer(2, length, sampleRate);
-    const bassDeltaBuf = masterCtx.createBuffer(2, length, sampleRate);
-    const gtrDeltaBuf = masterCtx.createBuffer(2, length, sampleRate);
-    const voxDeltaBuf = masterCtx.createBuffer(2, length, sampleRate);
+    const kickBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate);
+    const snareBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate);
+    const bassDeltaBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate);
+    const gtrDeltaBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate);
+    const voxDeltaBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate);
 
     const kL = kickBuf.getChannelData(0), kR = kickBuf.getChannelData(1);
     const snL = snareBuf.getChannelData(0), snR = snareBuf.getChannelData(1);
