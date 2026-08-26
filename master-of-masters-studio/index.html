@@ -1765,14 +1765,86 @@
 
       <div id="song-gen-progress-status" style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-light);"></div>
 
-      <div style="display: flex; gap: 8px;">
-        <button type="button" id="btn-generate-ai-song" class="btn-red-action" style="flex: 1.5; font-weight: 800; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #f472b6;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <button type="button" id="btn-generate-ai-song" class="btn-red-action" style="font-weight: 800; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #f472b6; padding: 8px;">
           ✨ GERAR MÚSICA & CARREGAR
         </button>
-        <button type="button" id="btn-view-maestro-scores" class="btn-gold-action" style="flex: 1; font-size: 10px; padding: 6px; background: linear-gradient(135deg, #4f46e5, #4338ca); border-color: #6366f1;">
+        <button type="button" id="btn-view-maestro-scores" class="btn-gold-action" style="font-size: 10px; padding: 8px; background: linear-gradient(135deg, #4f46e5, #4338ca); border-color: #6366f1;">
           🎼 PARTITURAS MAESTRO
         </button>
       </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+        <button type="button" id="btn-open-stem-mixer" class="switch-toggle-btn" style="font-size: 9px; padding: 6px; border-color: #38bdf8; color: #38bdf8;">
+          🎛️ Mesa de 4 Stems
+        </button>
+        <button type="button" id="btn-export-midi-file" class="switch-toggle-btn" style="font-size: 9px; padding: 6px; border-color: #10b981; color: #10b981;">
+          🎹 Baixar MIDI (.MID)
+        </button>
+        <button type="button" id="btn-open-lyric-video-modal" class="switch-toggle-btn" style="font-size: 9px; padding: 6px; border-color: #f59e0b; color: #f59e0b;">
+          🎬 Lyric Video 4K
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE 4-STEM MIXER MODAL -->
+  <div id="modal-stem-mixer" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.94); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;">
+    <div style="background: #080c14; border: 2px solid #38bdf8; border-radius: 14px; max-width: 650px; width: 100%; padding: 20px; box-shadow: 0 0 50px rgba(56,189,248,0.35); display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h3 style="font-family: var(--font-display); font-size: 15px; color: #38bdf8; text-transform: uppercase;">🎛️ Mesa de Mixagem de 4 Stems Analógicos</h3>
+        <button type="button" id="btn-close-stem-mixer" class="switch-toggle-btn" style="padding: 2px 8px; font-size: 12px;">✕</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: #04060a; padding: 14px; border-radius: 10px; border: 1px solid var(--border-subtle);">
+        <!-- DRUMS -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <strong style="font-family: var(--font-mono); font-size: 11px; color: #34d399;">🥁 DRUMS</strong>
+          <input type="range" id="fader-vol-drums" min="0" max="2" step="0.05" value="1.0" orient="vertical" style="height: 120px; accent-color: #34d399;" />
+          <span id="label-vol-drums" style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8;">0.0 dB</span>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" id="btn-solo-drums" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">S</button>
+            <button type="button" id="btn-mute-drums" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">M</button>
+          </div>
+        </div>
+
+        <!-- BASS -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <strong style="font-family: var(--font-mono); font-size: 11px; color: #38bdf8;">🎸 BASS</strong>
+          <input type="range" id="fader-vol-bass" min="0" max="2" step="0.05" value="1.0" orient="vertical" style="height: 120px; accent-color: #38bdf8;" />
+          <span id="label-vol-bass" style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8;">0.0 dB</span>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" id="btn-solo-bass" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">S</button>
+            <button type="button" id="btn-mute-bass" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">M</button>
+          </div>
+        </div>
+
+        <!-- GUITARS -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <strong style="font-family: var(--font-mono); font-size: 11px; color: #f472b6;">⚡ GUITARS</strong>
+          <input type="range" id="fader-vol-guitars" min="0" max="2" step="0.05" value="1.0" orient="vertical" style="height: 120px; accent-color: #f472b6;" />
+          <span id="label-vol-guitars" style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8;">0.0 dB</span>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" id="btn-solo-guitars" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">S</button>
+            <button type="button" id="btn-mute-guitars" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">M</button>
+          </div>
+        </div>
+
+        <!-- VOCALS -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <strong style="font-family: var(--font-mono); font-size: 11px; color: #fbbf24;">🎤 VOCALS</strong>
+          <input type="range" id="fader-vol-vocals" min="0" max="2" step="0.05" value="1.0" orient="vertical" style="height: 120px; accent-color: #fbbf24;" />
+          <span id="label-vol-vocals" style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8;">0.0 dB</span>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" id="btn-solo-vocals" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">S</button>
+            <button type="button" id="btn-mute-vocals" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 6px;">M</button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" id="btn-apply-stem-mix" class="btn-gold-action" style="width: 100%; font-weight: 800;">
+        ✨ APLICAR MIXAGEM DAS STEMS NA MASTERIZAÇÃO
+      </button>
     </div>
   </div>
 

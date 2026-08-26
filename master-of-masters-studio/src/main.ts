@@ -54,6 +54,9 @@ import { PresetBackupRestoreManager } from './components/PresetBackupRestoreMana
 import { AlbumBatchMasterEngine, type AlbumTrackItem } from './dsp/AlbumBatchMasterEngine';
 import { ClassicAlbumSongGenerator } from './dsp/ClassicAlbumSongGenerator';
 import { AiMaestroConductorEngine, type MaestroOrchestraScore } from './dsp/AiMaestroConductorEngine';
+import { LiveStemMixerEngine, type StemMixerConfig } from './dsp/LiveStemMixerEngine';
+import { MidiFileExportEngine } from './dsp/MidiFileExportEngine';
+import { LyricVideo4kGenerator } from './components/LyricVideo4kGenerator';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -1801,7 +1804,8 @@ function setupMasterProcessing() {
         }
       );
 
-      // Set as main studio buffer
+      // Save stems and master buffer
+      currentGeneratedStems = generatedResult.stems;
       audioBuffer = generatedResult.masterBuffer;
       loadedFile = new File([new Uint8Array(100)], `${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_ORIGINAL_COMPOSED.wav`, { type: 'audio/wav' });
 
@@ -1817,6 +1821,123 @@ function setupMasterProcessing() {
     } finally {
       btnGenerateAiSong.disabled = false;
       btnGenerateAiSong.textContent = '✨ GERAR MÚSICA & CARREGAR';
+    }
+  });
+
+  // ─── LIVE 4-STEM MIXER WIRING ─────────────────────────────────────────────
+  let currentGeneratedStems: { drums: AudioBuffer; bass: AudioBuffer; guitars: AudioBuffer; vocals: AudioBuffer } | null = null;
+  const btnOpenStemMixer = document.getElementById('btn-open-stem-mixer') as HTMLButtonElement;
+  const modalStemMixer = document.getElementById('modal-stem-mixer')!;
+  const btnCloseStemMixer = document.getElementById('btn-close-stem-mixer') as HTMLButtonElement;
+  const btnApplyStemMix = document.getElementById('btn-apply-stem-mix') as HTMLButtonElement;
+
+  const faderDrums = document.getElementById('fader-vol-drums') as HTMLInputElement;
+  const faderBass = document.getElementById('fader-vol-bass') as HTMLInputElement;
+  const faderGtr = document.getElementById('fader-vol-guitars') as HTMLInputElement;
+  const faderVox = document.getElementById('fader-vol-vocals') as HTMLInputElement;
+
+  const btnSoloDrums = document.getElementById('btn-solo-drums') as HTMLButtonElement;
+  const btnMuteDrums = document.getElementById('btn-mute-drums') as HTMLButtonElement;
+  const btnSoloBass = document.getElementById('btn-solo-bass') as HTMLButtonElement;
+  const btnMuteBass = document.getElementById('btn-mute-bass') as HTMLButtonElement;
+  const btnSoloGtr = document.getElementById('btn-solo-guitars') as HTMLButtonElement;
+  const btnMuteGtr = document.getElementById('btn-mute-guitars') as HTMLButtonElement;
+  const btnSoloVox = document.getElementById('btn-solo-vocals') as HTMLButtonElement;
+  const btnMuteVox = document.getElementById('btn-mute-vocals') as HTMLButtonElement;
+
+  const mixerState: StemMixerConfig = {
+    drums: { gain: 1.0, pan: 0.0, muted: false, solo: false },
+    bass: { gain: 1.0, pan: 0.0, muted: false, solo: false },
+    guitars: { gain: 1.0, pan: 0.0, muted: false, solo: false },
+    vocals: { gain: 1.0, pan: 0.0, muted: false, solo: false },
+  };
+
+  const toggleBtnClass = (btn: HTMLButtonElement, active: boolean, color: string) => {
+    if (active) {
+      btn.style.background = color;
+      btn.style.color = '#fff';
+    } else {
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+  };
+
+  btnSoloDrums?.addEventListener('click', () => { mixerState.drums.solo = !mixerState.drums.solo; toggleBtnClass(btnSoloDrums, mixerState.drums.solo, '#34d399'); });
+  btnMuteDrums?.addEventListener('click', () => { mixerState.drums.muted = !mixerState.drums.muted; toggleBtnClass(btnMuteDrums, mixerState.drums.muted, '#ef4444'); });
+  btnSoloBass?.addEventListener('click', () => { mixerState.bass.solo = !mixerState.bass.solo; toggleBtnClass(btnSoloBass, mixerState.bass.solo, '#38bdf8'); });
+  btnMuteBass?.addEventListener('click', () => { mixerState.bass.muted = !mixerState.bass.muted; toggleBtnClass(btnMuteBass, mixerState.bass.muted, '#ef4444'); });
+  btnSoloGtr?.addEventListener('click', () => { mixerState.guitars.solo = !mixerState.guitars.solo; toggleBtnClass(btnSoloGtr, mixerState.guitars.solo, '#f472b6'); });
+  btnMuteGtr?.addEventListener('click', () => { mixerState.guitars.muted = !mixerState.guitars.muted; toggleBtnClass(btnMuteGtr, mixerState.guitars.muted, '#ef4444'); });
+  btnSoloVox?.addEventListener('click', () => { mixerState.vocals.solo = !mixerState.vocals.solo; toggleBtnClass(btnSoloVox, mixerState.vocals.solo, '#fbbf24'); });
+  btnMuteVox?.addEventListener('click', () => { mixerState.vocals.muted = !mixerState.vocals.muted; toggleBtnClass(btnMuteVox, mixerState.vocals.muted, '#ef4444'); });
+
+  btnOpenStemMixer?.addEventListener('click', () => {
+    if (!currentGeneratedStems) {
+      alert('Gere uma música primeiro para abrir a mesa de mixagem de stems!');
+      return;
+    }
+    modalStemMixer.classList.remove('hidden');
+  });
+
+  btnCloseStemMixer?.addEventListener('click', () => {
+    modalStemMixer.classList.add('hidden');
+  });
+
+  btnApplyStemMix?.addEventListener('click', () => {
+    if (!currentGeneratedStems) return;
+    mixerState.drums.gain = parseFloat(faderDrums.value);
+    mixerState.bass.gain = parseFloat(faderBass.value);
+    mixerState.guitars.gain = parseFloat(faderGtr.value);
+    mixerState.vocals.gain = parseFloat(faderVox.value);
+
+    audioBuffer = LiveStemMixerEngine.mixStems(currentGeneratedStems, mixerState);
+    drawWaveform(audioBuffer);
+    drawSpectrum(audioBuffer);
+    modalStemMixer.classList.add('hidden');
+    alert('✅ Mixagem das stems aplicada com sucesso ao áudio master!');
+  });
+
+  // ─── MIDI 2.0 EXPORT WIRING ───────────────────────────────────────────────
+  const btnExportMidiFile = document.getElementById('btn-export-midi-file') as HTMLButtonElement;
+  btnExportMidiFile?.addEventListener('click', () => {
+    const midiBytes = MidiFileExportEngine.generateMultiTrackMidi(145, 60, 40);
+    const blob = new Blob([midiBytes], { type: 'audio/midi' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_MULTI_TRACK.mid`;
+    a.click();
+    alert('🎹 Arquivo MIDI Multi-Pista (.MID) exportado com sucesso! Pronto para abrir no Reaper, Cubase, FL Studio ou Pro Tools!');
+  });
+
+  // ─── LYRIC VIDEO 4K WIRING ────────────────────────────────────────────────
+  const btnOpenLyricVideoModal = document.getElementById('btn-open-lyric-video-modal') as HTMLButtonElement;
+  btnOpenLyricVideoModal?.addEventListener('click', async () => {
+    if (!audioBuffer) {
+      alert('Gere ou carregue uma música primeiro para renderizar o Lyric Video 4K!');
+      return;
+    }
+    btnOpenLyricVideoModal.disabled = true;
+    btnOpenLyricVideoModal.textContent = '⏳ Renderizando Vídeo 4K...';
+    try {
+      const lyrics = inputSongLyrics?.value.trim() || 'INTO THE STORM WE RIDE TONIGHT\nSCREAMING THROUGH THE ANCIENT SKIES\nWE BREAK THE CHAINS, WE NEVER DIE!';
+      const videoBlob = await LyricVideo4kGenerator.renderLyricVideo(
+        audioBuffer,
+        'Composição Inédita',
+        activeAlbum.band,
+        lyrics
+      );
+      const url = URL.createObjectURL(videoBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_LYRIC_VIDEO_4K.webm`;
+      a.click();
+      alert('🎬 Lyric Video 4K renderizado e baixado com sucesso!');
+    } catch (vErr: any) {
+      alert(`Erro na renderização do vídeo: ${vErr.message || String(vErr)}`);
+    } finally {
+      btnOpenLyricVideoModal.disabled = false;
+      btnOpenLyricVideoModal.textContent = '🎬 Lyric Video 4K';
     }
   });
 
