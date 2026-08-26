@@ -1749,6 +1749,20 @@
         </div>
       </div>
 
+      <!-- COMPLEXITY & CREATIVITY SLIDER -->
+      <div style="background: #05070c; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label style="font-family: var(--font-mono); font-size: 10px; color: var(--gold-light); font-weight: 700;">🎛️ NÍVEL DE COMPLEXIDADE PROGRESSIVA & CRIATIVIDADE:</label>
+          <span id="label-complexity-val" style="font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: #f472b6;">Nível 8 (Opus Sinfônico)</span>
+        </div>
+        <input type="range" id="slider-song-complexity" min="1" max="10" value="8" step="1" style="width: 100%; height: 5px; accent-color: #ec4899;" />
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8px; color: #64748b; margin-top: 2px;">
+          <span>1-3 (Rock Direto)</span>
+          <span>4-6 (Heavy Metal Épico)</span>
+          <span>7-10 (Progressivo Sinfônico & Sweeps)</span>
+        </div>
+      </div>
+
       <div id="song-gen-progress-status" style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-light);"></div>
 
       <button type="button" id="btn-generate-ai-song" class="btn-red-action" style="width: 100%; font-weight: 800; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #f472b6;">

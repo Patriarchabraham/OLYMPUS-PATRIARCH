@@ -8,7 +8,10 @@
  * 4. Human Drummer Micro-Timing Pocket (8ms behind-the-beat snare lag & ghost notes).
  * 5. Phonetic Consonant Burst Engine (/p/, /t/, /k/, /s/, /sh/ aligned to lyrics syllables).
  * 6. Auto-Pitch Scale Snapper & 3-Part Vocal Harmony Generator (locks user's voice to song key).
- * 7. Syllabic Formant Vocalist (sings the lyrics phonetically with 32-pole tract and metal twang).
+ * 7. Acoustic-to-Heavy Dynamic Explosion (12-string acoustic intro -> heavy crescendo).
+ * 8. Symphonic Layering: Hammond B3 Rock Organ & Mellotron String Swells.
+ * 9. Neo-Classical Sweep Picking & Two-Hand Tapping Soloist Engine.
+ * 10. Syllabic Formant Vocalist (sings the lyrics phonetically with 32-pole tract and metal twang).
  */
 
 import { AudioBufferHelper } from './AudioBufferHelper';
@@ -17,6 +20,9 @@ import { GuitarArticulationEngine } from './GuitarArticulationEngine';
 import { HumanDrummerPocketEngine } from './HumanDrummerPocketEngine';
 import { PhoneticConsonantEngine } from './PhoneticConsonantEngine';
 import { QuadGuitarWallEngine } from './QuadGuitarWallEngine';
+import { AcousticToHeavyDynamicEngine } from './AcousticToHeavyDynamicEngine';
+import { SymphonicOrganMellotronEngine } from './SymphonicOrganMellotronEngine';
+import { NeoClassicalSweepSoloistEngine } from './NeoClassicalSweepSoloistEngine';
 import type { MasterAlbumSetup } from '../database/masters-database';
 
 export interface SupremeSongOptions {
@@ -25,7 +31,7 @@ export interface SupremeSongOptions {
   album: MasterAlbumSetup;
   durationSeconds?: number;
   bpm?: number;
-  complexityLevel?: number;
+  complexityLevel?: number; // 1 to 10
   userVoiceBuffer?: AudioBuffer | null;
   enableAutoPitchCorrection?: boolean;
   enableBackingHarmonies?: boolean;
@@ -112,6 +118,7 @@ export class ClassicAlbumSongGenerator {
       lyricsText = '',
       album,
       durationSeconds = 60,
+      complexityLevel = 8,
       userVoiceBuffer = null,
       enableAutoPitchCorrection = true,
       enableBackingHarmonies = true,
@@ -122,7 +129,7 @@ export class ClassicAlbumSongGenerator {
     const totalSamples = Math.floor(durationSeconds * sr);
 
     // ─── 1. PARSE PROMPT FOR KEY, BPM & STYLE ───
-    onProgress?.(5, '🔍 Decodificando letra, tonalidade e estrutura da composição...');
+    onProgress?.(5, '🔍 Decodificando arranjo progressivo, tonalidade e letra...');
     const lowerPrompt = promptText.toLowerCase();
 
     let bpm = options.bpm || 145;
@@ -154,12 +161,29 @@ export class ClassicAlbumSongGenerator {
     const gtrL = gtrBuffer.getChannelData(0), gtrR = gtrBuffer.getChannelData(1);
     const voxL = voxBuffer.getChannelData(0), voxR = voxBuffer.getChannelData(1);
 
-    // ─── 2. MULTI-SECTION DRUM COMPOSITION WITH TOM ROLLS & HUMAN POCKET ───
-    onProgress?.(25, `🥁 Sintetizando bateria com viradas estéreo e groove humano (${bpm} BPM)...`);
+    // ─── 2. ACOUSTIC-TO-HEAVY EXPLOSION (If Complexity >= 7) ───
+    const introBars = complexityLevel >= 7 ? Math.min(4, Math.floor(totalBars * 0.25)) : 0;
+    if (introBars > 0) {
+      onProgress?.(15, '🌊 Sintetizando introdução acústica de 12 cordas em arpejos...');
+      const acousticIntro = AcousticToHeavyDynamicEngine.synthesizeAcousticIntro(
+        introBars * secPerBeat * 4,
+        baseRootFreq,
+        scaleIntervals,
+        bpm,
+        sr
+      );
+      for (let s = 0; s < Math.min(acousticIntro.left.length, totalSamples); s++) {
+        gtrL[s] += acousticIntro.left[s];
+        gtrR[s] += acousticIntro.right[s];
+      }
+    }
+
+    // ─── 3. MULTI-SECTION DRUM COMPOSITION WITH TOM ROLLS & HUMAN POCKET ───
+    onProgress?.(30, `🥁 Sintetizando bateria com viradas estéreo e groove humano (${bpm} BPM)...`);
     const isDoubleBass = bpm >= 155 || lowerPrompt.includes('pedal duplo') || lowerPrompt.includes('double bass');
     const snareLag = Math.floor(sr * 0.007); // 7ms behind-the-beat human pocket
 
-    for (let bar = 0; bar < totalBars; bar++) {
+    for (let bar = introBars; bar < totalBars; bar++) {
       const barStart = bar * samplesPerBar;
       const isFillBar = (bar + 1) % 4 === 0;
 
@@ -208,7 +232,7 @@ export class ClassicAlbumSongGenerator {
           // Hi-Hats / Ride
           for (let sub = 0; sub < 2; sub++) {
             const hhIdx = beatStart + Math.floor(sub * 0.5 * samplesPerBeat);
-            const vel = sub === 0 ? 0.75 : 0.95; // Human velocity accent
+            const vel = sub === 0 ? 0.75 : 0.95;
             for (let s = 0; s < Math.min(sr * 0.08, totalSamples - hhIdx); s++) {
               const t = s / sr;
               const hhNoise = (Math.random() * 2.0 - 1.0) * Math.exp(-t * 60.0) * 0.20 * vel;
@@ -220,14 +244,14 @@ export class ClassicAlbumSongGenerator {
       }
     }
 
-    // ─── 3. PHYSICAL KARPLUS-STRONG STRINGS & QUAD-TRACKED GUITAR WALL ───
+    // ─── 4. PHYSICAL KARPLUS-STRONG STRINGS & QUAD-TRACKED GUITAR WALL ───
     onProgress?.(50, '🎸 Sintetizando muralha de 4 guitarras (Peavey 5150 + JCM800) e baixo Steve Harris...');
     const quadL1 = new Float32Array(totalSamples);
     const quadL2 = new Float32Array(totalSamples);
     const quadR1 = new Float32Array(totalSamples);
     const quadR2 = new Float32Array(totalSamples);
 
-    for (let bar = 0; bar < totalBars; bar++) {
+    for (let bar = introBars; bar < totalBars; bar++) {
       const chordIdx = chordProgression[bar % chordProgression.length];
       const chordRootSemi = scaleIntervals[chordIdx % scaleIntervals.length];
       const rootFreq = baseRootFreq * Math.pow(2.0, chordRootSemi / 12.0);
@@ -272,14 +296,32 @@ export class ClassicAlbumSongGenerator {
       }
     }
 
-    // Process Quad Wall of Sound
     const wallResult = QuadGuitarWallEngine.processQuadWall(quadL1, quadL2, quadR1, quadR2, 0.85);
-    gtrL.set(wallResult.left);
-    gtrR.set(wallResult.right);
+    for (let s = 0; s < totalSamples; s++) {
+      gtrL[s] += wallResult.left[s];
+      gtrR[s] += wallResult.right[s];
+    }
 
-    // ─── 4. TWIN HARMONIZED GUITAR SOLO ───
+    // ─── 5. SYMPHONIC HAMMOND B3 ORGAN & MELLOTRON (Complexity >= 5) ───
+    if (complexityLevel >= 5) {
+      onProgress?.(65, '🎻 Sintetizando camadas sinfônicas de órgão Hammond B3 e Mellotron...');
+      const organLayer = SymphonicOrganMellotronEngine.synthesizeOrganStringsLayer(
+        durationSeconds,
+        chordProgression,
+        scaleIntervals,
+        baseRootFreq,
+        bpm,
+        sr
+      );
+      for (let s = 0; s < totalSamples; s++) {
+        gtrL[s] += organLayer.left[s] * 0.70;
+        gtrR[s] += organLayer.right[s] * 0.70;
+      }
+    }
+
+    // ─── 6. TWIN HARMONIZED GUITAR SOLO & NEO-CLASSICAL SWEEP RUNS ───
     if (enableTwinGuitarSolo) {
-      onProgress?.(70, '⚡ Compondo solo virtuoso de guitarras gêmeas harmonizadas em 3ªs e 5ªs...');
+      onProgress?.(75, '⚡ Compondo solo virtuoso de guitarras gêmeas e sweep picking neoclássico...');
       const soloStartBar = Math.floor(totalBars * 0.55);
 
       for (let bar = soloStartBar; bar < totalBars; bar++) {
@@ -302,10 +344,27 @@ export class ClassicAlbumSongGenerator {
           }
         }
       }
+
+      // If High Complexity (>= 8): Add Paganini Sweep Runs over the solo climax
+      if (complexityLevel >= 8) {
+        const sweepDuration = (totalBars - soloStartBar) * secPerBeat * 4;
+        const sweepSolo = NeoClassicalSweepSoloistEngine.synthesizeSweepSolo(
+          sweepDuration,
+          baseRootFreq,
+          scaleIntervals,
+          bpm,
+          sr
+        );
+        const soloStartSample = soloStartBar * samplesPerBar;
+        for (let s = 0; s < Math.min(sweepSolo.left.length, totalSamples - soloStartSample); s++) {
+          gtrL[soloStartSample + s] += sweepSolo.left[s] * 0.35;
+          gtrR[soloStartSample + s] += sweepSolo.right[s] * 0.35;
+        }
+      }
     }
 
-    // ─── 5. VOCAL INTEGRATION (LYRICS / USER VOICE / BACKING HARMONIES) ───
-    onProgress?.(85, '🎤 Injetando fonemas de consoantes da letra e harmonias de estádio...');
+    // ─── 7. VOCAL INTEGRATION (LYRICS / USER VOICE / BACKING HARMONIES) ───
+    onProgress?.(88, '🎤 Injetando fonemas de consoantes da letra e harmonias de estádio...');
     if (userVoiceBuffer) {
       const processedVoice = this.processUserVoicePitchAndHarmony(userVoiceBuffer, scaleIntervals, enableBackingHarmonies);
       const copyLen = Math.min(totalSamples, userVoiceBuffer.length);
@@ -315,7 +374,7 @@ export class ClassicAlbumSongGenerator {
         voxR[i] = processedVoice.main[i] * 0.75 + processedVoice.harmonyHigh[i] * 0.35;
       }
     } else {
-      for (let bar = 0; bar < Math.floor(totalBars * 0.55); bar++) {
+      for (let bar = introBars; bar < Math.floor(totalBars * 0.55); bar++) {
         const barStart = bar * samplesPerBar;
         const chordIdx = chordProgression[bar % chordProgression.length];
         const vFreq = baseRootFreq * 2.0 * Math.pow(2.0, (scaleIntervals[chordIdx % scaleIntervals.length] + 12) / 12.0);
@@ -343,8 +402,8 @@ export class ClassicAlbumSongGenerator {
     voxBuffer.copyToChannel(neuralVox.left, 0);
     voxBuffer.copyToChannel(neuralVox.right, 1);
 
-    // ─── 6. FINAL MASTER MIXING BUS ───
-    onProgress?.(95, '🔥 Somando faixas no barramento de masterização...');
+    // ─── 8. FINAL MASTER MIXING BUS ───
+    onProgress?.(96, '🔥 Somando faixas no barramento de masterização...');
     const masterBuffer = AudioBufferHelper.createAudioBuffer(2, totalSamples, sr);
     const outL = masterBuffer.getChannelData(0);
     const outR = masterBuffer.getChannelData(1);
@@ -357,7 +416,7 @@ export class ClassicAlbumSongGenerator {
       outR[i] = Math.tanh(sumR * 0.85);
     }
 
-    onProgress?.(100, '✨ Música com letra e voz gerada com sucesso!');
+    onProgress?.(100, '✨ Obra musical complexa gerada com sucesso!');
 
     return {
       masterBuffer,

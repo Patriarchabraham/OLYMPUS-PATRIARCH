@@ -1667,8 +1667,19 @@ function setupMasterProcessing() {
   const voiceUploadStatus = document.getElementById('voice-upload-status')!;
   const selectSongDuration = document.getElementById('select-song-duration') as HTMLSelectElement;
   const selectSoloMode = document.getElementById('select-solo-mode') as HTMLSelectElement;
+  const sliderSongComplexity = document.getElementById('slider-song-complexity') as HTMLInputElement;
+  const labelComplexityVal = document.getElementById('label-complexity-val');
   const songGenProgressStatus = document.getElementById('song-gen-progress-status')!;
   const btnGenerateAiSong = document.getElementById('btn-generate-ai-song') as HTMLButtonElement;
+
+  sliderSongComplexity?.addEventListener('input', () => {
+    const val = parseInt(sliderSongComplexity.value, 10);
+    if (labelComplexityVal) {
+      if (val <= 3) labelComplexityVal.textContent = `Nível ${val} (Rock Direto)`;
+      else if (val <= 6) labelComplexityVal.textContent = `Nível ${val} (Heavy Metal Épico)`;
+      else labelComplexityVal.textContent = `Nível ${val} (Opus Progressivo & Sweeps)`;
+    }
+  });
 
   let customUserVoiceBuffer: AudioBuffer | null = null;
   let mediaRecorder: MediaRecorder | null = null;
@@ -1768,6 +1779,7 @@ function setupMasterProcessing() {
     const promptText = inputSongPrompt.value.trim() || `${activeAlbum.band} ${activeAlbum.albumTitle} style track with guitars, bass and drums`;
     const durationSeconds = parseInt(selectSongDuration.value, 10) || 45;
     const enableTwinSolo = selectSoloMode.value !== 'none';
+    const complexityLevel = parseInt(sliderSongComplexity?.value || '8', 10);
 
     btnGenerateAiSong.disabled = true;
     btnGenerateAiSong.textContent = '⏳ Compondo e Sintetizando Arranjo...';
@@ -1779,6 +1791,7 @@ function setupMasterProcessing() {
           lyricsText: inputSongLyrics?.value || '',
           album: activeAlbum,
           durationSeconds,
+          complexityLevel,
           userVoiceBuffer: customUserVoiceBuffer,
           enableTwinGuitarSolo: enableTwinSolo,
         },
