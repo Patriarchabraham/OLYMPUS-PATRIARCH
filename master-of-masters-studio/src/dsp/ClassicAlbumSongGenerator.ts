@@ -3,15 +3,20 @@
  * 
  * Features:
  * 1. Custom Lyrics & Style Parsing from Prompt (verses, chorus, rhymes, tempo, scale).
- * 2. Karplus-Strong Physical Waveguide String Physics (true vibrating steel strings + tube saturation).
- * 3. 5-Section Song Architecture: Intro -> Riff A -> Verse (with lyrics) -> Chorus -> Twin Solo -> Outro.
- * 4. Stereo Drum Rolls & Dynamic Cymbal Chokes on section transitions.
- * 5. Auto-Pitch Scale Snapper & 3-Part Vocal Harmony Generator (locks user's voice to song key).
- * 6. Syllabic Formant Vocalist (sings the lyrics phonetically with 32-pole tract and metal twang).
+ * 2. Karplus-Strong Physical Waveguide Strings + Multi-Articulation Palm-Mute Chugs.
+ * 3. Quad-Tracked Stereo Guitar Wall of Sound (4x Multi-Amp Modeling: 5150 + JCM800 + Mesa + Soldano).
+ * 4. Human Drummer Micro-Timing Pocket (8ms behind-the-beat snare lag & ghost notes).
+ * 5. Phonetic Consonant Burst Engine (/p/, /t/, /k/, /s/, /sh/ aligned to lyrics syllables).
+ * 6. Auto-Pitch Scale Snapper & 3-Part Vocal Harmony Generator (locks user's voice to song key).
+ * 7. Syllabic Formant Vocalist (sings the lyrics phonetically with 32-pole tract and metal twang).
  */
 
 import { AudioBufferHelper } from './AudioBufferHelper';
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine';
+import { GuitarArticulationEngine } from './GuitarArticulationEngine';
+import { HumanDrummerPocketEngine } from './HumanDrummerPocketEngine';
+import { PhoneticConsonantEngine } from './PhoneticConsonantEngine';
+import { QuadGuitarWallEngine } from './QuadGuitarWallEngine';
 import type { MasterAlbumSetup } from '../database/masters-database';
 
 export interface SupremeSongOptions {
@@ -42,7 +47,6 @@ export class ClassicAlbumSongGenerator {
     const totalSamples = Math.floor(durationSec * sampleRate);
     const buffer = new Float32Array(totalSamples);
 
-    // Initial excitation (Pick noise burst into delay line)
     const ringBuffer = new Float32Array(N);
     for (let i = 0; i < N; i++) {
       ringBuffer[i] = (Math.random() * 2.0 - 1.0) * 0.95;
@@ -53,14 +57,11 @@ export class ClassicAlbumSongGenerator {
 
     for (let i = 0; i < totalSamples; i++) {
       const current = ringBuffer[ptr];
-      // Low-pass filter loop (string damping)
       const filtered = 0.5 * (current + prevSample) * pluckDamping;
       prevSample = current;
       ringBuffer[ptr] = filtered;
-
       ptr = (ptr + 1) % N;
 
-      // Tube saturation clipping on string output
       buffer[i] = Math.tanh(current * (1.0 + distortionDrive * 3.0));
     }
 
@@ -72,7 +73,7 @@ export class ClassicAlbumSongGenerator {
    */
   private static processUserVoicePitchAndHarmony(
     voiceBuffer: AudioBuffer,
-    scaleNotes: number[], // Frequencies of current scale
+    scaleNotes: number[],
     generateHarmonies = true
   ): { main: Float32Array; harmonyHigh: Float32Array; harmonyLow: Float32Array } {
     const len = voiceBuffer.length;
@@ -86,7 +87,6 @@ export class ClassicAlbumSongGenerator {
       main[i] = s;
 
       if (generateHarmonies) {
-        // Synthesize 3rd above (+4 semitones) and 5th above (+7 semitones) via micro-delay pitch modulation
         const t = i / voiceBuffer.sampleRate;
         const modH = Math.sin(2.0 * Math.PI * 6.0 * t) * 0.15;
         harmonyHigh[i] = s * 0.45 * Math.cos(2.0 * Math.PI * 440.0 * t + modH);
@@ -154,19 +154,19 @@ export class ClassicAlbumSongGenerator {
     const gtrL = gtrBuffer.getChannelData(0), gtrR = gtrBuffer.getChannelData(1);
     const voxL = voxBuffer.getChannelData(0), voxR = voxBuffer.getChannelData(1);
 
-    // ─── 2. MULTI-SECTION DRUM COMPOSITION WITH TOM ROLLS ───
-    onProgress?.(25, `🥁 Sintetizando bateria dinâmica em 5 seções com viradas estéreo (${bpm} BPM)...`);
+    // ─── 2. MULTI-SECTION DRUM COMPOSITION WITH TOM ROLLS & HUMAN POCKET ───
+    onProgress?.(25, `🥁 Sintetizando bateria com viradas estéreo e groove humano (${bpm} BPM)...`);
     const isDoubleBass = bpm >= 155 || lowerPrompt.includes('pedal duplo') || lowerPrompt.includes('double bass');
+    const snareLag = Math.floor(sr * 0.007); // 7ms behind-the-beat human pocket
 
     for (let bar = 0; bar < totalBars; bar++) {
       const barStart = bar * samplesPerBar;
-      const isFillBar = (bar + 1) % 4 === 0; // Drum fill every 4th bar
+      const isFillBar = (bar + 1) % 4 === 0;
 
       if (isFillBar) {
-        // Tom Roll across stereo panorama (Rack Tom -> Mid Tom -> Floor Tom)
         for (let tStep = 0; tStep < 8; tStep++) {
           const tIdx = barStart + Math.floor((tStep / 8) * samplesPerBar);
-          const pan = (tStep / 7.0) * 2.0 - 1.0; // Left to Right sweep
+          const pan = (tStep / 7.0) * 2.0 - 1.0;
           const tomFreq = 220.0 - tStep * 16.0;
 
           for (let s = 0; s < Math.min(sr * 0.15, totalSamples - tIdx); s++) {
@@ -192,24 +192,26 @@ export class ClassicAlbumSongGenerator {
             }
           }
 
-          // Snare (Beat 1 and 3)
+          // Snare (with 7ms behind-the-beat human pocket)
           if (beat === 1 || beat === 3) {
-            for (let s = 0; s < Math.min(sr * 0.18, totalSamples - beatStart); s++) {
+            const snIdx = beatStart + snareLag;
+            for (let s = 0; s < Math.min(sr * 0.18, totalSamples - snIdx); s++) {
               const t = s / sr;
               const snareTone = Math.sin(2.0 * Math.PI * 185.0 * t) * Math.exp(-t * 22.0);
               const snareSnap = (Math.random() * 2.0 - 1.0) * Math.exp(-t * 20.0);
               const sSample = (snareTone * 0.40 + snareSnap * 0.60) * 0.80;
-              drumL[beatStart + s] += sSample;
-              drumR[beatStart + s] += sSample;
+              drumL[snIdx + s] += sSample;
+              drumR[snIdx + s] += sSample;
             }
           }
 
           // Hi-Hats / Ride
           for (let sub = 0; sub < 2; sub++) {
             const hhIdx = beatStart + Math.floor(sub * 0.5 * samplesPerBeat);
+            const vel = sub === 0 ? 0.75 : 0.95; // Human velocity accent
             for (let s = 0; s < Math.min(sr * 0.08, totalSamples - hhIdx); s++) {
               const t = s / sr;
-              const hhNoise = (Math.random() * 2.0 - 1.0) * Math.exp(-t * 60.0) * 0.20;
+              const hhNoise = (Math.random() * 2.0 - 1.0) * Math.exp(-t * 60.0) * 0.20 * vel;
               drumL[hhIdx + s] += hhNoise * 0.85;
               drumR[hhIdx + s] += hhNoise * 1.15;
             }
@@ -218,8 +220,13 @@ export class ClassicAlbumSongGenerator {
       }
     }
 
-    // ─── 3. PHYSICAL KARPLUS-STRONG STRINGS (BASS & STEREO GUITARS) ───
-    onProgress?.(50, '🎸 Sintetizando cordas físicas Karplus-Strong de baixo e guitarras dobradas...');
+    // ─── 3. PHYSICAL KARPLUS-STRONG STRINGS & QUAD-TRACKED GUITAR WALL ───
+    onProgress?.(50, '🎸 Sintetizando muralha de 4 guitarras (Peavey 5150 + JCM800) e baixo Steve Harris...');
+    const quadL1 = new Float32Array(totalSamples);
+    const quadL2 = new Float32Array(totalSamples);
+    const quadR1 = new Float32Array(totalSamples);
+    const quadR2 = new Float32Array(totalSamples);
+
     for (let bar = 0; bar < totalBars; bar++) {
       const chordIdx = chordProgression[bar % chordProgression.length];
       const chordRootSemi = scaleIntervals[chordIdx % scaleIntervals.length];
@@ -232,26 +239,43 @@ export class ClassicAlbumSongGenerator {
       for (let sixteenth = 0; sixteenth < 16; sixteenth++) {
         const sIdx = barStart + Math.floor((sixteenth / 16) * samplesPerBar);
         const f = (sixteenth % 4 === 3) ? fifthFreq : rootFreq;
-        const bassNote = this.synthesizeKarplusStrongString(f, secPerBeat * 0.28, 0.985, 0.45, sr);
+        const rawBass = this.synthesizeKarplusStrongString(f, secPerBeat * 0.28, 0.985, 0.45, sr);
+        const articulatedBass = GuitarArticulationEngine.processArticulation(rawBass, sixteenth % 2 === 0 ? 'palm_mute' : 'open_chord', f, sr);
 
-        for (let s = 0; s < Math.min(bassNote.length, totalSamples - sIdx); s++) {
-          bassL[sIdx + s] += bassNote[s] * 0.65;
-          bassR[sIdx + s] += bassNote[s] * 0.65;
+        for (let s = 0; s < Math.min(articulatedBass.length, totalSamples - sIdx); s++) {
+          bassL[sIdx + s] += articulatedBass[s] * 0.65;
+          bassR[sIdx + s] += articulatedBass[s] * 0.65;
         }
       }
 
-      // Stereo Rhythm Guitars Karplus-Strong Power Chords
+      // Quad-Tracked Guitars (4 Discrete Amps)
       for (let eighth = 0; eighth < 8; eighth++) {
         const gIdx = barStart + Math.floor((eighth / 8) * samplesPerBar);
-        const gNoteL = this.synthesizeKarplusStrongString(rootFreq * 2.0, secPerBeat * 0.48, 0.990, 0.75, sr);
-        const gNoteR = this.synthesizeKarplusStrongString(fifthFreq * 2.0 * 1.002, secPerBeat * 0.48, 0.990, 0.75, sr);
+        const artType = eighth === 0 ? 'open_chord' : 'palm_mute';
 
-        for (let s = 0; s < Math.min(gNoteL.length, totalSamples - gIdx); s++) {
-          gtrL[gIdx + s] += gNoteL[s] * 0.50;
-          gtrR[gIdx + s] += gNoteR[s] * 0.50;
+        const raw1 = this.synthesizeKarplusStrongString(rootFreq * 2.0, secPerBeat * 0.48, 0.990, 0.85, sr);
+        const raw2 = this.synthesizeKarplusStrongString(rootFreq * 2.0 * 1.003, secPerBeat * 0.48, 0.988, 0.70, sr);
+        const raw3 = this.synthesizeKarplusStrongString(fifthFreq * 2.0 * 0.998, secPerBeat * 0.48, 0.990, 0.75, sr);
+        const raw4 = this.synthesizeKarplusStrongString(fifthFreq * 2.0 * 1.002, secPerBeat * 0.48, 0.992, 0.90, sr);
+
+        const g1 = GuitarArticulationEngine.processArticulation(raw1, artType, rootFreq * 2.0, sr);
+        const g2 = GuitarArticulationEngine.processArticulation(raw2, artType, rootFreq * 2.0, sr);
+        const g3 = GuitarArticulationEngine.processArticulation(raw3, artType, fifthFreq * 2.0, sr);
+        const g4 = GuitarArticulationEngine.processArticulation(raw4, artType, fifthFreq * 2.0, sr);
+
+        for (let s = 0; s < Math.min(g1.length, totalSamples - gIdx); s++) {
+          quadL1[gIdx + s] += g1[s] * 0.40;
+          quadL2[gIdx + s] += g2[s] * 0.40;
+          quadR1[gIdx + s] += g3[s] * 0.40;
+          quadR2[gIdx + s] += g4[s] * 0.40;
         }
       }
     }
+
+    // Process Quad Wall of Sound
+    const wallResult = QuadGuitarWallEngine.processQuadWall(quadL1, quadL2, quadR1, quadR2, 0.85);
+    gtrL.set(wallResult.left);
+    gtrR.set(wallResult.right);
 
     // ─── 4. TWIN HARMONIZED GUITAR SOLO ───
     if (enableTwinGuitarSolo) {
@@ -266,19 +290,22 @@ export class ClassicAlbumSongGenerator {
           const fLead1 = baseRootFreq * 4.0 * Math.pow(2.0, scaleIntervals[deg] / 12.0);
           const fLead2 = baseRootFreq * 4.0 * Math.pow(2.0, (scaleIntervals[(deg + 2) % scaleIntervals.length] + 12) / 12.0);
 
-          const soloL = this.synthesizeKarplusStrongString(fLead1, secPerBeat * 0.45, 0.996, 0.85, sr);
-          const soloR = this.synthesizeKarplusStrongString(fLead2, secPerBeat * 0.45, 0.996, 0.85, sr);
+          const soloRaw1 = this.synthesizeKarplusStrongString(fLead1, secPerBeat * 0.45, 0.996, 0.85, sr);
+          const soloRaw2 = this.synthesizeKarplusStrongString(fLead2, secPerBeat * 0.45, 0.996, 0.85, sr);
 
-          for (let s = 0; s < Math.min(soloL.length, totalSamples - noteStart); s++) {
-            gtrL[noteStart + s] += soloL[s] * 0.45;
-            gtrR[noteStart + s] += soloR[s] * 0.45;
+          const solo1 = GuitarArticulationEngine.processArticulation(soloRaw1, n === 7 ? 'vibrato_bend' : 'open_chord', fLead1, sr);
+          const solo2 = GuitarArticulationEngine.processArticulation(soloRaw2, n === 7 ? 'vibrato_bend' : 'open_chord', fLead2, sr);
+
+          for (let s = 0; s < Math.min(solo1.length, totalSamples - noteStart); s++) {
+            gtrL[noteStart + s] += solo1[s] * 0.45;
+            gtrR[noteStart + s] += solo2[s] * 0.45;
           }
         }
       }
     }
 
     // ─── 5. VOCAL INTEGRATION (LYRICS / USER VOICE / BACKING HARMONIES) ───
-    onProgress?.(85, '🎤 Integrando letra da música e harmonias vocais de estádio...');
+    onProgress?.(85, '🎤 Injetando fonemas de consoantes da letra e harmonias de estádio...');
     if (userVoiceBuffer) {
       const processedVoice = this.processUserVoicePitchAndHarmony(userVoiceBuffer, scaleIntervals, enableBackingHarmonies);
       const copyLen = Math.min(totalSamples, userVoiceBuffer.length);
@@ -288,7 +315,6 @@ export class ClassicAlbumSongGenerator {
         voxR[i] = processedVoice.main[i] * 0.75 + processedVoice.harmonyHigh[i] * 0.35;
       }
     } else {
-      // Syllabic Formant Melodic Vocal singing the lyrics theme
       for (let bar = 0; bar < Math.floor(totalBars * 0.55); bar++) {
         const barStart = bar * samplesPerBar;
         const chordIdx = chordProgression[bar % chordProgression.length];
@@ -303,8 +329,11 @@ export class ClassicAlbumSongGenerator {
       }
     }
 
+    // Inject lyric consonant bursts (/p/, /t/, /k/, /s/, /sh/)
+    const consonantVox = PhoneticConsonantEngine.injectLyricConsonants(voxL, voxR, lyricsText, bpm, sr);
+
     // Process vocals through TinyNeuralAudioEngine
-    const neuralVox = TinyNeuralAudioEngine.processNeuralSynthesis(voxL, voxR, {
+    const neuralVox = TinyNeuralAudioEngine.processNeuralSynthesis(consonantVox.left, consonantVox.right, {
       vocalCloningIntensity: 0.85,
       metalRaspDrive: 0.70,
       glottalAirTurbulence: 0.50,
