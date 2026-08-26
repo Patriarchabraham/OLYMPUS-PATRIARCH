@@ -33,9 +33,12 @@ import { SpectralClonerEngine1024 } from './SpectralClonerEngine1024';
 import { VolterraHysteresisEngine } from './VolterraHysteresisEngine';
 import { CabinetIrConvolutionEngine, type CabinetIrType } from './CabinetIrConvolutionEngine';
 import { LpcVocalFormantEngine } from './LpcVocalFormantEngine';
-import { DeHummerGroundCleaner } from './DeHummerGroundCleaner';
 import { AbbeyRoadAdtEngine } from './AbbeyRoadAdtEngine';
 import { AudioBufferHelper } from './AudioBufferHelper';
+import { SpectralClonerEngine2048 } from './SpectralClonerEngine2048';
+import { MultibandDynamicMatcher } from './MultibandDynamicMatcher';
+import { ConsoleCrosstalkEngine } from './ConsoleCrosstalkEngine';
+import { HarmonicThdProfilerEngine } from './HarmonicThdProfilerEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -186,25 +189,64 @@ export class AudioEngine {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 2: 1024-BAND MINIMUM-PHASE SPECTRAL CLONING (PRODUCER & ALBUM)
+    // STAGE 2: 2048-POINT CONTINUOUS FFT SPECTRAL CLONING & MICRO-RESONANCES
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(28, `Clonando curva espectral analógica de 1024 bandas do álbum "${album.albumTitle}"...`);
+    onProgress?.(28, `Clonando curva espectral analógica de 2048 pontos FFT do álbum "${album.albumTitle}"...`);
     const clonedL = weldedStemBuffer.getChannelData(0);
     const clonedR = weldedStemBuffer.numberOfChannels > 1 ? weldedStemBuffer.getChannelData(1) : clonedL;
-    const spectralMatched = SpectralClonerEngine1024.process1024BandCloning(
+    const spectralMatched = SpectralClonerEngine2048.process2048Cloning(
       clonedL,
       clonedR,
       album,
-      intensityScale * (isRealStudio ? 0.70 : 1.0),
+      intensityScale * (isRealStudio ? 0.85 : 1.15),
       sr
     );
     weldedStemBuffer.copyToChannel(spectralMatched.left, 0);
     weldedStemBuffer.copyToChannel(spectralMatched.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STAGE 2.3: VOLTERRA NON-LINEAR HYSTERESIS & POWER SUPPLY SAG
+    // STAGE 2.1: MULTIBAND DYNAMIC BREATHING & CREST FACTOR MATCHING
     // ─────────────────────────────────────────────────────────────────────────
-    onProgress?.(30, '⚡ Processando histerese não-linear Volterra de 3ª/5ª ordem e Sag de válvulas...');
+    onProgress?.(29, '🌊 Clonando dinâmica multibanda, respiração RMS e fator de crista do álbum...');
+    const dynL = weldedStemBuffer.getChannelData(0);
+    const dynR = weldedStemBuffer.getChannelData(1);
+    const dynMatched = MultibandDynamicMatcher.processDynamicMatching(dynL, dynR, album, intensityScale, sr);
+    weldedStemBuffer.copyToChannel(dynMatched.left, 0);
+    weldedStemBuffer.copyToChannel(dynMatched.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 2.2: ALBUM-SPECIFIC HARMONIC THD SPECTRUM PROFILER
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(30, '⚡ Injetando espectro de distorção harmônica THD (2ª, 3ª e 5ª ordem) do disco...');
+    const thdL = weldedStemBuffer.getChannelData(0);
+    const thdR = weldedStemBuffer.getChannelData(1);
+    const thdMatched = HarmonicThdProfilerEngine.processHarmonicProfile(thdL, thdR, album, (customDrive || 0.40) * intensityScale);
+    weldedStemBuffer.copyToChannel(thdMatched.left, 0);
+    weldedStemBuffer.copyToChannel(thdMatched.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 2.3: ANALOG CONSOLE CROSSTALK & INTER-CHANNEL 3D PHASE MATRIX
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(31, '🎛️ Emulando diafonia analógica física (-72dB) e cola de fase do console original...');
+    const deskType = producer?.consoleDesk?.toLowerCase().includes('neve')
+      ? 'neve_8078'
+      : producer?.consoleDesk?.toLowerCase().includes('trident')
+      ? 'trident_a_range'
+      : producer?.consoleDesk?.toLowerCase().includes('mci')
+      ? 'mci_jh500'
+      : producer?.consoleDesk?.toLowerCase().includes('harrison')
+      ? 'harrison_32c'
+      : 'ssl_4000g';
+    const crossL = weldedStemBuffer.getChannelData(0);
+    const crossR = weldedStemBuffer.getChannelData(1);
+    const crossResult = ConsoleCrosstalkEngine.processCrosstalk(crossL, crossR, deskType, intensityScale, sr);
+    weldedStemBuffer.copyToChannel(crossResult.left, 0);
+    weldedStemBuffer.copyToChannel(crossResult.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 2.4: VOLTERRA NON-LINEAR HYSTERESIS & POWER SUPPLY SAG
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(32, '⚡ Processando histerese não-linear Volterra de 3ª/5ª ordem e Sag de válvulas...');
     const voltL = weldedStemBuffer.getChannelData(0);
     const voltR = weldedStemBuffer.getChannelData(1);
     const voltResult = VolterraHysteresisEngine.processHysteresisAndSag(voltL, voltR, (customDrive || 0.40) * intensityScale, sr);
