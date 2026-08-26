@@ -43,6 +43,7 @@ import { BlumleinPhaseLockEngine } from './BlumleinPhaseLockEngine';
 import { TapeHeadPhysicsEngine } from './TapeHeadPhysicsEngine';
 import { TapeFormulationEngine, type TapeFormulationType } from './TapeFormulationEngine';
 import { CabMicPositioningEngine } from './CabMicPositioningEngine';
+import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -78,6 +79,7 @@ export interface ProcessMasterOptions {
   transientPunchAmount?: number;
   realWorldDevice?: RealWorldDevice;
   enableDolbyAtmosRoom?: boolean;
+  enableTinyNeuralVocal?: boolean;
   onProgress?: (percent: number, status: string) => void;
 }
 
@@ -130,6 +132,7 @@ export class AudioEngine {
       enableDolbyAtmosRoom = false,
       enableAbbeyRoadAdt = false,
       adtBlend = 0.45,
+      enableTinyNeuralVocal = true,
       onProgress,
     } = options;
 
@@ -190,6 +193,27 @@ export class AudioEngine {
         harmonyOptions,
         pitchOptions
       );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 1.5: CPU-OPTIMIZED MICRO-NEURAL VOCODER & WAVEFORM SUPER-RESOLUTION
+    // ─────────────────────────────────────────────────────────────────────────
+    if (enableTinyNeuralVocal) {
+      onProgress?.(24, '🧠 Aplicando síntese micro-neural (<25MB RAM) de cordas vocais e super-resolução 12k-24kHz...');
+      const neuL = weldedStemBuffer.getChannelData(0);
+      const neuR = weldedStemBuffer.getChannelData(1);
+      const neuResult = TinyNeuralAudioEngine.processNeuralSynthesis(
+        neuL,
+        neuR,
+        {
+          vocalCloningIntensity: (vocalModelBlend || 0.70) * intensityScale,
+          metalRaspDrive: 0.65 * intensityScale,
+          superResolutionAir: 0.80 * intensityScale,
+        },
+        sr
+      );
+      weldedStemBuffer.copyToChannel(neuResult.left, 0);
+      weldedStemBuffer.copyToChannel(neuResult.right, 1);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

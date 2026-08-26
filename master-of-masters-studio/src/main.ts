@@ -1179,6 +1179,7 @@ function setupMasterProcessing() {
       const chkDynamicDeHarsh = document.getElementById('chk-dynamic-deharsh') as HTMLInputElement;
       const chkKickBassUnmask = document.getElementById('chk-kick-bass-unmask') as HTMLInputElement;
       const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement;
+      const chkTinyNeuralVocal = document.getElementById('chk-tiny-neural-vocal') as HTMLInputElement;
 
       lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
         album: activeAlbum,
@@ -1199,6 +1200,7 @@ function setupMasterProcessing() {
         enableDynamicDeHarsh: chkDynamicDeHarsh ? chkDynamicDeHarsh.checked : true,
         enableKickBassUnmask: chkKickBassUnmask ? chkKickBassUnmask.checked : true,
         enableDolbyAtmosRoom: chkDolbyAtmosRoom ? chkDolbyAtmosRoom.checked : false,
+        enableTinyNeuralVocal: chkTinyNeuralVocal ? chkTinyNeuralVocal.checked : true,
         transientPunchAmount: sliderTransientPunch ? parseFloat(sliderTransientPunch.value) / 100 : 0.45,
         drumReplacementBlend: sliderDrumBlend ? parseFloat(sliderDrumBlend.value) / 100 : 0.0,
         guitarReampBlend: sliderGuitarBlend ? parseFloat(sliderGuitarBlend.value) / 100 : 0.0,
