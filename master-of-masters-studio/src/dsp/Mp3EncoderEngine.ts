@@ -1,10 +1,13 @@
 /**
  * Master of Masters Studio Pro — High-Definition 320 kbps MP3 Encoder Engine.
  * 
- * Encodes standard 44.1kHz / 48kHz stereo AudioBuffers directly into pristine
- * 320 kbps MPEG-1 Layer III audio files with ID3v2 metadata header tags.
- * 100% Client-Side Pure TypeScript with zero external dependencies.
+ * Fully compliant with ISO/IEC 11172-3 MPEG-1 Layer III standard using
+ * full Polyphase Filterbank, MDCT Psychoacoustic Quantization, and Huffman Coding.
+ * Encodes AudioBuffers directly into playable 320 kbps CBR MP3 files with ID3v2 metadata.
  */
+
+// @ts-ignore
+import lamejs from './lame.bundle.js';
 
 export interface Mp3TagMetadata {
   title?: string;
@@ -17,29 +20,28 @@ export interface Mp3TagMetadata {
 
 export class Mp3EncoderEngine {
   /**
-   * Encodes an AudioBuffer into a 320 kbps MP3 Blob with ID3v2 tags.
+   * Encodes an AudioBuffer into an authentic, fully compliant 320 kbps MP3 Blob.
    */
   public static encodeToMp3_320kbps(
     buffer: AudioBuffer,
     tags: Mp3TagMetadata = {}
   ): Blob {
     const sampleRate = buffer.sampleRate;
-    const numChannels = buffer.numberOfChannels;
+    const numChannels = Math.min(2, buffer.numberOfChannels);
     const length = buffer.length;
 
-    const left = buffer.getChannelData(0);
-    const right = numChannels > 1 ? buffer.getChannelData(1) : left;
+    const leftF32 = buffer.getChannelData(0);
+    const rightF32 = numChannels > 1 ? buffer.getChannelData(1) : leftF32;
 
-    // Convert Float32 (-1.0 to +1.0) to 16-bit signed PCM
-    const samplesPerChannel = length;
-    const pcmLeft = new Int16Array(samplesPerChannel);
-    const pcmRight = new Int16Array(samplesPerChannel);
+    // Convert Float32 (-1.0 to +1.0) to 16-bit signed integer PCM
+    const leftPcm16 = new Int16Array(length);
+    const rightPcm16 = new Int16Array(length);
 
-    for (let i = 0; i < samplesPerChannel; i++) {
-      let l = Math.max(-1.0, Math.min(1.0, left[i]));
-      let r = Math.max(-1.0, Math.min(1.0, right[i]));
-      pcmLeft[i] = l < 0 ? Math.round(l * 32768) : Math.round(l * 32767);
-      pcmRight[i] = r < 0 ? Math.round(r * 32768) : Math.round(r * 32767);
+    for (let i = 0; i < length; i++) {
+      let l = Math.max(-1.0, Math.min(1.0, leftF32[i]));
+      let r = Math.max(-1.0, Math.min(1.0, rightF32[i]));
+      leftPcm16[i] = l < 0 ? Math.round(l * 32768) : Math.round(l * 32767);
+      rightPcm16[i] = r < 0 ? Math.round(r * 32768) : Math.round(r * 32767);
     }
 
     // Build ID3v2.3 Tag Header
@@ -52,84 +54,39 @@ export class Mp3EncoderEngine {
       comment: tags.comment || 'Mastered with 64-bit Analog Quantum DSP at 320 kbps CBR',
     });
 
-    // MPEG-1 Layer III 320 kbps Frame Parameters:
-    // Frame size for 44.1kHz @ 320kbps = 144 * 320000 / 44100 = 1044 bytes (or 1045 with padding)
-    // Frame size for 48kHz @ 320kbps = 144 * 320000 / 48000 = 960 bytes
-    const bitrate = 320; // kbps
-    const is48k = sampleRate >= 46000;
-    const frameSize = is48k ? 960 : 1044;
-    const samplesPerFrame = 1152;
-    const totalFrames = Math.ceil(samplesPerChannel / samplesPerFrame);
+    // Initialize LAME 320 kbps MP3 Encoder
+    const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 320);
+    const mp3Chunks: Uint8Array[] = [id3Bytes];
 
-    const mp3DataSize = totalFrames * frameSize;
-    const totalBufferSize = id3Bytes.length + mp3DataSize;
-    const mp3Buffer = new Uint8Array(totalBufferSize);
+    // Process audio in standard 1152-sample MP3 frame blocks
+    const sampleBlockSize = 1152;
+    for (let i = 0; i < length; i += sampleBlockSize) {
+      const leftChunk = leftPcm16.subarray(i, i + sampleBlockSize);
+      const rightChunk = rightPcm16.subarray(i, i + sampleBlockSize);
 
-    // 1. Write ID3v2 Header
-    mp3Buffer.set(id3Bytes, 0);
-
-    // 2. Generate 320 kbps MPEG-1 Layer III Frames with proper sync, header and quantized sub-bands
-    let outOffset = id3Bytes.length;
-
-    for (let frameIdx = 0; frameIdx < totalFrames; frameIdx++) {
-      const frameStart = outOffset;
-      const sampleOffset = frameIdx * samplesPerFrame;
-
-      // MPEG-1 Layer III Header (4 bytes):
-      // Byte 0: 0xFF (Sync word bits 11-4)
-      // Byte 1: 0xFB (Sync word bits 3-0: 1111, MPEG-1: 11, Layer III: 01, No Protection: 1) -> 1111 1011 = 0xFB
-      // Byte 2: 0xE0 | (sampling rate << 2) | (padding bit << 1)
-      //         Bitrate 320 kbps for MPEG-1 Layer III = 1110 (0xE) -> 0xE0
-      //         SampleRate: 44.1kHz = 00, 48kHz = 01
-      // Byte 3: 0x00 (Stereo: 00, Mode Ext: 00, Copyright: 0, Original: 1) -> 0x01
-      const srBits = is48k ? 0x04 : 0x00;
-      mp3Buffer[outOffset++] = 0xff;
-      mp3Buffer[outOffset++] = 0xfb;
-      mp3Buffer[outOffset++] = 0xe0 | srBits;
-      mp3Buffer[outOffset++] = 0x01; // Stereo, Original
-
-      // Side information (32 bytes for Stereo MPEG-1)
-      const sideInfoOffset = outOffset;
-      for (let s = 0; s < 32; s++) {
-        mp3Buffer[outOffset++] = 0x00;
-      }
-      // Main data begin pointer = 0
-      mp3Buffer[sideInfoOffset] = 0x00;
-      mp3Buffer[sideInfoOffset + 1] = 0x00;
-
-      // Fill Audio Frame Granules using 320 kbps psychoacoustic sub-band scaling
-      const remainingBytes = frameSize - 4 - 32;
-      let samplePos = sampleOffset;
-
-      for (let b = 0; b < remainingBytes; b += 4) {
-        if (samplePos < samplesPerChannel) {
-          const lVal = pcmLeft[samplePos];
-          const rVal = pcmRight[samplePos];
-
-          // Store 16-bit high-resolution audio samples with pseudo-Huffman compression alignment
-          mp3Buffer[outOffset++] = (lVal >> 8) & 0xff;
-          mp3Buffer[outOffset++] = lVal & 0xff;
-          mp3Buffer[outOffset++] = (rVal >> 8) & 0xff;
-          mp3Buffer[outOffset++] = rVal & 0xff;
-          samplePos++;
-        } else {
-          // Zero padding at end of song
-          mp3Buffer[outOffset++] = 0x00;
-          mp3Buffer[outOffset++] = 0x00;
-          mp3Buffer[outOffset++] = 0x00;
-          mp3Buffer[outOffset++] = 0x00;
-        }
+      let mp3buf: Int8Array;
+      if (numChannels === 1) {
+        mp3buf = mp3encoder.encodeBuffer(leftChunk);
+      } else {
+        mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
       }
 
-      // Ensure exact frame byte boundary
-      outOffset = frameStart + frameSize;
+      if (mp3buf.length > 0) {
+        mp3Chunks.push(new Uint8Array(mp3buf.buffer, mp3buf.byteOffset, mp3buf.length));
+      }
     }
 
-    return new Blob([mp3Buffer], { type: 'audio/mp3' });
+    // Flush remaining frames from LAME internal buffer
+    const endBuf = mp3encoder.flush();
+    if (endBuf.length > 0) {
+      mp3Chunks.push(new Uint8Array(endBuf.buffer, endBuf.byteOffset, endBuf.length));
+    }
+
+    return new Blob(mp3Chunks, { type: 'audio/mp3' });
   }
 
   /**
-   * Builds a valid ID3v2.3 Tag Header chunk.
+   * Builds an ID3v2.3 Tag Header chunk.
    */
   private static buildID3v2Header(tags: Mp3TagMetadata): Uint8Array {
     const frames: Uint8Array[] = [];
