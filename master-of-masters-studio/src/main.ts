@@ -43,6 +43,10 @@ import { DeHummerGroundCleaner } from './dsp/DeHummerGroundCleaner';
 import { CoverArtGenerator } from './components/CoverArtGenerator';
 import { AiMasterCoPilotEngine } from './dsp/AiMasterCoPilotEngine';
 import { DolbyAtmos3DSphereVisualizer } from './visualizers/DolbyAtmos3DSphereVisualizer';
+import { StemSpecificReferenceMatcher } from './dsp/StemSpecificReferenceMatcher';
+import { WaterfallSpectrogramVisualizer } from './visualizers/WaterfallSpectrogramVisualizer';
+import { PerceptualLoudnessMatcher } from './dsp/PerceptualLoudnessMatcher';
+import { SpectralClonerEngine2048 } from './dsp/SpectralClonerEngine2048';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let activeProducer: MasterProducer = ALL_MASTERS[0];
@@ -893,7 +897,8 @@ function setupTransportDock() {
 
     let gainMatchScale = 1.0;
     if (chkAbGainMatch?.checked && audioBuffer && lastMasterResult?.masterBuffer) {
-      gainMatchScale = GainMatchedAbEngine.computeGainMatchFactor(audioBuffer, lastMasterResult.masterBuffer);
+      const match = PerceptualLoudnessMatcher.computeMatchingGain(audioBuffer, lastMasterResult.masterBuffer);
+      gainMatchScale = match.masterGain;
     }
 
     mainAudioPlayer.src = URL.createObjectURL(blob);

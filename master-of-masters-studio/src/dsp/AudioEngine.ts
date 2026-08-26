@@ -39,6 +39,8 @@ import { SpectralClonerEngine2048 } from './SpectralClonerEngine2048';
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher';
 import { ConsoleCrosstalkEngine } from './ConsoleCrosstalkEngine';
 import { HarmonicThdProfilerEngine } from './HarmonicThdProfilerEngine';
+import { BlumleinPhaseLockEngine } from './BlumleinPhaseLockEngine';
+import { TapeHeadPhysicsEngine } from './TapeHeadPhysicsEngine';
 
 export interface ProcessMasterOptions {
   album: MasterAlbumSetup;
@@ -345,6 +347,16 @@ export class AudioEngine {
     weldedStemBuffer.copyToChannel(tapeProcessed.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 5.1: TAPE HEAD MAGNETIC ASYMMETRY & CAPSTAN MOTOR MICRO-FLUTTER
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(56, '📼 Emulando assimetria magnética de cabeçotes e micro-flutter de fita de 1/2"...');
+    const physL = weldedStemBuffer.getChannelData(0);
+    const physR = weldedStemBuffer.getChannelData(1);
+    const physResult = TapeHeadPhysicsEngine.processTapePhysics(physL, physR, 0.35 * intensityScale, sr);
+    weldedStemBuffer.copyToChannel(physResult.left, 0);
+    weldedStemBuffer.copyToChannel(physResult.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
     // STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR
     // ─────────────────────────────────────────────────────────────────────────
     onProgress?.(65, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`);
@@ -443,6 +455,16 @@ export class AudioEngine {
     );
     renderedMaster.copyToChannel(spatialResult.left, 0);
     renderedMaster.copyToChannel(spatialResult.right, 1);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STAGE 7.1: BLUMLEIN STEREO SHUFFLE & SUB PHASE-LOCK (<120Hz MONO GUARD)
+    // ─────────────────────────────────────────────────────────────────────────
+    onProgress?.(82, '🛡️ Travando sub-graves em mono (<120Hz) e aplicando proteção de correlação de fase Blumlein...');
+    const lBlum = renderedMaster.getChannelData(0);
+    const rBlum = renderedMaster.getChannelData(1);
+    const blumResult = BlumleinPhaseLockEngine.processBlumleinPhaseLock(lBlum, rBlum, 1.12, sr);
+    renderedMaster.copyToChannel(blumResult.left, 0);
+    renderedMaster.copyToChannel(blumResult.right, 1);
 
     // ─────────────────────────────────────────────────────────────────────────
     // STAGE 8: OPTIONAL DOLBY ATMOS 7.1.4 BINAURAL ROOM / REAL-WORLD SIMULATION
