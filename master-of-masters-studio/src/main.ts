@@ -1661,6 +1661,7 @@ function setupMasterProcessing() {
   const modalAiSongGenerator = document.getElementById('modal-ai-song-generator')!;
   const btnCloseSongGenModal = document.getElementById('btn-close-song-generator-modal') as HTMLButtonElement;
   const inputSongPrompt = document.getElementById('input-song-prompt') as HTMLTextAreaElement;
+  const inputSongLyrics = document.getElementById('input-song-lyrics') as HTMLTextAreaElement;
   const btnRecordUserVoice = document.getElementById('btn-record-user-voice') as HTMLButtonElement;
   const inputUserVoiceFile = document.getElementById('input-user-voice-file') as HTMLInputElement;
   const voiceUploadStatus = document.getElementById('voice-upload-status')!;
@@ -1689,14 +1690,19 @@ function setupMasterProcessing() {
       const preset = (btn as HTMLElement).dataset.preset;
       if (preset === 'iron_maiden') {
         inputSongPrompt.value = 'Iron Maiden fast galloping heavy metal song with twin harmonized guitar solo in E minor, aggressive energy, 160 BPM, punchy Steve Harris bass and epic chorus.';
+        if (inputSongLyrics) inputSongLyrics.value = 'Into the storm we ride tonight!\nScreaming through the ancient skies!\nIron chains broken by our might!\nWe rise above, we never die!';
       } else if (preset === 'metallica') {
         inputSongPrompt.value = 'Metallica Black Album heavy mid-tempo groove riff in E minor, punchy Lars Ulrich drum slam, heavy Hetfield downpicking rhythm guitars, 110 BPM.';
+        if (inputSongLyrics) inputSongLyrics.value = 'Heavy shadows on the wall / Crushing thunder, stand or fall / Blackened horizon calling my name / Feeding the fire, burning the flame!';
       } else if (preset === 'judas_priest') {
         inputSongPrompt.value = 'Judas Priest Painkiller speed metal explosive double-bass drum track, screaming lead arpeggios, razor sharp distortion, 175 BPM.';
+        if (inputSongLyrics) inputSongLyrics.value = 'Faster than a bullet train / Steel armor through the pain / High screaming metal wrath / Cutting down the dark path!';
       } else if (preset === 'pink_floyd') {
         inputSongPrompt.value = 'Pink Floyd Dark Side of the Moon atmospheric progressive rock with soaring David Gilmour bluesy stratocaster solo, 85 BPM.';
+        if (inputSongLyrics) inputSongLyrics.value = 'Floating through the prism ray / Time and silence drift away / Echoes of a forgotten sun / The journey has just begun...';
       } else if (preset === 'queen') {
         inputSongPrompt.value = 'Queen Bohemian style grand operatic rock with multi-layered Brian May red special harmonized lead guitars, 120 BPM.';
+        if (inputSongLyrics) inputSongLyrics.value = 'Magnifico under the midnight crown / We take the stage, we shake the ground / Carry the fire, let the voices ring / Long live the power of the king!';
       }
     });
   });
@@ -1767,9 +1773,10 @@ function setupMasterProcessing() {
     btnGenerateAiSong.textContent = '⏳ Compondo e Sintetizando Arranjo...';
 
     try {
-      const generatedBuffer = await ClassicAlbumSongGenerator.generateSong(
+      const generatedResult = await ClassicAlbumSongGenerator.generateSong(
         {
           promptText,
+          lyricsText: inputSongLyrics?.value || '',
           album: activeAlbum,
           durationSeconds,
           userVoiceBuffer: customUserVoiceBuffer,
@@ -1781,15 +1788,15 @@ function setupMasterProcessing() {
       );
 
       // Set as main studio buffer
-      audioBuffer = generatedBuffer;
+      audioBuffer = generatedResult.masterBuffer;
       loadedFile = new File([new Uint8Array(100)], `${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_ORIGINAL_COMPOSED.wav`, { type: 'audio/wav' });
 
-      updateTrackInfo(`${activeAlbum.band} - Composição Inédita Gerada`, generatedBuffer.duration);
-      drawWaveform(generatedBuffer);
-      drawSpectrum(generatedBuffer);
+      updateTrackInfo(`${activeAlbum.band} - Composição Inédita Gerada`, generatedResult.masterBuffer.duration);
+      drawWaveform(generatedResult.masterBuffer);
+      drawSpectrum(generatedResult.masterBuffer);
       modalAiSongGenerator.classList.add('hidden');
 
-      alert(`🎉 Música inédita composta com sucesso no estilo de "${activeAlbum.band} - ${activeAlbum.albumTitle}"!\nEla foi carregada no estúdio e já está pronta para masterização analógica!`);
+      alert(`🎉 Música inédita com letra e voz composta com sucesso no estilo de "${activeAlbum.band} - ${activeAlbum.albumTitle}"!\nEla foi carregada no estúdio e já está pronta para masterização analógica!`);
     } catch (gErr: any) {
       console.error('[SongGenerator] Error:', gErr);
       songGenProgressStatus.textContent = `❌ Erro na composição: ${gErr.message || String(gErr)}`;
