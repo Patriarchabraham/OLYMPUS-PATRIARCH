@@ -23,6 +23,7 @@ import { QuadGuitarWallEngine } from './QuadGuitarWallEngine';
 import { AcousticToHeavyDynamicEngine } from './AcousticToHeavyDynamicEngine';
 import { SymphonicOrganMellotronEngine } from './SymphonicOrganMellotronEngine';
 import { NeoClassicalSweepSoloistEngine } from './NeoClassicalSweepSoloistEngine';
+import { VirtuosoInstrumentArrangerEngine } from './VirtuosoInstrumentArrangerEngine';
 import type { MasterAlbumSetup } from '../database/masters-database';
 
 export interface SupremeSongOptions {
@@ -399,10 +400,24 @@ export class ClassicAlbumSongGenerator {
       supraglotticTwang: 0.85,
     }, sr);
 
-    voxBuffer.copyToChannel(neuralVox.left, 0);
-    voxBuffer.copyToChannel(neuralVox.right, 1);
+    // ─── 8. VIRTUOSO COUNTERPOINT & OPERATIC CHOIR (Complexity >= 6) ───
+    if (complexityLevel >= 6) {
+      onProgress?.(92, '🎻 Integrando contra-melodias virtuosas no baixo, viradas herta e coro a 6 vozes...');
+      const virtBass = VirtuosoInstrumentArrangerEngine.synthesizeVirtuosoBass(durationSeconds, baseRootFreq, scaleIntervals, bpm, sr);
+      const virtDrums = VirtuosoInstrumentArrangerEngine.synthesizeVirtuosoDrums(durationSeconds, bpm, sr);
+      const operaticChoir = VirtuosoInstrumentArrangerEngine.synthesizeOperaticChoir(voxL, baseRootFreq, scaleIntervals, sr);
 
-    // ─── 8. FINAL MASTER MIXING BUS ───
+      for (let i = 0; i < totalSamples; i++) {
+        bassL[i] += virtBass.left[i] * 0.40;
+        bassR[i] += virtBass.right[i] * 0.40;
+        drumL[i] += virtDrums.left[i] * 0.45;
+        drumR[i] += virtDrums.right[i] * 0.45;
+        neuralVox.left[i] += operaticChoir.left[i] * 0.40;
+        neuralVox.right[i] += operaticChoir.right[i] * 0.40;
+      }
+    }
+
+    // ─── 9. FINAL MASTER MIXING BUS ───
     onProgress?.(96, '🔥 Somando faixas no barramento de masterização...');
     const masterBuffer = AudioBufferHelper.createAudioBuffer(2, totalSamples, sr);
     const outL = masterBuffer.getChannelData(0);
