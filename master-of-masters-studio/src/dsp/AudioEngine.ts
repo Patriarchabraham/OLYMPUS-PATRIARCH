@@ -126,6 +126,7 @@ export class AudioEngine {
 			analogColorModel = 'ampex_atr102',
 			limiterMode = 'soft_analog_clipper',
 			enableAiAssistant = true,
+			enableDeHum = true,
 			enableDynamicDeHarsh = true,
 			enableKickBassUnmask = true,
 			enableGuitarRescue = true,
