@@ -1748,6 +1748,27 @@ function setupMasterProcessing() {
 				}
 			}
 
+			const btnOpenMasterInEditor = document.getElementById(
+				'btn-open-master-in-editor',
+			) as HTMLButtonElement
+			if (btnOpenMasterInEditor) {
+				btnOpenMasterInEditor.classList.remove('hidden')
+				btnOpenMasterInEditor.onclick = () => {
+					if (!lastMasterResult) return
+					audioBuffer = lastMasterResult.masterBuffer
+					initArrangerWithAudio(audioBuffer)
+					const tabArranger = document.querySelector(
+						'.studio-tab[data-tab="tab-arranger"]',
+					) as HTMLButtonElement
+					tabArranger?.click()
+					showStudioToast(
+						'✂️ Master aberto no Editor DAW! Corte, cole, duplique ou regenere trechos com costura natural.',
+						'success',
+						5000,
+					)
+				}
+			}
+
 			if (btnCloseReportModal) {
 				btnCloseReportModal.onclick = () => {
 					modalMasterReport.classList.add('hidden')
@@ -3055,6 +3076,7 @@ function setupArrangerModule() {
 	const btnConfirmAdd = document.getElementById('btn-confirm-add-section')
 	const btnAutoDetect = document.getElementById('btn-auto-detect-sections')
 	const btnReset = document.getElementById('btn-reset-arrangement')
+	const btnPasteSection = document.getElementById('btn-paste-section')
 	const btnProcessArranger = document.getElementById('btn-process-arranger') as HTMLButtonElement
 	const btnDownloadArranged = document.getElementById('btn-download-arranged') as HTMLAnchorElement
 	const arrangerProgressBar = document.getElementById('arranger-progress-bar') as HTMLDivElement
@@ -3074,12 +3096,20 @@ function setupArrangerModule() {
 		if (!audioBuffer) return
 		currentSections = SongArrangerEngine.autoDetectSections(audioBuffer.duration)
 		renderArrangerTimelineUI()
+		showStudioToast('⚡ Seções da música detectadas automaticamente!', 'info')
 	})
 
 	btnReset?.addEventListener('click', () => {
 		if (!audioBuffer) return
 		currentSections = SongArrangerEngine.autoDetectSections(audioBuffer.duration)
 		renderArrangerTimelineUI()
+		showStudioToast('↺ Arranjo restaurado para a estrutura original.', 'info')
+	})
+
+	btnPasteSection?.addEventListener('click', () => {
+		currentSections = SongArrangerEngine.pasteSection(currentSections)
+		renderArrangerTimelineUI()
+		showStudioToast('📋 Seção colada com sucesso na linha do tempo!', 'success')
 	})
 
 	btnConfirmAdd?.addEventListener('click', () => {
@@ -3135,6 +3165,7 @@ function setupArrangerModule() {
 
 		modalNewSection?.classList.add('hidden')
 		renderArrangerTimelineUI()
+		showStudioToast(`➕ Nova seção "${name}" adicionada ao arranjo!`, 'success')
 	})
 
 	btnProcessArranger?.addEventListener('click', async () => {
@@ -3152,6 +3183,7 @@ function setupArrangerModule() {
 					arrangerProgressPct.textContent = `${pct}%`
 					arrangerProgressText.textContent = txt
 				},
+				activeAlbum,
 			)
 
 			const url = URL.createObjectURL(lastArrangedResult.arrangedWavBlob)
@@ -3166,6 +3198,11 @@ function setupArrangerModule() {
 			mainAudioPlayer.play()
 			btnTransportPlay.textContent = '❚❚'
 			btnProcessMaster.disabled = false
+			showStudioToast(
+				'🏆 Arranjo 24-bit renderizado e pronto para audição / download!',
+				'success',
+				5000,
+			)
 		} catch (err: any) {
 			arrangerProgressText.textContent = `❌ Erro: ${err.message || String(err)}`
 		} finally {
@@ -3196,6 +3233,7 @@ function renderArrangerTimelineUI() {
 
 	let totalNewSeconds = 0
 	currentSections.forEach((s) => {
+		if (s.isMuted) return
 		const dur = Math.max(0, s.endTime - s.startTime)
 		totalNewSeconds += dur * s.repeatCount
 	})
@@ -3225,6 +3263,10 @@ function renderArrangerTimelineUI() {
 		card.style.display = 'flex'
 		card.style.flexDirection = 'column'
 		card.style.gap = '8px'
+		if (sec.isMuted) {
+			card.style.opacity = '0.45'
+			card.style.filter = 'grayscale(0.8)'
+		}
 
 		const sM = Math.floor(sec.startTime / 60)
 		const sS = Math.floor(sec.startTime % 60)
@@ -3240,12 +3282,16 @@ function renderArrangerTimelineUI() {
         <span style="font-family: var(--font-display); font-size: 13px; font-weight: 800; color: ${sec.color}; text-transform: uppercase;">
           ${idx + 1}. ${sec.name}
         </span>
-        <button type="button" class="switch-toggle-btn btn-del-sec" data-id="${sec.id}" style="padding: 2px 6px; font-size: 10px; color: var(--red-light);" title="Remover Seção">🗑️</button>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <button type="button" class="switch-toggle-btn btn-audition-sec" data-id="${sec.id}" style="padding: 2px 6px; font-size: 10px; color: var(--emerald-primary);" title="Ouvir este trecho">▶️</button>
+          <button type="button" class="switch-toggle-btn btn-mute-sec" data-id="${sec.id}" style="padding: 2px 6px; font-size: 10px; color: ${sec.isMuted ? '#ef4444' : '#94a3b8'};" title="${sec.isMuted ? 'Desmutar' : 'Silenciar'}">${sec.isMuted ? '🔇 MUDO' : '🔊 ATIVO'}</button>
+          <button type="button" class="switch-toggle-btn btn-del-sec" data-id="${sec.id}" style="padding: 2px 6px; font-size: 10px; color: var(--red-light);" title="Remover Seção">🗑️</button>
+        </div>
       </div>
 
       <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: #94a3b8;">
-        <span>Posição Original:</span>
-        <strong style="color: #cbd5e1;">${sM}:${sS} ➔ ${eM}:${eS}</strong>
+        <span>Posição na Faixa:</span>
+        <strong style="color: #cbd5e1;">${sM}:${sS} ➔ ${eM}:${eS} (${(sec.endTime - sec.startTime).toFixed(1)}s)</strong>
       </div>
 
       <!-- REPEAT / LENGTHEN CONTROLS -->
@@ -3258,6 +3304,11 @@ function renderArrangerTimelineUI() {
         </div>
       </div>
 
+      <!-- NATURAL REGENERATION TOGGLE -->
+      <button type="button" class="switch-toggle-btn btn-natural-regen ${sec.isNaturalRegen ? 'active-gold' : ''}" data-id="${sec.id}" style="width: 100%; font-size: 10px; padding: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+        <span>🪄</span> <strong>${sec.isNaturalRegen ? 'Variação Harmônica Natural Ativa' : 'Aplicar Variação Natural Orgânica'}</strong>
+      </button>
+
       <!-- ACTIVE GEMS BADGES -->
       <div style="display: flex; gap: 4px; font-family: var(--font-mono); font-size: 9px; flex-wrap: wrap;">
         <span style="padding: 2px 6px; border-radius: 4px; background: ${sec.activeGems.drums ? 'rgba(245, 158, 11, 0.2)' : '#1e293b'}; color: ${sec.activeGems.drums ? 'var(--gold-light)' : '#64748b'};">🥁 Bat</span>
@@ -3266,10 +3317,11 @@ function renderArrangerTimelineUI() {
         <span style="padding: 2px 6px; border-radius: 4px; background: ${sec.activeGems.vocals ? 'rgba(6, 182, 212, 0.2)' : '#1e293b'}; color: ${sec.activeGems.vocals ? 'var(--cyan-light)' : '#64748b'};">🎤 Voz</span>
       </div>
 
-      <!-- DUPLICATE & SPLIT BUTTONS -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px;">
-        <button type="button" class="switch-toggle-btn btn-duplicate-sec" data-id="${sec.id}" style="font-size: 10px; padding: 4px;">2x Duplicar</button>
-        <button type="button" class="switch-toggle-btn btn-halve-sec" data-id="${sec.id}" style="font-size: 10px; padding: 4px;">✂️ Encurtar 50%</button>
+      <!-- EDIT ACTIONS: CUT, COPY, DUPLICATE -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-top: 2px;">
+        <button type="button" class="switch-toggle-btn btn-split-sec" data-id="${sec.id}" style="font-size: 9px; padding: 4px;" title="Dividir seção em 2 partes">✂️ Cortar</button>
+        <button type="button" class="switch-toggle-btn btn-copy-sec" data-id="${sec.id}" style="font-size: 9px; padding: 4px;" title="Copiar seção">📋 Copiar</button>
+        <button type="button" class="switch-toggle-btn btn-duplicate-sec" data-id="${sec.id}" style="font-size: 9px; padding: 4px;" title="Duplicar seção">2x Duplicar</button>
       </div>
     `
 
@@ -3299,6 +3351,78 @@ function renderArrangerTimelineUI() {
 		})
 	})
 
+	container.querySelectorAll('.btn-audition-sec').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const id = btn.getAttribute('data-id')
+			const s = currentSections.find((sec) => sec.id === id)
+			if (s && mainAudioPlayer) {
+				mainAudioPlayer.currentTime = s.startTime
+				mainAudioPlayer.play()
+				btnTransportPlay.textContent = '❚❚'
+				showStudioToast(
+					`▶️ Ouvindo trecho: ${s.name} (${s.startTime.toFixed(1)}s ➔ ${s.endTime.toFixed(1)}s)`,
+					'info',
+					2500,
+				)
+			}
+		})
+	})
+
+	container.querySelectorAll('.btn-natural-regen').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const id = btn.getAttribute('data-id')
+			const s = currentSections.find((sec) => sec.id === id)
+			if (s) {
+				s.isNaturalRegen = !s.isNaturalRegen
+				renderArrangerTimelineUI()
+				showStudioToast(
+					s.isNaturalRegen
+						? `🪄 Variação harmônica natural ativada para "${s.name}"!`
+						: `🪄 Variação natural desativada para "${s.name}".`,
+					'success',
+					3000,
+				)
+			}
+		})
+	})
+
+	container.querySelectorAll('.btn-mute-sec').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const id = btn.getAttribute('data-id')
+			const s = currentSections.find((sec) => sec.id === id)
+			if (s) {
+				s.isMuted = !s.isMuted
+				renderArrangerTimelineUI()
+				showStudioToast(
+					s.isMuted ? `🔇 "${s.name}" silenciada.` : `🔊 "${s.name}" ativada.`,
+					'info',
+				)
+			}
+		})
+	})
+
+	container.querySelectorAll('.btn-split-sec').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const id = btn.getAttribute('data-id')
+			if (id) {
+				currentSections = SongArrangerEngine.splitSection(currentSections, id, 0.5)
+				renderArrangerTimelineUI()
+				showStudioToast('✂️ Seção dividida em 2 partes sem perdas!', 'success')
+			}
+		})
+	})
+
+	container.querySelectorAll('.btn-copy-sec').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const id = btn.getAttribute('data-id')
+			const s = currentSections.find((sec) => sec.id === id)
+			if (s) {
+				SongArrangerEngine.copySection(s)
+				showStudioToast(`📋 "${s.name}" copiada! Use o botão "Colar" para inseri-la.`, 'success')
+			}
+		})
+	})
+
 	container.querySelectorAll('.btn-duplicate-sec').forEach((btn) => {
 		btn.addEventListener('click', () => {
 			const id = btn.getAttribute('data-id')
@@ -3312,18 +3436,7 @@ function renderArrangerTimelineUI() {
 				}
 				currentSections.splice(idx + 1, 0, clone)
 				renderArrangerTimelineUI()
-			}
-		})
-	})
-
-	container.querySelectorAll('.btn-halve-sec').forEach((btn) => {
-		btn.addEventListener('click', () => {
-			const id = btn.getAttribute('data-id')
-			const s = currentSections.find((sec) => sec.id === id)
-			if (s) {
-				const dur = s.endTime - s.startTime
-				s.endTime = s.startTime + dur * 0.5
-				renderArrangerTimelineUI()
+				showStudioToast(`2x "${s.name}" duplicada no arranjo!`, 'success')
 			}
 		})
 	})
@@ -3333,6 +3446,7 @@ function renderArrangerTimelineUI() {
 			const id = btn.getAttribute('data-id')
 			currentSections = currentSections.filter((sec) => sec.id !== id)
 			renderArrangerTimelineUI()
+			showStudioToast('🗑️ Seção removida da linha do tempo.', 'info')
 		})
 	})
 }
