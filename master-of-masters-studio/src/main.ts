@@ -1015,6 +1015,14 @@ async function loadAudioFile(file: File) {
 		btnProcessMaster.disabled = false
 		btnProcessMaster.classList.remove('opacity-50', 'cursor-not-allowed')
 
+		if (masterProgressWrap) {
+			masterProgressWrap.classList.remove('hidden')
+			masterProgressBar.style.width = '100%'
+			masterProgressBar.style.backgroundColor = '#10b981'
+			masterProgressPct.textContent = 'Pronto'
+			masterProgressText.innerHTML = `🎵 <strong>Áudio carregado com sucesso (${file.name})!</strong> Clique em <strong>PROCESSAR MASTER ANALÓGICO</strong> abaixo.`
+		}
+
 		btnProcessWelder.disabled = false
 		btnProcessWelder.classList.remove('opacity-50', 'cursor-not-allowed')
 
@@ -1042,7 +1050,15 @@ async function loadAudioFile(file: File) {
 
 		meterSampleRate.textContent = `${(audioBuffer.sampleRate / 1000).toFixed(1)} kHz 24-bit HD`
 	} catch (_err) {
-		loadedFileStats.textContent = '❌ Erro ao decodificar.'
+		loadedFileStats.textContent = '❌ Erro ao decodificar arquivo de áudio.'
+		if (masterProgressWrap) {
+			masterProgressWrap.classList.remove('hidden')
+			masterProgressBar.style.width = '100%'
+			masterProgressBar.style.backgroundColor = '#ef4444'
+			masterProgressPct.textContent = 'Erro'
+			masterProgressText.innerHTML =
+				'❌ <strong>Erro ao decodificar áudio.</strong> Certifique-se de que o arquivo é um WAV, MP3 ou AAC válido.'
+		}
 	}
 }
 
@@ -1219,20 +1235,30 @@ function setupMasterProcessing() {
 
 	btnProcessMaster.addEventListener('click', async () => {
 		if (!audioBuffer) {
-			audioFileInput.click()
-			const sourceModeHint = document.getElementById('source-mode-hint')
-			if (sourceModeHint) {
-				sourceModeHint.innerHTML =
-					'⚠️ <strong>Por favor, selecione seu arquivo de áudio (WAV, MP3) primeiro!</strong>'
-				sourceModeHint.style.color = '#f59e0b'
+			if (audioDropzone) {
+				audioDropzone.scrollIntoView({ behavior: 'smooth', block: 'center' })
+				audioDropzone.classList.add('border-amber-400')
+				setTimeout(() => audioDropzone.classList.remove('border-amber-400'), 2500)
 			}
+			if (masterProgressWrap) {
+				masterProgressWrap.classList.remove('hidden')
+				masterProgressBar.style.width = '100%'
+				masterProgressBar.style.backgroundColor = '#f59e0b'
+				masterProgressPct.textContent = 'Atenção'
+				masterProgressText.innerHTML =
+					'⚠️ <strong>Nenhum áudio carregado!</strong> Selecione ou arraste um arquivo de áudio (WAV ou MP3) na área acima para iniciar.'
+			}
+			audioFileInput.click()
 			return
 		}
+
 		btnProcessMaster.disabled = true
 		btnProcessMaster.classList.add('opacity-50')
+		btnProcessMaster.textContent = '⏳ PROCESSANDO MASTER ANALÓGICO...'
 		masterProgressWrap.classList.remove('hidden')
-		masterProgressBar.style.width = '2%'
-		masterProgressPct.textContent = '2%'
+		masterProgressBar.style.backgroundColor = '#ef4444'
+		masterProgressBar.style.width = '5%'
+		masterProgressPct.textContent = '5%'
 		masterProgressText.textContent = 'Iniciando Masterização Quântica Analógica...'
 
 		try {
@@ -1640,10 +1666,15 @@ function setupMasterProcessing() {
 				}
 			} catch (_e) {}
 		} catch (eErr: any) {
-			masterProgressText.textContent = `❌ Erro: ${eErr.message || String(eErr)}`
+			if (masterProgressWrap) {
+				masterProgressBar.style.backgroundColor = '#ef4444'
+				masterProgressPct.textContent = 'Erro'
+				masterProgressText.innerHTML = `❌ <strong>Erro no processamento:</strong> ${eErr.message || String(eErr)}`
+			}
 		} finally {
 			btnProcessMaster.disabled = false
 			btnProcessMaster.classList.remove('opacity-50')
+			btnProcessMaster.textContent = '🏆 PROCESSAR MASTER ANALÓGICO'
 		}
 	})
 

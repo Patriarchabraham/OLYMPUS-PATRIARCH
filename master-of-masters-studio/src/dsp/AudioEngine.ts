@@ -142,11 +142,21 @@ export class AudioEngine {
 		const sr = inputBuffer.sampleRate
 		const length = inputBuffer.length
 
+		// Always ensure a pristine 2-channel stereo working buffer (prevents IndexSizeError on mono inputs)
+		const activeInputBuffer = AudioBufferHelper.createAudioBuffer(2, length, sr)
+		activeInputBuffer.copyToChannel(inputBuffer.getChannelData(0), 0)
+		activeInputBuffer.copyToChannel(
+			inputBuffer.numberOfChannels > 1
+				? inputBuffer.getChannelData(1)
+				: inputBuffer.getChannelData(0),
+			1,
+		)
+
 		// Detect if track is a real studio recording or AI generated
 		let isRealStudio = inputSourceMode === 'studio_demo'
 		if (inputSourceMode === 'auto') {
 			// Analyze crest factor and dynamic range
-			const chan0 = inputBuffer.getChannelData(0)
+			const chan0 = activeInputBuffer.getChannelData(0)
 			let peak = 0,
 				sumSq = 0
 			for (let i = 0; i < Math.min(length, 44100 * 30); i += 16) {
@@ -163,12 +173,21 @@ export class AudioEngine {
 		// STAGE 0: AI MASTER ASSISTANT 2.0 (SPECTRAL DIAGNOSTIC & PRE-CONDITIONING)
 		// ─────────────────────────────────────────────────────────────────────────
 		onProgress?.(5, '🧠 Analisando balanço espectral com AI Master Assistant 2.0...')
-		let activeInputBuffer = inputBuffer
 		let diagnostic: TrackDiagnostic | undefined
 
 		if (enableAiAssistant) {
-			diagnostic = AiMasterAssistant.diagnoseTrack(inputBuffer)
-			activeInputBuffer = await AiMasterAssistant.applyPreCorrections(inputBuffer, diagnostic)
+			diagnostic = AiMasterAssistant.diagnoseTrack(activeInputBuffer)
+			const preCorrected = await AiMasterAssistant.applyPreCorrections(
+				activeInputBuffer,
+				diagnostic,
+			)
+			activeInputBuffer.copyToChannel(preCorrected.getChannelData(0), 0)
+			activeInputBuffer.copyToChannel(
+				preCorrected.numberOfChannels > 1
+					? preCorrected.getChannelData(1)
+					: preCorrected.getChannelData(0),
+				1,
+			)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
@@ -180,7 +199,7 @@ export class AudioEngine {
 				'⚡ Limpando ruídos de aterramento 50/60Hz e zumbidos elétricos com De-Hummer...',
 			)
 			const inL = activeInputBuffer.getChannelData(0)
-			const inR = activeInputBuffer.numberOfChannels > 1 ? activeInputBuffer.getChannelData(1) : inL
+			const inR = activeInputBuffer.getChannelData(1)
 			const cleanedHum = DeHummerGroundCleaner.processDeHum(inL, inR, 60, 0.85, sr)
 			activeInputBuffer.copyToChannel(cleanedHum.left, 0)
 			activeInputBuffer.copyToChannel(cleanedHum.right, 1)
