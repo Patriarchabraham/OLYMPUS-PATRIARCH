@@ -157,19 +157,27 @@ export class UniversalStemSeparationEngine {
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
-		// STEP 3: OPTIONAL ENHANCEMENTS & HARDWARE AUGMENTATIONS
+		// STEP 3: OPTIONAL ENHANCEMENTS & HARDWARE AUGMENTATIONS (ASYNC YIELDED)
 		// ─────────────────────────────────────────────────────────────────────────
-		// 1. Drums Acoustic Shell Resynthesis
-		const acousticKickBuf = DrumReplacerEngine.processDrumTrackAugmentation(
-			kickBuf,
-			album,
-			drumBlend * 0.45,
-		)
-		const acousticSnareBuf = DrumReplacerEngine.processDrumTrackAugmentation(
-			snareBuf,
-			album,
-			drumBlend * 0.45,
-		)
+		await new Promise((resolve) => setTimeout(resolve, 0))
+
+		// 1. Drums Acoustic Shell Resynthesis (Only if drum blend is active)
+		let acousticKickBuf = kickBuf
+		let acousticSnareBuf = snareBuf
+		if (drumBlend > 0.05) {
+			acousticKickBuf = DrumReplacerEngine.processDrumTrackAugmentation(
+				kickBuf,
+				album,
+				drumBlend * 0.45,
+			)
+			acousticSnareBuf = DrumReplacerEngine.processDrumTrackAugmentation(
+				snareBuf,
+				album,
+				drumBlend * 0.45,
+			)
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		// 2. Guitar Doubling & Duet Harmonies
 		const processedGtrBuf = gtrDeltaBuf
@@ -196,6 +204,8 @@ export class UniversalStemSeparationEngine {
 			gtrDeltaBuf.copyToChannel(harmGtr.left, 0)
 			gtrDeltaBuf.copyToChannel(harmGtr.right, 1)
 		}
+
+		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		// 3. Bass Sub-Octave & Bi-Amp
 		if (harmonyOptions.bassDoubling && harmonyOptions.bassDoubling !== 'off') {
@@ -236,6 +246,8 @@ export class UniversalStemSeparationEngine {
 			voxDeltaBuf.copyToChannel(harmVox.right, 1)
 		}
 
+		await new Promise((resolve) => setTimeout(resolve, 0))
+
 		// 5. AI Vocal De-Artifacting & Metallic Defect Removal (Suno / Udio Polish)
 		const deArtifactedVox = AIVocalDeArtifactEngine.processVocalDeArtifact(
 			voxDeltaBuf.getChannelData(0),
@@ -265,6 +277,8 @@ export class UniversalStemSeparationEngine {
 
 		voxDeltaBuf.copyToChannel(supremeClonedVox.left, 0)
 		voxDeltaBuf.copyToChannel(supremeClonedVox.right, 1)
+
+		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		// ─────────────────────────────────────────────────────────────────────────
 		// STEP 4: HARDWARE SUMMING (BASE AUDIO 1.0 + ANALOG DELTAS)

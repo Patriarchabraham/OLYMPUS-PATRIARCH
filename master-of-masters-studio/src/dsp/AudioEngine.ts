@@ -195,6 +195,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 0.5: GROUND LOOP & 50/60Hz ELECTRICAL BUZZ PURIFIER (DE-HUMMER)
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		if (enableDeHum !== false) {
 			onProgress?.(
 				10,
@@ -210,6 +211,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 1: SIGNAL PATH SELECTION (STUDIO MASTERING VS. AI STEM RESYNTHESIS)
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		let weldedStemBuffer: AudioBuffer
 
 		if (
@@ -254,6 +256,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 1.5: CPU-OPTIMIZED MICRO-NEURAL VOCODER & WAVEFORM SUPER-RESOLUTION
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		if (enableTinyNeuralVocal) {
 			onProgress?.(
 				24,
@@ -278,6 +281,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 2: 2048-POINT CONTINUOUS FFT SPECTRAL CLONING & MICRO-RESONANCES
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(28, `Clonando curva espectral analógica do álbum "${album.albumTitle}"...`)
 		const clonedL = weldedStemBuffer.getChannelData(0)
 		const clonedR =
@@ -295,6 +299,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 2.1: MULTIBAND DYNAMIC BREATHING & CREST FACTOR MATCHING
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(32, '🌊 Ajustando dinâmica e respiração RMS...')
 		const dynL = weldedStemBuffer.getChannelData(0)
 		const dynR = weldedStemBuffer.getChannelData(1)
@@ -311,6 +316,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 3: SMART KICK & BASS UNMASKING + DYNAMIC DE-MUDDING & SOOTHE DE-HARSH
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			40,
 			'🌊 Desmascarando Bumbo/Baixo e limpando frequências emboladas (250Hz-450Hz)...',
@@ -354,6 +360,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 4: MULTI-BAND TRANSIENT & VISCERAL PUNCH ENGINE (SUB-KICK & SNARE SNAP)
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			48,
 			'🥊 Esculpindo punch visceral de sub-bumbo (<120Hz) e estalo de caixa (3kHz)...',
@@ -370,6 +377,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 4.5: AUTONOMOUS AI RHYTHM GUITAR GUARDIAN & SUPREME GUITAR WALL
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		if (enableGuitarRescue !== false) {
 			onProgress?.(
 				52,
@@ -396,6 +404,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 5: BI-BAND SPLIT SATURATION (<250Hz CLEAN PUNCH + >250Hz TUBE DRIVE)
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		const effectiveDrive = customDrive !== undefined ? customDrive : album.saturation.drive || 0.45
 		onProgress?.(
 			58,
@@ -420,6 +429,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 6: CONSOLE MASTERING EQ & SSL G-BUS GLUE COMPRESSOR (PUNCH MAXIMIZED)
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(68, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`)
 		const masterCtx = new OfflineAudioContext(2, length, sr)
 		const src = masterCtx.createBufferSource()
@@ -517,6 +527,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 6.5: ABBEY ROAD AUTOMATIC DOUBLE TRACKING (ADT) REEL-TO-REEL FLANGE
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		if (enableAbbeyRoadAdt) {
 			onProgress?.(78, '📼 Aplicando dobra de fitas gêmeas Abbey Road ADT com micro-flange...')
 			const lAdt = renderedMaster.getChannelData(0)
@@ -529,6 +540,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 7: 4-BAND HOLOGRAPHIC 3D MID/SIDE SPATIALIZER
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(80, 'Ajustando imagem 3D holográfica e travando mono sub-bass (<90Hz)...')
 		const width = customWidth !== undefined ? customWidth : album.stereoWidth || 1.35
 		const lRendered = renderedMaster.getChannelData(0)
@@ -545,6 +557,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 7.1: BLUMLEIN STEREO SHUFFLE & SUB PHASE-LOCK (<120Hz MONO GUARD)
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			82,
 			'🛡️ Travando sub-graves em mono (<120Hz) e aplicando proteção de correlação de fase Blumlein...',
@@ -558,6 +571,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 8: OPTIONAL DOLBY ATMOS 7.1.4 BINAURAL ROOM / REAL-WORLD SIMULATION
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		if (enableDolbyAtmosRoom) {
 			onProgress?.(85, '🏰 Renderizando simulação acústica de sala Dolby Atmos 7.1.4...')
 			const lAtm = renderedMaster.getChannelData(0)
@@ -587,6 +601,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 8.5: SUB-BASS ELLIPTICAL ANCHOR (<90Hz MONO) & 18k-24kHz AIR EXCITER
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			89,
 			'✨ Ancorando sub-graves em mono (<90Hz) e excitando harmônicos de ar 18kHz-24kHz...',
@@ -601,6 +616,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 9: STREAMING TARGET CALIBRATION & BRICKWALL TRUE-PEAK LIMITER
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			90,
 			`Calibrando alvo para ${streamingPlatform.toUpperCase()} (${limiterMode === 'soft_analog_clipper' ? 'Soft Clipper' : 'Pristine Limiter'})...`,
@@ -611,6 +627,7 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 10: AUDIO ENCODING & MASTERING ENGINEERING REPORT
 		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			95,
 			`Codificando WAV ${bitDepth === '24bit' ? '24-Bit HD com Dither TPDF' : '32-Bit Float'} e gerando relatório técnico...`,
