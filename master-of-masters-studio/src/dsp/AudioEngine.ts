@@ -391,10 +391,13 @@ export class AudioEngine {
 				rL,
 				rR,
 				{
-					sensitivity: 0.9,
+					sensitivity: 0.95,
 					ampModel: album.saturation.type || 'peavey_5150',
-					distortionDrive: customDrive !== undefined ? customDrive : album.saturation.drive || 0.85,
-					blendIntensity: 0.8,
+					distortionDrive:
+						customDrive !== undefined
+							? Math.max(0.65, customDrive)
+							: album.saturation.drive || 0.88,
+					blendIntensity: 0.88,
 				},
 				sr,
 			)

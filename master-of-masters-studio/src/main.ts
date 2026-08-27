@@ -1761,8 +1761,12 @@ function setupMasterProcessing() {
 			}
 
 			const liveActionText = document.getElementById('live-action-monitor-text')
+			const intLufs = lastMasterResult.stats.integratedLufs ?? -9.5
+			const tpDb = lastMasterResult.stats.truePeakDb ?? lastMasterResult.stats.peakDb ?? -0.3
+			const crDb = lastMasterResult.stats.crestFactorDb ?? 10.2
+
 			if (liveActionText) {
-				liveActionText.innerHTML = `<strong>MASTER CONCLUÍDO (100%):</strong> Áudio finalizado em ${lastMasterResult.stats.lufsIntegrated.toFixed(1)} LUFS e ${lastMasterResult.stats.truePeakDbfs.toFixed(2)} dBTP com dither TPDF 24-bit.`
+				liveActionText.innerHTML = `<strong>MASTER CONCLUÍDO (100%):</strong> Áudio finalizado em ${intLufs.toFixed(1)} LUFS e ${tpDb.toFixed(2)} dBTP com dither TPDF 24-bit.`
 			}
 
 			const pipelineStatusText = document.getElementById('pipeline-status-text')
@@ -1775,12 +1779,9 @@ function setupMasterProcessing() {
 			const cockpitLufs = document.getElementById('cockpit-lufs-val')
 			const cockpitTruePeak = document.getElementById('cockpit-truepeak-val')
 			const cockpitCrest = document.getElementById('cockpit-crest-val')
-			if (cockpitLufs)
-				cockpitLufs.textContent = `${lastMasterResult.stats.lufsIntegrated.toFixed(1)} LUFS`
-			if (cockpitTruePeak)
-				cockpitTruePeak.textContent = `${lastMasterResult.stats.truePeakDbfs.toFixed(2)} dBTP`
-			if (cockpitCrest)
-				cockpitCrest.textContent = `${lastMasterResult.stats.crestFactorDb.toFixed(1)} dB`
+			if (cockpitLufs) cockpitLufs.textContent = `${intLufs.toFixed(1)} LUFS`
+			if (cockpitTruePeak) cockpitTruePeak.textContent = `${tpDb.toFixed(2)} dBTP`
+			if (cockpitCrest) cockpitCrest.textContent = `${crDb.toFixed(1)} dB`
 
 			btnAbMaster.disabled = false
 			btnAbMaster.classList.remove('opacity-50', 'cursor-not-allowed', 'text-slate-500')

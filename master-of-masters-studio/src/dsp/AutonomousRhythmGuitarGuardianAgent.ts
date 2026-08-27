@@ -137,8 +137,8 @@ export class AutonomousRhythmGuitarGuardianAgent {
 						`[${anomalyStart.toFixed(1)}s - ${anomalyEnd.toFixed(1)}s] 🎸 Injetada camada pesada dosada de guitarra base (${ampModel.toUpperCase()})`,
 					)
 				}
-				// Proactive feel-good harmonic thickening throughout the track
-				targetDose = Math.max(0.18, Math.min(0.38, 0.35 * maxBlend))
+				// Proactive feel-good harmonic thickening throughout the track: solid, heavy, warm presence
+				targetDose = Math.max(0.45, Math.min(0.8, 0.72 * maxBlend))
 			}
 
 			// 2. Multi-String Power Chord Synthesis (Root, 5th, Octave) with Celestion V30 Cab
@@ -172,20 +172,15 @@ export class AutonomousRhythmGuitarGuardianAgent {
 				sampleRate,
 			)
 
-			const quadL1 = new Float32Array(len)
-			const quadL2 = new Float32Array(len)
-			const quadR1 = new Float32Array(len)
-			const quadR2 = new Float32Array(len)
-
-			quadL1.set(extraL1.subarray(0, wLen), wStart)
-			quadL2.set(extraL2.subarray(0, wLen), wStart)
-			quadR1.set(extraR1.subarray(0, wLen), wStart)
-			quadR2.set(extraR2.subarray(0, wLen), wStart)
+			const quadL1 = extraL1.subarray(0, wLen)
+			const quadL2 = extraL2.subarray(0, wLen)
+			const quadR1 = extraR1.subarray(0, wLen)
+			const quadR2 = extraR2.subarray(0, wLen)
 
 			const quadResult = QuadGuitarWallEngine.processQuadWall(quadL1, quadL2, quadR1, quadR2, 0.92)
 			const satResult = BiBandSaturationEngine.processBiBandSaturation(
-				quadResult.left.subarray(wStart, wEnd),
-				quadResult.right.subarray(wStart, wEnd),
+				quadResult.left,
+				quadResult.right,
 				ampModel,
 				drive,
 				220,
@@ -196,11 +191,13 @@ export class AutonomousRhythmGuitarGuardianAgent {
 			for (let i = 0; i < wLen; i++) {
 				const idx = wStart + i
 				const hann = 0.5 * (1.0 - Math.cos((2.0 * Math.PI * i) / wLen))
-				const effectiveDose = targetDose * (0.75 + 0.25 * hann)
+				const effectiveDose = targetDose * (0.8 + 0.2 * hann)
 
-				// Blend heavy, warm, punchy guitars while preserving pristine headroom
-				outL[idx] = outL[idx] * (1.0 - effectiveDose * 0.35) + satResult.left[i] * effectiveDose
-				outR[idx] = outR[idx] * (1.0 - effectiveDose * 0.35) + satResult.right[i] * effectiveDose
+				// Blend heavy, warm, punchy guitars with rock-solid wall presence
+				outL[idx] =
+					outL[idx] * (1.0 - effectiveDose * 0.25) + satResult.left[i] * effectiveDose * 1.25
+				outR[idx] =
+					outR[idx] * (1.0 - effectiveDose * 0.25) + satResult.right[i] * effectiveDose * 1.25
 			}
 
 			totalInjectedSec += sliceDuration
