@@ -601,6 +601,7 @@
                   <label style="font-family: var(--font-mono); font-size: 8px; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 2px;">DISPOSITIVO REFERÊNCIA:</label>
                   <select id="select-real-world-device" class="studio-select" style="font-size: 9px; padding: 2px;">
                     <option value="flat_studio" selected>🎧 Estúdio Flat Reference (Acoustic Pro)</option>
+                    <option value="akg_k92">🎧 AKG K92 Studio Closed-Back (Seu Fone Calibrado)</option>
                     <option value="car_subwoofer">🚗 Carro c/ Subwoofer (50Hz Trunk Bump)</option>
                     <option value="car_door_mid">🚗 Carro Popular (Médios & Porta)</option>
                     <option value="iphone_speaker">📱 iPhone 15/16 Pro Speaker (HPF 200Hz)</option>
@@ -1761,8 +1762,12 @@
       <!-- WORLD-CLASS STUDIO MONITOR & HEADPHONE SELECTOR -->
       <div style="display: flex; align-items: center; gap: 6px; background: #080c14; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--gold-primary); box-shadow: 0 0 12px rgba(245, 158, 11, 0.20);">
         <span style="font-size: 13px;">🎧</span>
-        <select id="select-studio-monitor" class="studio-select" style="font-size: 11px; font-weight: 700; color: var(--gold-light); background: transparent; border: none; padding: 2px 4px; cursor: pointer; max-width: 260px;">
-          <option value="bypass" selected>🔊 Direto (Bypass / Sem Emulação)</option>
+        <select id="select-studio-monitor" class="studio-select" style="font-size: 11px; font-weight: 700; color: var(--gold-light); background: transparent; border: none; padding: 2px 4px; cursor: pointer; max-width: 280px;">
+          <option value="bypass">🔊 Direto (Bypass / Sem Emulação)</option>
+          <option value="akg_k92" selected>🎧 AKG K92 Studio Closed-Back (Seu Fone Calibrado)</option>
+          <option value="ath_m50x">🎧 Audio-Technica ATH-M50x</option>
+          <option value="dt990_pro">🎧 Beyerdynamic DT 990 Pro 250Ω</option>
+          <option value="hd650">🎧 Sennheiser HD650 / HD600</option>
           <option value="ns10m">🎧 Yamaha NS-10M (Abbey Road Studio 2)</option>
           <option value="genelec8351">🎧 Genelec 8351B The Ones (Blackbird Nashville)</option>
           <option value="atc110">🎧 ATC SCM110A Pro (Ocean Way Hollywood)</option>
