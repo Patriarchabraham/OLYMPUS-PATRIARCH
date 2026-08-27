@@ -1035,7 +1035,30 @@ function setupTransportDock() {
 	const selectStudioMonitor = document.getElementById('select-studio-monitor') as HTMLSelectElement
 	selectStudioMonitor?.addEventListener('change', () => {
 		BinauralStudioMonitor.setModel(selectStudioMonitor.value as any)
+		const selectedText = selectStudioMonitor.selectedOptions[0]?.text || selectStudioMonitor.value
+		showStudioToast(`🎧 Monitor de Referência: ${selectedText}`, 'info')
 	})
+}
+
+export function showStudioToast(
+	message: string,
+	type: 'success' | 'info' | 'warn' = 'info',
+	durationMs = 3500,
+) {
+	const container = document.getElementById('studio-toast-container')
+	if (!container) return
+	const toast = document.createElement('div')
+	toast.className = `studio-toast ${type}`
+	const icon = type === 'success' ? '✅' : type === 'warn' ? '⚠️' : 'ℹ️'
+	toast.innerHTML = `<span style="font-size: 14px;">${icon}</span><span>${message}</span>`
+	container.appendChild(toast)
+	requestAnimationFrame(() => {
+		toast.classList.add('show')
+	})
+	setTimeout(() => {
+		toast.classList.remove('show')
+		setTimeout(() => toast.remove(), 400)
+	}, durationMs)
 }
 
 async function loadAudioFile(file: File) {
@@ -1278,6 +1301,11 @@ function setupMasterProcessing() {
 			if (chkKickBassUnmask) chkKickBassUnmask.checked = cal.recommendedUnmask
 
 			btnAiAutoCalibrate.textContent = `✨ MATCH ${cal.similarityScore}% ATINGIDO!`
+			showStudioToast(
+				`🪄 Auto-Calibrado: Match de ${cal.similarityScore}% com "${activeAlbum.albumTitle}"!`,
+				'success',
+				4500,
+			)
 			setTimeout(() => {
 				btnAiAutoCalibrate.textContent = '🪄 AUTO-CALIBRAR PARA MATCH PERFEITO (>99.5%)'
 			}, 3000)
