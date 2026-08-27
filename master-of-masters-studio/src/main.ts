@@ -1402,7 +1402,7 @@ function setupMasterProcessing() {
 				enableDynamicDeHarsh: chkDynamicDeHarsh ? chkDynamicDeHarsh.checked : true,
 				enableKickBassUnmask: chkKickBassUnmask ? chkKickBassUnmask.checked : true,
 				enableDolbyAtmosRoom: chkDolbyAtmosRoom ? chkDolbyAtmosRoom.checked : false,
-				enableTinyNeuralVocal: chkTinyNeuralVocal ? chkTinyNeuralVocal.checked : true,
+				enableTinyNeuralVocal: chkTinyNeuralVocal ? chkTinyNeuralVocal.checked : false,
 				transientPunchAmount: sliderTransientPunch
 					? parseFloat(sliderTransientPunch.value) / 100
 					: 0.45,

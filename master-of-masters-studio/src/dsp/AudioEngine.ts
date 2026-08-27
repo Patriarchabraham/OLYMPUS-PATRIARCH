@@ -138,7 +138,7 @@ export class AudioEngine {
 			enableDolbyAtmosRoom = false,
 			enableAbbeyRoadAdt = false,
 			adtBlend = 0.45,
-			enableTinyNeuralVocal = true,
+			enableTinyNeuralVocal = false,
 			onProgress,
 		} = options
 
