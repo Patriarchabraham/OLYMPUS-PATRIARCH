@@ -831,6 +831,12 @@ function setupTransportDock() {
 			playbackSourceNode.connect(safeOutputGain)
 			safeOutputGain.connect(playbackAudioCtx.destination)
 
+			// Connect Real-Time Spectrum and Goniometer nodes
+			try {
+				if (_phaseGoniometer) _phaseGoniometer.connectStereoNodes(analyserL, analyserR)
+				if (spectrumVisualizer) spectrumVisualizer.connectAnalyser(analyserL)
+			} catch (_vErr) {}
+
 			startPeakMeterLoop()
 		} catch (_err) {}
 	}
@@ -839,6 +845,12 @@ function setupTransportDock() {
 		if (isPeakMeterRunning) return
 		isPeakMeterRunning = true
 
+		const cockpitLufs = document.getElementById('cockpit-lufs-val')
+		const cockpitTruePeak = document.getElementById('cockpit-truepeak-val')
+		const cockpitPhase = document.getElementById('cockpit-phase-val')
+		const meterPhase = document.getElementById('meter-phase-val')
+		const cockpitCrest = document.getElementById('cockpit-crest-val')
+
 		function loop() {
 			if (playbackAudioCtx && !mainAudioPlayer.paused && analyserL && analyserR) {
 				analyserL.getFloatTimeDomainData(playbackDataL)
@@ -846,14 +858,53 @@ function setupTransportDock() {
 
 				let peakL = 0
 				let peakR = 0
+				let sumL2 = 0
+				let sumR2 = 0
+				let sumLR = 0
+
 				for (let i = 0; i < playbackDataL.length; i++) {
-					const aL = Math.abs(playbackDataL[i])
-					if (aL > peakL) peakL = aL
-					const aR = Math.abs(playbackDataR[i])
-					if (aR > peakR) peakR = aR
+					const aL = playbackDataL[i]
+					const aR = playbackDataR[i]
+					const absL = Math.abs(aL)
+					const absR = Math.abs(aR)
+					if (absL > peakL) peakL = absL
+					if (absR > peakR) peakR = absR
+
+					sumL2 += aL * aL
+					sumR2 += aR * aR
+					sumLR += aL * aR
 				}
 
 				stereoPeakMeter.updateLevels(peakL, peakR)
+
+				const maxPeak = Math.max(peakL, peakR)
+				const rmsAvg = Math.sqrt((sumL2 + sumR2) / (playbackDataL.length * 2))
+				const denom = Math.sqrt(sumL2 * sumR2)
+				const corr = denom > 0.00001 ? sumLR / denom : 1.0
+
+				// Update Real-Time Cockpit Telemetry HUD
+				if (cockpitLufs) {
+					cockpitLufs.textContent =
+						rmsAvg > 0.0001 ? `${(20 * Math.log10(rmsAvg) - 0.691).toFixed(1)} LUFS` : '-∞ LUFS'
+				}
+				if (cockpitTruePeak) {
+					cockpitTruePeak.textContent =
+						maxPeak > 0.0001 ? `${(20 * Math.log10(maxPeak)).toFixed(2)} dBTP` : '-∞ dBTP'
+				}
+				if (cockpitPhase) {
+					cockpitPhase.textContent = `${corr >= 0 ? '+' : ''}${corr.toFixed(2)} (${corr > 0.7 ? 'Mono Safe' : corr > 0.2 ? 'Wide' : 'Anti-Phase!'})`
+					cockpitPhase.style.color = corr > 0.7 ? '#10b981' : corr > 0.2 ? '#f59e0b' : '#ef4444'
+				}
+				if (meterPhase) {
+					meterPhase.textContent = `${corr >= 0 ? '+' : ''}${corr.toFixed(2)} (L/R)`
+					meterPhase.style.color = corr > 0.7 ? '#10b981' : '#f59e0b'
+				}
+				if (cockpitCrest) {
+					cockpitCrest.textContent =
+						maxPeak > 0 && rmsAvg > 0
+							? `${(20 * Math.log10(maxPeak / rmsAvg)).toFixed(1)} dB`
+							: '9.5 dB'
+				}
 
 				if (readout) {
 					const dbL = peakL > 0.0001 ? (20 * Math.log10(peakL)).toFixed(1) : '-∞'
@@ -1349,6 +1400,32 @@ function setupMasterProcessing() {
 					masterProgressBar.style.width = `${pct}%`
 					masterProgressPct.textContent = `${pct}%`
 					masterProgressText.textContent = txt
+
+					// Real-Time 10-Stage LED and Monitor Update
+					const currentStageIndex = Math.min(9, Math.floor(pct / 10))
+					for (let i = 0; i < 10; i++) {
+						const stageEl = document.getElementById(`pipeline-stage-${i}`)
+						if (stageEl) {
+							if (i < currentStageIndex) {
+								stageEl.className = 'pipeline-stage-badge done'
+							} else if (i === currentStageIndex) {
+								stageEl.className = 'pipeline-stage-badge active'
+							} else {
+								stageEl.className = 'pipeline-stage-badge'
+							}
+						}
+					}
+
+					const liveActionText = document.getElementById('live-action-monitor-text')
+					if (liveActionText) {
+						liveActionText.innerHTML = `<strong>PROCESSANDO (${pct}%):</strong> ${txt}`
+					}
+
+					const pipelineStatusText = document.getElementById('pipeline-status-text')
+					if (pipelineStatusText) {
+						pipelineStatusText.textContent = `● ESTÁGIO ${currentStageIndex + 1}/10 ATIVO`
+						pipelineStatusText.style.color = '#06b6d4'
+					}
 				},
 			})
 
@@ -1648,6 +1725,34 @@ function setupMasterProcessing() {
 					modalMasterReport.classList.add('hidden')
 				}
 			}
+
+			// Set all 10 stages as DONE
+			for (let i = 0; i < 10; i++) {
+				const stageEl = document.getElementById(`pipeline-stage-${i}`)
+				if (stageEl) stageEl.className = 'pipeline-stage-badge done'
+			}
+
+			const liveActionText = document.getElementById('live-action-monitor-text')
+			if (liveActionText) {
+				liveActionText.innerHTML = `<strong>MASTER CONCLUÍDO (100%):</strong> Áudio finalizado em ${lastMasterResult.stats.lufsIntegrated.toFixed(1)} LUFS e ${lastMasterResult.stats.truePeakDbfs.toFixed(2)} dBTP com dither TPDF 24-bit.`
+			}
+
+			const pipelineStatusText = document.getElementById('pipeline-status-text')
+			if (pipelineStatusText) {
+				pipelineStatusText.textContent = '● MASTERIZAÇÃO FINALIZADA COM SUCESSO'
+				pipelineStatusText.style.color = '#10b981'
+			}
+
+			// Update Telemetry HUD with Master Stats
+			const cockpitLufs = document.getElementById('cockpit-lufs-val')
+			const cockpitTruePeak = document.getElementById('cockpit-truepeak-val')
+			const cockpitCrest = document.getElementById('cockpit-crest-val')
+			if (cockpitLufs)
+				cockpitLufs.textContent = `${lastMasterResult.stats.lufsIntegrated.toFixed(1)} LUFS`
+			if (cockpitTruePeak)
+				cockpitTruePeak.textContent = `${lastMasterResult.stats.truePeakDbfs.toFixed(2)} dBTP`
+			if (cockpitCrest)
+				cockpitCrest.textContent = `${lastMasterResult.stats.crestFactorDb.toFixed(1)} dB`
 
 			btnAbMaster.disabled = false
 			btnAbMaster.classList.remove('opacity-50', 'cursor-not-allowed', 'text-slate-500')

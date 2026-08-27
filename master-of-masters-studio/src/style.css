@@ -523,4 +523,161 @@ select.studio-select:focus, input.studio-input:focus {
   gap: 20px;
 }
 
+/* MASTER COCKPIT 3-COLUMN RACK */
+.master-cockpit-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr 340px;
+  gap: 16px;
+  align-items: stretch;
+  margin-top: 12px;
+}
+
+@media (max-width: 1280px) {
+  .master-cockpit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cockpit-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* BROADCAST TELEMETRY HUD */
+.hud-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .hud-telemetry-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.hud-metric-card {
+  background: #05080e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+  transition: all 0.2s ease;
+}
+.hud-metric-card:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: #070c16;
+}
+
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hud-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* 10-STAGE QUANTUM DSP PIPELINE FLOW */
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.pipeline-stage-badge {
+  background: #060910;
+  border: 1px solid #1a2336;
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #64748b;
+  transition: all 0.25s ease;
+}
+
+.pipeline-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #334155;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.pipeline-stage-badge.active {
+  border-color: var(--cyan-primary);
+  background: rgba(6, 182, 212, 0.12);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+.pipeline-stage-badge.active .pipeline-led {
+  background: var(--cyan-light);
+  box-shadow: 0 0 8px #22d3ee;
+  animation: pulse-led 1s infinite alternate;
+}
+
+.pipeline-stage-badge.done {
+  border-color: var(--emerald-primary);
+  background: rgba(16, 185, 129, 0.1);
+  color: #a7f3d0;
+}
+.pipeline-stage-badge.done .pipeline-led {
+  background: var(--emerald-primary);
+  box-shadow: 0 0 6px #10b981;
+}
+
+@keyframes pulse-led {
+  from { transform: scale(0.9); opacity: 0.8; }
+  to { transform: scale(1.3); opacity: 1; }
+}
+
+/* LIVE ACTION DESCRIPTION MONITOR */
+.action-status-banner {
+  background: linear-gradient(135deg, #070d18, #04060a);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+
+.action-pulse-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--emerald-primary);
+  box-shadow: 0 0 10px var(--emerald-primary);
+  animation: pulse-led 1.5s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.action-desc-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #cbd5e1;
+  flex: 1;
+}
+
+.action-desc-text strong {
+  color: var(--gold-light);
+}
+
 .hidden { display: none !important; }

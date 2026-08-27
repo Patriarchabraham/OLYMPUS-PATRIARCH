@@ -112,551 +112,608 @@
           <div id="producer-cards-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; max-height: 320px; overflow-y: auto; padding-right: 6px;"></div>
         </div>
 
-        <!-- MASTER PROCESSING CONSOLE (TELEMETRY, ANALYZER, TUBE & KNOBS) -->
-        <div style="display: grid; grid-template-columns: 1.1fr 1.3fr 0.9fr; gap: 20px; align-items: center; background: #080c14; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
+        <!-- MASTER PROCESSING CONSOLE (3-COLUMN LUXURY COCKPIT) -->
+        <div class="master-cockpit-grid">
           
-          <!-- LEFT: ACTIVE TELEMETRY -->
-          <div style="font-family: var(--font-mono); font-size: 12px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a2336; padding-bottom: 6px;">
-              <span id="active-master-tag" style="color: var(--gold-primary); font-weight: 800; font-size: 15px;">ROY Z</span>
-              <span id="active-era-tag" style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-light); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700;">2024 REVIVAL</span>
-            </div>
-            <div>
-              <div id="active-album-title" style="font-family: var(--font-display); font-size: 15px; font-weight: 800; color: #ffffff;">Bruce Dickinson - The Mandrake Project (2024)</div>
-              <div id="active-country-text" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">USA / Heavy Metal</div>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid #1a2336; border-bottom: 1px solid #1a2336;">
-              <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Afinação do Álbum:</span><strong id="spec-tuning" style="color: var(--cyan-light);">Drop D (440Hz)</strong></div>
-              <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Amp / Timbre Guitarra:</span><strong id="spec-guitar-amp" style="color: var(--gold-light);">Mesa Rectifier (4x12)</strong></div>
-              <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Target Loudness:</span><strong id="spec-lufs" style="color: var(--gold-light);">-7.2 LUFS</strong></div>
-              <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Saturação Master:</span><strong id="spec-sat" style="color: var(--red-light);">SHADOW HILLS (100%)</strong></div>
-              <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Compressor:</span><strong id="spec-comp" style="color: #ffffff;">Ratio 3.5:1</strong></div>
-              <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Campo Estéreo:</span><strong id="spec-width" style="color: var(--cyan-light);">142% (Mono-Bass &lt;100Hz)</strong></div>
-            </div>
-            <div>
-              <span style="font-size: 10px; color: var(--gold-primary); font-weight: 700; text-transform: uppercase;">Cadeia de Hardware:</span>
-              <p id="spec-chain" style="font-size: 11px; color: #cbd5e1; background: #05070b; padding: 8px 10px; border-radius: 6px; border: 1px solid #1e2638; margin-top: 4px; line-height: 1.4;">
-                SSL AWS 900 + Shadow Hills + Chandler Limited TG1 + Tube-Tech + Neve 1073
-              </p>
-              <div id="badge-512-cloner" style="font-family: var(--font-mono); font-size: 10px; color: var(--emerald-primary); background: rgba(16, 185, 129, 0.12); border: 1px solid var(--emerald-primary); padding: 4px 8px; border-radius: 4px; font-weight: 800; text-align: center; margin-top: 6px;">
-                🧠 CLONAGEM 512-BANDAS: Curva do Álbum Ativa
+          <!-- =================================================================
+               COLUMN 1: ACOUSTIC SIGNATURE & INPUT SOURCE (LEFT RACK)
+               ================================================================= -->
+          <div class="cockpit-column">
+            
+            <!-- MASTER PRODUCER & ALBUM SIGNATURE CARD -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 10px; border-color: rgba(245, 158, 11, 0.25);">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a2336; padding-bottom: 6px;">
+                <span id="active-master-tag" style="color: var(--gold-primary); font-weight: 800; font-size: 15px;">ROY Z</span>
+                <span id="active-era-tag" style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-light); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700;">2024 REVIVAL</span>
               </div>
-            </div>
-          </div>
-
-          <!-- CENTER: SPECTRUM ANALYZER & VACUUM TUBE -->
-          <div style="display: flex; flex-direction: column; gap: 14px;">
-            <div style="background: #05070b; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
-              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; margin-bottom: 6px;">
-                <span style="color: #94a3b8;">Espectro FFT 4096 vs Curva Alvo</span>
-                <span style="color: var(--emerald-primary); font-weight: 700;">Match: 99.8%</span>
+              <div>
+                <div id="active-album-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 800; color: #ffffff; line-height: 1.3;">Bruce Dickinson - The Mandrake Project (2024)</div>
+                <div id="active-country-text" style="font-size: 10px; color: #94a3b8; margin-top: 2px;">USA / Heavy Metal</div>
               </div>
-              <canvas id="main-spectrum-canvas" width="480" height="130" style="width: 100%; height: 110px; background: #080c14; border-radius: 6px;"></canvas>
+              
+              <div style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0; border-top: 1px solid #1a2336; border-bottom: 1px solid #1a2336; font-family: var(--font-mono); font-size: 11px;">
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Afinação:</span><strong id="spec-tuning" style="color: var(--cyan-light);">Drop D (440Hz)</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Amp / Caixa:</span><strong id="spec-guitar-amp" style="color: var(--gold-light);">Mesa Rectifier (4x12)</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Target Loudness:</span><strong id="spec-lufs" style="color: var(--gold-light);">-7.2 LUFS</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Saturação:</span><strong id="spec-sat" style="color: var(--red-light);">SHADOW HILLS (100%)</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Compressão:</span><strong id="spec-comp" style="color: #ffffff;">Ratio 3.5:1</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Estéreo:</span><strong id="spec-width" style="color: var(--cyan-light);">142% (Mono-Bass)</strong></div>
+              </div>
 
-              <!-- LIVE 24-FRET GUITAR & BASS CANVAS -->
-              <div style="margin-top: 8px;">
-                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; color: #f472b6; margin-bottom: 2px;">
-                  <span>🎸 BRAÇO DE GUITARRA 24 CASAS (LIVE FRETBOARD):</span>
-                  <span style="color: #34d399;">Sincronizado</span>
+              <div>
+                <span style="font-size: 9px; color: var(--gold-primary); font-weight: 700; text-transform: uppercase;">Cadeia de Hardware Analógico:</span>
+                <p id="spec-chain" style="font-size: 10px; color: #cbd5e1; background: #05070b; padding: 6px 8px; border-radius: 6px; border: 1px solid #1e2638; margin-top: 3px; line-height: 1.3;">
+                  SSL AWS 900 + Shadow Hills + Chandler Limited TG1 + Tube-Tech + Neve 1073
+                </p>
+                <div id="badge-512-cloner" style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); background: rgba(16, 185, 129, 0.12); border: 1px solid var(--emerald-primary); padding: 3px 6px; border-radius: 4px; font-weight: 800; text-align: center; margin-top: 6px;">
+                  🧠 CLONAGEM 512-BANDAS: Curva do Álbum Ativa
                 </div>
-                <canvas id="canvas-fretboard-player" width="480" height="60" style="width: 100%; height: 50px; border-radius: 4px; border: 1px solid rgba(236,72,153,0.3);"></canvas>
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: space-around; background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
-              <!-- TRANSFORMER COLORATION SELECTOR -->
-              <div style="display: flex; flex-direction: column; gap: 2px;">
-                <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700;">TRANSFORMADOR ANALÓGICO:</label>
-                <select id="select-console-transformer" class="studio-select" style="font-size: 10px; padding: 3px;">
+            <!-- SOURCE MODE & TRANSFORMER COLORATION -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="font-family: var(--font-mono); font-size: 10px; color: #fde047; font-weight: 800; display: block; margin-bottom: 3px;">
+                  🎙️ MODO DE ORIGEM DO ÁUDIO:
+                </label>
+                <select id="select-input-source-mode" class="studio-select" style="font-size: 10px; padding: 5px; border: 1px solid var(--gold-primary); background: #06090f; color: #ffffff; width: 100%;">
+                  <option value="studio_demo" selected>🎙️ Gravação Real de Estúdio / Demo</option>
+                  <option value="ai_generated">🤖 Música Gerada por IA (Suno / Udio)</option>
+                  <option value="auto">⚡ Auto-Detectar Inteligente</option>
+                </select>
+                <div id="source-mode-hint" style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); margin-top: 2px;">
+                  ✅ Preserva 100% da dinâmica e fidelidade dos seus instrumentos reais.
+                </div>
+              </div>
+
+              <div>
+                <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 3px;">TRANSFORMADOR DE CONSOLE:</label>
+                <select id="select-console-transformer" class="studio-select" style="font-size: 10px; padding: 4px;">
                   <option value="neve_1073" selected>🇬🇧 Neve 1073 (Marinair Ferro Warmth)</option>
                   <option value="api_512c">🇺🇸 API 512c (AP2503 Aço Punch Bite)</option>
                   <option value="ssl_4000g">🏴󠁧󠁢󠁥󠁮󠁧󠁿 SSL 4000G (Jensen Clean VCA Glue)</option>
                 </select>
               </div>
+            </div>
 
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="vacuum-tube-housing">
-                  <div class="tube-glass-reflection"></div>
-                  <div class="tube-filament" id="master-tube-filament"></div>
+            <!-- REAL SINGER VOICE CLONER & TIMBRE TRANSFER DOCK -->
+            <div class="studio-card" style="background: linear-gradient(135deg, #18091f, #080c14); border: 1.5px solid #ec4899; box-shadow: 0 0 15px rgba(236, 72, 153, 0.15); display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 16px;">🎙️</span>
+                  <div>
+                    <strong style="font-family: var(--font-display); font-size: 11px; color: #ffffff; text-transform: uppercase;">CLONAR MINHA VOZ REAL</strong>
+                    <div style="font-family: var(--font-mono); font-size: 8px; color: #f472b6;">Transfere seu timbre para o vocal final</div>
+                  </div>
                 </div>
-                <div style="font-family: var(--font-mono); font-size: 11px;">
-                  <strong style="color: var(--gold-light); display: block;">12AX7 / ECC83</strong>
-                  <span style="color: #64748b;">Válvula Analógica</span>
-                </div>
+                <span id="master-voice-clone-badge" style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; background: #260f33; border: 1px solid #ec4899; color: #f472b6; padding: 2px 5px; border-radius: 4px;">
+                  Sem Amostra
+                </span>
               </div>
-
-              <div class="vintage-vu-box" style="width: 180px; padding: 6px;">
-                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: #1a160d; margin-bottom: 2px;">
-                  <span>VU REDUÇÃO</span>
-                  <span id="meter-gr-val">-3.2 dB</span>
+              
+              <div id="master-user-voice-dropzone" style="border: 1.5px dashed #ec4899; border-radius: 6px; padding: 8px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.06); transition: all 0.2s;">
+                <input type="file" id="master-user-voice-input" accept="audio/*" class="hidden" />
+                <div id="master-user-voice-idle">
+                  <div style="font-family: var(--font-display); font-size: 11px; font-weight: 800; color: #ffffff;">📥 CLIQUE PARA CARREGAR SUA VOZ (WAV/MP3)</div>
+                  <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Cante acapella (10s a 30s) para copiar formantes</div>
                 </div>
-                <canvas id="vu-meter-canvas" width="180" height="75" style="width: 100%; height: 50px;"></canvas>
+                <div id="master-user-voice-active" class="hidden">
+                  <div id="master-user-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 11px;">minha_voz.wav</div>
+                  <div id="master-user-voice-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary); font-weight: 700; margin-top: 2px;">⚡ TIMBRE EXTRAÍDO COM SUCESSO!</div>
+                </div>
               </div>
             </div>
+
+            <!-- PHYSICAL DOUBLINGS & VOCAL AUTO-TUNE RACK -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="font-family: var(--font-display); font-size: 10px; color: var(--gold-light); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); padding-bottom: 3px;">
+                ⚡ DOBRAS FÍSICAS & AFINADOR INTELIGENTE
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">🎸 DOBRA GUITARRA:</label>
+                  <select id="select-guitar-doubling" class="studio-select" style="font-size: 9px; padding: 2px;">
+                    <option value="off">Desativado</option>
+                    <option value="double_2x" selected>⚡ 2x Dobra L/R</option>
+                    <option value="quad_4x">🔥 4x Quad Wall</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">⚡ DUETO SOLO:</label>
+                  <select id="select-guitar-harmony" class="studio-select" style="font-size: 9px; padding: 2px;">
+                    <option value="none" selected>Nenhum</option>
+                    <option value="major_3rd">🎵 3ª Maior (+4st)</option>
+                    <option value="minor_3rd">🎵 3ª Menor (+3st)</option>
+                    <option value="perfect_5th">🚀 5ª Justa (+7st)</option>
+                    <option value="octave_up">✨ Oitava Acima</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">🎸 BAIXO OITAVADO:</label>
+                  <select id="select-bass-doubling" class="studio-select" style="font-size: 9px; padding: 2px;">
+                    <option value="off" selected>Original</option>
+                    <option value="sub_octave">💣 Sub-Oitava (-12st)</option>
+                    <option value="bi_amp_8string">⚡ 8 Cordas (+12st)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">🎤 HARMONIA VOZ:</label>
+                  <select id="select-vocal-harmony" class="studio-select" style="font-size: 9px; padding: 2px;">
+                    <option value="none" selected>Voz Solo</option>
+                    <option value="major_3rd">👑 3ª Maior</option>
+                    <option value="minor_3rd">👑 3ª Menor</option>
+                    <option value="perfect_5th">🔥 5ª Justa</option>
+                    <option value="choir_4part">🏰 Coro Queen 4-Part</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- VOCAL AUTO-TUNE MINI -->
+              <div style="background: #080c14; padding: 6px; border-radius: 6px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 4px; margin-top: 2px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-family: var(--font-mono); font-size: 9px; color: #ec4899; font-weight: 700;">🎙️ AUTO-TUNE:</span>
+                  <label style="display: flex; align-items: center; gap: 3px; font-family: var(--font-mono); font-size: 9px; color: #cbd5e1; cursor: pointer;">
+                    <input type="checkbox" id="chk-pitch-correct-enable" /> Ativar
+                  </label>
+                </div>
+                <div id="label-detected-key-badge" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary); background: rgba(16, 185, 129, 0.12); padding: 2px 4px; border-radius: 4px; border: 1px solid var(--emerald-primary); font-weight: 800; text-align: center;">
+                  ⚡ TOM: Pronto
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 4px;">
+                  <select id="select-pitch-root-key" class="studio-select" style="font-size: 9px; padding: 2px;">
+                    <option value="C" selected>C (Dó)</option>
+                    <option value="C#">C# (Dó#)</option>
+                    <option value="D">D (Ré)</option>
+                    <option value="D#">D# (Ré#)</option>
+                    <option value="E">E (Mi)</option>
+                    <option value="F">F (Fá)</option>
+                    <option value="F#">F# (Fá#)</option>
+                    <option value="G">G (Sol)</option>
+                    <option value="G#">G# (Sol#)</option>
+                    <option value="A">A (Lá)</option>
+                    <option value="A#">A# (Lá#)</option>
+                    <option value="B">B (Si)</option>
+                  </select>
+                  <select id="select-pitch-scale" class="studio-select" style="font-size: 9px; padding: 2px;">
+                    <option value="chromatic" selected>Cromática</option>
+                    <option value="minor">Menor</option>
+                    <option value="major">Maior</option>
+                    <option value="pentatonic">Pentatônica</option>
+                  </select>
+                </div>
+                <input type="range" id="slider-retune-speed" min="0" max="100" value="65" style="width: 100%; height: 3px; accent-color: #ec4899; cursor: pointer;" />
+                <span id="label-retune-speed-val" class="hidden">65%</span>
+              </div>
+            </div>
+
           </div>
 
-          <!-- RIGHT: 3 ANALOG ROTARY KNOBS & TRIGGER -->
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; background: #06090f; border: 1px solid var(--border-subtle); border-radius: 10px; padding: 12px;">
-              <div style="text-align: center;">
-                <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--red-light); text-transform: uppercase; display: block; margin-bottom: 4px;">Drive</span>
-                <div id="knob-master-sat"></div>
+          <!-- =================================================================
+               COLUMN 2: VISUAL ANALYZERS & PRECISION TELEMETRY (CENTER COCKPIT)
+               ================================================================= -->
+          <div class="cockpit-column">
+            
+            <!-- UPPER DECK: SPECTRUM 4096 & LISSAJOUS GONIOMETER -->
+            <div class="studio-card" style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; padding: 12px; background: #06090e;">
+              <!-- 4096 FFT SPECTRUM -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
+                  <span style="color: var(--cyan-light); font-weight: 700;">📊 Espectro FFT 4096 vs Curva Alvo</span>
+                  <span style="color: var(--emerald-primary); font-weight: 700;">Match: 99.8%</span>
+                </div>
+                <canvas id="main-spectrum-canvas" width="480" height="135" style="width: 100%; height: 125px; background: #04070d; border-radius: 6px; border: 1px solid #1a2336;"></canvas>
               </div>
-              <div style="text-align: center;">
-                <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--cyan-light); text-transform: uppercase; display: block; margin-bottom: 4px;">Width</span>
-                <div id="knob-master-width"></div>
-              </div>
-              <div style="text-align: center;">
-                <span style="font-family: var(--font-mono); font-size: 10px; font-weight: 800; color: var(--gold-light); text-transform: uppercase; display: block; margin-bottom: 4px;">Master</span>
-                <div id="knob-master-intensity"></div>
+
+              <!-- LISSAJOUS GONIOMETER -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
+                  <span style="color: var(--gold-light); font-weight: 700;">🌐 Goniômetro de Fase</span>
+                  <span id="meter-phase-val" style="color: var(--emerald-primary); font-weight: 800;">+0.96 (Mono Safe)</span>
+                </div>
+                <canvas id="goniometer-canvas" width="240" height="135" style="width: 100%; height: 125px; background: #04070d; border-radius: 6px; border: 1px solid #1a2336;"></canvas>
               </div>
             </div>
 
-            <!-- HIDDEN FALLBACK SLIDERS FOR SCRIPT COMPATIBILITY -->
-            <input type="range" id="slider-sat" min="30" max="200" value="100" class="hidden" />
-            <input type="range" id="slider-width" min="80" max="180" value="142" class="hidden" />
-            <input type="range" id="slider-intensity" min="50" max="150" value="100" class="hidden" />
-            <span id="label-sat-val" class="hidden">100%</span>
-            <span id="label-width-val" class="hidden">142%</span>
-            <span id="label-intensity-val" class="hidden">100%</span>
+            <!-- MIDDLE DECK: ANALOG VU METERS & 12AX7 VACUUM TUBE & LIVE HUD -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 10px; background: #06090f;">
+              <div style="display: flex; align-items: center; justify-content: space-around; gap: 12px; border-bottom: 1px solid #1a2336; padding-bottom: 10px;">
+                <!-- VACUUM TUBE -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="vacuum-tube-housing">
+                    <div class="tube-glass-reflection"></div>
+                    <div class="tube-filament" id="master-tube-filament"></div>
+                  </div>
+                  <div style="font-family: var(--font-mono); font-size: 11px;">
+                    <strong style="color: var(--gold-light); display: block;">12AX7 / ECC83</strong>
+                    <span style="color: #64748b; font-size: 10px;">Válvula Quântica</span>
+                  </div>
+                </div>
 
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
-              <div id="master-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px;">
-                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px;">
-                  <span id="master-progress-text" style="color: #cbd5e1;">Processando...</span>
+                <!-- VINTAGE VU REDUCTION METER -->
+                <div class="vintage-vu-box" style="width: 220px; padding: 6px;">
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: #1a160d; margin-bottom: 2px;">
+                    <span>VU GANHO / COMPRESSÃO</span>
+                    <span id="meter-gr-val">-3.2 dB</span>
+                  </div>
+                  <canvas id="vu-meter-canvas" width="220" height="80" style="width: 100%; height: 55px;"></canvas>
+                </div>
+              </div>
+
+              <!-- LIVE BROADCAST TELEMETRY HUD -->
+              <div class="hud-telemetry-grid">
+                <div class="hud-metric-card">
+                  <span class="hud-label">Integrated LUFS</span>
+                  <span class="hud-value" id="cockpit-lufs-val" style="color: var(--gold-light);">-7.5 LUFS</span>
+                </div>
+                <div class="hud-metric-card">
+                  <span class="hud-label">True-Peak</span>
+                  <span class="hud-value" id="cockpit-truepeak-val" style="color: var(--emerald-primary);">-0.30 dBTP</span>
+                </div>
+                <div class="hud-metric-card">
+                  <span class="hud-label">Correlação Fase</span>
+                  <span class="hud-value" id="cockpit-phase-val" style="color: var(--cyan-light);">+0.96 (L/R)</span>
+                </div>
+                <div class="hud-metric-card">
+                  <span class="hud-label">Fator Crista (DR)</span>
+                  <span class="hud-value" id="cockpit-crest-val" style="color: #a855f7;">9.4 dB</span>
+                </div>
+                <div class="hud-metric-card">
+                  <span class="hud-label">Resolução DSP</span>
+                  <span class="hud-value" id="meter-sample-rate" style="color: #ffffff; font-size: 11px;">48.0 kHz 24b</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- LOWER DECK: 10-STAGE QUANTUM DSP PIPELINE FLOW STATUS -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a2336; padding-bottom: 4px;">
+                <span style="font-family: var(--font-display); font-size: 11px; color: var(--gold-light); font-weight: 800; text-transform: uppercase;">
+                  ⚡ FLUXO DO PIPELINE QUANTUM DSP (10 ESTÁGIOS ATIVOS)
+                </span>
+                <span id="pipeline-status-text" style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); font-weight: 700;">
+                  ● SISTEMA PRONTO
+                </span>
+              </div>
+
+              <div class="pipeline-grid">
+                <div class="pipeline-stage-badge" id="pipeline-stage-0" title="Purificador de ruídos de aterramento e 50/60Hz">
+                  <div class="pipeline-led" id="pipeline-led-0"></div>
+                  <span>0. De-Hum 60Hz</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-1" title="Separação de instrumentos em 10 camadas de alta precisão">
+                  <div class="pipeline-led" id="pipeline-led-1"></div>
+                  <span>1. Stems 10-Layer</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-2" title="Clonagem espectral de 2048 bandas do álbum mestre">
+                  <div class="pipeline-led" id="pipeline-led-2"></div>
+                  <span>2. FFT 2048 Clone</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-3" title="Supressor dinâmico de ressonâncias ácidas e de-harsh">
+                  <div class="pipeline-led" id="pipeline-led-3"></div>
+                  <span>3. Soothe De-Harsh</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-4" title="Modelador de transientes e punch de bumbo/caixa">
+                  <div class="pipeline-led" id="pipeline-led-4"></div>
+                  <span>4. Punch Sculpt</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-5" title="Agente guardião autônomo com muralha Celestion V30 e Peavey 5150">
+                  <div class="pipeline-led" id="pipeline-led-5"></div>
+                  <span>5. Guitar Guardian</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-6" title="Saturação bi-banda linear phase em 250Hz">
+                  <div class="pipeline-led" id="pipeline-led-6"></div>
+                  <span>6. Tube & Tape Sat</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-7" title="Compressor de barramento master SSL G-Master Bus Glue">
+                  <div class="pipeline-led" id="pipeline-led-7"></div>
+                  <span>7. SSL G-Bus Glue</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-8" title="Matriz de espacialização 3D e aberturas Mid/Side">
+                  <div class="pipeline-led" id="pipeline-led-8"></div>
+                  <span>8. 3D Spatial Matrix</span>
+                </div>
+                <div class="pipeline-stage-badge" id="pipeline-stage-9" title="Limitador analógico com dither TPDF 24-bit">
+                  <div class="pipeline-led" id="pipeline-led-9"></div>
+                  <span>9. Brickwall Peak</span>
+                </div>
+              </div>
+
+              <!-- LIVE ACTION DESCRIPTION MONITOR BANNER -->
+              <div class="action-status-banner">
+                <div class="action-pulse-icon" id="live-action-pulse"></div>
+                <div class="action-desc-text" id="live-action-monitor-text">
+                  <strong>MONITOR DE STATUS:</strong> Aguardando áudio. Pronto para executar masterização analógica de altíssima fidelidade.
+                </div>
+              </div>
+
+              <!-- LIVE 24-FRET GUITAR & BASS CANVAS -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; color: #f472b6; margin-bottom: 2px;">
+                  <span>🎸 BRAÇO DE GUITARRA 24 CASAS (LIVE FRETBOARD):</span>
+                  <span style="color: #34d399;">Sincronizado</span>
+                </div>
+                <canvas id="canvas-fretboard-player" width="480" height="50" style="width: 100%; height: 45px; border-radius: 4px; border: 1px solid rgba(236,72,153,0.3); background: #05070b;"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- =================================================================
+               COLUMN 3: MASTER CONTROLS & OUTPUT ACTIONS (RIGHT RACK)
+               ================================================================= -->
+          <div class="cockpit-column">
+            
+            <!-- 3 LARGE PRECISION ANALOG ROTARY KNOBS -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+              <span style="font-family: var(--font-display); font-size: 11px; color: var(--gold-light); font-weight: 800; text-transform: uppercase;">
+                🎛️ CONTROLES ANALÓGICOS PRINCIPAIS
+              </span>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
+                <div style="text-align: center;">
+                  <span style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: var(--red-light); text-transform: uppercase; display: block; margin-bottom: 2px;">Drive</span>
+                  <div id="knob-master-sat"></div>
+                </div>
+                <div style="text-align: center;">
+                  <span style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: var(--cyan-light); text-transform: uppercase; display: block; margin-bottom: 2px;">Width</span>
+                  <div id="knob-master-width"></div>
+                </div>
+                <div style="text-align: center;">
+                  <span style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: var(--gold-light); text-transform: uppercase; display: block; margin-bottom: 2px;">Master</span>
+                  <div id="knob-master-intensity"></div>
+                </div>
+              </div>
+
+              <!-- HIDDEN FALLBACK SLIDERS FOR SCRIPT COMPATIBILITY -->
+              <input type="range" id="slider-sat" min="30" max="200" value="100" class="hidden" />
+              <input type="range" id="slider-width" min="80" max="180" value="142" class="hidden" />
+              <input type="range" id="slider-intensity" min="50" max="150" value="100" class="hidden" />
+              <span id="label-sat-val" class="hidden">100%</span>
+              <span id="label-width-val" class="hidden">142%</span>
+              <span id="label-intensity-val" class="hidden">100%</span>
+            </div>
+
+            <!-- INSTRUMENT RE-AMP & GUITAR GUARDIAN BLENDS -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="font-family: var(--font-display); font-size: 10px; color: var(--gold-light); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2px;">
+                🎸 DOSAGEM DE INSTRUMENTOS & GUITARRAS
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                  <span style="color: var(--gold-light); font-weight: 700;">🥁 BATERIA ACÚSTICA:</span>
+                  <span id="label-drum-blend-val" style="color: var(--cyan-light); font-weight: 700;">65%</span>
+                </div>
+                <input type="range" id="slider-drum-blend" min="0" max="100" value="65" style="width: 100%; height: 3px; accent-color: var(--gold-primary); cursor: pointer;" />
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                  <span style="color: var(--red-light); font-weight: 700;">🎸 MURALHA DE GUITARRAS:</span>
+                  <span id="label-guitar-blend-val" style="color: var(--cyan-light); font-weight: 700;">65%</span>
+                </div>
+                <input type="range" id="slider-guitar-blend" min="0" max="100" value="65" style="width: 100%; height: 3px; accent-color: var(--red-primary); cursor: pointer;" />
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                  <span style="color: var(--cyan-light); font-weight: 700;">🎸 BAIXO ELÉTRICO:</span>
+                  <span id="label-bass-blend-val" style="color: var(--gold-light); font-weight: 700;">65%</span>
+                </div>
+                <input type="range" id="slider-bass-blend" min="0" max="100" value="65" style="width: 100%; height: 3px; accent-color: var(--cyan-primary); cursor: pointer;" />
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                  <span style="color: #ec4899; font-weight: 700;">🎤 PRESENÇA VOCAL:</span>
+                  <span id="label-vocal-blend-val" style="color: var(--cyan-light); font-weight: 700;">65%</span>
+                </div>
+                <input type="range" id="slider-vocal-blend" min="0" max="100" value="65" style="width: 100%; height: 3px; accent-color: #ec4899; cursor: pointer;" />
+              </div>
+            </div>
+
+            <!-- MASTER OUTPUT TARGET & LIMITER -->
+            <div class="studio-card" style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 2px;">STREAMING / MÍDIA:</label>
+                  <select id="select-streaming-target" class="studio-select" style="font-size: 9px; padding: 3px;">
+                    <option value="cd_metal" selected>🏆 CD / Metal (-7.5 LUFS)</option>
+                    <option value="spotify">🟢 Spotify (-14.0 LUFS)</option>
+                    <option value="apple">🍎 Apple Music (-16.0 LUFS)</option>
+                    <option value="youtube">🔴 YouTube (-14.0 LUFS)</option>
+                    <option value="tidal">💎 Tidal Hi-Fi (-14.0 LUFS)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: var(--cyan-light); font-weight: 700; display: block; margin-bottom: 2px;">FITA ANALÓGICA:</label>
+                  <select id="select-analog-tape-model" class="studio-select" style="font-size: 9px; padding: 3px;">
+                    <option value="ampex_atr102" selected>📼 Ampex ATR-102 (15 IPS)</option>
+                    <option value="studer_a800">📼 Studer A800 (30 IPS)</option>
+                    <option value="neve_marinair">⚡ Neve Marinair LO1166</option>
+                    <option value="api_2520">⚡ API 2520 Op-Amp</option>
+                    <option value="bax_clean">✨ Baxandall Clean</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style="font-family: var(--font-mono); font-size: 8px; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 2px;">TETO DINÂMICO & LIMITER:</label>
+                <select id="select-limiter-mode" class="studio-select" style="font-size: 9px; padding: 3px; width: 100%;">
+                  <option value="soft_analog_clipper" selected>🥊 Soft Analog Clipper (Graves Gordos & Volume Máximo)</option>
+                  <option value="pristine_lookahead">💎 Pristine Lookahead Limiter (100% Transparente)</option>
+                </select>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 2px;">DISPOSITIVO REFERÊNCIA:</label>
+                  <select id="select-real-world-device" class="studio-select" style="font-size: 9px; padding: 2px;">
+                    <option value="flat_studio" selected>🎧 Estúdio Flat Reference</option>
+                    <option value="car_subwoofer">🚗 Carro c/ Subwoofer</option>
+                    <option value="iphone_speaker">📱 iPhone / Smartphone</option>
+                    <option value="airpods_harman">🎧 AirPods Pro (Harman)</option>
+                    <option value="jbl_bluetooth">📻 Caixa JBL Bluetooth</option>
+                  </select>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8px;">
+                    <span style="color: #f59e0b; font-weight: 700;">🥊 PUNCH:</span>
+                    <span id="label-transient-punch-val" style="color: var(--gold-light); font-weight: 700;">45%</span>
+                  </div>
+                  <input type="range" id="slider-transient-punch" min="0" max="100" value="45" style="width: 100%; height: 3px; accent-color: #f59e0b; cursor: pointer; margin-top: 3px;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- INSTRUMENT RIG SELECTORS (COMPACT COLLAPSED MATRIX) -->
+            <div class="studio-card" style="background: #080c14; padding: 8px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-family: var(--font-display); font-size: 9px; color: var(--cyan-light); font-weight: 800; text-transform: uppercase;">
+                  🎸 KITS DE TIMBRES & HACKS
+                </span>
+                <button type="button" id="btn-toggle-live-audition" class="switch-toggle-btn" style="font-size: 8px; padding: 1px 6px; border-color: #f59e0b; color: var(--gold-light);">
+                  ⚡ LIVE: OFF
+                </button>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                <select id="select-drum-kit-model" class="studio-select" style="font-size: 8px; padding: 2px;">
+                  <option value="bypass" selected>🥁 Bateria Original</option>
+                  <option value="ludwig_black_beauty">🥁 Ludwig Black Beauty</option>
+                  <option value="tama_starclassic">🥁 Tama Starclassic</option>
+                  <option value="sonor_cast_bronze">🥁 Sonor Cast Bronze</option>
+                  <option value="gms_custom_sneap">🥁 GMS Custom Sneap</option>
+                </select>
+                <select id="select-guitar-rig-model" class="studio-select" style="font-size: 8px; padding: 2px;">
+                  <option value="bypass" selected>⚡ Rig Guitarra Original</option>
+                  <option value="peavey_5150_mesa_os">⚡ Peavey 5150 + Mesa</option>
+                  <option value="marshall_jcm800_greenback">⚡ Marshall JCM800</option>
+                  <option value="mesa_dual_rectifier_bogner">⚡ Mesa Rectifier</option>
+                  <option value="soldano_slo100">⚡ Soldano SLO-100</option>
+                </select>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                <select id="select-bass-rig-model" class="studio-select" style="font-size: 8px; padding: 2px;">
+                  <option value="bypass" selected>🎸 Baixo Original</option>
+                  <option value="spector_ampeg_svt">🎸 Spector + Ampeg SVT</option>
+                  <option value="fender_precision_sansamp">🎸 Fender P + SansAmp</option>
+                  <option value="warwick_darkglass_b7k">🎸 Warwick + Darkglass</option>
+                </select>
+                <select id="select-secret-producer-hack" class="studio-select" style="font-size: 8px; padding: 2px;">
+                  <option value="bypass" selected>✨ Hack: Master Puro</option>
+                  <option value="black_album_fatness">🪄 Black Album Fatness</option>
+                  <option value="sneap_metal_wall">🪄 Sneap Metal Wall</option>
+                  <option value="max_martin_diamond">🪄 Max Martin Pop Air</option>
+                  <option value="radioactive_tape_warmth">🪄 Radioactive Tape</option>
+                </select>
+              </div>
+
+              <!-- ADVANCED TOGGLES -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); font-family: var(--font-mono); font-size: 8px;">
+                <label style="display: flex; align-items: center; gap: 3px; color: var(--gold-light); cursor: pointer;"><input type="checkbox" id="chk-ai-assistant-enable" checked /> 🧠 AI Assistant</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #38bdf8; cursor: pointer;"><input type="checkbox" id="chk-dynamic-deharsh" checked /> 🌊 Soothe DeHarsh</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: var(--emerald-primary); cursor: pointer;"><input type="checkbox" id="chk-kick-bass-unmask" checked /> 🥊 Unmask Bass</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #a855f7; cursor: pointer;"><input type="checkbox" id="chk-dolby-atmos-room" /> 🏰 Atmos 7.1.4</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #ec4899; cursor: pointer;"><input type="checkbox" id="chk-bruce-dickinson-god" checked /> 👑 Vocal God</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #f43f5e; cursor: pointer;"><input type="checkbox" id="chk-tiny-neural-vocal" checked /> 🧠 Neural Vocoder</label>
+              </div>
+
+              <!-- DIAGNOSTIC FEEDBACK -->
+              <div id="ai-diagnostic-result-card" class="hidden" style="background: rgba(16, 185, 129, 0.08); border: 1px solid var(--emerald-primary); border-radius: 4px; padding: 4px; font-family: var(--font-mono); font-size: 8px; color: #cbd5e1;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--emerald-primary); font-weight: 800;">✅ LAUDO IA:</span>
+                  <span id="diagnostic-score-badge" style="color: var(--gold-light); font-weight: 800;">98/100</span>
+                </div>
+                <div id="diagnostic-issues-list" style="font-size: 8px; color: #94a3b8; margin-top: 1px;">
+                  Balanço perfeito.
+                </div>
+              </div>
+            </div>
+
+            <!-- PRIMARY ACTION TRIGGER & DOWNLOAD HUB -->
+            <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+              
+              <!-- PROGRESS BAR -->
+              <div id="master-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 3px; background: #06090f; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px;">
+                  <span id="master-progress-text" style="color: #cbd5e1;">Iniciando...</span>
                   <span id="master-progress-pct" style="color: var(--gold-light); font-weight: 700;">0%</span>
                 </div>
                 <div style="height: 6px; width: 100%; background: #1e293b; border-radius: 3px; overflow: hidden;">
-                  <div id="master-progress-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b, #06b6d4); transition: width 0.2s;"></div>
+                  <div id="master-progress-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981); transition: width 0.2s;"></div>
                 </div>
               </div>
 
-              <!-- DRUM, GUITAR, BASS & VOCAL RE-AMP REPLACEMENT SLIDERS -->
-              <div style="width: 100%; background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 12px; display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px;">
-                    <span style="color: var(--gold-light); font-weight: 700;">🥁 SUBST. ACÚSTICA BATERIA:</span>
-                    <span id="label-drum-blend-val" style="color: var(--cyan-light); font-weight: 700;">65%</span>
-                  </div>
-                  <input type="range" id="slider-drum-blend" min="0" max="100" value="65" style="width: 100%; height: 4px; accent-color: var(--gold-primary); cursor: pointer;" />
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px;">
-                    <span style="color: var(--red-light); font-weight: 700;">🎸 RE-AMP GUITARRA BASE:</span>
-                    <span id="label-guitar-blend-val" style="color: var(--cyan-light); font-weight: 700;">65%</span>
-                  </div>
-                  <input type="range" id="slider-guitar-blend" min="0" max="100" value="65" style="width: 100%; height: 4px; accent-color: var(--red-primary); cursor: pointer;" />
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px;">
-                    <span style="color: var(--cyan-light); font-weight: 700;">🎸 RE-AMP BAIXO ELÉTRICO:</span>
-                    <span id="label-bass-blend-val" style="color: var(--gold-light); font-weight: 700;">65%</span>
-                  </div>
-                  <input type="range" id="slider-bass-blend" min="0" max="100" value="65" style="width: 100%; height: 4px; accent-color: var(--cyan-primary); cursor: pointer;" />
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px;">
-                    <span style="color: #ec4899; font-weight: 700;">🎤 MODELAGEM MICROFONE VOZ:</span>
-                    <span id="label-vocal-blend-val" style="color: var(--cyan-light); font-weight: 700;">65%</span>
-                  </div>
-                  <input type="range" id="slider-vocal-blend" min="0" max="100" value="65" style="width: 100%; height: 4px; accent-color: #ec4899; cursor: pointer;" />
-                </div>
-              </div>
-
-              <!-- INTELLIGENT HARMONY & PHYSICAL DOUBLING RACK -->
-              <div style="width: 100%; background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 12px; display: flex; flex-direction: column; gap: 8px;">
-                <div style="font-family: var(--font-display); font-size: 11px; color: var(--gold-light); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); padding-bottom: 4px;">
-                  ⚡ DOBRAS FÍSICAS & HARMONIAS (GUITARRAS, BAIXO E VOZ)
-                </div>
-
-                <!-- GUITAR DOUBLING & DUET -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                  <div>
-                    <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">🎸 DOBRA GUITARRA BASE:</label>
-                    <select id="select-guitar-doubling" class="studio-select" style="font-size: 10px; padding: 3px;">
-                      <option value="off">Desativado (Mono/Orig)</option>
-                      <option value="double_2x" selected>⚡ 2x Dobra Estéreo L/R</option>
-                      <option value="quad_4x">🔥 4x Quad-Track Wall</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">⚡ DUETO GUITARRA SOLO:</label>
-                    <select id="select-guitar-harmony" class="studio-select" style="font-size: 10px; padding: 3px;">
-                      <option value="none" selected>Nenhum Dueto</option>
-                      <option value="major_3rd">🎵 Terça Maior (+4st Maiden)</option>
-                      <option value="minor_3rd">🎵 Terça Menor (+3st)</option>
-                      <option value="perfect_5th">🚀 Quinta Justa (+7st Power)</option>
-                      <option value="octave_up">✨ Oitava Acima (+12st)</option>
-                      <option value="octave_down">💥 Oitava Abaixo (-12st)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- BASS & VOCAL HARMONIES -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                  <div>
-                    <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">🎸 BAIXO SÍSMICO / OITAVADOR:</label>
-                    <select id="select-bass-doubling" class="studio-select" style="font-size: 10px; padding: 3px;">
-                      <option value="off" selected>Original</option>
-                      <option value="sub_octave">💣 Sub-Oitava (-12st)</option>
-                      <option value="bi_amp_8string">⚡ Baixo 8 Cordas (+12st)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">🎤 DUETO / HARMONIA VOZ:</label>
-                    <select id="select-vocal-harmony" class="studio-select" style="font-size: 10px; padding: 3px;">
-                      <option value="none" selected>Voz Solo</option>
-                      <option value="major_3rd">👑 Terça Maior (+4st Doce)</option>
-                      <option value="minor_3rd">👑 Terça Menor (+3st)</option>
-                      <option value="perfect_5th">🔥 Quinta Justa (+7st)</option>
-                      <option value="octave_up">✨ Oitava Acima (+12st)</option>
-                      <option value="choir_4part">🏰 Coro Queen 4-Part</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- INTELLIGENT VOCAL PITCH CORRECTOR & AUTO-TUNE -->
-                <div style="background: #080c14; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 6px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-family: var(--font-mono); font-size: 10px; color: #ec4899; font-weight: 700;">🎙️ AFINADOR VOCAL & AUTO-TUNE:</span>
-                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 10px; color: #cbd5e1; cursor: pointer;">
-                      <input type="checkbox" id="chk-pitch-correct-enable" /> Ativar
-                    </label>
-                  </div>
-                  <div id="label-detected-key-badge" style="font-family: var(--font-mono); font-size: 10px; color: var(--emerald-primary); background: rgba(16, 185, 129, 0.12); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--emerald-primary); font-weight: 800; text-align: center;">
-                    ⚡ DETECÇÃO AUTOMÁTICA: Pronto
-                  </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 6px;">
-                    <div>
-                      <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; display: block;">TOM:</label>
-                      <select id="select-pitch-root-key" class="studio-select" style="font-size: 10px; padding: 2px;">
-                        <option value="C" selected>C (Dó)</option>
-                        <option value="C#">C# (Dó#)</option>
-                        <option value="D">D (Ré)</option>
-                        <option value="D#">D# (Ré#)</option>
-                        <option value="E">E (Mi)</option>
-                        <option value="F">F (Fá)</option>
-                        <option value="F#">F# (Fá#)</option>
-                        <option value="G">G (Sol)</option>
-                        <option value="G#">G# (Sol#)</option>
-                        <option value="A">A (Lá)</option>
-                        <option value="A#">A# (Lá#)</option>
-                        <option value="B">B (Si)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; display: block;">ESCALA:</label>
-                      <select id="select-pitch-scale" class="studio-select" style="font-size: 10px; padding: 2px;">
-                        <option value="chromatic" selected>Cromática (Auto)</option>
-                        <option value="minor">Menor Natural</option>
-                        <option value="major">Maior</option>
-                        <option value="pentatonic">Pentatônica</option>
-                        <option value="dorian">Dórico</option>
-                        <option value="harmonic_minor">Menor Harmônica</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
-                      <span style="color: #94a3b8;">RETUNE SPEED (VELOCIDADE):</span>
-                      <span id="label-retune-speed-val" style="color: #ec4899; font-weight: 700;">65% (Pop/Trap)</span>
-                    </div>
-                    <input type="range" id="slider-retune-speed" min="0" max="100" value="65" style="width: 100%; height: 4px; accent-color: #ec4899; cursor: pointer;" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- 🎙️ REAL SINGER VOICE CLONER & TIMBRE TRANSFER DOCK -->
-              <div style="background: linear-gradient(135deg, #18091f, #080c14); border: 2px solid #ec4899; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 20px rgba(236, 72, 153, 0.20);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 18px;">🎙️</span>
-                    <div>
-                      <strong style="font-family: var(--font-display); font-size: 12px; color: #ffffff; text-transform: uppercase;">CLONAR MINHA VOZ REAL (SUNO TIMBRE TRANSFER)</strong>
-                      <div style="font-family: var(--font-mono); font-size: 9px; color: #f472b6;">Transfere seu timbre real e alcance para o vocal da música</div>
-                    </div>
-                  </div>
-                  <span id="master-voice-clone-badge" style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; background: #260f33; border: 1px solid #ec4899; color: #f472b6; padding: 2px 6px; border-radius: 4px;">
-                    Sem Amostra
-                  </span>
-                </div>
-                
-                <div id="master-user-voice-dropzone" style="border: 2px dashed #ec4899; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.06); transition: all 0.2s;">
-                  <input type="file" id="master-user-voice-input" accept="audio/*" class="hidden" />
-                  <div id="master-user-voice-idle">
-                    <div style="font-family: var(--font-display); font-size: 12px; font-weight: 800; color: #ffffff;">📥 CLIQUE AQUI PARA CARREGAR SUA VOZ REAL (WAV/MP3)</div>
-                    <div style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; margin-top: 2px;">Cante acapella (10s a 30s) para copiar seu timbre e formantes</div>
-                  </div>
-                  <div id="master-user-voice-active" class="hidden">
-                    <div id="master-user-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 12px;">minha_voz.wav</div>
-                    <div id="master-user-voice-stats" style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); font-weight: 700; margin-top: 2px;">⚡ TIMBRE EXTRAÍDO — SERÁ COPIADO PARA O VOCAL FINAL!</div>
-                  </div>
-                </div>
-
-                <!-- AI VOCAL DEFECT REMOVAL STATUS -->
-                <div style="background: rgba(0,0,0,0.35); padding: 8px; border-radius: 6px; border: 1px solid rgba(236, 72, 153, 0.2); display: flex; flex-direction: column; gap: 4px;">
-                  <div style="font-family: var(--font-mono); font-size: 9px; color: #f472b6; font-weight: 700;">
-                    🛡️ TRATAMENTO & REMOÇÃO DE DEFEITOS DE IA (SUNO / UDIO):
-                  </div>
-                  <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: var(--font-mono); color: #cbd5e1;">
-                    <span>● Desmetalização de Fase (Anti-Robô 3.2k-5kHz)</span>
-                    <span style="color: var(--emerald-primary); font-weight: 700;">ATIVO</span>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: var(--font-mono); color: #cbd5e1;">
-                    <span>● De-Fizz Sibilante (S e T Orgânicos)</span>
-                    <span style="color: var(--emerald-primary); font-weight: 700;">ATIVO</span>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; font-size: 9px; font-family: var(--font-mono); color: #cbd5e1;">
-                    <span>● Encorpamento de Peito & Garganta Real (180-350Hz)</span>
-                    <span style="color: var(--emerald-primary); font-weight: 700;">ATIVO</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 🏆 QUANTUM SUPREME MASTERING RACK (STREAMING, TAPE & AI ASSISTANT) -->
-              <div style="background: linear-gradient(135deg, #0e1626, #06090f); border: 2px solid var(--gold-primary); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 25px rgba(212, 175, 55, 0.25);">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 6px;">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 16px;">🎛️</span>
-                    <strong style="font-family: var(--font-display); font-size: 12px; color: var(--gold-light); text-transform: uppercase;">CONTROLE DE MASTERIZAÇÃO SUPREMA</strong>
-                  </div>
-                  <span class="badge" style="font-size: 9px; background: rgba(212, 175, 55, 0.2); color: var(--gold-light); border: 1px solid var(--gold-primary); padding: 2px 6px; border-radius: 4px;">64-Bit DSP</span>
-                </div>
-
-                <div>
-                  <label style="font-family: var(--font-mono); font-size: 10px; color: #fde047; font-weight: 800; display: block; margin-bottom: 4px;">
-                    🎙️ ORIGEM DO ÁUDIO (MODO DE MASTERIZAÇÃO):
-                  </label>
-                  <select id="select-input-source-mode" class="studio-select" style="font-size: 11px; padding: 6px; border: 1px solid var(--gold-primary); background: #06090f; color: #ffffff; width: 100%;">
-                    <option value="studio_demo" selected>🎙️ GRAVAÇÃO REAL DE ESTÚDIO / DEMO (Mastering Puro 100% Sem Deformação)</option>
-                    <option value="ai_generated">🤖 MÚSICA GERADA POR IA (Suno / Udio / Lo-Fi - Reconstrutor de Camadas)</option>
-                    <option value="auto">⚡ AUTO-DETECTAR INTELIGENTE</option>
-                  </select>
-                  <div id="source-mode-hint" style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); margin-top: 3px;">
-                    ✅ Preserva 100% da dinâmica e fidelidade dos seus instrumentos e voz reais.
-                  </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                  <div>
-                    <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 3px;">🌐 ALVO DE STREAMING / MIDIA:</label>
-                    <select id="select-streaming-target" class="studio-select" style="font-size: 10px; padding: 4px;">
-                      <option value="cd_metal" selected>🏆 CD / Metal Master (-7.5 LUFS)</option>
-                      <option value="spotify">🟢 Spotify Global (-14.0 LUFS)</option>
-                      <option value="apple">🍎 Apple Music (-16.0 LUFS)</option>
-                      <option value="youtube">🔴 YouTube Audio (-14.0 LUFS)</option>
-                      <option value="tidal">💎 Tidal Hi-Fi (-14.0 LUFS)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style="font-family: var(--font-mono); font-size: 9px; color: var(--cyan-light); font-weight: 700; display: block; margin-bottom: 3px;">🧲 FITA / TRANSFORMADOR:</label>
-                    <select id="select-analog-tape-model" class="studio-select" style="font-size: 10px; padding: 4px;">
-                      <option value="ampex_atr102" selected>📼 Ampex ATR-102 (15 IPS)</option>
-                      <option value="studer_a800">📼 Studer A800 (30 IPS)</option>
-                      <option value="neve_marinair">⚡ Neve Marinair LO1166</option>
-                      <option value="api_2520">⚡ API 2520 Discrete Op-Amp</option>
-                      <option value="bax_clean">✨ Baxandall Clean</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- LIMITER & CLIPPER SELECTION -->
-                <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.2);">
-                  <label style="font-family: var(--font-mono); font-size: 9px; color: #f59e0b; font-weight: 800; display: block; margin-bottom: 3px;">
-                    ⚡ TETO DINÂMICO & LIMITER ANALÓGICO:
-                  </label>
-                  <select id="select-limiter-mode" class="studio-select" style="font-size: 10px; padding: 4px; width: 100%;">
-                    <option value="soft_analog_clipper" selected>🥊 Soft Analog Clipper (Graves Gordos, Punch e Volume Máximo sem Distorção)</option>
-                    <option value="pristine_lookahead">💎 Pristine Lookahead Limiter (100% Transparente para Acústico/Pop)</option>
-                  </select>
-                </div>
-
-                <!-- 🌟 NEXT-GEN MASTERING PROCESSORS (SOOTHE, UNMASK, PUNCH & DEVICES) -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
-                  <div>
-                    <label style="font-family: var(--font-mono); font-size: 9px; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 3px;">📱 SIMULADOR DE DISPOSITIVO:</label>
-                    <select id="select-real-world-device" class="studio-select" style="font-size: 10px; padding: 4px;">
-                      <option value="flat_studio" selected>🎧 Estúdio Flat Reference</option>
-                      <option value="car_subwoofer">🚗 Carro c/ Subwoofer (50Hz Bump)</option>
-                      <option value="iphone_speaker">📱 iPhone / Smartphone (Small Driver)</option>
-                      <option value="airpods_harman">🎧 AirPods Pro (Harman Curve)</option>
-                      <option value="jbl_bluetooth">📻 Caixa JBL Bluetooth</option>
-                    </select>
-                  </div>
-                  <div>
-                    <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
-                      <span style="color: #f59e0b; font-weight: 700;">🥊 PUNCH & ATAQUE DE TRANSIENTES:</span>
-                      <span id="label-transient-punch-val" style="color: var(--gold-light); font-weight: 700;">45%</span>
-                    </div>
-                    <input type="range" id="slider-transient-punch" min="0" max="100" value="45" style="width: 100%; height: 4px; accent-color: #f59e0b; cursor: pointer; margin-top: 6px;" />
-                  </div>
-                </div>
-
-                <!-- 🎸 MATRIX DE KITS DE INSTRUMENTOS & HACKS SECRETOS -->
-                <div style="background: linear-gradient(135deg, #101726, #090e17); border: 1px solid var(--cyan-primary); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 15px rgba(6, 182, 212, 0.20);">
-                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(6, 182, 212, 0.3); padding-bottom: 4px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                      <span style="font-size: 14px;">🎸</span>
-                      <strong style="font-family: var(--font-display); font-size: 11px; color: var(--cyan-light); text-transform: uppercase;">KITS DE INSTRUMENTOS & HACKS DE PRODUTOR</strong>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                      <button type="button" id="btn-toggle-live-audition" class="switch-toggle-btn" style="font-size: 9px; padding: 2px 8px; border-color: #f59e0b; color: var(--gold-light);" title="Ativa o grafo DSP em tempo real para ouvir a troca dos kits instantaneamente enquanto a música toca">
-                        ⚡ LIVE AUDITION: OFF
-                      </button>
-                      <span class="badge" style="font-size: 8px; background: rgba(6, 182, 212, 0.2); color: var(--cyan-light); border: 1px solid var(--cyan-primary); padding: 1px 5px; border-radius: 4px;">Real Physical DSP</span>
-                    </div>
-                  </div>
-
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div>
-                      <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 2px;">🥁 KIT DE BATERIA / CAIXA:</label>
-                      <select id="select-drum-kit-model" class="studio-select" style="font-size: 10px; padding: 4px;">
-                        <option value="bypass" selected>⚡ Original / Sem Troca de Kit</option>
-                        <option value="ludwig_black_beauty">🥁 Ludwig Black Beauty 1970 (Lars Ulrich / Bob Rock)</option>
-                        <option value="tama_starclassic">🥁 Tama Starclassic Bubinga (Dave Grohl / Nevermind)</option>
-                        <option value="sonor_cast_bronze">🥁 Sonor Signature Cast Bronze (Danny Carey / Tool)</option>
-                        <option value="gms_custom_sneap">🥁 GMS Custom 8x14 (Andy Sneap / Metalcore)</option>
-                        <option value="slingerland_bonham">🥁 Slingerland Radio King (John Bonham / Led Zeppelin)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style="font-family: var(--font-mono); font-size: 9px; color: #ec4899; font-weight: 700; display: block; margin-bottom: 2px;">⚡ RIG DE GUITARRA & AMP:</label>
-                      <select id="select-guitar-rig-model" class="studio-select" style="font-size: 10px; padding: 4px;">
-                        <option value="bypass" selected>⚡ Original / Sem Re-Amp</option>
-                        <option value="peavey_5150_mesa_os">⚡ Peavey 5150 + Mesa 4x12 OS (Sneap / Richardson)</option>
-                        <option value="marshall_jcm800_greenback">⚡ Marshall JCM800 + Greenbacks (Martin Birch / Maiden)</option>
-                        <option value="mesa_dual_rectifier_bogner">⚡ Mesa Dual Rectifier + Bogner (Flemming / Metallica)</option>
-                        <option value="soldano_slo100">⚡ Soldano SLO-100 Super Lead (Van Halen / Clapton)</option>
-                        <option value="fender_twin_reverb_1965">⚡ Fender Twin Reverb 1965 (David Gilmour / Pink Floyd)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div>
-                      <label style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); font-weight: 700; display: block; margin-bottom: 2px;">🎸 RIG DE BAIXO & PREAMP:</label>
-                      <select id="select-bass-rig-model" class="studio-select" style="font-size: 10px; padding: 4px;">
-                        <option value="bypass" selected>⚡ Original / Sem Rig de Baixo</option>
-                        <option value="spector_ampeg_svt">🎸 Spector NS-2 + Ampeg SVT-CL 8x10 (Bob Rock / Newsted)</option>
-                        <option value="fender_precision_sansamp">🎸 Fender Precision + SansAmp (Steve Harris / Maiden)</option>
-                        <option value="rickenbacker_cliff_burton">🎸 Rickenbacker 4001 + Marshall Major (Cliff Burton)</option>
-                        <option value="musicman_gk800rb">🎸 Music Man + GK 800RB (Flea / RHCP)</option>
-                        <option value="warwick_darkglass_b7k">🎸 Warwick 5-String + Darkglass B7K (Modern Metal)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style="font-family: var(--font-mono); font-size: 9px; color: #a855f7; font-weight: 700; display: block; margin-bottom: 2px;">🪄 HACK SECRETO DE PRODUTOR:</label>
-                      <select id="select-secret-producer-hack" class="studio-select" style="font-size: 10px; padding: 4px;">
-                        <option value="bypass" selected>✨ Nenhum (Master Puro)</option>
-                        <option value="black_album_fatness">🪄 The Black Album Fatness (Bob Rock)</option>
-                        <option value="abbey_road_glue">🪄 Abbey Road 1969 Vintage Glue (Geoff Emerick)</option>
-                        <option value="sneap_metal_wall">🪄 Andy Sneap Metalcore Wall of Sound</option>
-                        <option value="max_martin_diamond">🪄 Max Martin Diamond Pop Air</option>
-                        <option value="radioactive_tape_warmth">🪄 Radioactive Analog Tape & Iron Transformers</option>
-                        <option value="bruce_vocal_god">🪄 Bruce Dickinson Vocal God Presence</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SPECIAL ADVANCED TOGGLES -->
-                <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
-                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--gold-light); cursor: pointer;">
-                    <input type="checkbox" id="chk-ai-assistant-enable" checked /> 🧠 AI Diagnostician 2.0
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: #38bdf8; cursor: pointer;">
-                    <input type="checkbox" id="chk-dynamic-deharsh" checked /> 🌊 Soothe De-Harsh
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--emerald-primary); cursor: pointer;">
-                    <input type="checkbox" id="chk-kick-bass-unmask" checked /> 🥊 Unmask Bumbo/Baixo
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: #a855f7; cursor: pointer;">
-                    <input type="checkbox" id="chk-dolby-atmos-room" /> 🏰 Dolby Atmos 7.1.4
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: #ec4899; cursor: pointer;">
-                    <input type="checkbox" id="chk-bruce-dickinson-god" checked /> 👑 Bruce Dickinson Vocal God 2.0
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: #f43f5e; cursor: pointer;">
-                    <input type="checkbox" id="chk-tiny-neural-vocal" checked /> 🧠 Micro-Neural Voice Cloner (&lt;25MB RAM)
-                  </label>
-                </div>
-
-                <!-- DIAGNOSTIC FEEDBACK BOX -->
-                <div id="ai-diagnostic-result-card" class="hidden" style="background: rgba(16, 185, 129, 0.08); border: 1px solid var(--emerald-primary); border-radius: 6px; padding: 8px; font-family: var(--font-mono); font-size: 10px; color: #cbd5e1;">
-                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: var(--emerald-primary); font-weight: 800;">✅ LAUDO AI MASTER ASSISTANT:</span>
-                    <span id="diagnostic-score-badge" style="color: var(--gold-light); font-weight: 800;">Balanço: 98/100</span>
-                  </div>
-                  <div id="diagnostic-issues-list" style="font-size: 9px; line-height: 1.4; color: #94a3b8;">
-                    Nenhum erro espectral crítico. Equalização analógica aplicada com sucesso.
-                  </div>
-                </div>
-              </div>
-
-              <button type="button" id="btn-open-song-generator" class="btn-gold-action" style="width: 100%; margin-bottom: 6px; font-size: 11px; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #f472b6;">
-                ✨ GERAR MÚSICA & VOZ INÉDITA (PROMPT + MINHA VOZ)
+              <!-- BUTTONS -->
+              <button type="button" id="btn-process-master" class="btn-red-action" style="width: 100%; padding: 14px; font-size: 14px; font-weight: 900; box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);">
+                🏆 PROCESSAR MASTER ANALÓGICO
               </button>
 
-              <button type="button" id="btn-ai-autocalibrate" class="btn-gold-action" style="width: 100%; margin-bottom: 6px; font-size: 11px; background: linear-gradient(135deg, #4f46e5, #4338ca); border-color: #6366f1;">
+              <button type="button" id="btn-ai-autocalibrate" class="btn-gold-action" style="width: 100%; font-size: 10px; padding: 6px; background: linear-gradient(135deg, #4f46e5, #4338ca); border-color: #6366f1;">
                 🪄 AUTO-CALIBRAR PARA MATCH PERFEITO (&gt;99.5%)
               </button>
 
-              <button type="button" id="btn-process-master" class="btn-red-action" style="width: 100%;">
-                🏆 PROCESSAR MASTER ANALÓGICO
-              </button>
-              
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <a id="btn-download-master" href="#" download class="btn-gold-action hidden" style="width: 100%; text-decoration: none; text-align: center; font-size: 11px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <a id="btn-download-master" href="#" download class="btn-gold-action hidden" style="width: 100%; text-decoration: none; text-align: center; font-size: 10px; padding: 6px;">
                   ⬇️ BAIXAR WAV 24-BIT
                 </a>
-                <a id="btn-download-mp3" href="#" download class="btn-gold-action hidden" style="width: 100%; text-decoration: none; text-align: center; font-size: 11px; background: linear-gradient(135deg, #059669, #047857); border-color: #10b981;">
+                <a id="btn-download-mp3" href="#" download class="btn-gold-action hidden" style="width: 100%; text-decoration: none; text-align: center; font-size: 10px; padding: 6px; background: linear-gradient(135deg, #059669, #047857); border-color: #10b981;">
                   ⬇️ BAIXAR MP3 320K
                 </a>
               </div>
-              <button type="button" id="btn-view-report" class="switch-toggle-btn hidden" style="width: 100%; font-size: 11px; margin-top: 4px;">
+              <button type="button" id="btn-view-report" class="switch-toggle-btn hidden" style="width: 100%; font-size: 10px; padding: 4px;">
                 📄 VER CERTIFICADO TÉCNICO DE ENGENHARIA
               </button>
 
-              <!-- MULTI-FORMAT EXPORT BUTTONS (VISIBLE AFTER MASTERING) -->
-              <div id="multi-format-export-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
-                <button type="button" id="btn-export-box-set" class="btn-gold-action" style="width: 100%; font-size: 11px; padding: 7px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; font-weight: 800;">
-                  👑 BAIXAR MASTER BOX SET COMPLETO (MASTER + STEMS + MIDI + SCORE)
+              <!-- MULTI-FORMAT EXPORT SUITE -->
+              <div id="multi-format-export-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                <button type="button" id="btn-export-box-set" class="btn-gold-action" style="width: 100%; font-size: 10px; padding: 6px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; font-weight: 800;">
+                  👑 BAIXAR MASTER BOX SET COMPLETO (ALL STEMS + MIDI)
                 </button>
-                <button type="button" id="btn-export-release-bundle" class="btn-gold-action" style="width: 100%; font-size: 11px; padding: 6px;">
+                <button type="button" id="btn-export-release-bundle" class="btn-gold-action" style="width: 100%; font-size: 10px; padding: 5px;">
                   📦 EXPORTAR PACOTE DE LANÇAMENTO (ALL PLATFORMS)
                 </button>
-                <div style="display: flex; gap: 6px; width: 100%;">
-                  <button type="button" id="btn-generate-cover-art" class="btn-gold-action" style="flex: 1.2; font-size: 10px; padding: 5px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-color: #8b5cf6;">
-                    🎨 CAPA DE ÁLBUM 4K
+                <div style="display: flex; gap: 4px; width: 100%;">
+                  <button type="button" id="btn-generate-cover-art" class="btn-gold-action" style="flex: 1.2; font-size: 9px; padding: 4px; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-color: #8b5cf6;">
+                    🎨 CAPA 4K
                   </button>
-                  <button type="button" id="btn-export-32bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">32-Bit Float</button>
-                  <button type="button" id="btn-export-16bit" class="switch-toggle-btn" style="flex: 1; font-size: 10px; padding: 4px;">16-Bit CD</button>
+                  <button type="button" id="btn-export-32bit" class="switch-toggle-btn" style="flex: 1; font-size: 9px; padding: 3px;">32-Bit Float</button>
+                  <button type="button" id="btn-export-16bit" class="switch-toggle-btn" style="flex: 1; font-size: 9px; padding: 3px;">16-Bit CD</button>
                 </div>
-                <button type="button" id="btn-generate-social-video" class="btn-gold-action" style="width: 100%; font-size: 10px; padding: 5px; background: linear-gradient(135deg, #e11d48, #be123c); border-color: #f43f5e;">
-                  🎬 GERAR VÍDEO TEASER 4K (REELS / TIKTOK / SHORTS)
+                <button type="button" id="btn-generate-social-video" class="btn-gold-action" style="width: 100%; font-size: 9px; padding: 4px; background: linear-gradient(135deg, #e11d48, #be123c); border-color: #f43f5e;">
+                  🎬 GERAR VÍDEO TEASER 4K (REELS / TIKTOK)
                 </button>
               </div>
 
-              <!-- USER PRESETS BAR -->
-              <div style="display: flex; flex-direction: column; gap: 4px; width: 100%; margin-top: 4px; background: #05070c; padding: 6px; border-radius: 6px; border: 1px solid var(--border-subtle);">
-                <div style="display: flex; gap: 6px; align-items: center; width: 100%;">
-                  <select id="select-user-presets" class="studio-select" style="flex: 1; font-size: 10px; padding: 4px;">
+              <!-- PRESETS BAR -->
+              <div style="display: flex; flex-direction: column; gap: 3px; width: 100%; background: #05070c; padding: 4px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <div style="display: flex; gap: 4px; align-items: center; width: 100%;">
+                  <select id="select-user-presets" class="studio-select" style="flex: 1; font-size: 9px; padding: 3px;">
                     <option value="">💾 Meus Presets Salvos...</option>
                   </select>
-                  <button type="button" id="btn-save-current-preset" class="switch-toggle-btn" style="padding: 4px 8px; font-size: 10px;" title="Salvar Ajustes Atuais">➕ Salvar</button>
+                  <button type="button" id="btn-save-current-preset" class="switch-toggle-btn" style="padding: 3px 6px; font-size: 9px;">➕ Salvar</button>
                 </div>
-                <div style="display: flex; gap: 6px; width: 100%;">
-                  <button type="button" id="btn-backup-presets-json" class="switch-toggle-btn" style="flex: 1; font-size: 9px; padding: 3px;" title="Baixar Presets em JSON">⬇️ Backup JSON</button>
-                  <label class="switch-toggle-btn" style="flex: 1; font-size: 9px; padding: 3px; text-align: center; cursor: pointer;" title="Restaurar Presets de JSON">
-                    ⬆️ Restaurar JSON
+                <div style="display: flex; gap: 4px; width: 100%;">
+                  <button type="button" id="btn-backup-presets-json" class="switch-toggle-btn" style="flex: 1; font-size: 8px; padding: 2px;">⬇️ Backup</button>
+                  <label class="switch-toggle-btn" style="flex: 1; font-size: 8px; padding: 2px; text-align: center; cursor: pointer;">
+                    ⬆️ Restaurar
                     <input type="file" id="input-restore-presets-json" accept=".json" style="display: none;" />
                   </label>
                 </div>
               </div>
 
-              <!-- ALBUM BATCH MASTER TRIGGER -->
-              <button type="button" id="btn-open-album-batch" class="btn-gold-action" style="width: 100%; margin-top: 6px; font-size: 11px; padding: 6px; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8;">
-                💿 MASTERIZAR ÁLBUM COMPLETO EM LOTE (BATCH)
+              <button type="button" id="btn-open-song-generator" class="btn-gold-action" style="width: 100%; font-size: 10px; padding: 5px; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #f472b6;">
+                ✨ GERAR MÚSICA & VOZ INÉDITA COM IA
+              </button>
+
+              <button type="button" id="btn-open-album-batch" class="btn-gold-action" style="width: 100%; font-size: 10px; padding: 5px; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8;">
+                💿 MASTERIZAR ÁLBUM COMPLETO EM LOTE
               </button>
             </div>
 
