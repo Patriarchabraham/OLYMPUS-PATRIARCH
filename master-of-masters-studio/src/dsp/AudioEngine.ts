@@ -10,6 +10,7 @@ import type { MasterAlbumSetup, MasterProducer } from '../database/masters-datab
 import { AbbeyRoadAdtEngine } from './AbbeyRoadAdtEngine'
 import { AiMasterAssistant, type TrackDiagnostic } from './AiMasterAssistant'
 import { AnalogClipperLimiterEngine, type LimiterMode } from './AnalogClipperLimiterEngine'
+import { AnalogMasteringConsoleEngine } from './AnalogMasteringConsoleEngine'
 import type { AnalogColorModel } from './AnalogTapeTransformerEngine'
 import { AudioBufferHelper } from './AudioBufferHelper'
 import { AuralAirExciterEngine } from './AuralAirExciterEngine'
@@ -431,98 +432,16 @@ export class AudioEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(68, `Processando console analógico SSL G-Bus e EQ de 10 bandas...`)
-		const masterCtx = new OfflineAudioContext(2, length, sr)
-		const src = masterCtx.createBufferSource()
-		src.buffer = weldedStemBuffer
-
-		const inputPad = masterCtx.createGain()
-		inputPad.gain.value = 0.95 // Full solid analog drive
-
-		const subHp = masterCtx.createBiquadFilter()
-		subHp.type = 'highpass'
-		subHp.frequency.value = 28 // Preserves 35Hz-60Hz sub-punch
-		subHp.Q.value = Math.SQRT1_2
-
-		// 10-Band Precision Punch EQ
-		const eq = album.eq10Band
-		const eqScale = 0.25 * intensityScale
-		const f30 = masterCtx.createBiquadFilter()
-		f30.type = 'lowshelf'
-		f30.frequency.value = 40
-		f30.gain.value = eq.hz30 * eqScale + 1.2
-		const f60 = masterCtx.createBiquadFilter()
-		f60.type = 'peaking'
-		f60.frequency.value = 65
-		f60.Q.value = 1.1
-		f60.gain.value = eq.hz60 * eqScale + 2.4 // 65Hz Kick Thump
-		const f120 = masterCtx.createBiquadFilter()
-		f120.type = 'peaking'
-		f120.frequency.value = 120
-		f120.Q.value = 1.0
-		f120.gain.value = eq.hz120 * eqScale
-		const f250 = masterCtx.createBiquadFilter()
-		f250.type = 'peaking'
-		f250.frequency.value = 250
-		f250.Q.value = 1.4
-		f250.gain.value = -1.2 // Clean mud
-		const f500 = masterCtx.createBiquadFilter()
-		f500.type = 'peaking'
-		f500.frequency.value = 500
-		f500.Q.value = 1.0
-		f500.gain.value = eq.hz500 * eqScale
-		const f1000 = masterCtx.createBiquadFilter()
-		f1000.type = 'peaking'
-		f1000.frequency.value = 1000
-		f1000.Q.value = 1.0
-		f1000.gain.value = eq.hz1000 * eqScale
-		const f2500 = masterCtx.createBiquadFilter()
-		f2500.type = 'peaking'
-		f2500.frequency.value = 2800
-		f2500.Q.value = 1.0
-		f2500.gain.value = eq.hz2500 * eqScale + 1.8 // Snare Attack Crack
-		const f4000 = masterCtx.createBiquadFilter()
-		f4000.type = 'peaking'
-		f4000.frequency.value = 4200
-		f4000.Q.value = 1.0
-		f4000.gain.value = eq.hz4000 * eqScale
-		const f8000 = masterCtx.createBiquadFilter()
-		f8000.type = 'peaking'
-		f8000.frequency.value = 8000
-		f8000.Q.value = 0.9
-		f8000.gain.value = eq.hz8000 * eqScale
-		const f16000 = masterCtx.createBiquadFilter()
-		f16000.type = 'highshelf'
-		f16000.frequency.value = 14000
-		f16000.gain.value = eq.hz16000 * eqScale + 1.0
-
-		src.connect(inputPad)
-		inputPad.connect(subHp)
-		subHp.connect(f30)
-		f30.connect(f60)
-		f60.connect(f120)
-		f120.connect(f250)
-		f250.connect(f500)
-		f500.connect(f1000)
-		f1000.connect(f2500)
-		f2500.connect(f4000)
-		f4000.connect(f8000)
-		f8000.connect(f16000)
-
-		const compNode = masterCtx.createDynamicsCompressor()
-		compNode.threshold.value = -14
-		compNode.ratio.value = 2.0
-		compNode.attack.value = 0.035 // 35ms punchy slow attack (lets kick/snare attack punch through cleanly!)
-		compNode.release.value = 0.09 // 90ms punchy musical release
-		compNode.knee.value = 4
-		f16000.connect(compNode)
-
-		const masterGain = masterCtx.createGain()
-		masterGain.gain.value = 1.18 // Drives solid punch into soft-clipper
-		compNode.connect(masterGain)
-		masterGain.connect(masterCtx.destination)
-		src.start(0)
-
-		const renderedMaster = await masterCtx.startRendering()
+		const lCons = weldedStemBuffer.getChannelData(0)
+		const rCons = weldedStemBuffer.getChannelData(1)
+		await AnalogMasteringConsoleEngine.processConsoleAndGlue(
+			lCons,
+			rCons,
+			album,
+			intensityScale,
+			sr,
+		)
+		const renderedMaster = weldedStemBuffer
 
 		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 6.5: ABBEY ROAD AUTOMATIC DOUBLE TRACKING (ADT) REEL-TO-REEL FLANGE
