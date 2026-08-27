@@ -158,9 +158,14 @@
                   🎙️ MODO DE ORIGEM DO ÁUDIO:
                 </label>
                 <select id="select-input-source-mode" class="studio-select" style="font-size: 10px; padding: 5px; border: 1px solid var(--gold-primary); background: #06090f; color: #ffffff; width: 100%;">
-                  <option value="studio_demo" selected>🎙️ Gravação Real de Estúdio / Demo</option>
-                  <option value="ai_generated">🤖 Música Gerada por IA (Suno / Udio)</option>
-                  <option value="auto">⚡ Auto-Detectar Inteligente</option>
+                  <option value="studio_demo" selected>🎙️ Gravação Real de Estúdio / Demo (Pure Audiophile Master)</option>
+                  <option value="ai_generated">🤖 Música Gerada por IA Suno v3.5 / v4.0 (Anti-Robô + Reconstrução)</option>
+                  <option value="ai_generated">🤖 Música Gerada por IA Udio 1.5 (De-Artifact + Encorpamento)</option>
+                  <option value="lofi_garage">📻 Gravação Lo-Fi / Ensaio de Celular / Garagem (Resgate Acústico)</option>
+                  <option value="acapella_vocal">🎤 Acapella / Voz Isolada (Vocal God + Air Presence)</option>
+                  <option value="stems_multitrack">🎛️ Multitrack / Stems Separados (Stem Master Pro)</option>
+                  <option value="vintage_cassette">📼 Fita Cassete / Vinil Antigo (Restauração Analógica)</option>
+                  <option value="auto">⚡ Auto-Detectar Inteligente por Fator de Crista</option>
                 </select>
                 <div id="source-mode-hint" style="font-family: var(--font-mono); font-size: 9px; color: var(--emerald-primary); margin-top: 2px;">
                   ✅ Preserva 100% da dinâmica e fidelidade dos seus instrumentos reais.
@@ -170,9 +175,16 @@
               <div>
                 <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 3px;">TRANSFORMADOR DE CONSOLE:</label>
                 <select id="select-console-transformer" class="studio-select" style="font-size: 10px; padding: 4px;">
-                  <option value="neve_1073" selected>🇬🇧 Neve 1073 (Marinair Ferro Warmth)</option>
-                  <option value="api_512c">🇺🇸 API 512c (AP2503 Aço Punch Bite)</option>
+                  <option value="neve_1073" selected>🇬🇧 Neve 1073 (Marinair LO1166 Ferro Warmth)</option>
+                  <option value="api_512c">🇺🇸 API 512c / 312 (AP2503 Aço Punch Bite)</option>
                   <option value="ssl_4000g">🏴󠁧󠁢󠁥󠁮󠁧󠁿 SSL 4000G (Jensen Clean VCA Glue)</option>
+                  <option value="telefunken_v72">🇩🇪 Telefunken V72 (Válvula Vintage 1958)</option>
+                  <option value="western_electric_111c">🇺🇸 Western Electric 111C (Bobina Histórica)</option>
+                  <option value="helios_type69">🇬🇧 Helios Type 69 (Olympic Studios Lustre)</option>
+                  <option value="trident_a_range">🇬🇧 Trident A-Range (Indutor Musical Rock)</option>
+                  <option value="yamaha_pm1000">🇯🇵 Yamaha PM1000 (Tamura Japanese Warmth)</option>
+                  <option value="spectra_sonics_101">🇺🇸 Spectra Sonics 101 (Hollywood Classic)</option>
+                  <option value="siemens_sitral_w295">🇩🇪 Siemens Sitral W295 (Silício Vintage)</option>
                 </select>
               </div>
             </div>
@@ -215,19 +227,25 @@
                 <div>
                   <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">🎸 DOBRA GUITARRA:</label>
                   <select id="select-guitar-doubling" class="studio-select" style="font-size: 9px; padding: 2px;">
-                    <option value="off">Desativado</option>
-                    <option value="double_2x" selected>⚡ 2x Dobra L/R</option>
-                    <option value="quad_4x">🔥 4x Quad Wall</option>
+                    <option value="off">Desativado (Mono)</option>
+                    <option value="double_2x" selected>⚡ 2x Dobra Estéreo L/R</option>
+                    <option value="quad_4x">🔥 4x Quad-Track Wall</option>
+                    <option value="sextuple_6x">🏰 6x Sextuple Mega-Wall</option>
+                    <option value="twelve_string">🎸 Dobra 12 Cordas (Oitavada)</option>
                   </select>
                 </div>
                 <div>
                   <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">⚡ DUETO SOLO:</label>
                   <select id="select-guitar-harmony" class="studio-select" style="font-size: 9px; padding: 2px;">
-                    <option value="none" selected>Nenhum</option>
-                    <option value="major_3rd">🎵 3ª Maior (+4st)</option>
-                    <option value="minor_3rd">🎵 3ª Menor (+3st)</option>
-                    <option value="perfect_5th">🚀 5ª Justa (+7st)</option>
-                    <option value="octave_up">✨ Oitava Acima</option>
+                    <option value="none" selected>Nenhum Dueto</option>
+                    <option value="major_3rd">🎵 3ª Maior (+4st Maiden)</option>
+                    <option value="minor_3rd">🎵 3ª Menor (+3st Metallica)</option>
+                    <option value="perfect_5th">🚀 5ª Justa (+7st Power)</option>
+                    <option value="perfect_4th">👑 4ª Justa (+5st Rock)</option>
+                    <option value="octave_up">✨ Oitava Acima (+12st)</option>
+                    <option value="octave_down">💥 Oitava Abaixo (-12st)</option>
+                    <option value="minor_6th">🏰 6ª Menor (+8st Yngwie)</option>
+                    <option value="major_6th">🏰 6ª Maior (+9st Melódico)</option>
                   </select>
                 </div>
               </div>
@@ -237,18 +255,24 @@
                   <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">🎸 BAIXO OITAVADO:</label>
                   <select id="select-bass-doubling" class="studio-select" style="font-size: 9px; padding: 2px;">
                     <option value="off" selected>Original</option>
-                    <option value="sub_octave">💣 Sub-Oitava (-12st)</option>
-                    <option value="bi_amp_8string">⚡ 8 Cordas (+12st)</option>
+                    <option value="sub_octave">💣 Sub-Oitava Sísmica (-12st)</option>
+                    <option value="bi_amp_8string">⚡ Baixo 8 Cordas (+12st)</option>
+                    <option value="twelve_string_bass">🎸 Baixo 12 Cordas Triplo (±12st)</option>
+                    <option value="parallel_sansamp_drive">🔥 Drive Paralelo SansAmp 50/50</option>
                   </select>
                 </div>
                 <div>
                   <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">🎤 HARMONIA VOZ:</label>
                   <select id="select-vocal-harmony" class="studio-select" style="font-size: 9px; padding: 2px;">
-                    <option value="none" selected>Voz Solo</option>
-                    <option value="major_3rd">👑 3ª Maior</option>
-                    <option value="minor_3rd">👑 3ª Menor</option>
-                    <option value="perfect_5th">🔥 5ª Justa</option>
-                    <option value="choir_4part">🏰 Coro Queen 4-Part</option>
+                    <option value="none" selected>Voz Solo Original</option>
+                    <option value="major_3rd">👑 3ª Maior (+4st Doce)</option>
+                    <option value="minor_3rd">👑 3ª Menor (+3st Moody)</option>
+                    <option value="perfect_5th">🔥 5ª Justa (+7st Épico)</option>
+                    <option value="octave_up">✨ Oitava Acima (+12st Ar)</option>
+                    <option value="octave_down">💥 Oitava Abaixo (-12st Monstro)</option>
+                    <option value="choir_4part">🏰 Coro Queen 4-Part Bohemian</option>
+                    <option value="epic_gregorian">🏰 Coro Medieval 8-Part Nightwish</option>
+                    <option value="female_duet">🎙️ Dueto Feminino Harmônico</option>
                   </select>
                 </div>
               </div>
@@ -280,10 +304,15 @@
                     <option value="B">B (Si)</option>
                   </select>
                   <select id="select-pitch-scale" class="studio-select" style="font-size: 9px; padding: 2px;">
-                    <option value="chromatic" selected>Cromática</option>
-                    <option value="minor">Menor</option>
-                    <option value="major">Maior</option>
-                    <option value="pentatonic">Pentatônica</option>
+                    <option value="chromatic" selected>Cromática (Auto)</option>
+                    <option value="minor">Menor Natural (Eólio)</option>
+                    <option value="major">Maior (Jônio)</option>
+                    <option value="pentatonic">Pentatônica Menor / Blues</option>
+                    <option value="dorian">Dórico (Progressivo / Funk)</option>
+                    <option value="phrygian">Frígio (Flamenco / Thrash)</option>
+                    <option value="lydian">Lídio (Épico / Cinema)</option>
+                    <option value="mixolydian">Mixolídio (Classic Rock)</option>
+                    <option value="harmonic_minor">Menor Harmônica (Neoclássico)</option>
                   </select>
                 </div>
                 <input type="range" id="slider-retune-speed" min="0" max="100" value="65" style="width: 100%; height: 3px; accent-color: #ec4899; cursor: pointer;" />
@@ -522,21 +551,33 @@
                 <div>
                   <label style="font-family: var(--font-mono); font-size: 8px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 2px;">STREAMING / MÍDIA:</label>
                   <select id="select-streaming-target" class="studio-select" style="font-size: 9px; padding: 3px;">
-                    <option value="cd_metal" selected>🏆 CD / Metal (-7.5 LUFS)</option>
-                    <option value="spotify">🟢 Spotify (-14.0 LUFS)</option>
-                    <option value="apple">🍎 Apple Music (-16.0 LUFS)</option>
-                    <option value="youtube">🔴 YouTube (-14.0 LUFS)</option>
-                    <option value="tidal">💎 Tidal Hi-Fi (-14.0 LUFS)</option>
+                    <option value="cd_metal" selected>🏆 CD / Metal (-7.5 LUFS / -0.3 dBTP)</option>
+                    <option value="club_edm">🔥 Club / EDM / Trap (-6.0 LUFS / -0.1 dBTP)</option>
+                    <option value="spotify">🟢 Spotify Global (-14.0 LUFS / -1.0 dBTP)</option>
+                    <option value="spotify_loud">🟢 Spotify Loud Mode (-11.0 LUFS / -0.5 dBTP)</option>
+                    <option value="apple">🍎 Apple Music / Spatial (-16.0 LUFS / -1.0 dBTP)</option>
+                    <option value="youtube">🔴 YouTube Audio HD (-14.0 LUFS / -1.0 dBTP)</option>
+                    <option value="tidal">💎 Tidal Hi-Fi & MQA (-14.0 LUFS / -0.5 dBTP)</option>
+                    <option value="bandcamp">🎧 Bandcamp High-Res (-12.0 LUFS / -0.3 dBTP)</option>
+                    <option value="amazon">🎵 Amazon Music HD (-14.0 LUFS / -1.0 dBTP)</option>
+                    <option value="broadcast_fm">📻 Broadcast Rádio FM / TV (EBU R128 -23.0)</option>
+                    <option value="vinyl_cut">📀 Vinil / Acetato Lathe Cut (-11.5 LUFS)</option>
+                    <option value="cinema_dolby">🎬 Cinema / Dolby 7.1 (-24.0 LUFS)</option>
                   </select>
                 </div>
                 <div>
                   <label style="font-family: var(--font-mono); font-size: 8px; color: var(--cyan-light); font-weight: 700; display: block; margin-bottom: 2px;">FITA ANALÓGICA:</label>
                   <select id="select-analog-tape-model" class="studio-select" style="font-size: 9px; padding: 3px;">
-                    <option value="ampex_atr102" selected>📼 Ampex ATR-102 (15 IPS)</option>
-                    <option value="studer_a800">📼 Studer A800 (30 IPS)</option>
-                    <option value="neve_marinair">⚡ Neve Marinair LO1166</option>
-                    <option value="api_2520">⚡ API 2520 Op-Amp</option>
-                    <option value="bax_clean">✨ Baxandall Clean</option>
+                    <option value="ampex_atr102" selected>📼 Ampex ATR-102 1/2" (15 IPS Fat Bass)</option>
+                    <option value="ampex_30ips">📼 Ampex ATR-102 (30 IPS Velvet Silk)</option>
+                    <option value="studer_a800">📼 Studer A800 MKIII 2" (Gold Master Tape)</option>
+                    <option value="studer_a820">📼 Studer A820 Master Recorder (Swiss Ultra)</option>
+                    <option value="otari_mtr90">📼 Otari MTR-90 (80s Classic Tape)</option>
+                    <option value="mci_jh24">📼 MCI JH-24 (Vintage US Rock Warmth)</option>
+                    <option value="neve_marinair">⚡ Neve Marinair LO1166 Iron Transformers</option>
+                    <option value="api_2520">⚡ API 2520 Discrete Op-Amp Symmetrical</option>
+                    <option value="bax_clean">✨ Baxandall Solid State Clean Air</option>
+                    <option value="culture_vulture">🧲 Thermionic Culture Vulture (Triode Sat)</option>
                   </select>
                 </div>
               </div>
@@ -546,6 +587,12 @@
                 <select id="select-limiter-mode" class="studio-select" style="font-size: 9px; padding: 3px; width: 100%;">
                   <option value="soft_analog_clipper" selected>🥊 Soft Analog Clipper (Graves Gordos & Volume Máximo)</option>
                   <option value="pristine_lookahead">💎 Pristine Lookahead Limiter (100% Transparente)</option>
+                  <option value="weiss_ds1">🧱 Weiss DS1-MK3 Digital Brickwall (Precisão Cirúrgica)</option>
+                  <option value="oxford_inflator">🔥 Oxford Inflator Tube Clipper (Densidade Harmônica)</option>
+                  <option value="shadow_hills_dual">⚡ Shadow Hills Dual Discrete (Óptico + VCA em Série)</option>
+                  <option value="fairchild_670">🎛️ Fairchild 670 Tube Limiter (Vintage Vari-Mu)</option>
+                  <option value="smart_irc4">🚀 Smart IRC IV Adaptive (Zero Pumping Multibanda)</option>
+                  <option value="tubetech_cl1b">👑 Tube-Tech CL 1B Optical Ceiling (Suavidade Total)</option>
                 </select>
               </div>
 
@@ -553,11 +600,18 @@
                 <div>
                   <label style="font-family: var(--font-mono); font-size: 8px; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 2px;">DISPOSITIVO REFERÊNCIA:</label>
                   <select id="select-real-world-device" class="studio-select" style="font-size: 9px; padding: 2px;">
-                    <option value="flat_studio" selected>🎧 Estúdio Flat Reference</option>
-                    <option value="car_subwoofer">🚗 Carro c/ Subwoofer</option>
-                    <option value="iphone_speaker">📱 iPhone / Smartphone</option>
-                    <option value="airpods_harman">🎧 AirPods Pro (Harman)</option>
-                    <option value="jbl_bluetooth">📻 Caixa JBL Bluetooth</option>
+                    <option value="flat_studio" selected>🎧 Estúdio Flat Reference (Acoustic Pro)</option>
+                    <option value="car_subwoofer">🚗 Carro c/ Subwoofer (50Hz Trunk Bump)</option>
+                    <option value="car_door_mid">🚗 Carro Popular (Médios & Porta)</option>
+                    <option value="iphone_speaker">📱 iPhone 15/16 Pro Speaker (HPF 200Hz)</option>
+                    <option value="android_phone">📱 Smartphone Android Speaker</option>
+                    <option value="airpods_harman">🎧 AirPods Pro 2 (Harman Target)</option>
+                    <option value="sony_xm5">🎧 Sony WH-1000XM5 (Bass Boost)</option>
+                    <option value="sennheiser_hd650">🎧 Sennheiser HD650 (Audiophile Open)</option>
+                    <option value="jbl_bluetooth">📻 Caixa JBL Flip/Charge Bluetooth</option>
+                    <option value="smart_tv_soundbar">📺 Smart TV / Soundbar de Sala</option>
+                    <option value="macbook_pro">💻 MacBook Pro Built-in Speakers</option>
+                    <option value="auratone_cube">📻 Auratone 5C Mix Cube (Mono Balance)</option>
                   </select>
                 </div>
                 <div>
@@ -584,33 +638,64 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                 <select id="select-drum-kit-model" class="studio-select" style="font-size: 8px; padding: 2px;">
                   <option value="bypass" selected>🥁 Bateria Original</option>
-                  <option value="ludwig_black_beauty">🥁 Ludwig Black Beauty</option>
-                  <option value="tama_starclassic">🥁 Tama Starclassic</option>
-                  <option value="sonor_cast_bronze">🥁 Sonor Cast Bronze</option>
-                  <option value="gms_custom_sneap">🥁 GMS Custom Sneap</option>
+                  <option value="ludwig_black_beauty">🥁 Ludwig Black Beauty 1970 14x6.5" (Bob Rock)</option>
+                  <option value="tama_starclassic">🥁 Tama Starclassic Bubinga (Dave Grohl)</option>
+                  <option value="sonor_cast_bronze">🥁 Sonor Cast Bronze 14x8" (Danny Carey)</option>
+                  <option value="gms_custom_sneap">🥁 GMS Custom 8x14" (Andy Sneap Metal)</option>
+                  <option value="slingerland_bonham">🥁 Slingerland Radio King 1940 (John Bonham)</option>
+                  <option value="dw_pure_maple">🥁 DW Collector's Pure Maple (Neil Peart)</option>
+                  <option value="yamaha_rec_9000">🥁 Yamaha Recording Custom 9000 (Steve Gadd)</option>
+                  <option value="pearl_ref_pure">🥁 Pearl Reference Pure (Eloy Casagrande)</option>
+                  <option value="brady_jarrah">🥁 Brady Jarrah Ply Snare (Australian Crack)</option>
+                  <option value="gretsch_broadkaster">🥁 Gretsch Broadkaster 1950s (Vintage Warmth)</option>
+                  <option value="tama_bell_brass">🥁 Tama Bell Brass The Terminator (Metallica)</option>
                 </select>
                 <select id="select-guitar-rig-model" class="studio-select" style="font-size: 8px; padding: 2px;">
                   <option value="bypass" selected>⚡ Rig Guitarra Original</option>
-                  <option value="peavey_5150_mesa_os">⚡ Peavey 5150 + Mesa</option>
-                  <option value="marshall_jcm800_greenback">⚡ Marshall JCM800</option>
-                  <option value="mesa_dual_rectifier_bogner">⚡ Mesa Rectifier</option>
-                  <option value="soldano_slo100">⚡ Soldano SLO-100</option>
+                  <option value="peavey_5150_mesa_os">⚡ Peavey 5150 Block Letter + Mesa 4x12 OS</option>
+                  <option value="marshall_jcm800_greenback">⚡ Marshall JCM800 2203 + Greenbacks (Maiden)</option>
+                  <option value="mesa_dual_rectifier_bogner">⚡ Mesa Dual Rectifier Rev F (Master Puppets)</option>
+                  <option value="soldano_slo100">⚡ Soldano SLO-100 Super Lead (Van Halen)</option>
+                  <option value="fender_twin_blackface">⚡ Fender Twin Reverb 1965 (David Gilmour)</option>
+                  <option value="engl_powerball">⚡ ENGL Powerball II + Pro Cab (Modern Metal)</option>
+                  <option value="bogner_uberschall">⚡ Bogner Uberschall + Ubercab (Low Growl)</option>
+                  <option value="vox_ac30_topboost">⚡ Vox AC30 Top Boost 1963 (Brian May)</option>
+                  <option value="diezel_vh4">⚡ Diezel VH4 Ch 3/4 (Adam Jones Tool)</option>
+                  <option value="friedman_be100">⚡ Friedman BE-100 Brown Eye (Plexi Hot-Rod)</option>
+                  <option value="orange_rockerverb">⚡ Orange Rockerverb 100 MKIII (Fuzz Warmth)</option>
                 </select>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                 <select id="select-bass-rig-model" class="studio-select" style="font-size: 8px; padding: 2px;">
                   <option value="bypass" selected>🎸 Baixo Original</option>
-                  <option value="spector_ampeg_svt">🎸 Spector + Ampeg SVT</option>
-                  <option value="fender_precision_sansamp">🎸 Fender P + SansAmp</option>
-                  <option value="warwick_darkglass_b7k">🎸 Warwick + Darkglass</option>
+                  <option value="spector_ampeg_svt">🎸 Spector NS-2 + Ampeg SVT-CL 8x10 (Bob Rock)</option>
+                  <option value="fender_precision_sansamp">🎸 Fender P-Bass 1974 + SansAmp (Steve Harris)</option>
+                  <option value="rickenbacker_cliff">🎸 Rickenbacker 4001 + Marshall 200W (Cliff Burton)</option>
+                  <option value="musicman_gk800">🎸 Music Man StingRay + Gallien-Krueger 800RB (Flea)</option>
+                  <option value="warwick_darkglass_b7k">🎸 Warwick Thumb + Darkglass Microtubes B7K</option>
+                  <option value="dingwall_quad_cortex">🎸 Dingwall NG3 + Neural Quad Cortex (Djent)</option>
+                  <option value="wal_trace_elliot">🎸 Wal Bass + Trace Elliot 4x10 (Geddy Lee)</option>
+                  <option value="jazz_bass_noble">🎸 Fender Jazz 1962 + Noble Tube Preamp (Jaco)</option>
+                  <option value="gibson_thunderbird_orange">🎸 Gibson Thunderbird + Orange AD200 MKIII</option>
+                  <option value="alembic_mesa400">🎸 Alembic Signature + Mesa Boogie 400+ (Stanley)</option>
+                  <option value="yamaha_bb_eden">🎸 Yamaha BB-NE2 + Eden World Tour (Nathan East)</option>
                 </select>
                 <select id="select-secret-producer-hack" class="studio-select" style="font-size: 8px; padding: 2px;">
                   <option value="bypass" selected>✨ Hack: Master Puro</option>
-                  <option value="black_album_fatness">🪄 Black Album Fatness</option>
-                  <option value="sneap_metal_wall">🪄 Sneap Metal Wall</option>
-                  <option value="max_martin_diamond">🪄 Max Martin Pop Air</option>
-                  <option value="radioactive_tape_warmth">🪄 Radioactive Tape</option>
+                  <option value="black_album_fatness">🪄 The Black Album Fatness (Bob Rock / Randy Staub)</option>
+                  <option value="abbey_road_glue">🪄 Abbey Road 1969 Vintage Glue (Geoff Emerick EMI)</option>
+                  <option value="sneap_metal_wall">🪄 Andy Sneap Metalcore Wall of Sound</option>
+                  <option value="max_martin_diamond">🪄 Max Martin Diamond Pop Air (16kHz Top Shelf)</option>
+                  <option value="radioactive_tape_warmth">🪄 Radioactive Analog Tape & Iron Transformers</option>
+                  <option value="bruce_dickinson_god">🪄 Bruce Dickinson Vocal God Presence</option>
+                  <option value="flemming_thrash">🪄 Flemming Rasmussen Thrash Metal Tightness</option>
+                  <option value="colin_brutality">🪄 Colin Richardson Sonic Brutality (Mid-Scoop)</option>
+                  <option value="rick_rubin_raw">🪄 Rick Rubin Raw Dynamic Punch</option>
+                  <option value="trevor_horn_80s">🪄 Trevor Horn 80s Lush Stereophonic Dimension</option>
+                  <option value="george_martin_majesty">🪄 George Martin Orchestral Majesty</option>
+                  <option value="mutt_lange_stadium">🪄 Mutt Lange Multi-Track Vocal Layering (Def Leppard)</option>
+                  <option value="wagener_heavy_magic">🪄 Michael Wagener Heavy Guitar Magic (Dual-Amp)</option>
                 </select>
               </div>
 
@@ -762,12 +847,17 @@
                   <option value="neil_peart">🥁 Neil Peart (Rush Maple DW)</option>
                   <option value="vinnie_paul">🥁 Vinnie Paul (Pantera Click/Punch)</option>
                   <option value="nicko_mcbrain">🥁 Nicko McBrain (Iron Maiden Sonor)</option>
-                  <option value="eloy_casagrande">🥁 Eloy Casagrande (Sepultura/Slipknot)</option>
+                  <option value="eloy_casagrande">🥁 Eloy Casagrande (Sepultura/Slipknot Heavy Punch)</option>
                   <option value="mike_portnoy">🥁 Mike Portnoy (Dream Theater Monster)</option>
                   <option value="john_bonham">🥁 John Bonham (Led Zeppelin Giant Room)</option>
-                  <option value="danny_carey">🥁 Danny Carey (Tool Bronze Cast)</option>
+                  <option value="danny_carey">🥁 Danny Carey (Tool Bronze Cast Paiste)</option>
                   <option value="tomas_haake">🥁 Tomas Haake (Meshuggah SQ2 Precision)</option>
-                  <option value="dave_grohl">🥁 Dave Grohl (Nirvana/Foo Fighters)</option>
+                  <option value="dave_grohl">🥁 Dave Grohl (Nirvana/Foo Fighters Big Smack)</option>
+                  <option value="stewart_copeland">🥁 Stewart Copeland (The Police Crisp Snare)</option>
+                  <option value="chad_smith">🥁 Chad Smith (RHCP Funk-Rock Crack)</option>
+                  <option value="travis_barker">🥁 Travis Barker (Blink-182 Modern Pop-Punk)</option>
+                  <option value="mario_duplantier">🥁 Mario Duplantier (Gojira Heavy Weight)</option>
+                  <option value="dave_lombardo">🥁 Dave Lombardo (Slayer Fast Attack)</option>
                 </select>
               </div>
               <div>
@@ -776,9 +866,13 @@
                   <option value="album_default">🏆 Álbum Original</option>
                   <option value="tape_warmth">📼 Studer A800 2" Tape</option>
                   <option value="ssl_vca">🎛️ SSL 4000 E-Channel</option>
-                  <option value="dbx160_vca">💥 DBX 160 VU VCA</option>
-                  <option value="api_thrust">🚀 API 2500 Thrust</option>
-                  <option value="distressor_nuke">⚡ Distressor Drum Crusher</option>
+                  <option value="dbx160_vca">💥 DBX 160 VU VCA Smack</option>
+                  <option value="api_thrust">🚀 API 2500 Thrust Punch</option>
+                  <option value="distressor_nuke">⚡ Distressor Drum Crusher Nuke</option>
+                  <option value="neve_1073_iron">👑 Neve 1073 Marinair Transformers</option>
+                  <option value="fairchild_670_drums">🎛️ Fairchild 670 Room Glue</option>
+                  <option value="culture_vulture_drums">🧲 Culture Vulture Triode Drive</option>
+                  <option value="pultec_eqp1a_punch">✨ Pultec EQP-1A Low End Boost</option>
                 </select>
               </div>
               
@@ -838,6 +932,11 @@
                   <option value="geezer_butler">⚡ Geezer Butler (Black Sabbath Laney)</option>
                   <option value="billy_sheehan">⚡ Billy Sheehan (Mr. Big Bi-Amp)</option>
                   <option value="duff_mckagan">⚡ Duff McKagan (Guns N Roses PJ)</option>
+                  <option value="jaco_pastorius">⚡ Jaco Pastorius (Fretless Jazz Bass)</option>
+                  <option value="justin_chancellor">⚡ Justin Chancellor (Tool Wal Pick/Flanger)</option>
+                  <option value="marcus_miller">⚡ Marcus Miller (Sire Marcus Jazz Thumb)</option>
+                  <option value="robert_trujillo">⚡ Robert Trujillo (Metallica Finger Punch)</option>
+                  <option value="lemmy_kilmister">⚡ Lemmy Kilmister (Motörhead Rickenbacker Murder)</option>
                 </select>
               </div>
               <div>
@@ -845,10 +944,14 @@
                 <select id="select-bass-saturation" class="studio-select" style="font-size: 10px; padding: 4px;">
                   <option value="album_default">🏆 Álbum Original</option>
                   <option value="ampeg_svt">🎸 Ampeg SVT Classic 300W</option>
-                  <option value="sansamp_di">⚡ Tech 21 SansAmp DI</option>
-                  <option value="darkglass_b7k">💎 Darkglass B7K Ultra</option>
-                  <option value="neve_tube">👑 Neve 1073 Germanium</option>
-                  <option value="bigmuff_bass_fuzz">🔥 EHX Bass Big Muff Pi</option>
+                  <option value="sansamp_di">⚡ Tech 21 SansAmp BDDI</option>
+                  <option value="darkglass_b7k">💎 Darkglass Microtubes B7K Ultra</option>
+                  <option value="neve_tube">👑 Neve 1073 Germanium Preamp</option>
+                  <option value="bigmuff_bass_fuzz">🔥 EHX Bass Big Muff Pi Fuzz</option>
+                  <option value="gallien_krueger_800">⚡ Gallien-Krueger 800RB Solid State</option>
+                  <option value="mesa_boogie_400">🎸 Mesa Boogie 400+ All Tube Bass</option>
+                  <option value="orange_ad200">🎸 Orange AD200 MKIII Bass Head</option>
+                  <option value="noble_preamp">✨ Noble Tube DI Audiophile</option>
                 </select>
               </div>
 
@@ -898,14 +1001,20 @@
                 <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">AMPLIFICADOR / PEDAL:</label>
                 <select id="select-guitar-distortion" class="studio-select" style="font-size: 10px; padding: 4px;">
                   <option value="album_default">🏆 Álbum Original</option>
-                  <option value="mesa_rectifier">🔥 Mesa Dual Rectifier</option>
-                  <option value="peavey_5150">💥 Peavey 5150 / 6505</option>
-                  <option value="marshall_jcm800">🎸 Marshall JCM800</option>
-                  <option value="boss_hm2_buzzsaw">🪚 Boss HM-2 Chainsaw</option>
-                  <option value="ts9_screamer">🟩 Ibanez TS9 Tube Screamer</option>
-                  <option value="soldano_slo100">✨ Soldano SLO-100</option>
-                  <option value="distressor_nuke">⚡ Distressor 10:1 Nuke</option>
-                  <option value="neve_tube">👑 Neve 1073 Germanium</option>
+                  <option value="mesa_rectifier">🔥 Mesa Dual Rectifier Revision F</option>
+                  <option value="peavey_5150">💥 Peavey 5150 Block Letter / 6505</option>
+                  <option value="marshall_jcm800">🎸 Marshall JCM800 2203 Lead</option>
+                  <option value="soldano_slo100">✨ Soldano SLO-100 Super Lead</option>
+                  <option value="diezel_vh4">⚡ Diezel VH4 Channel 3/4</option>
+                  <option value="friedman_be100">👑 Friedman BE-100 Brown Eye</option>
+                  <option value="engl_powerball">⚡ ENGL Powerball II German High-Gain</option>
+                  <option value="bogner_uberschall">⚡ Bogner Uberschall Low End Growl</option>
+                  <option value="fender_twin_reverb">✨ Fender Twin Reverb 1965 Blackface</option>
+                  <option value="vox_ac30">🎸 Vox AC30 Top Boost 1963</option>
+                  <option value="boss_hm2_buzzsaw">🪚 Boss HM-2 Swedish Chainsaw</option>
+                  <option value="ts9_screamer">🟩 Ibanez TS9 Tube Screamer Overdrive</option>
+                  <option value="klon_centaur">🐎 Klon Centaur Gold Mythical Boost</option>
+                  <option value="distressor_nuke">⚡ Distressor 10:1 Nuke Compressor</option>
                 </select>
               </div>
 
@@ -1652,14 +1761,19 @@
       <!-- WORLD-CLASS STUDIO MONITOR & HEADPHONE SELECTOR -->
       <div style="display: flex; align-items: center; gap: 6px; background: #080c14; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--gold-primary); box-shadow: 0 0 12px rgba(245, 158, 11, 0.20);">
         <span style="font-size: 13px;">🎧</span>
-        <select id="select-studio-monitor" class="studio-select" style="font-size: 11px; font-weight: 700; color: var(--gold-light); background: transparent; border: none; padding: 2px 4px; cursor: pointer; max-width: 250px;">
+        <select id="select-studio-monitor" class="studio-select" style="font-size: 11px; font-weight: 700; color: var(--gold-light); background: transparent; border: none; padding: 2px 4px; cursor: pointer; max-width: 260px;">
           <option value="bypass" selected>🔊 Direto (Bypass / Sem Emulação)</option>
           <option value="ns10m">🎧 Yamaha NS-10M (Abbey Road Studio 2)</option>
-          <option value="genelec8351">🎧 Genelec 8351B The Ones (Blackbird)</option>
+          <option value="genelec8351">🎧 Genelec 8351B The Ones (Blackbird Nashville)</option>
           <option value="atc110">🎧 ATC SCM110A Pro (Ocean Way Hollywood)</option>
-          <option value="augspurger">🎧 Augspurger Duo 15 (Metropolis London)</option>
-          <option value="auratone">🎧 Auratone 5C (Mix Balance Reality Check)</option>
-          <option value="car_test">🚗 Car Stereo System (Teste no Carro)</option>
+          <option value="augspurger">🎧 Augspurger Duo 15 Sub218 (Metropolis London)</option>
+          <option value="auratone">🎧 Auratone 5C Mix Cube (Mono Reality Check)</option>
+          <option value="focal_trio11">🎧 Focal Trio11 Be (Beryllium Inverted Dome)</option>
+          <option value="barefoot_mm27">🎧 Barefoot Sound MicroMain27 (Dual 10" Subs)</option>
+          <option value="neumann_kh310">🎧 Neumann KH 310 A (Tri-Amp German Precision)</option>
+          <option value="car_test">🚗 Car Stereo System (Teste de Som no Carro)</option>
+          <option value="iphone_speaker">📱 Apple iPhone 15 Speaker Simulator</option>
+          <option value="am_fm_radio">📻 Rádio Portátil AM/FM Monofônico</option>
         </select>
       </div>
 
