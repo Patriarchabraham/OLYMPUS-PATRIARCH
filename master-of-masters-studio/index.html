@@ -2,8 +2,16 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>MASTER OF MASTERS STUDIO PRO v5.5</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Master of Masters Studio Pro - 64-Bit Heavy Metal & Rock DSP Mastering Suite for Android" />
 </head>
 <body>
   
@@ -52,11 +60,13 @@
       </button>
     </div>
 
-    <!-- DSP CORE STATUS -->
-    <div style="display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 11px;">
-      <span style="color: var(--emerald-primary); font-weight: 700;">● DSP 64-bit Core</span>
-      <span style="color: var(--gold-light);">Dither: <strong>TPDF 144dB</strong></span>
-      <span style="color: var(--cyan-light);">Ceiling: <strong>-0.20 dBFS</strong></span>
+    <!-- DSP CORE STATUS & ANDROID INSTALL -->
+    <div style="display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 11px;">
+      <button type="button" id="btn-android-install-header" class="btn-gold-action" style="padding: 4px 10px; font-size: 10px; display: flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399; font-weight: 800;" title="Instalar App no Android (Oppo Find Ultra / Samsung S24 Ultra)">
+        📲 INSTALAR NO ANDROID
+      </button>
+      <span style="color: var(--emerald-primary); font-weight: 700;">● DSP 64-bit</span>
+      <span style="color: var(--gold-light);">Dither: <strong>TPDF</strong></span>
     </div>
   </header>
 
@@ -2067,6 +2077,67 @@
       <button type="button" id="btn-download-sheet-music" class="btn-gold-action" style="width: 100%; font-weight: 800;">
         ⬇️ BAIXAR PARTITURA & TABLATURAS COMPLETAS (.TXT / .HTML)
       </button>
+    </div>
+  </div>
+
+  <!-- ANDROID PRO INSTALLER MODAL (OPPO FIND ULTRA / SAMSUNG S24 ULTRA) -->
+  <div id="modal-android-installer" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; z-index: 10005; padding: 20px;">
+    <div style="background: #080c14; border: 2px solid #10b981; border-radius: 16px; max-width: 620px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 0 50px rgba(16,185,129,0.35); display: flex; flex-direction: column; gap: 16px;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 28px;">📲</span>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: 18px; color: #34d399; margin: 0;">INSTALADOR ANDROID OFICIAL</h3>
+            <span style="font-family: var(--font-mono); font-size: 10px; color: #94a3b8;">Suporte Nativo: Oppo Find X7/X8 Ultra · Samsung S24 Ultra · Snapdragon 8 Gen 3</span>
+          </div>
+        </div>
+        <button type="button" id="btn-close-android-modal" class="switch-toggle-btn" style="padding: 4px 10px; font-size: 14px;">✕</button>
+      </div>
+
+      <!-- DIRECT INSTALL BUTTON (PWA NATIVE APK EMULATOR) -->
+      <div style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(6,182,212,0.15)); border: 1px solid #10b981; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-family: var(--font-mono); font-size: 11px; color: #a7f3d0; font-weight: 700;">INSTALAÇÃO DIRETA NO SISTEMA OPERACIONAL ANDROID</span>
+        <button type="button" id="btn-trigger-pwa-install" class="btn-gold-action" style="padding: 14px; font-size: 14px; font-weight: 900; background: linear-gradient(135deg, #10b981, #047857); border-color: #34d399; box-shadow: 0 0 20px rgba(16,185,129,0.4);">
+          ⚡ INSTALAR AGORA NO MEU ANDROID (1 CLIQUE)
+        </button>
+        <p style="font-size: 11px; color: #cbd5e1; margin: 0;">Instala o aplicativo completo com ícone na gaveta de apps, inicialização em tela cheia (sem barra de navegador) e processamento DSP 64-bit offline.</p>
+      </div>
+
+      <!-- DEVICE GUIDES: OPPO & SAMSUNG -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-family: var(--font-mono); font-size: 11px;">
+        
+        <!-- OPPO FIND ULTRA GUIDE -->
+        <div style="background: #06090f; border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px;">
+          <strong style="color: #38bdf8; font-size: 12px;">📱 Oppo Find Ultra (ColorOS):</strong>
+          <ol style="margin: 0; padding-left: 16px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px;">
+            <li>Abra no <strong>Chrome</strong> ou navegador padrão da Oppo.</li>
+            <li>Toque nos <strong>três pontos (⋮)</strong> no canto superior.</li>
+            <li>Selecione <strong>"Instalar Aplicativo"</strong> ou <strong>"Adicionar à Tela Inicial"</strong>.</li>
+            <li>O app abre com <strong>120Hz/144Hz</strong> e aceleração GPU total!</li>
+          </ol>
+        </div>
+
+        <!-- SAMSUNG S24 ULTRA GUIDE -->
+        <div style="background: #06090f; border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px;">
+          <strong style="color: var(--gold-light); font-size: 12px;">📱 Samsung S24 Ultra (One UI):</strong>
+          <ol style="margin: 0; padding-left: 16px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px;">
+            <li>Abra no <strong>Samsung Internet</strong> ou <strong>Chrome</strong>.</li>
+            <li>Toque no ícone de <strong>download (↓)</strong> ou nos <strong>três pontos (⋮)</strong>.</li>
+            <li>Toque em <strong>"Instalar Master of Masters"</strong>.</li>
+            <li>Pronto! O ícone dourado surge na lista de aplicativos.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- OFFLINE & WI-FI LOCAL ACCESS INFO -->
+      <div style="background: #06090f; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; font-family: var(--font-mono); font-size: 10px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px;">
+        <span style="color: #ffffff; font-weight: 700;">🌐 Como abrir no celular pela mesma rede Wi-Fi:</span>
+        <span>1. Execute o arquivo <strong>INSTALAR-NO-ANDROID.bat</strong> no computador.</span>
+        <span>2. No seu Oppo ou Samsung S24, acesse o endereço IP local mostrado na tela (ex: <code>http://192.168.1.X:5173</code>).</span>
+        <span>3. Toque em <strong>"INSTALAR NO ANDROID"</strong> e use o estúdio de onde quiser!</span>
+      </div>
+
     </div>
   </div>
 

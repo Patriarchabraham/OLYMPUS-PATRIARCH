@@ -1,0 +1,81 @@
+{
+  "name": "Master of Masters Studio Pro",
+  "short_name": "MasterStudio",
+  "description": "Ultra-Premium 64-Bit DSP Heavy Metal, Rock & Orchestral Mastering Suite and Stem DAW for Android",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#06090f",
+  "theme_color": "#0b0f19",
+  "categories": ["music", "audio", "multimedia", "productivity"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Master Analógico",
+      "short_name": "Master",
+      "description": "Iniciar Masterização de Áudio 24-Bit",
+      "url": "./index.html?tab=tab-master",
+      "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Arranjador & DAW",
+      "short_name": "DAW",
+      "description": "Editor de Linha do Tempo e Estrutura",
+      "url": "./index.html?tab=tab-arranger",
+      "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Vocal God Studio",
+      "short_name": "Vocais",
+      "description": "Harmonizador e Clone Vocal",
+      "url": "./index.html?tab=tab-vocal-god",
+      "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "name": "Audio Track",
+      "accept": {
+        "audio/wav": [".wav"],
+        "audio/x-wav": [".wav"],
+        "audio/mpeg": [".mp3"],
+        "audio/mp3": [".mp3"],
+        "audio/flac": [".flac"],
+        "audio/aac": [".aac"],
+        "audio/m4a": [".m4a"],
+        "audio/ogg": [".ogg"]
+      }
+    }
+  ]
+}

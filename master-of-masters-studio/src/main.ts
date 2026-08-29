@@ -3451,5 +3451,59 @@ function renderArrangerTimelineUI() {
 	})
 }
 
+// ─── ANDROID PWA & STANDALONE INSTALLER ─────────────────────────────────────
+let deferredPrompt: any = null
+
+function setupAndroidPwaInstaller() {
+	const btnHeader = document.getElementById('btn-android-install-header')
+	const modalAndroid = document.getElementById('modal-android-installer')
+	const btnCloseModal = document.getElementById('btn-close-android-modal')
+	const btnTriggerInstall = document.getElementById('btn-trigger-pwa-install')
+
+	// Register Service Worker for offline DSP capabilities
+	if ('serviceWorker' in navigator) {
+		window.addEventListener('load', () => {
+			navigator.serviceWorker
+				.register('./sw.js')
+				.then((_reg) => {})
+				.catch((_err) => {})
+		})
+	}
+
+	// Capture native Android install prompt
+	window.addEventListener('beforeinstallprompt', (e: any) => {
+		e.preventDefault()
+		deferredPrompt = e
+		if (btnHeader) {
+			btnHeader.classList.remove('hidden')
+			btnHeader.style.animation = 'pulse 2s infinite'
+		}
+	})
+
+	const openAndroidModal = () => {
+		if (deferredPrompt) {
+			deferredPrompt.prompt()
+			deferredPrompt.userChoice.then((choiceResult: any) => {
+				if (choiceResult.outcome === 'accepted') {
+					showStudioToast('📲 Aplicativo instalado com sucesso no seu Android!', 'success', 5000)
+				}
+				deferredPrompt = null
+			})
+		} else {
+			modalAndroid?.classList.remove('hidden')
+		}
+	}
+
+	btnHeader?.addEventListener('click', openAndroidModal)
+	btnTriggerInstall?.addEventListener('click', openAndroidModal)
+
+	btnCloseModal?.addEventListener('click', () => {
+		modalAndroid?.classList.add('hidden')
+	})
+}
+
 // ─── RUN ON DOM LOAD ─────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', init)
+document.addEventListener('DOMContentLoaded', () => {
+	init()
+	setupAndroidPwaInstaller()
+})
