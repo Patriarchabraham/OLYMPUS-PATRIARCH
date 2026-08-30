@@ -112,16 +112,20 @@ export class AutonomousRhythmGuitarGuardianAgent {
 		let cabL = 0.0,
 			cabR = 0.0
 
+		// Safe parallel injection with automatic dynamic headroom compensation
+		const wetFactor = Math.min(0.25, Math.max(0.02, blend * 0.2))
+		const dryFactor = 1.0 - wetFactor * 0.4
+
 		for (let i = 0; i < len; i++) {
 			cabL += alphaCab * (satGtrs.left[i] - cabL)
 			cabR += alphaCab * (satGtrs.right[i] - cabR)
 
-			// Blend the enriched real guitar harmonics into the original signal (100% natural)
-			const saturatedGuitarL = cabL * 1.15
-			const saturatedGuitarR = cabR * 1.15
+			// Blend the enriched real guitar harmonics into the original signal (100% natural, zero clipping)
+			const saturatedGuitarL = cabL
+			const saturatedGuitarR = cabR
 
-			outL[i] = inputLeft[i] + saturatedGuitarL * blend
-			outR[i] = inputRight[i] + saturatedGuitarR * blend
+			outL[i] = inputLeft[i] * dryFactor + saturatedGuitarL * wetFactor
+			outR[i] = inputRight[i] * dryFactor + saturatedGuitarR * wetFactor
 		}
 
 		const report: GuardianReport = {

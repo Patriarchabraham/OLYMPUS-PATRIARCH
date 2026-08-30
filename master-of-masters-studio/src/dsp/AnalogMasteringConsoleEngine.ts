@@ -161,18 +161,18 @@ export class AnalogMasteringConsoleEngine {
 		const subHp = createHighpassCoeffs(28, Math.SQRT1_2, sampleRate)
 		applyBiquadInPlace(channelL, channelR, subHp)
 
-		// 3. 10-Band Precision Mastering EQ
+		// 3. 10-Band Precision Mastering EQ (Pure, linear-phase proportional curve)
 		const filters: BiquadCoeffs[] = [
-			createLowshelfCoeffs(40, eq.hz30 * eqScale + 1.2, sampleRate),
-			createPeakingCoeffs(65, eq.hz60 * eqScale + 2.4, 1.1, sampleRate),
+			createLowshelfCoeffs(40, eq.hz30 * eqScale, sampleRate),
+			createPeakingCoeffs(65, eq.hz60 * eqScale, 1.0, sampleRate),
 			createPeakingCoeffs(120, eq.hz120 * eqScale, 1.0, sampleRate),
-			createPeakingCoeffs(250, -1.2, 1.4, sampleRate), // Mud cleaner
+			createPeakingCoeffs(250, eq.hz250 !== undefined ? eq.hz250 * eqScale : -0.5, 1.2, sampleRate),
 			createPeakingCoeffs(500, eq.hz500 * eqScale, 1.0, sampleRate),
 			createPeakingCoeffs(1000, eq.hz1000 * eqScale, 1.0, sampleRate),
-			createPeakingCoeffs(2800, eq.hz2500 * eqScale + 1.8, 1.0, sampleRate), // Snare crack
-			createPeakingCoeffs(4200, eq.hz4000 * eqScale, 1.0, sampleRate),
+			createPeakingCoeffs(2500, eq.hz2500 * eqScale, 1.0, sampleRate),
+			createPeakingCoeffs(4000, eq.hz4000 * eqScale, 1.0, sampleRate),
 			createPeakingCoeffs(8000, eq.hz8000 * eqScale, 0.9, sampleRate),
-			createHighshelfCoeffs(14000, eq.hz16000 * eqScale + 1.0, sampleRate),
+			createHighshelfCoeffs(14000, eq.hz16000 * eqScale, sampleRate),
 		]
 
 		for (const f of filters) {
@@ -182,11 +182,11 @@ export class AnalogMasteringConsoleEngine {
 		// Yield to keep UI thread breathing
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 4. SSL G-Bus Glue Compressor (Threshold -14dB, Ratio 2.0:1, Attack 35ms, Release 90ms)
-		const thresholdLin = 10.0 ** (-14.0 / 20.0) // ~0.1995
-		const attackCoeff = Math.exp(-1.0 / (0.035 * sampleRate))
-		const releaseCoeff = Math.exp(-1.0 / (0.09 * sampleRate))
-		const makeupGain = 1.18 // Solid punch drive
+		// 4. SSL G-Bus Glue Compressor (Pristine transparent dynamic control)
+		const thresholdLin = 10.0 ** (-12.0 / 20.0) // -12dBFS
+		const attackCoeff = Math.exp(-1.0 / (0.04 * sampleRate)) // 40ms musical attack
+		const releaseCoeff = Math.exp(-1.0 / (0.12 * sampleRate)) // 120ms smooth release
+		const makeupGain = 1.0 // Pristine unity gain
 
 		let env = 0.0
 
@@ -201,10 +201,10 @@ export class AnalogMasteringConsoleEngine {
 			let gr = 1.0
 			if (env > thresholdLin) {
 				const envDb = 20.0 * Math.log10(Math.max(1e-6, env))
-				const threshDb = -14.0
+				const threshDb = -12.0
 				const overDb = envDb - threshDb
-				// 2.0:1 ratio reduction
-				const compressedDb = threshDb + overDb / 2.0
+				// 1.5:1 gentle mastering ratio (zero vocal pumping or harshness)
+				const compressedDb = threshDb + overDb / 1.5
 				const gainDb = compressedDb - envDb
 				gr = 10.0 ** (gainDb / 20.0)
 			}

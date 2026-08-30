@@ -369,7 +369,7 @@ export class AudioEngine {
 		const punchResult = MultiBandTransientPunchEngine.processMultiBandPunch(
 			lChan,
 			rChan,
-			(transientPunchAmount || 0.75) * 1.25 * intensityScale,
+			(transientPunchAmount || 0.65) * intensityScale,
 			sr,
 		)
 		weldedStemBuffer.copyToChannel(punchResult.left, 0)
@@ -382,7 +382,7 @@ export class AudioEngine {
 		if (enableGuitarRescue !== false) {
 			onProgress?.(
 				52,
-				'🎸 Agente AI Autônomo dosando e injetando guitarras base pesadas e encorpadas (Celestion V30)...',
+				'🎸 Agente AI Autônomo refinando presença de guitarras base com corpo analógico...',
 			)
 			const rL = weldedStemBuffer.getChannelData(0)
 			const rR = weldedStemBuffer.getChannelData(1)
@@ -391,13 +391,11 @@ export class AudioEngine {
 				rL,
 				rR,
 				{
-					sensitivity: 0.95,
+					sensitivity: 0.5,
 					ampModel: album.saturation.type || 'peavey_5150',
 					distortionDrive:
-						customDrive !== undefined
-							? Math.max(0.65, customDrive)
-							: album.saturation.drive || 0.88,
-					blendIntensity: 0.88,
+						customDrive !== undefined ? customDrive * 0.5 : (album.saturation.drive || 0.45) * 0.5,
+					blendIntensity: 0.35,
 				},
 				sr,
 			)

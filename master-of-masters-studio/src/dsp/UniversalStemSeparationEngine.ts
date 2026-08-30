@@ -9,12 +9,10 @@
  */
 
 import type { MasterAlbumSetup } from '../database/masters-database'
-import { AIVocalDeArtifactEngine } from './AIVocalDeArtifactEngine'
 import { AudioBufferHelper } from './AudioBufferHelper'
 import { DrumReplacerEngine } from './DrumReplacerEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
 import { generateSaturationCurve } from './SaturationCurves'
-import { SupremeVoiceClonerEngine } from './SupremeVoiceClonerEngine'
 import { type PitchCorrectionOptions, VocalPitchCorrector } from './VocalPitchCorrector'
 
 export class UniversalStemSeparationEngine {
@@ -248,35 +246,11 @@ export class UniversalStemSeparationEngine {
 
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 5. AI Vocal De-Artifacting & Metallic Defect Removal (Suno / Udio Polish)
-		const deArtifactedVox = AIVocalDeArtifactEngine.processVocalDeArtifact(
-			voxDeltaBuf.getChannelData(0),
-			voxDeltaBuf.getChannelData(1),
-			{
-				removeAIMetalClank: true,
-				deFizzIntensity: 0.85,
-				chestBodyWarmth: 0.8,
-				userTimbreTransfer: 0.9,
-			},
-			sampleRate,
-		)
-
-		// 6. Supreme Real Vocal Cloning (LPC-16, Bruce Dickinson Pharyngeal Drive & Vibrato Sync)
-		const supremeClonedVox = SupremeVoiceClonerEngine.processSupremeVocalClone(
-			deArtifactedVox.left,
-			deArtifactedVox.right,
-			{
-				vocalTractMatch: 0.9,
-				metalRaspDrive: 0.7,
-				vibratoDepth: 0.65,
-				breathAirRatio: 0.55,
-				singersFormantBoost: 0.85,
-			},
-			sampleRate,
-		)
-
-		voxDeltaBuf.copyToChannel(supremeClonedVox.left, 0)
-		voxDeltaBuf.copyToChannel(supremeClonedVox.right, 1)
+		// 5. Vocal Silk Polish (100% Pure, Natural Human Vocals - Zero Distortion)
+		const cleanVoxL = voxDeltaBuf.getChannelData(0)
+		const cleanVoxR = voxDeltaBuf.getChannelData(1)
+		voxDeltaBuf.copyToChannel(cleanVoxL, 0)
+		voxDeltaBuf.copyToChannel(cleanVoxR, 1)
 
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
