@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:android": "vite build && node scripts/build-singlefile-android.mjs",
-    "build:apk": "vite build && node scripts/build-android-apk.mjs",
+    "build:apk": "vite build && bunx cap copy android",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -16,6 +16,9 @@
     "vite": "^5.2.11"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
     "lamejs": "^1.2.1"
   }
 }

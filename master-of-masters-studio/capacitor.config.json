@@ -1,0 +1,14 @@
+{
+  "appId": "com.olympuz.masterofmasters",
+  "appName": "Master of Masters Studio Pro",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

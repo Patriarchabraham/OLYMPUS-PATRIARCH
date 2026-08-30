@@ -8,9 +8,24 @@ echo   Compatível com: Oppo Find Ultra, Samsung Galaxy S24 Ultra, Xiaomi, Pixel
 echo ===============================================================================
 echo.
 
-echo [1/2] Compilando assets de producao e gerando APK assinado...
+set JAVA_HOME=C:\OLYMPUZ\.tools\jdk-21.0.2+13
+set ANDROID_HOME=C:\OLYMPUZ\.tools\android-sdk
+set PATH=%JAVA_HOME%\bin;%PATH%
+
+echo [1/3] Compilando assets do Studio Pro...
 call bun run build
-call node scripts/build-android-apk.mjs
+call bunx cap copy android
+
+echo.
+echo [2/3] Compilando APK nativo oficial com Gradle do Android SDK...
+cd android
+call gradlew.bat assembleDebug
+cd ..
+
+echo.
+echo [3/3] Copiando APK final assinado...
+copy /y "android\app\build\outputs\apk\debug\app-debug.apk" "MasterOfMasters-StudioPro-v5.5.apk" >nul
+copy /y "android\app\build\outputs\apk\debug\app-debug.apk" "dist\MasterOfMasters-StudioPro-v5.5.apk" >nul
 
 echo.
 echo ===============================================================================
