@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:android": "vite build && node scripts/build-singlefile-android.mjs",
+    "build:apk": "vite build && node scripts/build-android-apk.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
