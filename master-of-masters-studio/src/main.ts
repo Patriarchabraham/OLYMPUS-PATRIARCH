@@ -1427,6 +1427,7 @@ function setupMasterProcessing() {
 			const chkMicroAcoustic = document.getElementById(
 				'chk-micro-acoustic-mechanical',
 			) as HTMLInputElement
+			const chkMasterTape = document.getElementById('chk-master-tape-physics') as HTMLInputElement
 			const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement
 
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
@@ -1449,6 +1450,7 @@ function setupMasterProcessing() {
 				enable16xPolyphaseLimiter: chkVInf16xLimiter ? chkVInf16xLimiter.checked : true,
 				enable100PctInstrumentCloning: chk100PctCloning ? chk100PctCloning.checked : true,
 				enableMicroAcousticMechanical: chkMicroAcoustic ? chkMicroAcoustic.checked : true,
+				enableMasterTapePhysics: chkMasterTape ? chkMasterTape.checked : true,
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
 					: 'studio_demo',

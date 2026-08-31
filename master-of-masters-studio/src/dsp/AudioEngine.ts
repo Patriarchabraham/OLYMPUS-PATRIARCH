@@ -34,6 +34,7 @@ import {
 	type OptimizedMasterParameters,
 } from './InverseProductionOptimizer'
 import { IterativeMixtureConsistencyEngine } from './IterativeMixtureConsistencyEngine'
+import { MasterTapePhysicsEngine } from './MasterTapePhysicsEngine'
 import { MicroAcousticMechanicalEngine } from './MicroAcousticMechanicalEngine'
 import { MicroTimingPocketQuantizer } from './MicroTimingPocketQuantizer'
 import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
@@ -87,6 +88,7 @@ export interface ProcessMasterOptions {
 	enable16xPolyphaseLimiter?: boolean
 	enable100PctInstrumentCloning?: boolean
 	enableMicroAcousticMechanical?: boolean
+	enableMasterTapePhysics?: boolean
 	inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto'
 	intensityScale?: number
 	customDrive?: number
@@ -713,6 +715,22 @@ export class AudioEngine {
 			)
 			weldedStemBuffer.copyToChannel(biBandResult.left, 0)
 			weldedStemBuffer.copyToChannel(biBandResult.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 5.8: MASTER TAPE PHYSICS & CARNHILL TRANSFORMER INTERMODULATION
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enableMasterTapePhysics !== false) {
+			onProgress?.(
+				64,
+				'📼 Master Tape Physics: Injetando histerese de óxido magnético, Head Bump 30 IPS e saturação de fita...',
+			)
+			const tpL = weldedStemBuffer.getChannelData(0)
+			const tpR = weldedStemBuffer.getChannelData(1)
+			const tapeRes = MasterTapePhysicsEngine.processTapePhysics(tpL, tpR, '30_ips', 0.55, sr)
+			weldedStemBuffer.copyToChannel(tapeRes.left, 0)
+			weldedStemBuffer.copyToChannel(tapeRes.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
