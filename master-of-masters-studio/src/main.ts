@@ -291,6 +291,8 @@ function init() {
 	selectMic(LEGENDARY_MICROPHONES[0].id)
 
 	setupTabs()
+	setupStemChannelRack()
+	setupVisualMicrophoneGrid()
 	setupAudioLoading()
 	setupTransportDock()
 	setupMasterProcessing()
@@ -774,6 +776,61 @@ function setupTabs() {
 			}
 		})
 	})
+}
+
+// ─── STEM CHANNEL STRIP RACK & VISUAL MICROPHONE SELECTION ───────────────────
+function setupStemChannelRack() {
+	const stemButtons = document.querySelectorAll('.stem-tab-btn')
+	const stemPanels = document.querySelectorAll('.stem-panel')
+
+	stemButtons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			stemButtons.forEach((b) => b.classList.remove('active'))
+			stemPanels.forEach((p) => p.classList.remove('active'))
+
+			btn.classList.add('active')
+			const target = btn.getAttribute('data-stem-target')
+			if (target) {
+				const panel = document.getElementById(target)
+				if (panel) panel.classList.add('active')
+			}
+		})
+	})
+}
+
+function setupVisualMicrophoneGrid() {
+	const micSelect = document.getElementById(
+		'select-vocal-microphone-model',
+	) as HTMLSelectElement | null
+	const micCards = document.querySelectorAll('.mic-visual-card')
+
+	micCards.forEach((card) => {
+		card.addEventListener('click', () => {
+			const micId = card.getAttribute('data-mic-id')
+			if (!micId) return
+
+			micCards.forEach((c) => c.classList.remove('active'))
+			card.classList.add('active')
+
+			if (micSelect) {
+				micSelect.value = micId
+				micSelect.dispatchEvent(new Event('change'))
+			}
+		})
+	})
+
+	if (micSelect) {
+		micSelect.addEventListener('change', () => {
+			const currentVal = micSelect.value
+			micCards.forEach((c) => {
+				if (c.getAttribute('data-mic-id') === currentVal) {
+					c.classList.add('active')
+				} else {
+					c.classList.remove('active')
+				}
+			})
+		})
+	}
 }
 
 // ─── AUDIO LOADING & TRANSPORT DOCK ──────────────────────────────────────────
