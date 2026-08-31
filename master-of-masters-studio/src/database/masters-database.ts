@@ -3,6 +3,7 @@ import { PRODUCERS_PART2 } from './all-producers-full-part2'
 import { PRODUCERS_MIDDLE } from './all-producers-middle'
 import { PRODUCERS_DREAM_THEATER_COMPLETE } from './producers-dream-theater-complete'
 import { PRODUCERS_ICONS_PROG_POP } from './producers-icons-prog-pop'
+import { PRODUCERS_LEGENDS_EXPANDED_DISCOGRAPHY } from './producers-legends-expanded-discography'
 import { PRODUCERS_LEGENDS_ROCK_METAL } from './producers-legends-rock-metal'
 
 export type SaturationType =
@@ -151,6 +152,7 @@ export const TOP_20_METAL_ROCK_PRODUCERS: MasterProducer[] = [
 	...PRODUCERS_LEGENDS_ROCK_METAL,
 	...PRODUCERS_ICONS_PROG_POP,
 	...PRODUCERS_DREAM_THEATER_COMPLETE,
+	...PRODUCERS_LEGENDS_EXPANDED_DISCOGRAPHY,
 ]
 
 export const ALL_MASTERS: MasterProducer[] = [...TOP_20_METAL_ROCK_PRODUCERS]
