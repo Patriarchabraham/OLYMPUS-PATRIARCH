@@ -1406,12 +1406,10 @@ function setupMasterProcessing() {
 			const chkAiAssistantEnable = document.getElementById(
 				'chk-ai-assistant-enable',
 			) as HTMLInputElement
-			const chkDynamicDeHarsh = document.getElementById('chk-dynamic-deharsh') as HTMLInputElement
-			const chkKickBassUnmask = document.getElementById('chk-kick-bass-unmask') as HTMLInputElement
+			const chkV5DeResonator = document.getElementById('chk-v5-de-resonator') as HTMLInputElement
+			const chkV5TransientPro = document.getElementById('chk-v5-transient-pro') as HTMLInputElement
+			const chkV5DiffVoxSheen = document.getElementById('chk-v5-diffvox-sheen') as HTMLInputElement
 			const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement
-			const chkTinyNeuralVocal = document.getElementById(
-				'chk-tiny-neural-vocal',
-			) as HTMLInputElement
 
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
 				album: activeAlbum,
@@ -1419,6 +1417,9 @@ function setupMasterProcessing() {
 				referenceBuffer: v4ReferenceBuffer || undefined,
 				enableSectionAwareMastering: true,
 				enableCandidateTournament: true,
+				enableDynamicDeResonator: chkV5DeResonator ? chkV5DeResonator.checked : true,
+				enableSpectralTransientPro: chkV5TransientPro ? chkV5TransientPro.checked : true,
+				enableDiffVoxSheen: chkV5DiffVoxSheen ? chkV5DiffVoxSheen.checked : true,
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
 					: 'studio_demo',
@@ -1442,10 +1443,9 @@ function setupMasterProcessing() {
 				enableAiAssistant: chkAiAssistantEnable ? chkAiAssistantEnable.checked : true,
 				enableDeHum: true,
 				enableGuitarRescue: true,
-				enableDynamicDeHarsh: chkDynamicDeHarsh ? chkDynamicDeHarsh.checked : true,
-				enableKickBassUnmask: chkKickBassUnmask ? chkKickBassUnmask.checked : true,
+				enableDynamicDeHarsh: true,
+				enableKickBassUnmask: true,
 				enableDolbyAtmosRoom: chkDolbyAtmosRoom ? chkDolbyAtmosRoom.checked : false,
-				enableTinyNeuralVocal: chkTinyNeuralVocal ? chkTinyNeuralVocal.checked : false,
 				transientPunchAmount: sliderTransientPunch
 					? parseFloat(sliderTransientPunch.value) / 100
 					: 0.45,

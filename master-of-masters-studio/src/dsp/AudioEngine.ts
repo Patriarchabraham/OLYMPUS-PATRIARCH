@@ -21,8 +21,10 @@ import { BlumleinPhaseLockEngine } from './BlumleinPhaseLockEngine'
 import type { CabinetIrType } from './CabinetIrConvolutionEngine'
 import { CandidateTournamentEngine, type TournamentReport } from './CandidateTournamentEngine'
 import { DeHummerGroundCleaner } from './DeHummerGroundCleaner'
+import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom'
 import { DynamicResonanceSuppressor } from './DynamicResonanceSuppressor'
+import { DynamicSpectralDeResonator } from './DynamicSpectralDeResonator'
 import { HolographicSpatialEngine } from './HolographicSpatialEngine'
 import {
 	InverseProductionOptimizer,
@@ -32,9 +34,11 @@ import { IterativeMixtureConsistencyEngine } from './IterativeMixtureConsistency
 import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher'
 import { MusicalSectionAnalyzer, type SongSection } from './MusicalSectionAnalyzer'
+import { NeuralAmpModelerEngine, type NeuralAmpModelType } from './NeuralAmpModelerEngine'
 import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDeviceSimulator'
 import { SmartKickBassUnmasker } from './SmartKickBassUnmasker'
 import { SpectralClonerEngine2048 } from './SpectralClonerEngine2048'
+import { SpectralTransientProEngine } from './SpectralTransientProEngine'
 import { type StreamingPlatform, StreamingTargetEngine } from './StreamingTargetEngine'
 import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine'
 import type { GuitarRescueMode } from './SunoDistortionRescueEngine'
@@ -53,6 +57,12 @@ export interface ProcessMasterOptions {
 	referenceBuffer?: AudioBuffer
 	enableSectionAwareMastering?: boolean
 	enableCandidateTournament?: boolean
+	enableDynamicDeResonator?: boolean
+	deResonatorDepth?: number
+	enableSpectralTransientPro?: boolean
+	enableDiffVoxSheen?: boolean
+	diffVoxSheenAmount?: number
+	neuralAmpModel?: NeuralAmpModelType
 	inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto'
 	intensityScale?: number
 	customDrive?: number
@@ -338,6 +348,45 @@ export class AudioEngine {
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 1.6: V5 DIFFVOX VOCAL SHEEN & NAM LIGHTWEIGHT NEURAL AMP
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enableDiffVoxSheen !== false) {
+			onProgress?.(
+				26,
+				'✨ V5 DiffVox: Aplicando brilho e densidade valvulada Telefunken Ela M 251 na voz...',
+			)
+			const vL = weldedStemBuffer.getChannelData(0)
+			const vR = weldedStemBuffer.getChannelData(1)
+			const sheenRes = DiffVoxVocalSheenEngine.processVocalSheen(
+				vL,
+				vR,
+				options.diffVoxSheenAmount ?? 0.35,
+				sr,
+			)
+			weldedStemBuffer.copyToChannel(sheenRes.left, 0)
+			weldedStemBuffer.copyToChannel(sheenRes.right, 1)
+		}
+
+		if (options.neuralAmpModel) {
+			onProgress?.(
+				27,
+				`🎸 V5 NAM: Simulando carga não-linear e sag de válvulas (${options.neuralAmpModel.toUpperCase()})...`,
+			)
+			const nL = weldedStemBuffer.getChannelData(0)
+			const nR = weldedStemBuffer.getChannelData(1)
+			const namRes = NeuralAmpModelerEngine.processNeuralAmp(
+				nL,
+				nR,
+				options.neuralAmpModel,
+				0.45,
+				0.3,
+			)
+			weldedStemBuffer.copyToChannel(namRes.left, 0)
+			weldedStemBuffer.copyToChannel(namRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 2: 2048-POINT CONTINUOUS FFT SPECTRAL CLONING & MICRO-RESONANCES
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
@@ -400,6 +449,24 @@ export class AudioEngine {
 			rChan = deHarshed.right
 		}
 
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 3.5: V5 DYNAMIC SPECTRAL DE-RESONATOR (SOOTHE2/GULLFOSS CLASS 256-BIN)
+		// ─────────────────────────────────────────────────────────────────────────
+		if (options.enableDynamicDeResonator !== false) {
+			onProgress?.(
+				44,
+				'🧠 V5 De-Resonator: Rastreando e suprimindo ressonâncias estridentes (2.5k-5.5k / 400Hz)...',
+			)
+			const deRes = DynamicSpectralDeResonator.processDeResonance(
+				lChan,
+				rChan,
+				options.deResonatorDepth ?? 0.5,
+				sr,
+			)
+			lChan = deRes.left
+			rChan = deRes.right
+		}
+
 		// Dynamic Low-Mid De-Mudding Notch (Removes boomy/dirty 320Hz cardboard buildup)
 		const dt = 1.0 / sr
 		const rcMud = 1.0 / (2.0 * Math.PI * 340.0)
@@ -417,13 +484,24 @@ export class AudioEngine {
 		weldedStemBuffer.copyToChannel(rChan, 1)
 
 		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 4: MULTI-BAND TRANSIENT & VISCERAL PUNCH ENGINE (SUB-KICK & SNARE SNAP)
+		// STAGE 4: V5 SPECTRAL TRANSIENT PRO & VISCERAL PUNCH ENGINE
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			48,
-			'🥊 Esculpindo punch visceral de sub-bumbo (<120Hz) e estalo de caixa (3kHz)...',
+			'🥊 V5 Transient Pro: Esculpindo transientes em 4 bandas (Sub, Caixa, Guitarras, Ar)...',
 		)
+		if (options.enableSpectralTransientPro !== false) {
+			const transProRes = SpectralTransientProEngine.processTransientPro(
+				lChan,
+				rChan,
+				{ subPunchDb: 1.8, snareSnapDb: 2.2, guitarBiteDb: 1.2, airSheenDb: 1.0 },
+				sr,
+			)
+			lChan = transProRes.left
+			rChan = transProRes.right
+		}
+
 		const punchResult = MultiBandTransientPunchEngine.processMultiBandPunch(
 			lChan,
 			rChan,
