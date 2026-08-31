@@ -56,6 +56,7 @@ import { SubHarmonicSynthesizerEngine } from './SubHarmonicSynthesizerEngine'
 import type { GuitarRescueMode } from './SunoDistortionRescueEngine'
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine'
 import { UniversalStemSeparationEngine } from './UniversalStemSeparationEngine'
+import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
 import {
 	type AudioStats,
 	audioBufferTo24BitWavBlob,
@@ -103,6 +104,7 @@ export interface ProcessMasterOptions {
 	guitarRigModelId?: string
 	bassRigModelId?: string
 	vocalRigModelId?: string
+	vocalMicId?: string
 	secretProducerHackId?: string
 	hackIntensity?: number
 	cabinetIrModel?: CabinetIrType
@@ -432,6 +434,29 @@ export class AudioEngine {
 			)
 			weldedStemBuffer.copyToChannel(sheenRes.left, 0)
 			weldedStemBuffer.copyToChannel(sheenRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 1.65: VOCAL MICROPHONE ACOUSTIC REMASTER (STUDIO & LIVE MICS)
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.vocalMicId && options.vocalMicId !== 'bypass') {
+			onProgress?.(
+				26,
+				`🎙️ Remasterizando Voz: Injetando cápsula e pré-amplificador de "${options.vocalMicId.toUpperCase()}"...`,
+			)
+			const vmL = weldedStemBuffer.getChannelData(0)
+			const vmR = weldedStemBuffer.getChannelData(1)
+			const micRes = VocalMicrophoneRemasterEngine.processVocalMicRemaster(
+				vmL,
+				vmR,
+				options.vocalMicId,
+				0.85,
+				5,
+				sr,
+			)
+			weldedStemBuffer.copyToChannel(micRes.left, 0)
+			weldedStemBuffer.copyToChannel(micRes.right, 1)
 		}
 
 		if (options.neuralAmpModel) {

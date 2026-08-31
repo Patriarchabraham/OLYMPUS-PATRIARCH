@@ -1403,6 +1403,9 @@ function setupMasterProcessing() {
 			const selectSecretProducerHack = document.getElementById(
 				'select-secret-producer-hack',
 			) as HTMLSelectElement
+			const selectVocalMicrophoneModel = document.getElementById(
+				'select-vocal-microphone-model',
+			) as HTMLSelectElement
 			const chkAiAssistantEnable = document.getElementById(
 				'chk-ai-assistant-enable',
 			) as HTMLInputElement
@@ -1474,6 +1477,7 @@ function setupMasterProcessing() {
 				drumKitModelId: selectDrumKitModel ? selectDrumKitModel.value : 'bypass',
 				guitarRigModelId: selectGuitarRigModel ? selectGuitarRigModel.value : 'bypass',
 				bassRigModelId: selectBassRigModel ? selectBassRigModel.value : 'bypass',
+				vocalMicId: selectVocalMicrophoneModel ? selectVocalMicrophoneModel.value : 'bypass',
 				secretProducerHackId: selectSecretProducerHack ? selectSecretProducerHack.value : 'bypass',
 				enableAiAssistant: chkAiAssistantEnable ? chkAiAssistantEnable.checked : true,
 				enableDeHum: true,

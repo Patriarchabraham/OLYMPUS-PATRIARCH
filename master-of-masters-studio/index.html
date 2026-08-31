@@ -710,6 +710,32 @@
                 </select>
               </div>
 
+              <!-- REMASTER VOCAL MICROPHONE SELECTION (STUDIO & LIVE) -->
+              <div style="margin-top: 4px;">
+                <select id="select-vocal-microphone-model" class="studio-select" style="width: 100%; font-size: 8px; padding: 3px; border-color: rgba(236, 72, 153, 0.4); background: rgba(236, 72, 153, 0.05); color: #fbcfe8;">
+                  <option value="bypass" selected>🎙️ Microfone Vocal: Padrão do Álbum Selecionado</option>
+                  <optgroup label="👑 ESTÚDIO — CONDENSADORES & VÁLVULAS LENDÁRIAS">
+                    <option value="neumann-u87-ai">👑 Neumann U87 Ai — Padrão-Ouro Mundial (Dio, Dickinson, Halford)</option>
+                    <option value="neumann-u47-tube">✨ Neumann U47 Vintage Tube — Válvula VF14 Calor Titânico (Beatles, Sinatra)</option>
+                    <option value="telefunken-ela-m251">💎 Telefunken ELA M 251E — Diamond Series Brilho 14kHz (André Matos)</option>
+                    <option value="sony-c800g">⚡ Sony C-800G — Refrigeração Peltier Modern Hi-Fi (Metalcore / Pop Highs)</option>
+                    <option value="manley-reference-gold">✨ Manley Reference Gold — Válvula 12AT7 & Abertura 30kHz (Pavarotti)</option>
+                    <option value="akg-c414-xls">🎛️ AKG C414 XLS — Ultra-Linear & Cirúrgico (Geoff Tate, Mercury)</option>
+                  </optgroup>
+                  <optgroup label="🎙️ ESTÚDIO — DINÂMICOS BROADCAST">
+                    <option value="shure-sm7b">🎙️ Shure SM7B — Dynamic Classic (Hetfield, Serj Tankian, Michael Jackson)</option>
+                    <option value="electrovoice-re20">🎙️ Electro-Voice RE20 — Variable-D Zero Mud (Thom Yorke, Heavy Screams)</option>
+                  </optgroup>
+                  <optgroup label="🎤 AO VIVO & PALCO — ALTA PERFORMANCE & REJEIÇÃO">
+                    <option value="shure-sm58-live">🎤 Shure SM58 Live — O Microfone de Palco Mais Lendário (Jagger, Plant, Bono)</option>
+                    <option value="shure-beta58a-live">🎤 Shure Beta 58A Supercardioid — Agudos Cortantes de Palco (LaBrie, Myles Kennedy)</option>
+                    <option value="sennheiser-e945-live">⚡ Sennheiser e945 Stage Dynamic — Som Alemão Encorpado (Tobias Sammet, Dickinson)</option>
+                    <option value="neumann-kms105-live">👑 Neumann KMS 105 Live Condenser — Estúdio no Palco (Michael Bublé, Alter Bridge)</option>
+                    <option value="dpa-dfacto-4018v">💎 DPA d:facto 4018V — Linearidade e Precisão Dinamarquesa 160dB SPL (Sting)</option>
+                  </optgroup>
+                </select>
+              </div>
+
               <!-- ADVANCED TOGGLES (V-INFINITY GOD-TIER MATRIX) -->
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); font-family: var(--font-mono); font-size: 8px;">
                 <label style="display: flex; align-items: center; gap: 3px; color: var(--gold-light); cursor: pointer;"><input type="checkbox" id="chk-ai-assistant-enable" checked /> 🧠 AI Assistant</label>
