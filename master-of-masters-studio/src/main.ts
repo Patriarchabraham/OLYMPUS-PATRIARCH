@@ -3006,11 +3006,34 @@ function setupVocalModule() {
 			const key = selectVocalPreset.value as VocalistPresetKey
 			const preset = VOCALIST_PRESETS[key] || VOCALIST_PRESETS.halford
 
+			const chkHirano = document.getElementById('chk-vocal-hirano') as HTMLInputElement | null
+			const chkOq = document.getElementById('chk-vocal-oq') as HTMLInputElement | null
+			const chkTitze = document.getElementById('chk-vocal-titze') as HTMLInputElement | null
+			const chkSinger = document.getElementById('chk-vocal-singer') as HTMLInputElement | null
+			const chkAntiNasal = document.getElementById('chk-vocal-antinasal') as HTMLInputElement | null
+			const chkFry = document.getElementById('chk-vocal-fry') as HTMLInputElement | null
+			const chkPassaggio = document.getElementById('chk-vocal-passaggio') as HTMLInputElement | null
+			const chkBernoulli = document.getElementById('chk-vocal-bernoulli') as HTMLInputElement | null
+			const chkMorse = document.getElementById('chk-vocal-morse') as HTMLInputElement | null
+			const chkStevens = document.getElementById('chk-vocal-stevens') as HTMLInputElement | null
+
 			const res = await VocalEngine.processVocal(buf, {
 				preset,
 				customDeEss: parseFloat(vocalSliderDeess.value),
 				customAir: parseFloat(vocalSliderAir.value),
 				customDoubler: parseFloat(vocalSliderDoubler.value),
+				physiology: {
+					enableHiranoMucosalWave: chkHirano ? chkHirano.checked : true,
+					enableGlottalOpenQuotient: chkOq ? chkOq.checked : true,
+					enableTitzeEpilarynx: chkTitze ? chkTitze.checked : true,
+					enableSingerFormantCluster: chkSinger ? chkSinger.checked : true,
+					enableAntiNasalSinus: chkAntiNasal ? chkAntiNasal.checked : true,
+					enableSubHarmonicVocalFry: chkFry ? chkFry.checked : true,
+					enablePassaggioImpedanceMatch: chkPassaggio ? chkPassaggio.checked : true,
+					enableBernoulliGlottalSuction: chkBernoulli ? chkBernoulli.checked : true,
+					enableMorseLipRadiation: chkMorse ? chkMorse.checked : true,
+					enableStevensPhaseCoherentDeEsser: chkStevens ? chkStevens.checked : true,
+				},
 				onProgress: (pct, txt) => {
 					vocalProgressBar.style.width = `${pct}%`
 					vocalProgressPct.textContent = `${pct}%`
