@@ -8,6 +8,7 @@
 
 import type { MasterAlbumSetup, MasterProducer } from '../database/masters-database'
 import { AbbeyRoadAdtEngine } from './AbbeyRoadAdtEngine'
+import { AbsoluteInstrumentFingerprintEngine } from './AbsoluteInstrumentFingerprintEngine'
 import { AiMasterAssistant, type TrackDiagnostic } from './AiMasterAssistant'
 import { AkgK92AcousticCalibrationEngine } from './AkgK92AcousticCalibrationEngine'
 import { AnalogClipperLimiterEngine, type LimiterMode } from './AnalogClipperLimiterEngine'
@@ -83,6 +84,7 @@ export interface ProcessMasterOptions {
 	enableAkgK92Calibration?: boolean
 	enableNeuralDeClipper?: boolean
 	enable16xPolyphaseLimiter?: boolean
+	enable100PctInstrumentCloning?: boolean
 	inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto'
 	intensityScale?: number
 	customDrive?: number
@@ -458,6 +460,28 @@ export class AudioEngine {
 			const pocketRes = MicroTimingPocketQuantizer.processPocketQuantize(pL, pR, 0.45, sr)
 			weldedStemBuffer.copyToChannel(pocketRes.left, 0)
 			weldedStemBuffer.copyToChannel(pocketRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 1.8: 100% ABSOLUTE INSTRUMENT FINGERPRINT & TIMBRAL CLONING
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enable100PctInstrumentCloning !== false) {
+			onProgress?.(
+				27,
+				`🎯 100% Instrument Fingerprint: Injetando física de pitch-drop e resposta não-linear de "${album.albumTitle}"...`,
+			)
+			const fpL = weldedStemBuffer.getChannelData(0)
+			const fpR = weldedStemBuffer.getChannelData(1)
+			const fpRes = AbsoluteInstrumentFingerprintEngine.processInstrumentCloning(
+				fpL,
+				fpR,
+				album,
+				0.85,
+				sr,
+			)
+			weldedStemBuffer.copyToChannel(fpRes.left, 0)
+			weldedStemBuffer.copyToChannel(fpRes.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
