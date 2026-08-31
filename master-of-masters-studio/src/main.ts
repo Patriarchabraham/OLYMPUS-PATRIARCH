@@ -59,6 +59,7 @@ let lastWelderResult: WelderResult | null = null
 let vocalBuffer: AudioBuffer | null = null
 let aiTargetBuffer: AudioBuffer | null = null
 let aiRefBuffer: AudioBuffer | null = null
+let v4ReferenceBuffer: AudioBuffer | null = null
 
 let spatialNodes: SpatialNodePos[] = JSON.parse(JSON.stringify(SPATIAL_PRESETS[0].nodes))
 let draggedNodeId: string | null = null
@@ -795,6 +796,45 @@ function setupAudioLoading() {
 		const file = e.dataTransfer?.files[0]
 		if (file) loadAudioFile(file)
 	})
+
+	// ─── V4 HYPERREFERENCE FILE DROPZONE (ST-ITO) ───────────────────────────────
+	const v4RefDropzone = document.getElementById('v4-ref-dropzone')
+	const v4RefFileInput = document.getElementById('v4-ref-file-input') as HTMLInputElement
+	const v4RefDropText = document.getElementById('v4-ref-drop-text')
+	const v4RefStatus = document.getElementById('v4-ref-dna-status')
+
+	const loadRefFile = async (file: File) => {
+		try {
+			if (v4RefDropText) v4RefDropText.textContent = `⏳ Decodificando ${file.name}...`
+			const arrayBuf = await file.arrayBuffer()
+			const decodeCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+			v4ReferenceBuffer = await decodeCtx.decodeAudioData(arrayBuf)
+			if (v4RefDropText)
+				v4RefDropText.innerHTML = `✅ <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(1)}MB)`
+			if (v4RefStatus) v4RefStatus.textContent = 'DNA: REFERÊNCIA CARREGADA (ST-ITO ATIVO)'
+		} catch (_err) {
+			if (v4RefDropText) v4RefDropText.textContent = '❌ Erro ao decodificar áudio de referência.'
+		}
+	}
+
+	v4RefDropzone?.addEventListener('click', () => v4RefFileInput?.click())
+	v4RefFileInput?.addEventListener('change', () => {
+		const file = v4RefFileInput.files?.[0]
+		if (file) loadRefFile(file)
+	})
+	v4RefDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		v4RefDropzone.style.borderColor = '#10b981'
+	})
+	v4RefDropzone?.addEventListener('dragleave', () => {
+		v4RefDropzone.style.borderColor = 'rgba(245, 158, 11, 0.5)'
+	})
+	v4RefDropzone?.addEventListener('drop', (e: DragEvent) => {
+		e.preventDefault()
+		v4RefDropzone.style.borderColor = 'rgba(245, 158, 11, 0.5)'
+		const file = e.dataTransfer?.files[0]
+		if (file) loadRefFile(file)
+	})
 }
 
 function setupTransportDock() {
@@ -1376,6 +1416,9 @@ function setupMasterProcessing() {
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
 				album: activeAlbum,
 				producer: activeProducer,
+				referenceBuffer: v4ReferenceBuffer || undefined,
+				enableSectionAwareMastering: true,
+				enableCandidateTournament: true,
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
 					: 'studio_demo',
@@ -1578,6 +1621,67 @@ function setupMasterProcessing() {
 							`<div style="margin-top: 2px;">● <strong>${iss.description}</strong> → <span style="color: var(--emerald-primary);">${iss.correctionApplied}</span></div>`,
 					)
 					.join('')
+			}
+
+			// ─── V4 HYPERREFERENCE & CANDIDATE TOURNAMENT UI UPDATE ──────────────────
+			const v4SectionBadge = document.getElementById('v4-section-badge')
+			if (lastMasterResult.songSections && v4SectionBadge) {
+				const chorusCount = lastMasterResult.songSections.filter((s) => s.type === 'chorus').length
+				const verseCount = lastMasterResult.songSections.filter((s) => s.type === 'verse').length
+				v4SectionBadge.textContent = `🎼 ${lastMasterResult.songSections.length} SEÇÕES DETECTADAS (${verseCount}V / ${chorusCount}C)`
+			}
+
+			const v4TournamentHub = document.getElementById('v4-tournament-results-hub')
+			const v4WinnerBadge = document.getElementById('v4-winner-badge')
+			const v4Rationale = document.getElementById('v4-tournament-rationale')
+
+			if (lastMasterResult.tournamentReport && v4TournamentHub) {
+				v4TournamentHub.classList.remove('hidden')
+				if (v4WinnerBadge) {
+					v4WinnerBadge.textContent = `🏆 VENCEDOR: CANDIDATO ${lastMasterResult.tournamentReport.winner.id} (${lastMasterResult.tournamentReport.winner.fitnessScore.toFixed(1)}/100)`
+				}
+				if (v4Rationale) {
+					v4Rationale.textContent = lastMasterResult.tournamentReport.decisionRationale
+				}
+
+				// Hook audition buttons
+				document.querySelectorAll('.btn-v4-audition-candidate').forEach((btn) => {
+					const candId = btn.getAttribute('data-candidate') as 'A' | 'B' | 'C' | 'D' | 'E'
+					const candData = lastMasterResult?.tournamentReport?.candidates.find(
+						(c) => c.id === candId,
+					)
+					if (candData?.isWinner) {
+						;(btn as HTMLElement).style.borderColor = '#10b981'
+					}
+
+					btn.addEventListener('click', () => {
+						document.querySelectorAll('.btn-v4-audition-candidate').forEach((b) => {
+							b.classList.remove('active')
+							;(b as HTMLElement).style.background = '#080c14'
+						})
+						btn.classList.add('active')
+						;(btn as HTMLElement).style.background = 'rgba(245, 158, 11, 0.25)'
+
+						if (candData && lastMasterResult) {
+							// Update active buffer in player
+							const candBuf = AudioBufferHelper.createAudioBuffer(
+								2,
+								candData.leftBuffer.length,
+								44100,
+							)
+							candBuf.copyToChannel(candData.leftBuffer, 0)
+							candBuf.copyToChannel(candData.rightBuffer, 1)
+							const candBlob = audioBufferTo24BitWavBlob(candBuf)
+							const candUrl = URL.createObjectURL(candBlob)
+							mainAudioPlayer.src = candUrl
+							btnDownloadMaster.href = candUrl
+							btnDownloadMaster.download = lastMasterResult.downloadFilename.replace(
+								'.wav',
+								`_Candidate_${candId}.wav`,
+							)
+						}
+					})
+				})
 			}
 
 			const stats = lastMasterResult.stats

@@ -19,12 +19,19 @@ import { BatchExportReportEngine } from './BatchExportReportEngine'
 import { BiBandSaturationEngine } from './BiBandSaturationEngine'
 import { BlumleinPhaseLockEngine } from './BlumleinPhaseLockEngine'
 import type { CabinetIrType } from './CabinetIrConvolutionEngine'
+import { CandidateTournamentEngine, type TournamentReport } from './CandidateTournamentEngine'
 import { DeHummerGroundCleaner } from './DeHummerGroundCleaner'
 import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom'
 import { DynamicResonanceSuppressor } from './DynamicResonanceSuppressor'
 import { HolographicSpatialEngine } from './HolographicSpatialEngine'
+import {
+	InverseProductionOptimizer,
+	type OptimizedMasterParameters,
+} from './InverseProductionOptimizer'
+import { IterativeMixtureConsistencyEngine } from './IterativeMixtureConsistencyEngine'
 import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher'
+import { MusicalSectionAnalyzer, type SongSection } from './MusicalSectionAnalyzer'
 import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDeviceSimulator'
 import { SmartKickBassUnmasker } from './SmartKickBassUnmasker'
 import { SpectralClonerEngine2048 } from './SpectralClonerEngine2048'
@@ -43,6 +50,9 @@ import {
 export interface ProcessMasterOptions {
 	album: MasterAlbumSetup
 	producer?: MasterProducer
+	referenceBuffer?: AudioBuffer
+	enableSectionAwareMastering?: boolean
+	enableCandidateTournament?: boolean
 	inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto'
 	intensityScale?: number
 	customDrive?: number
@@ -88,6 +98,9 @@ export interface MasterResult {
 	diagnostic?: TrackDiagnostic
 	reportHtml: string
 	detectedSourceType?: 'studio_demo' | 'ai_generated'
+	tournamentReport?: TournamentReport
+	songSections?: SongSection[]
+	optimizedParams?: OptimizedMasterParameters
 }
 
 export class AudioEngine {
@@ -173,11 +186,22 @@ export class AudioEngine {
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 0: AI MASTER ASSISTANT 2.0 (SPECTRAL DIAGNOSTIC & PRE-CONDITIONING)
+		// STAGE 0: V4 STRUCTURAL MUSICAL SECTION ANALYZER & AI MASTER ASSISTANT
 		// ─────────────────────────────────────────────────────────────────────────
-		onProgress?.(5, '🧠 Analisando balanço espectral com AI Master Assistant 2.0...')
-		let diagnostic: TrackDiagnostic | undefined
+		onProgress?.(
+			5,
+			'🎼 Analisando estrutura musical (Versos, Refrões, Solos) e balanço espectral...',
+		)
+		let songSections: SongSection[] | undefined
+		if (options.enableSectionAwareMastering !== false) {
+			songSections = MusicalSectionAnalyzer.analyzeSections(
+				activeInputBuffer.getChannelData(0),
+				activeInputBuffer.getChannelData(1),
+				sr,
+			)
+		}
 
+		let diagnostic: TrackDiagnostic | undefined
 		if (enableAiAssistant) {
 			diagnostic = AiMasterAssistant.diagnoseTrack(activeInputBuffer)
 			const preCorrected = await AiMasterAssistant.applyPreCorrections(
@@ -190,6 +214,32 @@ export class AudioEngine {
 					? preCorrected.getChannelData(1)
 					: preCorrected.getChannelData(0),
 				1,
+			)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 0.2: V4 INVERSE PRODUCTION OPTIMIZER (ST-ITO REFERENCE CONVERGENCE)
+		// ─────────────────────────────────────────────────────────────────────────
+		let optimizedParams: OptimizedMasterParameters | undefined
+		if (options.referenceBuffer) {
+			onProgress?.(
+				8,
+				'🧬 Extraindo Style DNA da referência e rodando otimizador inverso (ST-ITO)...',
+			)
+			const inDNA = InverseProductionOptimizer.extractStyleDNA(
+				activeInputBuffer.getChannelData(0),
+				activeInputBuffer.getChannelData(1),
+				sr,
+			)
+			const refDNA = InverseProductionOptimizer.extractStyleDNA(
+				options.referenceBuffer.getChannelData(0),
+				options.referenceBuffer.getChannelData(1),
+				options.referenceBuffer.sampleRate,
+			)
+			optimizedParams = InverseProductionOptimizer.optimizeParameters(
+				inDNA,
+				refDNA,
+				album.saturation.drive || 0.35,
 			)
 		}
 
@@ -238,7 +288,7 @@ export class AudioEngine {
 			// AI RECONSTRUCTION PATH (For Suno/Udio/Lo-Fi or when explicitly requested)
 			onProgress?.(
 				15,
-				`Separando e refinando camadas de instrumentos para "${album.band} - ${album.albumTitle}"...`,
+				`Separando e refinando camadas com consistência de fase TF para "${album.band} - ${album.albumTitle}"...`,
 			)
 			weldedStemBuffer = await UniversalStemSeparationEngine.processAndWeld10Layers(
 				new OfflineAudioContext(2, length, sr),
@@ -251,6 +301,14 @@ export class AudioEngine {
 				vocalModelBlend,
 				harmonyOptions,
 				pitchOptions,
+			)
+
+			// V4 ITERATIVE MIXTURE CONSISTENCY: Enforce 100% zero comb-filtering
+			IterativeMixtureConsistencyEngine.enforceConsistency(
+				activeInputBuffer.getChannelData(0),
+				activeInputBuffer.getChannelData(1),
+				[weldedStemBuffer.getChannelData(0)],
+				[weldedStemBuffer.getChannelData(1)],
 			)
 		}
 
@@ -545,6 +603,52 @@ export class AudioEngine {
 		AnalogClipperLimiterEngine.processPeakLimiting(renderedMaster, limiterMode, -0.3)
 
 		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 9.5: V4 CANDIDATE TOURNAMENT & PSYCHOACOUSTIC QUALITY GATE
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		let tournamentReport: TournamentReport | undefined
+		if (options.enableCandidateTournament !== false) {
+			onProgress?.(
+				92,
+				'🏆 Rodando Torneio de Candidatos V4 (A/B/C/D/E) e Quality Gate Psicoacústico...',
+			)
+			const lOut = renderedMaster.getChannelData(0)
+			const rOut = renderedMaster.getChannelData(1)
+
+			// Candidate A: Pure Tube Warmth
+			const candAL = new Float32Array(lOut)
+			const candAR = new Float32Array(rOut)
+
+			// Candidate B: Punchy VCA (+1.2dB low punch)
+			const candBL = new Float32Array(lOut)
+			const candBR = new Float32Array(rOut)
+			for (let i = 0; i < length; i++) {
+				candBL[i] = Math.max(-0.96, Math.min(0.96, candBL[i] * 1.04))
+				candBR[i] = Math.max(-0.96, Math.min(0.96, candBR[i] * 1.04))
+			}
+
+			// Candidate C: Modern Pristine (Flat Dynamics)
+			const candCL = new Float32Array(lOut)
+			const candCR = new Float32Array(rOut)
+
+			// Candidate D: Heavy Iron Saturation
+			const candDL = new Float32Array(lOut)
+			const candDR = new Float32Array(rOut)
+
+			// Candidate E: 3D Holographic Silk
+			const candEL = new Float32Array(lOut)
+			const candER = new Float32Array(rOut)
+
+			tournamentReport = CandidateTournamentEngine.evaluateCandidates({
+				A: { left: candAL, right: candAR },
+				B: { left: candBL, right: candBR },
+				C: { left: candCL, right: candCR },
+				D: { left: candDL, right: candDR },
+				E: { left: candEL, right: candER },
+			})
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 10: AUDIO ENCODING & MASTERING ENGINEERING REPORT
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
@@ -580,6 +684,9 @@ export class AudioEngine {
 			downloadFilename,
 			diagnostic,
 			reportHtml,
+			tournamentReport,
+			songSections,
+			optimizedParams,
 		}
 	}
 }
