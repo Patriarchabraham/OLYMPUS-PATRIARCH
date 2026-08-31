@@ -48,6 +48,7 @@ import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDevic
 import { SmartAntiMasking3DEngine } from './SmartAntiMasking3DEngine'
 import { SmartKickBassUnmasker } from './SmartKickBassUnmasker'
 import { SpectralClonerEngine2048 } from './SpectralClonerEngine2048'
+import { SpectralLatentCrossResynthesisEngine } from './SpectralLatentCrossResynthesisEngine'
 import { SpectralTransientProEngine } from './SpectralTransientProEngine'
 import { type StreamingPlatform, StreamingTargetEngine } from './StreamingTargetEngine'
 import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine'
@@ -89,6 +90,7 @@ export interface ProcessMasterOptions {
 	enable100PctInstrumentCloning?: boolean
 	enableMicroAcousticMechanical?: boolean
 	enableMasterTapePhysics?: boolean
+	enableLatentCrossResynthesis?: boolean
 	inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto'
 	intensityScale?: number
 	customDrive?: number
@@ -502,6 +504,28 @@ export class AudioEngine {
 			const meRes = MicroAcousticMechanicalEngine.processMechanicalAcoustics(meL, meR, 0.65, sr)
 			weldedStemBuffer.copyToChannel(meRes.left, 0)
 			weldedStemBuffer.copyToChannel(meRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 1.95: SPECTRAL-NEURAL LATENT CROSS-RESYNTHESIS (64 PARTIALS & CEPSTRUM)
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enableLatentCrossResynthesis !== false) {
+			onProgress?.(
+				29,
+				`🧬 Latent Cross-Resynthesis: Transmutando 64 parciais harmônicas e envelope cepstral de "${album.albumTitle}"...`,
+			)
+			const crL = weldedStemBuffer.getChannelData(0)
+			const crR = weldedStemBuffer.getChannelData(1)
+			const crRes = SpectralLatentCrossResynthesisEngine.processCrossResynthesis(
+				crL,
+				crR,
+				album,
+				0.75,
+				sr,
+			)
+			weldedStemBuffer.copyToChannel(crRes.left, 0)
+			weldedStemBuffer.copyToChannel(crRes.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
