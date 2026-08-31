@@ -1424,6 +1424,9 @@ function setupMasterProcessing() {
 			const chkVInfDeclip = document.getElementById('chk-v-inf-declip') as HTMLInputElement
 			const chkVInf16xLimiter = document.getElementById('chk-v-inf-16x-limiter') as HTMLInputElement
 			const chk100PctCloning = document.getElementById('chk-100pct-cloning') as HTMLInputElement
+			const chkMicroAcoustic = document.getElementById(
+				'chk-micro-acoustic-mechanical',
+			) as HTMLInputElement
 			const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement
 
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
@@ -1445,6 +1448,7 @@ function setupMasterProcessing() {
 				enableNeuralDeClipper: chkVInfDeclip ? chkVInfDeclip.checked : true,
 				enable16xPolyphaseLimiter: chkVInf16xLimiter ? chkVInf16xLimiter.checked : true,
 				enable100PctInstrumentCloning: chk100PctCloning ? chk100PctCloning.checked : true,
+				enableMicroAcousticMechanical: chkMicroAcoustic ? chkMicroAcoustic.checked : true,
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
 					: 'studio_demo',

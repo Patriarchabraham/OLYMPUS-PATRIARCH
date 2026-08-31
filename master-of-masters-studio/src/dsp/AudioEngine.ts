@@ -34,6 +34,7 @@ import {
 	type OptimizedMasterParameters,
 } from './InverseProductionOptimizer'
 import { IterativeMixtureConsistencyEngine } from './IterativeMixtureConsistencyEngine'
+import { MicroAcousticMechanicalEngine } from './MicroAcousticMechanicalEngine'
 import { MicroTimingPocketQuantizer } from './MicroTimingPocketQuantizer'
 import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher'
@@ -85,6 +86,7 @@ export interface ProcessMasterOptions {
 	enableNeuralDeClipper?: boolean
 	enable16xPolyphaseLimiter?: boolean
 	enable100PctInstrumentCloning?: boolean
+	enableMicroAcousticMechanical?: boolean
 	inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto'
 	intensityScale?: number
 	customDrive?: number
@@ -482,6 +484,22 @@ export class AudioEngine {
 			)
 			weldedStemBuffer.copyToChannel(fpRes.left, 0)
 			weldedStemBuffer.copyToChannel(fpRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 1.9: MICRO-ACOUSTIC MECHANICAL DETAILS (SNARE BUZZ & PICK CHIRP)
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enableMicroAcousticMechanical !== false) {
+			onProgress?.(
+				28,
+				'🎸 Micro-Acoustic: Injetando ressonância simpática de esteira e atrito de palheta...',
+			)
+			const meL = weldedStemBuffer.getChannelData(0)
+			const meR = weldedStemBuffer.getChannelData(1)
+			const meRes = MicroAcousticMechanicalEngine.processMechanicalAcoustics(meL, meR, 0.65, sr)
+			weldedStemBuffer.copyToChannel(meRes.left, 0)
+			weldedStemBuffer.copyToChannel(meRes.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
