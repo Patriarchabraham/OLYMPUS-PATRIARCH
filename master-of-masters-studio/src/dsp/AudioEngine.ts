@@ -10,6 +10,7 @@ import type { MasterAlbumSetup, MasterProducer } from '../database/masters-datab
 import { AbbeyRoadAdtEngine } from './AbbeyRoadAdtEngine'
 import { AiMasterAssistant, type TrackDiagnostic } from './AiMasterAssistant'
 import { AnalogClipperLimiterEngine, type LimiterMode } from './AnalogClipperLimiterEngine'
+import { AnalogDeskCrosstalkEngine, type DeskCrosstalkModel } from './AnalogDeskCrosstalkEngine'
 import { AnalogMasteringConsoleEngine } from './AnalogMasteringConsoleEngine'
 import type { AnalogColorModel } from './AnalogTapeTransformerEngine'
 import { AudioBufferHelper } from './AudioBufferHelper'
@@ -31,16 +32,20 @@ import {
 	type OptimizedMasterParameters,
 } from './InverseProductionOptimizer'
 import { IterativeMixtureConsistencyEngine } from './IterativeMixtureConsistencyEngine'
+import { MicroTimingPocketQuantizer } from './MicroTimingPocketQuantizer'
 import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher'
 import { MusicalSectionAnalyzer, type SongSection } from './MusicalSectionAnalyzer'
 import { NeuralAmpModelerEngine, type NeuralAmpModelType } from './NeuralAmpModelerEngine'
+import { PsychoacousticNoiseShapedDither } from './PsychoacousticNoiseShapedDither'
 import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDeviceSimulator'
+import { SmartAntiMasking3DEngine } from './SmartAntiMasking3DEngine'
 import { SmartKickBassUnmasker } from './SmartKickBassUnmasker'
 import { SpectralClonerEngine2048 } from './SpectralClonerEngine2048'
 import { SpectralTransientProEngine } from './SpectralTransientProEngine'
 import { type StreamingPlatform, StreamingTargetEngine } from './StreamingTargetEngine'
 import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine'
+import { SubHarmonicSynthesizerEngine } from './SubHarmonicSynthesizerEngine'
 import type { GuitarRescueMode } from './SunoDistortionRescueEngine'
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine'
 import { UniversalStemSeparationEngine } from './UniversalStemSeparationEngine'
@@ -63,6 +68,13 @@ export interface ProcessMasterOptions {
 	enableDiffVoxSheen?: boolean
 	diffVoxSheenAmount?: number
 	neuralAmpModel?: NeuralAmpModelType
+	enableDeskCrosstalk?: boolean
+	deskCrosstalkModel?: DeskCrosstalkModel
+	enableSubHarmonicSynth?: boolean
+	subHarmonicGainDb?: number
+	enablePocketQuantizer?: boolean
+	enableAntiMasking3D?: boolean
+	enablePsychoDither?: boolean
 	inputSourceMode?: 'studio_demo' | 'ai_generated' | 'auto'
 	intensityScale?: number
 	customDrive?: number
@@ -387,6 +399,22 @@ export class AudioEngine {
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 1.7: V-OMEGA MICRO-TIMING & POCKET GROOVE QUANTIZER
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enablePocketQuantizer !== false) {
+			onProgress?.(
+				27,
+				'⏱️ V-Omega Pocket Quantizer: Travando alinhamento de micro-timing entre bumbo e baixo...',
+			)
+			const pL = weldedStemBuffer.getChannelData(0)
+			const pR = weldedStemBuffer.getChannelData(1)
+			const pocketRes = MicroTimingPocketQuantizer.processPocketQuantize(pL, pR, 0.45, sr)
+			weldedStemBuffer.copyToChannel(pocketRes.left, 0)
+			weldedStemBuffer.copyToChannel(pocketRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
 		// STAGE 2: 2048-POINT CONTINUOUS FFT SPECTRAL CLONING & MICRO-RESONANCES
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
@@ -467,6 +495,19 @@ export class AudioEngine {
 			rChan = deRes.right
 		}
 
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 3.6: V-OMEGA SMART 3D ANTI-MASKING FREQUENCY UNMASKER
+		// ─────────────────────────────────────────────────────────────────────────
+		if (options.enableAntiMasking3D !== false) {
+			onProgress?.(
+				46,
+				'🛡️ V-Omega Anti-Masking: Desmascarando 3D guitarras x vocais e bumbo x baixo...',
+			)
+			const unmaskRes = SmartAntiMasking3DEngine.processAntiMasking(lChan, rChan, 0.5, sr)
+			lChan = unmaskRes.left
+			rChan = unmaskRes.right
+		}
+
 		// Dynamic Low-Mid De-Mudding Notch (Removes boomy/dirty 320Hz cardboard buildup)
 		const dt = 1.0 / sr
 		const rcMud = 1.0 / (2.0 * Math.PI * 340.0)
@@ -537,6 +578,28 @@ export class AudioEngine {
 			)
 			weldedStemBuffer.copyToChannel(rescueResult.left, 0)
 			weldedStemBuffer.copyToChannel(rescueResult.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 4.8: V-OMEGA SUB-HARMONIC 30Hz SYNTHESIZER (DBX 120A CLASS)
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enableSubHarmonicSynth !== false) {
+			onProgress?.(
+				54,
+				'⚡ V-Omega Sub-Harmonic: Sintetizando sub-oitava senoidal pura (25Hz-55Hz) para peso colossal...',
+			)
+			const shL = weldedStemBuffer.getChannelData(0)
+			const shR = weldedStemBuffer.getChannelData(1)
+			const subSynthRes = SubHarmonicSynthesizerEngine.processSubHarmonics(
+				shL,
+				shR,
+				options.subHarmonicGainDb ?? 2.5,
+				0.35,
+				sr,
+			)
+			weldedStemBuffer.copyToChannel(subSynthRes.left, 0)
+			weldedStemBuffer.copyToChannel(subSynthRes.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
@@ -611,7 +674,29 @@ export class AudioEngine {
 		renderedMaster.copyToChannel(spatialResult.right, 1)
 
 		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 7.1: BLUMLEIN STEREO SHUFFLE & SUB PHASE-LOCK (<120Hz MONO GUARD)
+		// STAGE 7.5: V-OMEGA ANALOG DESK SUMMING CROSSTALK 3D GLUE (NEVE / SSL)
+		// ─────────────────────────────────────────────────────────────────────────
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		if (options.enableDeskCrosstalk !== false) {
+			onProgress?.(
+				81,
+				`🎛️ V-Omega Desk Crosstalk: Injetando diafonia física de barramentos analógicos (${options.deskCrosstalkModel || 'ssl_4000g'})...`,
+			)
+			const lCross = renderedMaster.getChannelData(0)
+			const rCross = renderedMaster.getChannelData(1)
+			const crossRes = AnalogDeskCrosstalkEngine.processCrosstalk(
+				lCross,
+				rCross,
+				options.deskCrosstalkModel || 'ssl_4000g',
+				0.4,
+				sr,
+			)
+			renderedMaster.copyToChannel(crossRes.left, 0)
+			renderedMaster.copyToChannel(crossRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 7.6: BLUMLEIN STEREO SHUFFLE & SUB PHASE-LOCK (<120Hz MONO GUARD)
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
@@ -727,13 +812,27 @@ export class AudioEngine {
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 10: AUDIO ENCODING & MASTERING ENGINEERING REPORT
+		// STAGE 10: AUDIO ENCODING WITH 9th-ORDER PSYCHOACOUSTIC DITHER
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		onProgress?.(
 			95,
-			`Codificando WAV ${bitDepth === '24bit' ? '24-Bit HD com Dither TPDF' : '32-Bit Float'} e gerando relatório técnico...`,
+			`Codificando WAV ${bitDepth === '24bit' ? '24-Bit HD com Dither Psicoacústico 9ª Ordem' : '32-Bit Float'} e gerando relatório técnico...`,
 		)
+
+		if (options.enablePsychoDither !== false && bitDepth === '24bit') {
+			const dithL = PsychoacousticNoiseShapedDither.applyPsychoacousticDither(
+				renderedMaster.getChannelData(0),
+				24,
+			)
+			const dithR = PsychoacousticNoiseShapedDither.applyPsychoacousticDither(
+				renderedMaster.getChannelData(1),
+				24,
+			)
+			renderedMaster.copyToChannel(dithL, 0)
+			renderedMaster.copyToChannel(dithR, 1)
+		}
+
 		const wavBlob =
 			bitDepth === '24bit'
 				? audioBufferTo24BitWavBlob(renderedMaster)

@@ -1409,6 +1409,16 @@ function setupMasterProcessing() {
 			const chkV5DeResonator = document.getElementById('chk-v5-de-resonator') as HTMLInputElement
 			const chkV5TransientPro = document.getElementById('chk-v5-transient-pro') as HTMLInputElement
 			const chkV5DiffVoxSheen = document.getElementById('chk-v5-diffvox-sheen') as HTMLInputElement
+			const chkVOmegaCrosstalk = document.getElementById(
+				'chk-v-omega-crosstalk',
+			) as HTMLInputElement
+			const chkVOmegaSubharmonic = document.getElementById(
+				'chk-v-omega-subharmonic',
+			) as HTMLInputElement
+			const chkVOmegaPocketQuantize = document.getElementById(
+				'chk-v-omega-pocket-quantize',
+			) as HTMLInputElement
+			const chkVOmegaAntiMask = document.getElementById('chk-v-omega-anti-mask') as HTMLInputElement
 			const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement
 
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
@@ -1420,6 +1430,11 @@ function setupMasterProcessing() {
 				enableDynamicDeResonator: chkV5DeResonator ? chkV5DeResonator.checked : true,
 				enableSpectralTransientPro: chkV5TransientPro ? chkV5TransientPro.checked : true,
 				enableDiffVoxSheen: chkV5DiffVoxSheen ? chkV5DiffVoxSheen.checked : true,
+				enableDeskCrosstalk: chkVOmegaCrosstalk ? chkVOmegaCrosstalk.checked : true,
+				enableSubHarmonicSynth: chkVOmegaSubharmonic ? chkVOmegaSubharmonic.checked : true,
+				enablePocketQuantizer: chkVOmegaPocketQuantize ? chkVOmegaPocketQuantize.checked : true,
+				enableAntiMasking3D: chkVOmegaAntiMask ? chkVOmegaAntiMask.checked : true,
+				enablePsychoDither: true,
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
 					: 'studio_demo',
