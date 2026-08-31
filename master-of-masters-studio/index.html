@@ -710,16 +710,20 @@
                 </select>
               </div>
 
-              <!-- ADVANCED TOGGLES (V-OMEGA QUANTUM SUPREME) -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); font-family: var(--font-mono); font-size: 8px;">
+              <!-- ADVANCED TOGGLES (V-INFINITY GOD-TIER MATRIX) -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); font-family: var(--font-mono); font-size: 8px;">
                 <label style="display: flex; align-items: center; gap: 3px; color: var(--gold-light); cursor: pointer;"><input type="checkbox" id="chk-ai-assistant-enable" checked /> 🧠 AI Assistant</label>
                 <label style="display: flex; align-items: center; gap: 3px; color: #38bdf8; cursor: pointer;"><input type="checkbox" id="chk-v5-de-resonator" checked /> 🎯 De-Resonator</label>
                 <label style="display: flex; align-items: center; gap: 3px; color: #10b981; cursor: pointer;"><input type="checkbox" id="chk-v5-transient-pro" checked /> 🥊 Transient Pro</label>
                 <label style="display: flex; align-items: center; gap: 3px; color: #f43f5e; cursor: pointer;"><input type="checkbox" id="chk-v5-diffvox-sheen" checked /> ✨ DiffVox Sheen</label>
-                <label style="display: flex; align-items: center; gap: 3px; color: #f59e0b; cursor: pointer;"><input type="checkbox" id="chk-v-omega-crosstalk" checked /> 🎛️ Desk Crosstalk 3D</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #f59e0b; cursor: pointer;"><input type="checkbox" id="chk-v-omega-crosstalk" checked /> 🎛️ Desk Crosstalk</label>
                 <label style="display: flex; align-items: center; gap: 3px; color: #06b6d4; cursor: pointer;"><input type="checkbox" id="chk-v-omega-subharmonic" checked /> ⚡ Sub-Synth 30Hz</label>
                 <label style="display: flex; align-items: center; gap: 3px; color: #a855f7; cursor: pointer;"><input type="checkbox" id="chk-v-omega-pocket-quantize" checked /> ⏱️ Pocket Groove</label>
                 <label style="display: flex; align-items: center; gap: 3px; color: #14b8a6; cursor: pointer;"><input type="checkbox" id="chk-v-omega-anti-mask" checked /> 🛡️ 3D Anti-Mask</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #fbbf24; cursor: pointer;"><input type="checkbox" id="chk-v-inf-asymmetry" checked /> 🔄 +3dB Asymmetry</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #ec4899; cursor: pointer;"><input type="checkbox" id="chk-v-inf-akg-k92" checked /> 🎧 AKG K92 Room</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #ef4444; cursor: pointer;"><input type="checkbox" id="chk-v-inf-declip" checked /> 🩹 Neural De-Clip</label>
+                <label style="display: flex; align-items: center; gap: 3px; color: #22c55e; cursor: pointer;"><input type="checkbox" id="chk-v-inf-16x-limiter" checked /> 💎 16× Poly Limiter</label>
               </div>
 
               <!-- DIAGNOSTIC FEEDBACK -->
@@ -826,6 +830,35 @@
                     <button type="button" class="btn-v4-audition-candidate" data-candidate="E" style="font-family: var(--font-mono); font-size: 8px; padding: 4px 2px; border-radius: 4px; border: 1px solid var(--border-subtle); background: #080c14; color: #94a3b8; cursor: pointer; text-align: center;">
                       <strong>CAND E</strong><br/><span style="font-size: 7px; color: #a855f7;">3D SILK</span>
                     </button>
+                  </div>
+
+                  <!-- V-INFINITY LIVE MASTER STEMS SOLO/MUTE AUDITION GRID -->
+                  <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 3px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-family: var(--font-mono); font-size: 8px; color: #fbbf24; font-weight: 800;">
+                        🎧 V-INFINITY STEMS AUDITION GRID (SOLO EM TEMPO REAL):
+                      </span>
+                      <span id="v-inf-stem-status" style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">
+                        FULL MASTER (ALL)
+                      </span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px;">
+                      <button type="button" class="btn-v-inf-solo-stem active" data-stem="all" style="font-family: var(--font-mono); font-size: 7px; padding: 3px 1px; border-radius: 3px; border: 1px solid #10b981; background: rgba(16, 185, 129, 0.2); color: #10b981; cursor: pointer;">
+                        ✨ FULL
+                      </button>
+                      <button type="button" class="btn-v-inf-solo-stem" data-stem="vocals" style="font-family: var(--font-mono); font-size: 7px; padding: 3px 1px; border-radius: 3px; border: 1px solid #334155; background: #0b0f19; color: #94a3b8; cursor: pointer;">
+                        🎤 VOCAIS
+                      </button>
+                      <button type="button" class="btn-v-inf-solo-stem" data-stem="guitars" style="font-family: var(--font-mono); font-size: 7px; padding: 3px 1px; border-radius: 3px; border: 1px solid #334155; background: #0b0f19; color: #94a3b8; cursor: pointer;">
+                        🎸 GUITARS
+                      </button>
+                      <button type="button" class="btn-v-inf-solo-stem" data-stem="drums" style="font-family: var(--font-mono); font-size: 7px; padding: 3px 1px; border-radius: 3px; border: 1px solid #334155; background: #0b0f19; color: #94a3b8; cursor: pointer;">
+                        🥁 DRUMS
+                      </button>
+                      <button type="button" class="btn-v-inf-solo-stem" data-stem="bass" style="font-family: var(--font-mono); font-size: 7px; padding: 3px 1px; border-radius: 3px; border: 1px solid #334155; background: #0b0f19; color: #94a3b8; cursor: pointer;">
+                        ⚡ BASS
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

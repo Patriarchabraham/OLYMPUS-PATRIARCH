@@ -1419,6 +1419,10 @@ function setupMasterProcessing() {
 				'chk-v-omega-pocket-quantize',
 			) as HTMLInputElement
 			const chkVOmegaAntiMask = document.getElementById('chk-v-omega-anti-mask') as HTMLInputElement
+			const chkVInfAsymmetry = document.getElementById('chk-v-inf-asymmetry') as HTMLInputElement
+			const chkVInfAkgK92 = document.getElementById('chk-v-inf-akg-k92') as HTMLInputElement
+			const chkVInfDeclip = document.getElementById('chk-v-inf-declip') as HTMLInputElement
+			const chkVInf16xLimiter = document.getElementById('chk-v-inf-16x-limiter') as HTMLInputElement
 			const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement
 
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
@@ -1435,6 +1439,10 @@ function setupMasterProcessing() {
 				enablePocketQuantizer: chkVOmegaPocketQuantize ? chkVOmegaPocketQuantize.checked : true,
 				enableAntiMasking3D: chkVOmegaAntiMask ? chkVOmegaAntiMask.checked : true,
 				enablePsychoDither: true,
+				enableWaveformAsymmetryRotator: chkVInfAsymmetry ? chkVInfAsymmetry.checked : true,
+				enableAkgK92Calibration: chkVInfAkgK92 ? chkVInfAkgK92.checked : false,
+				enableNeuralDeClipper: chkVInfDeclip ? chkVInfDeclip.checked : true,
+				enable16xPolyphaseLimiter: chkVInf16xLimiter ? chkVInf16xLimiter.checked : true,
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
 					: 'studio_demo',
@@ -1698,6 +1706,55 @@ function setupMasterProcessing() {
 					})
 				})
 			}
+
+			// Hook V-INFINITY Master Stems Solo/Mute Grid
+			const vInfStemStatus = document.getElementById('v-inf-stem-status')
+			document.querySelectorAll('.btn-v-inf-solo-stem').forEach((btn) => {
+				btn.addEventListener('click', () => {
+					if (!lastMasterResult?.masteredStems) return
+
+					document.querySelectorAll('.btn-v-inf-solo-stem').forEach((b) => {
+						b.classList.remove('active')
+						;(b as HTMLElement).style.background = '#0b0f19'
+						;(b as HTMLElement).style.borderColor = '#334155'
+						;(b as HTMLElement).style.color = '#94a3b8'
+					})
+
+					btn.classList.add('active')
+					;(btn as HTMLElement).style.background = 'rgba(16, 185, 129, 0.2)'
+					;(btn as HTMLElement).style.borderColor = '#10b981'
+					;(btn as HTMLElement).style.color = '#10b981'
+
+					const stemType = btn.getAttribute('data-stem')
+					let targetBuffer: AudioBuffer = lastMasterResult.masterBuffer
+
+					if (stemType && stemType !== 'all' && lastMasterResult.masteredStems) {
+						const stemChan = (lastMasterResult.masteredStems as any)[stemType]
+						if (stemChan) {
+							targetBuffer = AudioBufferHelper.createAudioBuffer(
+								2,
+								stemChan.length,
+								lastMasterResult.masterBuffer.sampleRate,
+							)
+							targetBuffer.copyToChannel(stemChan, 0)
+							targetBuffer.copyToChannel(stemChan, 1)
+						}
+					}
+
+					if (vInfStemStatus) {
+						vInfStemStatus.textContent = `SOLO: ${stemType?.toUpperCase() || 'ALL'}`
+						vInfStemStatus.style.color = stemType === 'all' ? '#10b981' : '#fbbf24'
+					}
+
+					const wasPlaying = !mainAudioPlayer.paused
+					const currTime = mainAudioPlayer.currentTime
+					const stemBlob = audioBufferTo24BitWavBlob(targetBuffer)
+					const stemUrl = URL.createObjectURL(stemBlob)
+					mainAudioPlayer.src = stemUrl
+					mainAudioPlayer.currentTime = currTime
+					if (wasPlaying) mainAudioPlayer.play().catch(() => {})
+				})
+			})
 
 			const stats = lastMasterResult.stats
 			meterIntLufs.textContent = `${(stats.integratedLufs ?? -14.0).toFixed(1)} LUFS`
