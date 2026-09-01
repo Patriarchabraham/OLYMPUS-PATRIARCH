@@ -114,6 +114,10 @@ export interface ProcessMasterOptions {
 	bassRigModelId?: string
 	vocalRigModelId?: string
 	vocalMicId?: string
+	guitarMicId?: string
+	bassMicId?: string
+	drumMicId?: string
+	synthMicId?: string
 	secretProducerHackId?: string
 	hackIntensity?: number
 	cabinetIrModel?: CabinetIrType
@@ -392,6 +396,13 @@ export class AudioEngine {
 				harmonyOptions,
 				pitchOptions,
 				options.vocalPhysiology,
+				{
+					vocalMicId: options.vocalMicId,
+					guitarMicId: options.guitarMicId,
+					bassMicId: options.bassMicId,
+					drumMicId: options.drumMicId,
+					synthMicId: options.synthMicId,
+				},
 			)
 
 			// V4 ITERATIVE MIXTURE CONSISTENCY: Enforce 100% zero comb-filtering
@@ -470,6 +481,25 @@ export class AudioEngine {
 			)
 			weldedStemBuffer.copyToChannel(micRes.left, 0)
 			weldedStemBuffer.copyToChannel(micRes.right, 1)
+		}
+
+		if (options.synthMicId && options.synthMicId !== 'bypass') {
+			onProgress?.(
+				26.5,
+				`🎹 Remasterizando Ambiência & Synths: Aplicando par estéreo "${options.synthMicId.toUpperCase()}"...`,
+			)
+			const sL = weldedStemBuffer.getChannelData(0)
+			const sR = weldedStemBuffer.getChannelData(1)
+			const synthMicRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
+				sL,
+				sR,
+				options.synthMicId,
+				0.75,
+				15,
+				sr,
+			)
+			weldedStemBuffer.copyToChannel(synthMicRes.left, 0)
+			weldedStemBuffer.copyToChannel(synthMicRes.right, 1)
 		}
 
 		if (options.neuralAmpModel) {

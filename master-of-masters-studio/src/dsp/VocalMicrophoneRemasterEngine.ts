@@ -19,9 +19,28 @@ import { LEGENDARY_MICROPHONES } from '../database/microphones-database'
 
 export class VocalMicrophoneRemasterEngine {
 	/**
-	 * Remasters a vocal stereo signal with the exact acoustic fingerprint of a physical microphone.
+	 * Remasters a stereo signal with the exact acoustic fingerprint of a physical microphone model.
+	 * Supports all 5 GEM instrument categories: vocals, guitars, bass, drums, synths.
 	 */
 	public static processVocalMicRemaster(
+		channelL: Float32Array,
+		channelR: Float32Array,
+		micId: string,
+		blend = 0.85,
+		distanceCm = 5,
+		sampleRate = 44100,
+	): { left: Float32Array; right: Float32Array } {
+		return VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
+			channelL,
+			channelR,
+			micId,
+			blend,
+			distanceCm,
+			sampleRate,
+		)
+	}
+
+	public static processInstrumentMicRemaster(
 		channelL: Float32Array,
 		channelR: Float32Array,
 		micId: string,
@@ -139,3 +158,5 @@ export class VocalMicrophoneRemasterEngine {
 		return { left: outL, right: outR }
 	}
 }
+
+export const InstrumentMicrophoneRemasterEngine = VocalMicrophoneRemasterEngine

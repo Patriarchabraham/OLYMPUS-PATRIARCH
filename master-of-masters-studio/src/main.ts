@@ -1463,6 +1463,18 @@ function setupMasterProcessing() {
 			const selectVocalMicrophoneModel = document.getElementById(
 				'select-vocal-microphone-model',
 			) as HTMLSelectElement
+			const selectGuitarMicrophoneModel = document.getElementById(
+				'select-guitar-microphone-model',
+			) as HTMLSelectElement | null
+			const selectBassMicrophoneModel = document.getElementById(
+				'select-bass-microphone-model',
+			) as HTMLSelectElement | null
+			const selectDrumMicrophoneModel = document.getElementById(
+				'select-drum-microphone-model',
+			) as HTMLSelectElement | null
+			const selectSynthMicrophoneModel = document.getElementById(
+				'select-synth-microphone-model',
+			) as HTMLSelectElement | null
 			const chkAiAssistantEnable = document.getElementById(
 				'chk-ai-assistant-enable',
 			) as HTMLInputElement
@@ -1597,6 +1609,10 @@ function setupMasterProcessing() {
 				guitarRigModelId: selectGuitarRigModel ? selectGuitarRigModel.value : 'bypass',
 				bassRigModelId: selectBassRigModel ? selectBassRigModel.value : 'bypass',
 				vocalMicId: selectVocalMicrophoneModel ? selectVocalMicrophoneModel.value : 'bypass',
+				guitarMicId: selectGuitarMicrophoneModel ? selectGuitarMicrophoneModel.value : 'bypass',
+				bassMicId: selectBassMicrophoneModel ? selectBassMicrophoneModel.value : 'bypass',
+				drumMicId: selectDrumMicrophoneModel ? selectDrumMicrophoneModel.value : 'bypass',
+				synthMicId: selectSynthMicrophoneModel ? selectSynthMicrophoneModel.value : 'bypass',
 				secretProducerHackId: selectSecretProducerHack ? selectSecretProducerHack.value : 'bypass',
 				enableAiAssistant: chkAiAssistantEnable ? chkAiAssistantEnable.checked : true,
 				enableDeHum: true,

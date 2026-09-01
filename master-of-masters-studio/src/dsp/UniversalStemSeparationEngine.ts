@@ -14,7 +14,16 @@ import { DrumReplacerEngine } from './DrumReplacerEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
 import { generateSaturationCurve } from './SaturationCurves'
 import { VocalEngine, type VocalPhysiologyOptions } from './VocalEngine'
+import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
 import { type PitchCorrectionOptions, VocalPitchCorrector } from './VocalPitchCorrector'
+
+export interface InstrumentMicsOptions {
+	vocalMicId?: string
+	guitarMicId?: string
+	bassMicId?: string
+	drumMicId?: string
+	synthMicId?: string
+}
 
 export class UniversalStemSeparationEngine {
 	/**
@@ -40,6 +49,7 @@ export class UniversalStemSeparationEngine {
 			amount: 0.8,
 		},
 		vocalPhysiology?: VocalPhysiologyOptions,
+		instrumentMics?: InstrumentMicsOptions,
 	): Promise<AudioBuffer> {
 		const length = inputBuffer.length
 		const sampleRate = ctx.sampleRate
@@ -161,10 +171,10 @@ export class UniversalStemSeparationEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 1. Drums Acoustic Shell Resynthesis (Only if drum blend is active)
+		// 1. Drum Acoustic Transient & Shell Augmentation + Drum Mics (GEM 4)
 		let acousticKickBuf = kickBuf
 		let acousticSnareBuf = snareBuf
-		if (drumBlend > 0.05) {
+		if (album.drumSampleKit) {
 			acousticKickBuf = DrumReplacerEngine.processDrumTrackAugmentation(
 				kickBuf,
 				album,
@@ -177,9 +187,33 @@ export class UniversalStemSeparationEngine {
 			)
 		}
 
+		if (instrumentMics?.drumMicId && instrumentMics.drumMicId !== 'bypass') {
+			const kickRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
+				acousticKickBuf.getChannelData(0),
+				acousticKickBuf.getChannelData(1),
+				instrumentMics.drumMicId,
+				0.85,
+				3,
+				sampleRate,
+			)
+			acousticKickBuf.copyToChannel(kickRes.left, 0)
+			acousticKickBuf.copyToChannel(kickRes.right, 1)
+
+			const snareRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
+				acousticSnareBuf.getChannelData(0),
+				acousticSnareBuf.getChannelData(1),
+				instrumentMics.drumMicId,
+				0.85,
+				5,
+				sampleRate,
+			)
+			acousticSnareBuf.copyToChannel(snareRes.left, 0)
+			acousticSnareBuf.copyToChannel(snareRes.right, 1)
+		}
+
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 2. Guitar Doubling & Duet Harmonies
+		// 2. Guitar Doubling & Duet Harmonies + Guitar Cab Mics (GEM 2)
 		const processedGtrBuf = gtrDeltaBuf
 		if (harmonyOptions.guitarDoubling && harmonyOptions.guitarDoubling !== 'off') {
 			const doubledGtr = HarmonyEngine.processGuitarDoubling(
@@ -205,9 +239,22 @@ export class UniversalStemSeparationEngine {
 			gtrDeltaBuf.copyToChannel(harmGtr.right, 1)
 		}
 
+		if (instrumentMics?.guitarMicId && instrumentMics.guitarMicId !== 'bypass') {
+			const gtrMicRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
+				gtrDeltaBuf.getChannelData(0),
+				gtrDeltaBuf.getChannelData(1),
+				instrumentMics.guitarMicId,
+				0.85,
+				4,
+				sampleRate,
+			)
+			gtrDeltaBuf.copyToChannel(gtrMicRes.left, 0)
+			gtrDeltaBuf.copyToChannel(gtrMicRes.right, 1)
+		}
+
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 3. Bass Sub-Octave & Bi-Amp
+		// 3. Bass Sub-Octave & Bi-Amp + Bass Mics / DIs (GEM 3)
 		if (harmonyOptions.bassDoubling && harmonyOptions.bassDoubling !== 'off') {
 			const doubledBass = HarmonyEngine.processBassDoubling(
 				bassDeltaBuf.getChannelData(0),
@@ -218,6 +265,19 @@ export class UniversalStemSeparationEngine {
 			)
 			bassDeltaBuf.copyToChannel(doubledBass.left, 0)
 			bassDeltaBuf.copyToChannel(doubledBass.right, 1)
+		}
+
+		if (instrumentMics?.bassMicId && instrumentMics.bassMicId !== 'bypass') {
+			const bassMicRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
+				bassDeltaBuf.getChannelData(0),
+				bassDeltaBuf.getChannelData(1),
+				instrumentMics.bassMicId,
+				0.85,
+				6,
+				sampleRate,
+			)
+			bassDeltaBuf.copyToChannel(bassMicRes.left, 0)
+			bassDeltaBuf.copyToChannel(bassMicRes.right, 1)
 		}
 
 		// 4. Vocal Pitch Correction & Harmonies (strictly transparent)
@@ -248,7 +308,7 @@ export class UniversalStemSeparationEngine {
 
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 5. Vocal Silk Polish & Vocal Physiology Conditioning (Group 1: Strictly on Vocal STEM Gem)
+		// 5. Vocal Silk Polish, Vocal Physiology Conditioning & Vocal Mics (GEM 1)
 		let cleanVoxL = voxDeltaBuf.getChannelData(0)
 		let cleanVoxR = voxDeltaBuf.getChannelData(1)
 		if (vocalPhysiology) {
@@ -261,6 +321,19 @@ export class UniversalStemSeparationEngine {
 			cleanVoxL = physRes.left
 			cleanVoxR = physRes.right
 		}
+		if (instrumentMics?.vocalMicId && instrumentMics.vocalMicId !== 'bypass') {
+			const voxMicRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
+				cleanVoxL,
+				cleanVoxR,
+				instrumentMics.vocalMicId,
+				0.85,
+				5,
+				sampleRate,
+			)
+			cleanVoxL = voxMicRes.left
+			cleanVoxR = voxMicRes.right
+		}
+
 		voxDeltaBuf.copyToChannel(cleanVoxL, 0)
 		voxDeltaBuf.copyToChannel(cleanVoxR, 1)
 
