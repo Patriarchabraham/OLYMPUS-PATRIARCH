@@ -10,6 +10,7 @@
 
 import type { MasterAlbumSetup } from '../database/masters-database'
 import { AudioBufferHelper } from './AudioBufferHelper'
+import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { DrumReplacerEngine } from './DrumReplacerEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
 import { generateSaturationCurve } from './SaturationCurves'
@@ -23,6 +24,7 @@ export interface InstrumentMicsOptions {
 	bassMicId?: string
 	drumMicId?: string
 	synthMicId?: string
+	enableDiffVoxSheen?: boolean
 }
 
 export class UniversalStemSeparationEngine {
@@ -332,6 +334,17 @@ export class UniversalStemSeparationEngine {
 			)
 			cleanVoxL = voxMicRes.left
 			cleanVoxR = voxMicRes.right
+		}
+
+		if (instrumentMics?.enableDiffVoxSheen) {
+			const sheenRes = DiffVoxVocalSheenEngine.processVocalSheen(
+				cleanVoxL,
+				cleanVoxR,
+				0.35,
+				sampleRate,
+			)
+			cleanVoxL = sheenRes.left
+			cleanVoxR = sheenRes.right
 		}
 
 		voxDeltaBuf.copyToChannel(cleanVoxL, 0)

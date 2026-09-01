@@ -24,7 +24,6 @@ import { BlumleinPhaseLockEngine } from './BlumleinPhaseLockEngine'
 import type { CabinetIrType } from './CabinetIrConvolutionEngine'
 import { CandidateTournamentEngine, type TournamentReport } from './CandidateTournamentEngine'
 import { DeHummerGroundCleaner } from './DeHummerGroundCleaner'
-import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom'
 import { DynamicResonanceSuppressor } from './DynamicResonanceSuppressor'
 import { DynamicSpectralDeResonator } from './DynamicSpectralDeResonator'
@@ -61,7 +60,6 @@ import {
 	type ThermionicVintageOptions,
 	ThermionicVintagePhysicsEngine,
 } from './ThermionicVintagePhysicsEngine'
-import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine'
 import { UniversalStemSeparationEngine } from './UniversalStemSeparationEngine'
 import type { VocalPhysiologyOptions } from './VocalEngine'
 import {
@@ -400,6 +398,7 @@ export class AudioEngine {
 					bassMicId: options.bassMicId,
 					drumMicId: options.drumMicId,
 					synthMicId: options.synthMicId,
+					enableDiffVoxSheen: options.enableDiffVoxSheen,
 				},
 			)
 
@@ -412,53 +411,7 @@ export class AudioEngine {
 			)
 		}
 
-		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 1.5: CPU-OPTIMIZED MICRO-NEURAL VOCODER & WAVEFORM SUPER-RESOLUTION
-		// ─────────────────────────────────────────────────────────────────────────
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		if (enableTinyNeuralVocal) {
-			onProgress?.(
-				24,
-				'🧠 Aplicando síntese micro-neural (<25MB RAM) de cordas vocais e super-resolução 12k-24kHz...',
-			)
-			const neuL = weldedStemBuffer.getChannelData(0)
-			const neuR = weldedStemBuffer.getChannelData(1)
-			const neuResult = TinyNeuralAudioEngine.processNeuralSynthesis(
-				neuL,
-				neuR,
-				{
-					vocalCloningIntensity: (vocalModelBlend || 0.7) * intensityScale,
-					metalRaspDrive: 0.65 * intensityScale,
-					superResolutionAir: 0.8 * intensityScale,
-				},
-				sr,
-			)
-			weldedStemBuffer.copyToChannel(neuResult.left, 0)
-			weldedStemBuffer.copyToChannel(neuResult.right, 1)
-		}
-
-		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 1.6: V5 DIFFVOX VOCAL SHEEN & NAM LIGHTWEIGHT NEURAL AMP
-		// ─────────────────────────────────────────────────────────────────────────
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		if (options.enableDiffVoxSheen !== false) {
-			onProgress?.(
-				26,
-				'✨ V5 DiffVox: Aplicando brilho e densidade valvulada Telefunken Ela M 251 na voz...',
-			)
-			const vL = weldedStemBuffer.getChannelData(0)
-			const vR = weldedStemBuffer.getChannelData(1)
-			const sheenRes = DiffVoxVocalSheenEngine.processVocalSheen(
-				vL,
-				vR,
-				options.diffVoxSheenAmount ?? 0.35,
-				sr,
-			)
-			weldedStemBuffer.copyToChannel(sheenRes.left, 0)
-			weldedStemBuffer.copyToChannel(sheenRes.right, 1)
-		}
-
-		// Note: All 5 Microphone categories are processed strictly inside their respective GEM stems
+		// Note: All 5 Microphone categories and Vocal Sheen are processed strictly inside their respective GEM stems
 		// in UniversalStemSeparationEngine.ts with zero global coloration on the Master Bus.
 
 		if (options.neuralAmpModel) {
@@ -712,7 +665,7 @@ export class AudioEngine {
 		// STAGE 4.5: AUTONOMOUS AI RHYTHM GUITAR GUARDIAN & SUPREME GUITAR WALL
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
-		if (enableGuitarRescue !== false) {
+		if (options.enableGuitarRescue === true) {
 			onProgress?.(
 				52,
 				'🎸 Agente AI Autônomo refinando presença de guitarras base com corpo analógico...',

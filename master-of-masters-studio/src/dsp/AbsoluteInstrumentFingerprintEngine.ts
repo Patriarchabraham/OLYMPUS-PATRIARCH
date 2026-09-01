@@ -43,8 +43,8 @@ export class AbsoluteInstrumentFingerprintEngine {
 		const isHighGainModern =
 			album.saturation.type === 'peavey_5150' || album.saturation.type === 'mesa_dual_rectifier'
 
-		const tubeEvenHarmonic = isVintageBritish ? 0.35 : 0.18
-		const tubeOddHarmonic = isHighGainModern ? 0.45 : 0.25
+		const _tubeEvenHarmonic = isVintageBritish ? 0.35 : 0.18
+		const _tubeOddHarmonic = isHighGainModern ? 0.45 : 0.25
 
 		// Stage 3: Studio Early Reflections delay buffer (18ms ~ 794 samples at 44.1kHz)
 		const erDelaySamples = Math.floor(0.018 * sampleRate)
@@ -79,22 +79,17 @@ export class AbsoluteInstrumentFingerprintEngine {
 			const midHighL = inL - lpKickL
 			const midHighR = inR - lpKickR
 
-			// Tube Non-Linear Transfer Function: x + k2*x^2 + k3*x^3
-			const satL =
-				midHighL +
-				tubeEvenHarmonic * (midHighL * midHighL * Math.sign(midHighL)) * intensity * 0.5 +
-				tubeOddHarmonic * (midHighL * midHighL * midHighL) * intensity * 0.35
-			const satR =
-				midHighR +
-				tubeEvenHarmonic * (midHighR * midHighR * Math.sign(midHighR)) * intensity * 0.5 +
-				tubeOddHarmonic * (midHighR * midHighR * midHighR) * intensity * 0.35
+			// Clean, smooth analog tube transfer function with zero aliasing grit
+			const driveFactor = 1.0 + intensity * 0.2
+			const satL = Math.tanh(midHighL * driveFactor) / driveFactor
+			const satR = Math.tanh(midHighR * driveFactor) / driveFactor
 
 			// Studio Early Reflections (<25ms Room Acoustics)
 			erBufL[erPtr] = satL
 			erBufR[erPtr] = satR
 
-			const roomReflectL = erBufR[(erPtr + 1) % (erDelaySamples + 1)] * 0.08 * intensity
-			const roomReflectR = erBufL[(erPtr + 1) % (erDelaySamples + 1)] * 0.08 * intensity
+			const roomReflectL = erBufR[(erPtr + 1) % (erDelaySamples + 1)] * 0.05 * intensity
+			const roomReflectR = erBufL[(erPtr + 1) % (erDelaySamples + 1)] * 0.05 * intensity
 
 			erPtr = (erPtr + 1) % (erDelaySamples + 1)
 
