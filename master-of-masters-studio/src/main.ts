@@ -1492,6 +1492,11 @@ function setupMasterProcessing() {
 				'chk-latent-cross-resynthesis',
 			) as HTMLInputElement
 			const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement
+			const chkTvLangmuir = document.getElementById('chk-tv-langmuir') as HTMLInputElement | null
+			const chkTvEdison = document.getElementById('chk-tv-edison') as HTMLInputElement | null
+			const chkTvChokesag = document.getElementById('chk-tv-chokesag') as HTMLInputElement | null
+			const chkTvZener = document.getElementById('chk-tv-zener') as HTMLInputElement | null
+			const chkTvBifilar = document.getElementById('chk-tv-bifilar') as HTMLInputElement | null
 
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
 				album: activeAlbum,
@@ -1515,6 +1520,14 @@ function setupMasterProcessing() {
 				enableMicroAcousticMechanical: chkMicroAcoustic ? chkMicroAcoustic.checked : true,
 				enableMasterTapePhysics: chkMasterTape ? chkMasterTape.checked : true,
 				enableLatentCrossResynthesis: chkLatentResynth ? chkLatentResynth.checked : true,
+				thermionicVintage: {
+					enableLangmuirChild: chkTvLangmuir ? chkTvLangmuir.checked : true,
+					enableEdisonRichardson: chkTvEdison ? chkTvEdison.checked : true,
+					enableTubeChokeSag: chkTvChokesag ? chkTvChokesag.checked : true,
+					enableZenerAvalanche: chkTvZener ? chkTvZener.checked : true,
+					enableBifilarCoupling: chkTvBifilar ? chkTvBifilar.checked : true,
+					warmthIntensity: parseFloat(sliderSat.value) / 100,
+				},
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
 					: 'studio_demo',

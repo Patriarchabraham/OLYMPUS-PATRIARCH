@@ -54,6 +54,10 @@ import { type StreamingPlatform, StreamingTargetEngine } from './StreamingTarget
 import { SubBassEllipticalAnchorEngine } from './SubBassEllipticalAnchorEngine'
 import { SubHarmonicSynthesizerEngine } from './SubHarmonicSynthesizerEngine'
 import type { GuitarRescueMode } from './SunoDistortionRescueEngine'
+import {
+	type ThermionicVintageOptions,
+	ThermionicVintagePhysicsEngine,
+} from './ThermionicVintagePhysicsEngine'
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine'
 import { UniversalStemSeparationEngine } from './UniversalStemSeparationEngine'
 import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
@@ -127,6 +131,7 @@ export interface ProcessMasterOptions {
 	realWorldDevice?: RealWorldDevice
 	enableDolbyAtmosRoom?: boolean
 	enableTinyNeuralVocal?: boolean
+	thermionicVintage?: ThermionicVintageOptions
 	onProgress?: (percent: number, status: string) => void
 }
 
@@ -780,6 +785,26 @@ export class AudioEngine {
 			const tapeRes = MasterTapePhysicsEngine.processTapePhysics(tpL, tpR, '30_ips', 0.55, sr)
 			weldedStemBuffer.copyToChannel(tapeRes.left, 0)
 			weldedStemBuffer.copyToChannel(tapeRes.right, 1)
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 5.9: THERMIONIC VALVES & VINTAGE PHYSICS (GROUP 5)
+		// ─────────────────────────────────────────────────────────────────────────
+		if (options.thermionicVintage) {
+			onProgress?.(
+				65,
+				'⚡ Válvulas Reais: Espaço-carga Langmuir 3/2, filamento Edison, choke sag e acoplamento bifilar...',
+			)
+			const thL = weldedStemBuffer.getChannelData(0)
+			const thR = weldedStemBuffer.getChannelData(1)
+			const thermRes = ThermionicVintagePhysicsEngine.processThermionics(
+				thL,
+				thR,
+				options.thermionicVintage,
+				sr,
+			)
+			weldedStemBuffer.copyToChannel(thermRes.left, 0)
+			weldedStemBuffer.copyToChannel(thermRes.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
