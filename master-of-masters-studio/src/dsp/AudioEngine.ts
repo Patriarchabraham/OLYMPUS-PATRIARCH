@@ -65,7 +65,6 @@ import {
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine'
 import { UniversalStemSeparationEngine } from './UniversalStemSeparationEngine'
 import type { VocalPhysiologyOptions } from './VocalEngine'
-import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
 import {
 	type AudioStats,
 	audioBufferTo24BitWavBlob,
@@ -460,47 +459,8 @@ export class AudioEngine {
 			weldedStemBuffer.copyToChannel(sheenRes.right, 1)
 		}
 
-		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 1.65: VOCAL MICROPHONE ACOUSTIC REMASTER (STUDIO & LIVE MICS)
-		// ─────────────────────────────────────────────────────────────────────────
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		if (options.vocalMicId && options.vocalMicId !== 'bypass') {
-			onProgress?.(
-				26,
-				`🎙️ Remasterizando Voz: Injetando cápsula e pré-amplificador de "${options.vocalMicId.toUpperCase()}"...`,
-			)
-			const vmL = weldedStemBuffer.getChannelData(0)
-			const vmR = weldedStemBuffer.getChannelData(1)
-			const micRes = VocalMicrophoneRemasterEngine.processVocalMicRemaster(
-				vmL,
-				vmR,
-				options.vocalMicId,
-				0.85,
-				5,
-				sr,
-			)
-			weldedStemBuffer.copyToChannel(micRes.left, 0)
-			weldedStemBuffer.copyToChannel(micRes.right, 1)
-		}
-
-		if (options.synthMicId && options.synthMicId !== 'bypass') {
-			onProgress?.(
-				26.5,
-				`🎹 Remasterizando Ambiência & Synths: Aplicando par estéreo "${options.synthMicId.toUpperCase()}"...`,
-			)
-			const sL = weldedStemBuffer.getChannelData(0)
-			const sR = weldedStemBuffer.getChannelData(1)
-			const synthMicRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
-				sL,
-				sR,
-				options.synthMicId,
-				0.75,
-				15,
-				sr,
-			)
-			weldedStemBuffer.copyToChannel(synthMicRes.left, 0)
-			weldedStemBuffer.copyToChannel(synthMicRes.right, 1)
-		}
+		// Note: All 5 Microphone categories are processed strictly inside their respective GEM stems
+		// in UniversalStemSeparationEngine.ts with zero global coloration on the Master Bus.
 
 		if (options.neuralAmpModel) {
 			onProgress?.(
