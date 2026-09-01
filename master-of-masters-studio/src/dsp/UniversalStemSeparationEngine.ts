@@ -14,6 +14,10 @@ import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { DrumReplacerEngine } from './DrumReplacerEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
 import { generateSaturationCurve } from './SaturationCurves'
+import {
+	type SunoGuitarReconstructionOptions,
+	SunoSmartRhythmGuitarReconstructorEngine,
+} from './SunoSmartRhythmGuitarReconstructorEngine'
 import { VocalEngine, type VocalPhysiologyOptions } from './VocalEngine'
 import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
 import { type PitchCorrectionOptions, VocalPitchCorrector } from './VocalPitchCorrector'
@@ -25,6 +29,7 @@ export interface InstrumentMicsOptions {
 	drumMicId?: string
 	synthMicId?: string
 	enableDiffVoxSheen?: boolean
+	sunoGuitarReconstruction?: SunoGuitarReconstructionOptions
 }
 
 export class UniversalStemSeparationEngine {
@@ -254,6 +259,28 @@ export class UniversalStemSeparationEngine {
 			gtrDeltaBuf.copyToChannel(gtrMicRes.right, 1)
 		}
 
+		// 2.5. 🎸 Intelligent Autonomous Suno Rhythm Guitar Reconstruction & Extra GEM Wall
+		let extraGtrWallBuf: AudioBuffer | null = null
+		if (
+			instrumentMics?.sunoGuitarReconstruction?.enabled ||
+			instrumentMics?.sunoGuitarReconstruction?.enableExtraGemWall
+		) {
+			const reconRes = SunoSmartRhythmGuitarReconstructorEngine.processGuitarReconstruction(
+				gtrDeltaBuf.getChannelData(0),
+				gtrDeltaBuf.getChannelData(1),
+				instrumentMics.sunoGuitarReconstruction,
+				sampleRate,
+			)
+			gtrDeltaBuf.copyToChannel(reconRes.processedL, 0)
+			gtrDeltaBuf.copyToChannel(reconRes.processedR, 1)
+
+			if (instrumentMics.sunoGuitarReconstruction.enableExtraGemWall !== false) {
+				extraGtrWallBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate)
+				extraGtrWallBuf.copyToChannel(reconRes.extraWallL, 0)
+				extraGtrWallBuf.copyToChannel(reconRes.extraWallR, 1)
+			}
+		}
+
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		// 3. Bass Sub-Octave & Bi-Amp + Bass Mics / DIs (GEM 3)
@@ -415,6 +442,17 @@ export class UniversalStemSeparationEngine {
 			gtrCab.connect(gtrGain)
 			gtrGain.connect(masterSumBus)
 			gtrSrc.start(0)
+		}
+
+		// 🎸 Extra GEM Layer: Wide Suno Rhythm Guitar Wall (-90% Left / +90% Right)
+		if (extraGtrWallBuf) {
+			const wallSrc = masterCtx.createBufferSource()
+			wallSrc.buffer = extraGtrWallBuf
+			const wallGain = masterCtx.createGain()
+			wallGain.gain.value = 0.18 * intensity
+			wallSrc.connect(wallGain)
+			wallGain.connect(masterSumBus)
+			wallSrc.start(0)
 		}
 
 		// Bass Sub Resonance Delta

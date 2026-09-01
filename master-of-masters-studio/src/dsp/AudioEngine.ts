@@ -138,6 +138,7 @@ export interface ProcessMasterOptions {
 	enableTinyNeuralVocal?: boolean
 	thermionicVintage?: ThermionicVintageOptions
 	frequencyCleaning?: FrequencyCleaningOptions
+	sunoGuitarReconstruction?: import('./SunoSmartRhythmGuitarReconstructorEngine').SunoGuitarReconstructionOptions
 	vocalPhysiology?: VocalPhysiologyOptions
 	onProgress?: (percent: number, status: string) => void
 }
@@ -399,6 +400,7 @@ export class AudioEngine {
 					drumMicId: options.drumMicId,
 					synthMicId: options.synthMicId,
 					enableDiffVoxSheen: options.enableDiffVoxSheen,
+					sunoGuitarReconstruction: options.sunoGuitarReconstruction,
 				},
 			)
 

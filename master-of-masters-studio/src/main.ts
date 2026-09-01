@@ -1320,6 +1320,14 @@ function setupMasterProcessing() {
 		if (labelGuitarBlendVal) labelGuitarBlendVal.textContent = `${sliderGuitarBlend.value}%`
 	})
 
+	const sliderSunoGuitarBite = document.getElementById(
+		'slider-suno-guitar-bite',
+	) as HTMLInputElement | null
+	const valSunoGuitarBite = document.getElementById('val-suno-guitar-bite')
+	sliderSunoGuitarBite?.addEventListener('input', () => {
+		if (valSunoGuitarBite) valSunoGuitarBite.textContent = `${sliderSunoGuitarBite.value}%`
+	})
+
 	const sliderTransientPunch = document.getElementById('slider-transient-punch') as HTMLInputElement
 	const labelTransientPunchVal = document.getElementById('label-transient-punch-val')
 	sliderTransientPunch?.addEventListener('input', () => {
@@ -1475,6 +1483,18 @@ function setupMasterProcessing() {
 			const selectSynthMicrophoneModel = document.getElementById(
 				'select-synth-microphone-model',
 			) as HTMLSelectElement | null
+			const chkSunoGuitarRescue = document.getElementById(
+				'chk-suno-guitar-rescue',
+			) as HTMLInputElement | null
+			const selectSunoGuitarStyle = document.getElementById(
+				'select-suno-guitar-style',
+			) as HTMLSelectElement | null
+			const sliderSunoGuitarBite = document.getElementById(
+				'slider-suno-guitar-bite',
+			) as HTMLInputElement | null
+			const chkSunoExtraGemWall = document.getElementById(
+				'chk-suno-extra-gem-wall',
+			) as HTMLInputElement | null
 			const chkAiAssistantEnable = document.getElementById(
 				'chk-ai-assistant-enable',
 			) as HTMLInputElement
@@ -1627,6 +1647,12 @@ function setupMasterProcessing() {
 				guitarReampBlend: sliderGuitarBlend ? parseFloat(sliderGuitarBlend.value) / 100 : 0.0,
 				bassReampBlend: sliderBassBlend ? parseFloat(sliderBassBlend.value) / 100 : 0.0,
 				vocalModelBlend: sliderVocalBlend ? parseFloat(sliderVocalBlend.value) / 100 : 0.0,
+				sunoGuitarReconstruction: {
+					enabled: chkSunoGuitarRescue ? chkSunoGuitarRescue.checked : true,
+					style: selectSunoGuitarStyle ? (selectSunoGuitarStyle.value as any) : 'chug_5150',
+					biteIntensity: sliderSunoGuitarBite ? parseFloat(sliderSunoGuitarBite.value) / 100 : 0.75,
+					enableExtraGemWall: chkSunoExtraGemWall ? chkSunoExtraGemWall.checked : true,
+				},
 				harmonyOptions: {
 					guitarDoubling: selectGuitarDoubling ? (selectGuitarDoubling.value as any) : 'off',
 					guitarHarmony: selectGuitarHarmony ? (selectGuitarHarmony.value as any) : 'none',
