@@ -1503,6 +1503,30 @@ function setupMasterProcessing() {
 			const chkTvZener = document.getElementById('chk-tv-zener') as HTMLInputElement | null
 			const chkTvBifilar = document.getElementById('chk-tv-bifilar') as HTMLInputElement | null
 
+			// Group 1: Fisiologia Vocal & De-Esser (Exclusivo do GEM da Voz)
+			const chkGemVoxHirano = document.getElementById(
+				'chk-gem-vox-hirano',
+			) as HTMLInputElement | null
+			const chkGemVoxOq = document.getElementById('chk-gem-vox-oq') as HTMLInputElement | null
+			const chkGemVoxTitze = document.getElementById('chk-gem-vox-titze') as HTMLInputElement | null
+			const chkGemVoxSinger = document.getElementById(
+				'chk-gem-vox-singer',
+			) as HTMLInputElement | null
+			const chkGemVoxAntiNasal = document.getElementById(
+				'chk-gem-vox-antinasal',
+			) as HTMLInputElement | null
+			const chkGemVoxFry = document.getElementById('chk-gem-vox-fry') as HTMLInputElement | null
+			const chkGemVoxPassaggio = document.getElementById(
+				'chk-gem-vox-passaggio',
+			) as HTMLInputElement | null
+			const chkGemVoxBernoulli = document.getElementById(
+				'chk-gem-vox-bernoulli',
+			) as HTMLInputElement | null
+			const chkGemVoxMorse = document.getElementById('chk-gem-vox-morse') as HTMLInputElement | null
+			const chkGemVoxStevens = document.getElementById(
+				'chk-gem-vox-stevens',
+			) as HTMLInputElement | null
+
 			lastMasterResult = await MasteringEngine.processMaster(audioBuffer, {
 				album: activeAlbum,
 				producer: activeProducer,
@@ -1540,6 +1564,18 @@ function setupMasterProcessing() {
 					enableZenerAvalanche: chkTvZener ? chkTvZener.checked : true,
 					enableBifilarCoupling: chkTvBifilar ? chkTvBifilar.checked : true,
 					warmthIntensity: parseFloat(sliderSat.value) / 100,
+				},
+				vocalPhysiology: {
+					enableHiranoMucosalWave: chkGemVoxHirano ? chkGemVoxHirano.checked : true,
+					enableGlottalOpenQuotient: chkGemVoxOq ? chkGemVoxOq.checked : true,
+					enableTitzeEpilarynx: chkGemVoxTitze ? chkGemVoxTitze.checked : true,
+					enableSingerFormantCluster: chkGemVoxSinger ? chkGemVoxSinger.checked : true,
+					enableAntiNasalSinus: chkGemVoxAntiNasal ? chkGemVoxAntiNasal.checked : true,
+					enableSubHarmonicVocalFry: chkGemVoxFry ? chkGemVoxFry.checked : true,
+					enablePassaggioImpedanceMatch: chkGemVoxPassaggio ? chkGemVoxPassaggio.checked : true,
+					enableBernoulliGlottalSuction: chkGemVoxBernoulli ? chkGemVoxBernoulli.checked : true,
+					enableMorseLipRadiation: chkGemVoxMorse ? chkGemVoxMorse.checked : true,
+					enableStevensPhaseCoherentDeEsser: chkGemVoxStevens ? chkGemVoxStevens.checked : true,
 				},
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)

@@ -64,6 +64,7 @@ import {
 } from './ThermionicVintagePhysicsEngine'
 import { TinyNeuralAudioEngine } from './TinyNeuralAudioEngine'
 import { UniversalStemSeparationEngine } from './UniversalStemSeparationEngine'
+import type { VocalPhysiologyOptions } from './VocalEngine'
 import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
 import {
 	type AudioStats,
@@ -137,6 +138,7 @@ export interface ProcessMasterOptions {
 	enableTinyNeuralVocal?: boolean
 	thermionicVintage?: ThermionicVintageOptions
 	frequencyCleaning?: FrequencyCleaningOptions
+	vocalPhysiology?: VocalPhysiologyOptions
 	onProgress?: (percent: number, status: string) => void
 }
 
@@ -389,6 +391,7 @@ export class AudioEngine {
 				vocalModelBlend,
 				harmonyOptions,
 				pitchOptions,
+				options.vocalPhysiology,
 			)
 
 			// V4 ITERATIVE MIXTURE CONSISTENCY: Enforce 100% zero comb-filtering

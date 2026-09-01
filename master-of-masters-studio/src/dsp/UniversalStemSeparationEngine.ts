@@ -13,6 +13,7 @@ import { AudioBufferHelper } from './AudioBufferHelper'
 import { DrumReplacerEngine } from './DrumReplacerEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
 import { generateSaturationCurve } from './SaturationCurves'
+import { VocalEngine, type VocalPhysiologyOptions } from './VocalEngine'
 import { type PitchCorrectionOptions, VocalPitchCorrector } from './VocalPitchCorrector'
 
 export class UniversalStemSeparationEngine {
@@ -38,6 +39,7 @@ export class UniversalStemSeparationEngine {
 			retuneSpeed: 0.65,
 			amount: 0.8,
 		},
+		vocalPhysiology?: VocalPhysiologyOptions,
 	): Promise<AudioBuffer> {
 		const length = inputBuffer.length
 		const sampleRate = ctx.sampleRate
@@ -246,9 +248,19 @@ export class UniversalStemSeparationEngine {
 
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 5. Vocal Silk Polish (100% Pure, Natural Human Vocals - Zero Distortion)
-		const cleanVoxL = voxDeltaBuf.getChannelData(0)
-		const cleanVoxR = voxDeltaBuf.getChannelData(1)
+		// 5. Vocal Silk Polish & Vocal Physiology Conditioning (Group 1: Strictly on Vocal STEM Gem)
+		let cleanVoxL = voxDeltaBuf.getChannelData(0)
+		let cleanVoxR = voxDeltaBuf.getChannelData(1)
+		if (vocalPhysiology) {
+			const physRes = VocalEngine.processVocalPhysiologyStereo(
+				cleanVoxL,
+				cleanVoxR,
+				sampleRate,
+				vocalPhysiology,
+			)
+			cleanVoxL = physRes.left
+			cleanVoxR = physRes.right
+		}
 		voxDeltaBuf.copyToChannel(cleanVoxL, 0)
 		voxDeltaBuf.copyToChannel(cleanVoxR, 1)
 

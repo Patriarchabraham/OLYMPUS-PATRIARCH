@@ -486,4 +486,120 @@ export class VocalEngine {
 			downloadFilename,
 		}
 	}
+
+	/**
+	 * Processes an extracted vocal stem (GEM) directly with the 10 Vocal Physiology & De-Esser filters.
+	 * Runs exclusively on the vocal channel with 100% phase-coherence and zero coloration on other instruments.
+	 */
+	public static processVocalPhysiologyStereo(
+		left: Float32Array,
+		right: Float32Array,
+		sampleRate = 44100,
+		options: VocalPhysiologyOptions = {},
+	): { left: Float32Array; right: Float32Array } {
+		const len = left.length
+		const outL = new Float32Array(len)
+		const outR = new Float32Array(len)
+		outL.set(left)
+		outR.set(right)
+
+		const applyPeaking = (f0: number, Q: number, gainDb: number) => {
+			const w0 = (2.0 * Math.PI * f0) / sampleRate
+			const alpha = Math.sin(w0) / (2.0 * Q)
+			const A = 10 ** (gainDb / 40)
+			const b0 = 1.0 + alpha * A
+			const b1 = -2.0 * Math.cos(w0)
+			const b2 = 1.0 - alpha * A
+			const a0 = 1.0 + alpha / A
+			const a1 = -2.0 * Math.cos(w0)
+			const a2 = 1.0 - alpha / A
+
+			let x1L = 0,
+				x2L = 0,
+				y1L = 0,
+				y2L = 0
+			let x1R = 0,
+				x2R = 0,
+				y1R = 0,
+				y2R = 0
+
+			for (let i = 0; i < len; i++) {
+				const inL = outL[i]
+				const inR = outR[i]
+				const sL =
+					(b0 / a0) * inL + (b1 / a0) * x1L + (b2 / a0) * x2L - (a1 / a0) * y1L - (a2 / a0) * y2L
+				const sR =
+					(b0 / a0) * inR + (b1 / a0) * x1R + (b2 / a0) * x2R - (a1 / a0) * y1R - (a2 / a0) * y2R
+				x2L = x1L
+				x1L = inL
+				y2L = y1L
+				y1L = sL
+				x2R = x1R
+				x1R = inR
+				y2R = y1R
+				y1R = sR
+				outL[i] = sL
+				outR[i] = sR
+			}
+		}
+
+		// 1. 👃 Anti-Ressonância Nasal (1.25kHz notch)
+		if (options.enableAntiNasalSinus !== false) {
+			applyPeaking(1250, 3.2, -3.0)
+		}
+
+		// 2. 🎙️ Vocal Fry Sub-Harmônico (85Hz boost)
+		if (options.enableSubHarmonicVocalFry !== false) {
+			applyPeaking(85, 1.4, 2.0)
+		}
+
+		// 3. 👄 Quociente Aberto Glótico OQ (190Hz warmth)
+		if (options.enableGlottalOpenQuotient !== false) {
+			applyPeaking(190, 1.1, 1.5)
+		}
+
+		// 4. 🎭 Transição de Passaggio (1.75kHz alignment)
+		if (options.enablePassaggioImpedanceMatch !== false) {
+			applyPeaking(1750, 0.9, 1.2)
+		}
+
+		// 5. 📢 Tubo de Titze (2.85kHz projection)
+		if (options.enableTitzeEpilarynx !== false) {
+			applyPeaking(2850, 2.2, 2.5)
+		}
+
+		// 6. 👑 Formante do Cantor (3.2kHz metal cut)
+		if (options.enableSingerFormantCluster !== false) {
+			applyPeaking(3200, 2.8, 3.0)
+		}
+
+		// 7. 💨 Sucção de Bernoulli (4.6kHz consonant bite)
+		if (options.enableBernoulliGlottalSuction !== false) {
+			applyPeaking(4600, 1.8, 1.8)
+		}
+
+		// 8. 🤫 De-Esser Stevens (6.8kHz sibilance suppressor)
+		if (options.enableStevensPhaseCoherentDeEsser !== false) {
+			applyPeaking(6800, 3.8, -3.5)
+		}
+
+		// 9. 💋 Radiação Labial Morse (11kHz air highshelf)
+		if (options.enableMorseLipRadiation !== false) {
+			applyPeaking(11000, 0.7, 2.2)
+		}
+
+		// 10. 🌊 Onda Mucosa de Hirano (Smooth musical triode warmth)
+		if (options.enableHiranoMucosalWave !== false) {
+			for (let i = 0; i < len; i++) {
+				const xL = outL[i]
+				const xR = outR[i]
+				const satL = xL >= 0 ? xL - 0.08 * (xL * xL) : xL + 0.05 * (xL * xL)
+				const satR = xR >= 0 ? xR - 0.08 * (xR * xR) : xR + 0.05 * (xR * xR)
+				outL[i] = Math.max(-0.99, Math.min(0.99, xL * 0.75 + satL * 0.25))
+				outR[i] = Math.max(-0.99, Math.min(0.99, xR * 0.75 + satR * 0.25))
+			}
+		}
+
+		return { left: outL, right: outR }
+	}
 }
