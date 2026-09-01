@@ -1492,6 +1492,11 @@ function setupMasterProcessing() {
 				'chk-latent-cross-resynthesis',
 			) as HTMLInputElement
 			const chkDolbyAtmosRoom = document.getElementById('chk-dolby-atmos-room') as HTMLInputElement
+			const chkFcSubdc = document.getElementById('chk-fc-subdc') as HTMLInputElement | null
+			const chkFcHelmholtz = document.getElementById('chk-fc-helmholtz') as HTMLInputElement | null
+			const chkFcRoughness = document.getElementById('chk-fc-roughness') as HTMLInputElement | null
+			const chkFcCmr = document.getElementById('chk-fc-cmr') as HTMLInputElement | null
+
 			const chkTvLangmuir = document.getElementById('chk-tv-langmuir') as HTMLInputElement | null
 			const chkTvEdison = document.getElementById('chk-tv-edison') as HTMLInputElement | null
 			const chkTvChokesag = document.getElementById('chk-tv-chokesag') as HTMLInputElement | null
@@ -1520,6 +1525,14 @@ function setupMasterProcessing() {
 				enableMicroAcousticMechanical: chkMicroAcoustic ? chkMicroAcoustic.checked : true,
 				enableMasterTapePhysics: chkMasterTape ? chkMasterTape.checked : true,
 				enableLatentCrossResynthesis: chkLatentResynth ? chkLatentResynth.checked : true,
+				frequencyCleaning: {
+					enableSubInfrasonicCleaner: chkFcSubdc ? chkFcSubdc.checked : true,
+					enableHelmholtzBassTrap: chkFcHelmholtz ? chkFcHelmholtz.checked : true,
+					enablePlompLeveltRoughness: chkFcRoughness ? chkFcRoughness.checked : true,
+					enableCMRMaskingRelease: chkFcCmr ? chkFcCmr.checked : true,
+					enableBasilarSuppression: true,
+					enableKurtosisDeHarsh: true,
+				},
 				thermionicVintage: {
 					enableLangmuirChild: chkTvLangmuir ? chkTvLangmuir.checked : true,
 					enableEdisonRichardson: chkTvEdison ? chkTvEdison.checked : true,

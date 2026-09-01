@@ -28,6 +28,10 @@ import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { DolbyAtmosBinauralRoom } from './DolbyAtmosBinauralRoom'
 import { DynamicResonanceSuppressor } from './DynamicResonanceSuppressor'
 import { DynamicSpectralDeResonator } from './DynamicSpectralDeResonator'
+import {
+	FrequencyCleaningDeMaskingEngine,
+	type FrequencyCleaningOptions,
+} from './FrequencyCleaningDeMaskingEngine'
 import { HolographicSpatialEngine } from './HolographicSpatialEngine'
 import {
 	InverseProductionOptimizer,
@@ -132,6 +136,7 @@ export interface ProcessMasterOptions {
 	enableDolbyAtmosRoom?: boolean
 	enableTinyNeuralVocal?: boolean
 	thermionicVintage?: ThermionicVintageOptions
+	frequencyCleaning?: FrequencyCleaningOptions
 	onProgress?: (percent: number, status: string) => void
 }
 
@@ -650,6 +655,21 @@ export class AudioEngine {
 			const unmaskRes = SmartAntiMasking3DEngine.processAntiMasking(lChan, rChan, 0.5, sr)
 			lChan = unmaskRes.left
 			rChan = unmaskRes.right
+		}
+
+		// ─────────────────────────────────────────────────────────────────────────
+		// STAGE 3.7: SURGICAL FREQUENCY CLEANING & DE-MASKING (GROUP 2)
+		// ─────────────────────────────────────────────────────────────────────────
+		if (options.frequencyCleaning) {
+			onProgress?.(47, '🧹 Limpeza Cirúrgica: Sub-DC cleaner, Helmholtz trap e CMR de-masking...')
+			const cleanRes = FrequencyCleaningDeMaskingEngine.processCleaning(
+				lChan,
+				rChan,
+				options.frequencyCleaning,
+				sr,
+			)
+			lChan = cleanRes.left
+			rChan = cleanRes.right
 		}
 
 		// Dynamic Low-Mid De-Mudding Notch (Removes boomy/dirty 320Hz cardboard buildup)
