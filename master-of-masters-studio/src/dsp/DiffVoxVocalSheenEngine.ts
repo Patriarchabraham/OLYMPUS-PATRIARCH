@@ -45,9 +45,9 @@ export class DiffVoxVocalSheenEngine {
 			const highL = sL - lpL
 			const highR = sR - lpR
 
-			// Even-harmonic triode tube exciter on air band (Telefunken Ela M 251 signature)
-			const excL = (highL + 0.35 * (highL * highL)) * sheenAmount * 1.4
-			const excR = (highR + 0.35 * (highR * highR)) * sheenAmount * 1.4
+			// Clean, aliasing-free soft tube saturation on air band
+			const excL = Math.tanh(highL * 1.15) * sheenAmount * 0.45
+			const excR = Math.tanh(highR * 1.15) * sheenAmount * 0.45
 
 			outL[i] = Math.max(-0.98, Math.min(0.98, sL + excL))
 			outR[i] = Math.max(-0.98, Math.min(0.98, sR + excR))

@@ -123,12 +123,12 @@ export class FrequencyCleaningDeMaskingEngine {
 			}
 		}
 
-		// 3. 💆 Plomp-Levelt Roughness Minimizer (3.8kHz Smooth Peaking Notch Q=2.2, -0.9dB)
+		// 3. 💆 Plomp-Levelt Roughness Minimizer (3.6kHz Smooth Peaking Notch Q=2.0, -1.1dB)
 		if (options.enablePlompLeveltRoughness !== false) {
-			const f0 = 3800.0
+			const f0 = 3600.0
 			const w0 = (2.0 * Math.PI * f0) / sampleRate
-			const alpha = Math.sin(w0) / (2.0 * 2.2)
-			const A = 10 ** (-0.9 / 40)
+			const alpha = Math.sin(w0) / (2.0 * 2.0)
+			const A = 10 ** (-1.1 / 40)
 			const b0 = 1.0 + alpha * (1.0 / A)
 			const b1 = -2.0 * Math.cos(w0)
 			const b2 = 1.0 - alpha * (1.0 / A)
@@ -159,18 +159,19 @@ export class FrequencyCleaningDeMaskingEngine {
 				x2R = x1R
 				x1R = inR
 				y2R = y1R
+				y2R = y1R
 				y1R = sR
 				outL[i] = sL
 				outR[i] = sR
 			}
 		}
 
-		// 4. 🛡️ Comodulation Masking Release (CMR) & Basilar Suppression (Surgical Mid Clarity +0.4dB in 1.4kHz)
+		// 4. 🛡️ Comodulation Masking Release (CMR) & Basilar Suppression (Surgical Mid Clarity +0.3dB in 1.4kHz)
 		if (options.enableCMRMaskingRelease !== false || options.enableBasilarSuppression !== false) {
 			const f0 = 1400.0
 			const w0 = (2.0 * Math.PI * f0) / sampleRate
 			const alpha = Math.sin(w0) / (2.0 * 1.5)
-			const A = 10 ** (0.4 / 40)
+			const A = 10 ** (0.3 / 40)
 			const b0 = 1.0 + alpha * A
 			const b1 = -2.0 * Math.cos(w0)
 			const b2 = 1.0 - alpha * A
@@ -207,7 +208,92 @@ export class FrequencyCleaningDeMaskingEngine {
 			}
 		}
 
-		// 5. 🎯 Dynamic Spectral Kurtosis Controller (Soothes spikes > 5kHz smoothly)
+		// 5. 💎 Sibilant Anti-Grain & De-Pollution Filter (7.2kHz Narrow Smooth Notch, Q=3.0, -1.4dB)
+		{
+			const f0 = 7200.0
+			const w0 = (2.0 * Math.PI * f0) / sampleRate
+			const alpha = Math.sin(w0) / (2.0 * 3.0)
+			const A = 10 ** (-1.4 / 40)
+			const b0 = 1.0 + alpha * (1.0 / A)
+			const b1 = -2.0 * Math.cos(w0)
+			const b2 = 1.0 - alpha * (1.0 / A)
+			const a0 = 1.0 + alpha * A
+			const a1 = -2.0 * Math.cos(w0)
+			const a2 = 1.0 - alpha * A
+
+			let x1L = 0,
+				x2L = 0,
+				y1L = 0,
+				y2L = 0
+			let x1R = 0,
+				x2R = 0,
+				y1R = 0,
+				y2R = 0
+
+			for (let i = 0; i < len; i++) {
+				const inL = outL[i]
+				const inR = outR[i]
+				const sL =
+					(b0 / a0) * inL + (b1 / a0) * x1L + (b2 / a0) * x2L - (a1 / a0) * y1L - (a2 / a0) * y2L
+				const sR =
+					(b0 / a0) * inR + (b1 / a0) * x1R + (b2 / a0) * x2R - (a1 / a0) * y1R - (a2 / a0) * y2R
+				x2L = x1L
+				x1L = inL
+				y2L = y1L
+				y1L = sL
+				x2R = x1R
+				x1R = inR
+				y2R = y1R
+				y1R = sR
+				outL[i] = sL
+				outR[i] = sR
+			}
+		}
+
+		// 6. 🌿 Ultrasonic DAC Anti-Aliasing Purifier (19.8kHz Butterworth 2nd-order Lowpass)
+		{
+			const fCut = Math.min(19800.0, sampleRate * 0.45)
+			const w0 = (2.0 * Math.PI * fCut) / sampleRate
+			const cosW = Math.cos(w0)
+			const sinW = Math.sin(w0)
+			const alpha = sinW / (2.0 * Math.SQRT1_2)
+			const b0 = (1.0 - cosW) / 2.0
+			const b1 = 1.0 - cosW
+			const b2 = (1.0 - cosW) / 2.0
+			const a0 = 1.0 + alpha
+			const a1 = -2.0 * cosW
+			const a2 = 1.0 - alpha
+
+			let x1L = 0,
+				x2L = 0,
+				y1L = 0,
+				y2L = 0
+			let x1R = 0,
+				x2R = 0,
+				y1R = 0,
+				y2R = 0
+
+			for (let i = 0; i < len; i++) {
+				const inL = outL[i]
+				const inR = outR[i]
+				const sL =
+					(b0 / a0) * inL + (b1 / a0) * x1L + (b2 / a0) * x2L - (a1 / a0) * y1L - (a2 / a0) * y2L
+				const sR =
+					(b0 / a0) * inR + (b1 / a0) * x1R + (b2 / a0) * x2R - (a1 / a0) * y1R - (a2 / a0) * y2R
+				x2L = x1L
+				x1L = inL
+				y2L = y1L
+				y1L = sL
+				x2R = x1R
+				x1R = inR
+				y2R = y1R
+				y1R = sR
+				outL[i] = sL
+				outR[i] = sR
+			}
+		}
+
+		// 7. 🎯 Dynamic Spectral Kurtosis Controller (Soothes peaks > 5kHz smoothly)
 		if (options.enableKurtosisDeHarsh !== false) {
 			for (let i = 0; i < len; i++) {
 				outL[i] = Math.max(-0.99, Math.min(0.99, outL[i]))

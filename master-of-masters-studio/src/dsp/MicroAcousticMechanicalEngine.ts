@@ -30,10 +30,10 @@ export class MicroAcousticMechanicalEngine {
 
 		// Filters for kick sub-bass trigger (<90Hz) and snare wire rattle (4.5kHz - 8kHz)
 		const rcSub = 1.0 / (2.0 * Math.PI * 85.0)
-		const aSub = 1.0 / (1.0 + rcSub * sampleRate)
+		const _aSub = 1.0 / (1.0 + rcSub * sampleRate)
 
 		const rcSnareWire = 1.0 / (2.0 * Math.PI * 5500.0)
-		const aSnareWire = 1.0 / (1.0 + rcSnareWire * sampleRate)
+		const _aSnareWire = 1.0 / (1.0 + rcSnareWire * sampleRate)
 
 		// Filter for pick attack presence (3.2kHz)
 		const rcPick = 1.0 / (2.0 * Math.PI * 3200.0)
@@ -43,16 +43,16 @@ export class MicroAcousticMechanicalEngine {
 		const rcThroat = 1.0 / (2.0 * Math.PI * 450.0)
 		const aThroat = 1.0 / (1.0 + rcThroat * sampleRate)
 
-		let lpSubL = 0,
-			lpSubR = 0
-		let lpSnareL = 0,
-			lpSnareR = 0
+		const _lpSubL = 0,
+			_lpSubR = 0
+		const _lpSnareL = 0,
+			_lpSnareR = 0
 		let lpPickL = 0,
 			lpPickR = 0
 		let lpThroatL = 0,
 			lpThroatR = 0
 
-		let subEnv = 0
+		const _subEnv = 0
 		let pickEnvL = 0,
 			pickEnvR = 0
 
@@ -60,43 +60,27 @@ export class MicroAcousticMechanicalEngine {
 			const inL = channelL[i]
 			const inR = channelR[i]
 
-			// 1. Kick Sub Detection & Sympathetic Snare Wire Buzz
-			lpSubL += aSub * (inL - lpSubL)
-			lpSubR += aSub * (inR - lpSubR)
-			const subMono = (lpSubL + lpSubR) * 0.5
-			subEnv = 0.85 * subEnv + 0.15 * Math.abs(subMono)
-
-			lpSnareL += aSnareWire * (inL - lpSnareL)
-			lpSnareR += aSnareWire * (inR - lpSnareR)
-			const highSnareWireL = inL - lpSnareL
-			const highSnareWireR = inR - lpSnareR
-
-			// Sympathetic snare buzz modulation when sub pressure rises
-			const snareBuzzL = highSnareWireL * (subEnv * 0.25 * intensity)
-			const snareBuzzR = highSnareWireR * (subEnv * 0.25 * intensity)
-
-			// 2. Pick Attack Mechanical Chirp (Fast transient friction)
+			// 1. Clean Pick Attack Mechanical Definition (Fast transient articulation)
 			lpPickL += aPick * (inL - lpPickL)
 			lpPickR += aPick * (inR - lpPickR)
 			const pickBandL = inL - lpPickL
 			const pickBandR = inR - lpPickR
 
-			pickEnvL = 0.75 * pickEnvL + 0.25 * Math.abs(pickBandL)
-			pickEnvR = 0.75 * pickEnvR + 0.25 * Math.abs(pickBandR)
+			pickEnvL = 0.85 * pickEnvL + 0.15 * Math.abs(pickBandL)
+			pickEnvR = 0.85 * pickEnvR + 0.15 * Math.abs(pickBandR)
 
-			// Non-linear micro-scratch harmonic on pick transients
-			const pickChirpL = pickBandL * Math.min(0.3, pickEnvL * 1.2) * 0.15 * intensity
-			const pickChirpR = pickBandR * Math.min(0.3, pickEnvR * 1.2) * 0.15 * intensity
+			const pickChirpL = pickBandL * Math.min(0.15, pickEnvL * 0.5) * 0.05 * intensity
+			const pickChirpR = pickBandR * Math.min(0.15, pickEnvR * 0.5) * 0.05 * intensity
 
-			// 3. Glottal Vocal Tract & Chest Resonance
+			// 2. Glottal Vocal Tract & Chest Warmth
 			lpThroatL += aThroat * (inL - lpThroatL)
 			lpThroatR += aThroat * (inR - lpThroatR)
-			const throatWarmthL = lpThroatL * 0.08 * intensity
-			const throatWarmthR = lpThroatR * 0.08 * intensity
+			const throatWarmthL = lpThroatL * 0.04 * intensity
+			const throatWarmthR = lpThroatR * 0.04 * intensity
 
-			// 4. Bass Speaker Cone Inertia (Soft saturating excursion under low load)
-			const coneL = inL + snareBuzzL + pickChirpL + throatWarmthL
-			const coneR = inR + snareBuzzR + pickChirpR + throatWarmthR
+			// 3. Clean Mechanical Summing
+			const coneL = inL + pickChirpL + throatWarmthL
+			const coneR = inR + pickChirpR + throatWarmthR
 
 			outL[i] = Math.max(-0.98, Math.min(0.98, coneL))
 			outR[i] = Math.max(-0.98, Math.min(0.98, coneR))

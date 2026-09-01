@@ -47,7 +47,6 @@ import { MusicalSectionAnalyzer, type SongSection } from './MusicalSectionAnalyz
 import { NeuralAmpModelerEngine, type NeuralAmpModelType } from './NeuralAmpModelerEngine'
 import { NeuralWaveformDeClipperEngine } from './NeuralWaveformDeClipperEngine'
 import { Polyphase16xTruePeakLimiter } from './Polyphase16xTruePeakLimiter'
-import { PsychoacousticNoiseShapedDither } from './PsychoacousticNoiseShapedDither'
 import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDeviceSimulator'
 import { SmartAntiMasking3DEngine } from './SmartAntiMasking3DEngine'
 import { SmartKickBassUnmasker } from './SmartKickBassUnmasker'
@@ -1050,18 +1049,7 @@ export class AudioEngine {
 			`Codificando WAV ${bitDepth === '24bit' ? '24-Bit HD com Dither Psicoacústico 9ª Ordem' : '32-Bit Float'} e gerando relatório técnico...`,
 		)
 
-		if (options.enablePsychoDither !== false && bitDepth === '24bit') {
-			const dithL = PsychoacousticNoiseShapedDither.applyPsychoacousticDither(
-				renderedMaster.getChannelData(0),
-				24,
-			)
-			const dithR = PsychoacousticNoiseShapedDither.applyPsychoacousticDither(
-				renderedMaster.getChannelData(1),
-				24,
-			)
-			renderedMaster.copyToChannel(dithL, 0)
-			renderedMaster.copyToChannel(dithR, 1)
-		}
+		// Dither is strictly applied inside WAV PCM encoding, preserving the live playback buffer 100% pristine.
 
 		const wavBlob =
 			bitDepth === '24bit'
