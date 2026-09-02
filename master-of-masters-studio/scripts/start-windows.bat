@@ -1,12 +1,12 @@
 @echo off
 setlocal enabledelayedexpansion
 title MASTER OF MASTERS STUDIO PRO - Windows 10 e 11
-color 0E
+color 0B
 
 echo ===============================================================================
-echo   MASTER OF MASTERS STUDIO PRO - SUITE DE MASTERIZACAO DSP
+echo   🏆 MASTER OF MASTERS STUDIO PRO - SUITE DE MASTERIZACAO DSP
 echo ===============================================================================
-echo Iniciando servidor e motor de audio local 100%% offline...
+echo [1/3] Iniciando motor de audio e servidor local 100%% offline...
 echo.
 
 cd /d "%~dp0\.."
@@ -16,29 +16,41 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":7777" ^| findstr "LISTENING
     taskkill /F /PID %%a >nul 2>&1
 )
 
-:: Localiza o executavel do Bun embutido ou do sistema
-set "BUN_CMD="
-if exist "%~dp0..\bin\bun.exe" (
-    set "BUN_CMD=%~dp0..\bin\bun.exe"
-) else (
+:: Localiza Node ou Bun para rodar o servidor HTTP
+set "SERVER_LAUNCHED=0"
+
+where node >nul 2>&1
+if !ERRORLEVEL! EQU 0 (
+    start /b "" node "%~dp0serve.mjs" >nul 2>&1
+    set "SERVER_LAUNCHED=1"
+)
+
+if "!SERVER_LAUNCHED!"=="0" (
     where bun >nul 2>&1
-    if !ERRORLEVEL! EQU 0 set "BUN_CMD=bun"
+    if !ERRORLEVEL! EQU 0 (
+        start /b "" bun "%~dp0serve.mjs" >nul 2>&1
+        set "SERVER_LAUNCHED=1"
+    )
 )
 
-:: Inicia o servidor local
-if not "!BUN_CMD!"=="" (
-    start /b "" "!BUN_CMD!" run preview --port 7777 >nul 2>&1
-) else (
-    start /b powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0server.ps1" -Port 7777
+if "!SERVER_LAUNCHED!"=="0" (
+    start /b "" powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0server.ps1" -Port 7777
+    set "SERVER_LAUNCHED=1"
 )
 
-timeout /t 2 /nobreak > nul
+echo [2/3] Aguardando inicializacao do servidor na porta 7777...
 
-echo Abrindo aplicativo nativo do Master of Masters Studio...
-start msedge --app=http://localhost:7777 || start chrome --app=http://localhost:7777 || start http://localhost:7777
+:: Loop de checagem: aguarda a porta 7777 responder
+powershell -Command "$tries=0; while($tries -lt 15){ try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:7777' -UseBasicParsing -TimeoutSec 1; if($r.StatusCode -eq 200){ break } } catch { Start-Sleep -Milliseconds 400; $tries++ } }"
+
+echo [3/3] Abrindo janela nativa do Master of Masters Studio Pro...
+start msedge --app=http://127.0.0.1:7777 --start-maximized 2>nul || start chrome --app=http://127.0.0.1:7777 --start-maximized 2>nul || start http://127.0.0.1:7777
 
 echo.
-echo [OK] Master of Masters Studio Pro ativo em http://localhost:7777
-echo Pressione qualquer tecla para encerrar.
+echo ===============================================================================
+echo   ✅ Master of Masters Studio Pro ATIVO em http://127.0.0.1:7777
+echo   (Mantenha esta janela aberta enquanto estiver masterizando)
+echo ===============================================================================
+echo.
 pause > nul
 exit /b 0

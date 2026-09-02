@@ -18,7 +18,7 @@ $desk1 = $wsh.CreateShortcut("$env:USERPROFILE\Desktop\Master of Masters Studio 
 $desk1.TargetPath = $targetBat
 $desk1.WorkingDirectory = $projectDir
 $desk1.WindowStyle = 1
-$desk1.Description = "Master of Masters Studio Pro — Sovereign DSP Mastering Workstation"
+$desk1.Description = "Master of Masters Studio Pro DSP Mastering Workstation"
 $desk1.IconLocation = "$env:SystemRoot\System32\shell32.dll,116"
 $desk1.Save()
 
@@ -28,7 +28,7 @@ try {
     $desk2.TargetPath = $targetBat
     $desk2.WorkingDirectory = $projectDir
     $desk2.WindowStyle = 1
-    $desk2.Description = "Master of Masters Studio Pro — Sovereign DSP Mastering Workstation"
+    $desk2.Description = "Master of Masters Studio Pro DSP Mastering Workstation"
     $desk2.IconLocation = "$env:SystemRoot\System32\shell32.dll,116"
     $desk2.Save()
 } catch {
@@ -48,4 +48,4 @@ $start.Description = "Master of Masters Studio Pro"
 $start.IconLocation = "$env:SystemRoot\System32\shell32.dll,116"
 $start.Save()
 
-Write-Output "SUCCESS: Universal Desktop & Start Menu shortcuts created for directory: $projectDir"
+Write-Output "SUCCESS: Universal Desktop and Start Menu shortcuts created for: $projectDir"

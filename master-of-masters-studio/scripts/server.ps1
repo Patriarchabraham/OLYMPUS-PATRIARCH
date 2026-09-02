@@ -1,11 +1,16 @@
 # Native Windows Zero-Dependency High-Performance Static Web Server
 param(
     [int]$Port = 7777,
-    [string]$RootFolder = "$PSScriptRoot\dist"
+    [string]$RootFolder = ""
 )
 
+$projectRoot = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($RootFolder)) {
+    $RootFolder = Join-Path $projectRoot "dist"
+}
+
 if (-not (Test-Path $RootFolder)) {
-    $RootFolder = "$PSScriptRoot"
+    $RootFolder = $projectRoot
 }
 
 $listener = New-Object System.Net.HttpListener
