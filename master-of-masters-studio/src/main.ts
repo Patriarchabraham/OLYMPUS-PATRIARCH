@@ -802,8 +802,7 @@ function setupVisualMicrophoneGrid() {
 	const micSelect = document.getElementById(
 		'select-vocal-microphone-model',
 	) as HTMLSelectElement | null
-	const micCards = document.querySelectorAll<HTMLElement>('.mic-visual-card')
-	const filterPills = document.querySelectorAll<HTMLElement>('.mic-filter-pill')
+	const micCards = document.querySelectorAll<HTMLElement>('.mic-vertical-card, .mic-visual-card')
 
 	const showcaseBadge = document.getElementById('mic-showcase-badge')
 	const showcaseTitle = document.getElementById('mic-showcase-title')
@@ -854,31 +853,12 @@ function setupVisualMicrophoneGrid() {
 				if (c.getAttribute('data-mic-id') === currentVal) {
 					c.classList.add('active')
 					updateShowcaseFromCard(c)
-					c.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
 				} else {
 					c.classList.remove('active')
 				}
 			})
 		})
 	}
-
-	// Category Filtering
-	filterPills.forEach((pill) => {
-		pill.addEventListener('click', () => {
-			filterPills.forEach((p) => p.classList.remove('active'))
-			pill.classList.add('active')
-
-			const filter = pill.getAttribute('data-filter') || 'all'
-			micCards.forEach((card) => {
-				const cat = card.getAttribute('data-category')
-				if (filter === 'all' || cat === filter || card.getAttribute('data-mic-id') === 'bypass') {
-					card.style.display = 'flex'
-				} else {
-					card.style.display = 'none'
-				}
-			})
-		})
-	})
 }
 
 // ─── AUDIO LOADING & TRANSPORT DOCK ──────────────────────────────────────────

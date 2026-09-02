@@ -708,170 +708,184 @@
                   </div>
                 </div>
 
-                <!-- CATEGORY FILTER BAR -->
-                <div class="mic-filter-bar">
-                  <button type="button" class="mic-filter-pill active" data-filter="all">👑 Todos (13)</button>
-                  <button type="button" class="mic-filter-pill" data-filter="tube">✨ Válvulas & Ouro</button>
-                  <button type="button" class="mic-filter-pill" data-filter="broadcast">🎙️ Broadcast</button>
-                  <button type="button" class="mic-filter-pill" data-filter="live">🎤 Palco Live</button>
+                <!-- 3 VERTICAL HARDWARE RACK BAYS (GROUPED BY TYPE & GENRE) -->
+                <div class="mic-vertical-bays-grid">
+                  
+                  <!-- BAY 1: VÁLVULAS & CONDENSADORES (STUDIO GOLD & WARMTH) -->
+                  <div class="mic-vertical-bay">
+                    <div class="mic-bay-header tube">
+                      <span>👑 Válvulas & Estúdio</span>
+                      <span style="font-size: 7.5px; opacity: 0.8;">6 Mics</span>
+                    </div>
+                    <div class="mic-bay-list">
+                      <div class="mic-vertical-card" data-mic-id="neumann-u87-ai" data-category="tube" data-title="Neumann U87 Ai" data-sub="ESTÚDIO · CONDENSADOR DE OURO" data-capsule="K67 Dual Diaphragm" data-preamp="Class A FET 48V" data-spl="Max 138dB SPL" data-artists="Dio, Bruce Dickinson, Rob Halford, Freddie Mercury" data-icon="👑">
+                        <div class="mic-v-badge" style="border-color: #f59e0b; color: #f59e0b;">👑</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Neumann U87 Ai</div>
+                          <div class="mic-v-sub">Dio, Dickinson, Halford</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="neumann-u47-tube" data-category="tube" data-title="Neumann U47 Vintage Tube" data-sub="VÁLVULA VF14 · CALOR TITÂNICO" data-capsule="M7 Brass Capsule" data-preamp="Telefunken VF14 Tube" data-spl="Calor Harmônico 2ª Ordem" data-artists="The Beatles, Frank Sinatra, David Gilmour, James Hetfield" data-icon="✨">
+                        <div class="mic-v-badge" style="border-color: #f97316; color: #f97316;">✨</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Neumann U47 Tube</div>
+                          <div class="mic-v-sub">Beatles, Sinatra, Gilmour</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="telefunken-ela-m251" data-category="tube" data-title="Telefunken ELA M 251E" data-sub="DIAMOND SERIES · SHEEN 14kHz" data-capsule="CK12 Diamond Capsule" data-preamp="GE 6072A Triode" data-spl="Agudos Aéreos 14k-20k" data-artists="André Matos, Mariah Carey, Michael Jackson, Celine Dion" data-icon="💎">
+                        <div class="mic-v-badge" style="border-color: #06b6d4; color: #06b6d4;">💎</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Telefunken 251E</div>
+                          <div class="mic-v-sub">André Matos, Jackson</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="sony-c800g" data-category="tube" data-title="Sony C-800G" data-sub="PELTIER TUBE · MODERN HI-FI" data-capsule="Dual 6-Micron Gold" data-preamp="6AU6 Vacuum Tube" data-spl="Ultra-Detalhamento Hi-Fi" data-artists="Sebastian Bach, Metalcore, Modern Pop & Hip-Hop Vocals" data-icon="⚡">
+                        <div class="mic-v-badge" style="border-color: #38bdf8; color: #38bdf8;">⚡</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Sony C-800G</div>
+                          <div class="mic-v-sub">Sebastian Bach, Metalcore</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="manley-reference-gold" data-category="tube" data-title="Manley Reference Gold" data-sub="VÁLVULA 12AT7 & ABERTURA 30kHz" data-capsule="CK12 Gold Dual Diaphragm" data-preamp="Manley Vacuum 12AT7" data-spl="Ultra-Abertura 30kHz" data-artists="Pavarotti, Enya, Sarah Brightman" data-icon="✨">
+                        <div class="mic-v-badge" style="border-color: #eab308; color: #eab308;">✨</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Manley Ref Gold</div>
+                          <div class="mic-v-sub">Pavarotti, Enya, Hi-End</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="akg-c414-xls" data-category="tube" data-title="AKG C414 XLS" data-sub="ULTRA-LINEAR & CIRÚRGICO" data-capsule="Nylon C12 Capsule" data-preamp="Transformerless Linear" data-spl="Precisão Acústica" data-artists="Freddie Mercury, Geoff Tate" data-icon="🎛️">
+                        <div class="mic-v-badge" style="border-color: #a855f7; color: #a855f7;">🎛️</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">AKG C414 XLS</div>
+                          <div class="mic-v-sub">Freddie Mercury, Tate</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- BAY 2: DINÂMICOS & BROADCAST (ROCK/METAL PUNCH) -->
+                  <div class="mic-vertical-bay">
+                    <div class="mic-bay-header broadcast">
+                      <span>🎙️ Dinâmicos & Rock</span>
+                      <span style="font-size: 7.5px; opacity: 0.8;">3 Mics</span>
+                    </div>
+                    <div class="mic-bay-list">
+                      <div class="mic-vertical-card active" data-mic-id="bypass" data-category="broadcast" data-title="Álbum Original" data-sub="PADRÃO DO DISCO" data-capsule="Linear Original" data-preamp="Mesa do Álbum" data-spl="64-Bit DSP" data-artists="Timbre e cadeia original do produtor" data-icon="💿">
+                        <div class="mic-v-badge" style="border-color: #cbd5e1; color: #cbd5e1;">💿</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Álbum Original</div>
+                          <div class="mic-v-sub">Padrão do Produtor</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="shure-sm7b" data-category="broadcast" data-title="Shure SM7B" data-sub="BROADCAST DYNAMIC · PUNCH CORPO" data-capsule="Unidyne III Dynamic" data-preamp="Pneumatic Shock-Mount" data-spl="Rejeição de Sala Máxima" data-artists="James Hetfield (Metallica), Serj Tankian, Michael Jackson" data-icon="🎙️">
+                        <div class="mic-v-badge" style="border-color: #e11d48; color: #e11d48;">🎙️</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Shure SM7B</div>
+                          <div class="mic-v-sub">Hetfield, Serj Tankian</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="electrovoice-re20" data-category="broadcast" data-title="Electro-Voice RE20" data-sub="VARIABLE-D · ZERO PROXIMITY MUD" data-capsule="Variable-D Dynamic" data-preamp="Heavy-Duty Steel Shield" data-spl="Grave Controlado 40Hz" data-artists="Thom Yorke, Heavy Screams, Radio Rock Vocals" data-icon="🎙️">
+                        <div class="mic-v-badge" style="border-color: #84cc16; color: #84cc16;">🎙️</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Electro-Voice RE20</div>
+                          <div class="mic-v-sub">Thom Yorke, Screams</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- BAY 3: AO VIVO & PALCO (HIGH SPL & ISOLATION) -->
+                  <div class="mic-vertical-bay">
+                    <div class="mic-bay-header live">
+                      <span>🎤 Palco & Ao Vivo</span>
+                      <span style="font-size: 7.5px; opacity: 0.8;">5 Mics</span>
+                    </div>
+                    <div class="mic-bay-list">
+                      <div class="mic-vertical-card" data-mic-id="shure-sm58-live" data-category="live" data-title="Shure SM58 Live" data-sub="PALCO #1 DO MUNDO · ROCHA INDESTRUTÍVEL" data-capsule="Cardioid Dynamic Stage" data-preamp="Mid-Range Presence Peak" data-spl="Corte no Instrumental" data-artists="Mick Jagger, Robert Plant, Bono, Roger Daltrey" data-icon="🎤">
+                        <div class="mic-v-badge" style="border-color: #10b981; color: #10b981;">🎤</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Shure SM58 Live</div>
+                          <div class="mic-v-sub">Mick Jagger, Plant</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="shure-beta58a-live" data-category="live" data-title="Shure Beta 58A" data-sub="SUPERCARDIOID LIVE STAGE" data-capsule="Neodymium Magnet" data-preamp="Supercardioid Isolation" data-spl="Ganho Antes do Feedback" data-artists="James LaBrie (Dream Theater), Myles Kennedy, Floor Jansen" data-icon="🎤">
+                        <div class="mic-v-badge" style="border-color: #6366f1; color: #6366f1;">🎤</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Shure Beta 58A</div>
+                          <div class="mic-v-sub">LaBrie, Myles Kennedy</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="sennheiser-e945-live" data-category="live" data-title="Sennheiser e945" data-sub="SOM ALEMÃO · CORTE DE PALCO" data-capsule="Supercardioid High-Def" data-preamp="Dynamic German Capsule" data-spl="Presença de Voz Suave" data-artists="Tobias Sammet (Avantasia), Bruce Dickinson Live" data-icon="⚡">
+                        <div class="mic-v-badge" style="border-color: #a855f7; color: #a855f7;">⚡</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Sennheiser e945</div>
+                          <div class="mic-v-sub">Tobias Sammet Live</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="neumann-kms105-live" data-category="live" data-title="Neumann KMS 105" data-sub="ESTÚDIO DE MÃO NO PALCO" data-capsule="K105 Supercardioid Condenser" data-preamp="Transformerless 48V" data-spl="Transientes Cristalinos" data-artists="Michael Bublé, Alter Bridge, Tarja Turunen" data-icon="👑">
+                        <div class="mic-v-badge" style="border-color: #ec4899; color: #ec4899;">👑</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">Neumann KMS 105</div>
+                          <div class="mic-v-sub">Estúdio no Palco</div>
+                        </div>
+                      </div>
+
+                      <div class="mic-vertical-card" data-mic-id="dpa-dfacto-4018v" data-category="live" data-title="DPA d:facto 4018V" data-sub="PRECISÃO DINAMARQUESA 160dB SPL" data-capsule="Supercardioid Modular" data-preamp="Linear Dynamic Range 120dB" data-spl="Suporta 160dB SPL Sem Distorção" data-artists="Sting, Céline Dion, Stevie Wonder, Dave Grohl" data-icon="💎">
+                        <div class="mic-v-badge" style="border-color: #14b8a6; color: #14b8a6;">💎</div>
+                        <div class="mic-v-info">
+                          <div class="mic-v-title">DPA d:facto 4018V</div>
+                          <div class="mic-v-sub">Precisão 160dB SPL</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- HORIZONTAL SCROLLING MIC CAROUSEL RIBBON -->
-                <div class="mic-ribbon-carousel" id="vocal-mic-ribbon">
-                  <div class="mic-visual-card active" data-mic-id="bypass" data-category="all" data-title="Álbum Original" data-sub="PADRÃO DO DISCO" data-capsule="Linear Original" data-preamp="Mesa do Álbum" data-spl="64-Bit DSP" data-artists="Timbre e cadeia original do produtor" data-icon="💿">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge">💿</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Álbum Original</div>
-                        <div class="mic-card-sub">PADRÃO DO DISCO</div>
-                      </div>
+                <!-- VOCAL SUITE ENHANCEMENTS & FISIOLOGIA VOCAL EM 3 COLUNAS VERTICAIS -->
+                <div style="margin-top: 6px; padding: 6px 8px; background: rgba(244, 63, 94, 0.05); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 6px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="font-family: var(--font-mono); font-size: 8.5px; font-weight: 800; color: #f43f5e;">🧬 FISIOLOGIA VOCAL & DE-ESSER (3 CANAIS VERTICAIS)</span>
+                    <span style="font-family: var(--font-mono); font-size: 7.5px; color: #fda4af;">12 Módulos DSP</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-family: var(--font-mono); font-size: 7.5px;">
+                    
+                    <!-- COLUNA 1: CORPO & CORDAS -->
+                    <div style="display: flex; flex-direction: column; gap: 3px; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 4px; border-left: 2px solid #fda4af;">
+                      <div style="font-size: 7px; font-weight: 800; color: #fda4af; text-transform: uppercase;">1. Corpo & Glote</div>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-hirano" checked /> 🌊 Hirano</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-oq" checked /> 👄 Quociente</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-fry" checked /> 🎙️ Fry 85Hz</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #d946ef; cursor: pointer;"><input type="checkbox" id="chk-micro-acoustic-mechanical" checked /> 🫁 Pulso Trato</label>
                     </div>
-                    <div class="mic-card-artists">Original do produtor</div>
-                  </div>
 
-                  <div class="mic-visual-card" data-mic-id="neumann-u87-ai" data-category="tube" data-title="Neumann U87 Ai" data-sub="ESTÚDIO · CONDENSADOR DE OURO" data-capsule="K67 Dual Diaphragm" data-preamp="Class A FET 48V" data-spl="Max 138dB SPL" data-artists="Dio, Bruce Dickinson, Rob Halford, Freddie Mercury" data-icon="👑">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #f59e0b; background: radial-gradient(circle, rgba(245, 158, 11, 0.2), #07090e);">👑</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Neumann U87 Ai</div>
-                        <div class="mic-card-sub">ESTÚDIO · CONDENSADOR</div>
-                      </div>
+                    <!-- COLUNA 2: PROJEÇÃO & FORMANTES -->
+                    <div style="display: flex; flex-direction: column; gap: 3px; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 4px; border-left: 2px solid #f43f5e;">
+                      <div style="font-size: 7px; font-weight: 800; color: #f43f5e; text-transform: uppercase;">2. Projeção</div>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-titze" checked /> 📢 Titze 2.8k</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #fbbf24; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-singer" checked /> 👑 Formante</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #38bdf8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-antinasal" checked /> 👃 Anti-Nasal</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #c084fc; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-passaggio" checked /> 🎭 Passaggio</label>
                     </div>
-                    <div class="mic-card-artists">Dio, Dickinson, Halford</div>
-                  </div>
 
-                  <div class="mic-visual-card" data-mic-id="neumann-u47-tube" data-category="tube" data-title="Neumann U47 Vintage Tube" data-sub="VÁLVULA VF14 · CALOR TITÂNICO" data-capsule="M7 Brass Capsule" data-preamp="Telefunken VF14 Tube" data-spl="Calor Harmônico 2ª Ordem" data-artists="The Beatles, Frank Sinatra, David Gilmour, James Hetfield" data-icon="✨">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #f97316; background: radial-gradient(circle, rgba(249, 115, 22, 0.2), #07090e);">✨</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Neumann U47 Tube</div>
-                        <div class="mic-card-sub">VÁLVULA VF14 · CALOR</div>
-                      </div>
+                    <!-- COLUNA 3: ARTICULAÇÃO & AR -->
+                    <div style="display: flex; flex-direction: column; gap: 3px; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 4px; border-left: 2px solid #34d399;">
+                      <div style="font-size: 7px; font-weight: 800; color: #34d399; text-transform: uppercase;">3. Ar & De-Ess</div>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-bernoulli" checked /> 💨 Bernoulli</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-morse" checked /> 💋 Radiação</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #fb7185; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-stevens" checked /> 🤫 Stevens</label>
+                      <label style="display: flex; align-items: center; gap: 3px; color: #f43f5e; cursor: pointer;"><input type="checkbox" id="chk-v5-diffvox-sheen" checked /> ✨ DiffVox</label>
                     </div>
-                    <div class="mic-card-artists">Beatles, Sinatra, Gilmour</div>
-                  </div>
 
-                  <div class="mic-visual-card" data-mic-id="telefunken-ela-m251" data-category="tube" data-title="Telefunken ELA M 251E" data-sub="DIAMOND SERIES · SHEEN 14kHz" data-capsule="CK12 Diamond Capsule" data-preamp="GE 6072A Triode" data-spl="Agudos Aéreos 14k-20k" data-artists="André Matos, Mariah Carey, Michael Jackson, Celine Dion" data-icon="💎">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #06b6d4; background: radial-gradient(circle, rgba(6, 182, 212, 0.2), #07090e);">💎</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Telefunken 251E</div>
-                        <div class="mic-card-sub">CK12 DIAMOND · SHEEN</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">André Matos, Michael Jackson</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="sony-c800g" data-category="tube" data-title="Sony C-800G" data-sub="PELTIER TUBE · MODERN HI-FI" data-capsule="Dual 6-Micron Gold" data-preamp="6AU6 Vacuum Tube" data-spl="Ultra-Detalhamento Hi-Fi" data-artists="Sebastian Bach, Metalcore, Modern Pop & Hip-Hop Vocals" data-icon="⚡">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #38bdf8; background: radial-gradient(circle, rgba(56, 189, 248, 0.2), #07090e);">⚡</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Sony C-800G</div>
-                        <div class="mic-card-sub">PELTIER MODERN HI-FI</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">Sebastian Bach, Metalcore</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="shure-sm7b" data-category="broadcast" data-title="Shure SM7B" data-sub="BROADCAST DYNAMIC · PUNCH CORPO" data-capsule="Unidyne III Dynamic" data-preamp="Pneumatic Shock-Mount" data-spl="Rejeição de Sala Máxima" data-artists="James Hetfield (Metallica), Serj Tankian, Michael Jackson" data-icon="🎙️">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #e11d48; background: radial-gradient(circle, rgba(225, 29, 72, 0.2), #07090e);">🎙️</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Shure SM7B</div>
-                        <div class="mic-card-sub">BROADCAST DYNAMIC</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">Hetfield, Serj Tankian</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="electrovoice-re20" data-category="broadcast" data-title="Electro-Voice RE20" data-sub="VARIABLE-D · ZERO PROXIMITY MUD" data-capsule="Variable-D Dynamic" data-preamp="Heavy-Duty Steel Shield" data-spl="Grave Controlado 40Hz" data-artists="Thom Yorke, Heavy Screams, Radio Rock Vocals" data-icon="🎙️">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #84cc16; background: radial-gradient(circle, rgba(132, 204, 22, 0.2), #07090e);">🎙️</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Electro-Voice RE20</div>
-                        <div class="mic-card-sub">VARIABLE-D ZERO MUD</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">Thom Yorke, Heavy Screams</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="shure-sm58-live" data-category="live" data-title="Shure SM58 Live" data-sub="PALCO #1 DO MUNDO · ROCHA INDESTRUTÍVEL" data-capsule="Cardioid Dynamic Stage" data-preamp="Mid-Range Presence Peak" data-spl="Corte no Instrumental" data-artists="Mick Jagger, Robert Plant, Bono, Roger Daltrey" data-icon="🎤">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #10b981; background: radial-gradient(circle, rgba(16, 185, 129, 0.2), #07090e);">🎤</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Shure SM58 Live</div>
-                        <div class="mic-card-sub">PALCO #1 DO MUNDO</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">Mick Jagger, Robert Plant</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="shure-beta58a-live" data-category="live" data-title="Shure Beta 58A" data-sub="SUPERCARDIOID LIVE STAGE" data-capsule="Neodymium Magnet" data-preamp="Supercardioid Isolation" data-spl="Ganho Antes do Feedback" data-artists="James LaBrie (Dream Theater), Myles Kennedy, Floor Jansen" data-icon="🎤">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #6366f1; background: radial-gradient(circle, rgba(99, 102, 241, 0.2), #07090e);">🎤</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Shure Beta 58A</div>
-                        <div class="mic-card-sub">SUPERCARDIOID STAGE</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">James LaBrie, Myles Kennedy</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="sennheiser-e945-live" data-category="live" data-title="Sennheiser e945" data-sub="SOM ALEMÃO · CORTE DE PALCO" data-capsule="Supercardioid High-Def" data-preamp="Dynamic German Capsule" data-spl="Presença de Voz Suave" data-artists="Tobias Sammet (Avantasia), Bruce Dickinson Live" data-icon="⚡">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #a855f7; background: radial-gradient(circle, rgba(168, 85, 247, 0.2), #07090e);">⚡</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Sennheiser e945</div>
-                        <div class="mic-card-sub">SOM ALEMÃO PALCO</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">Tobias Sammet, Dickinson</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="neumann-kms105-live" data-category="live" data-title="Neumann KMS 105" data-sub="ESTÚDIO DE MÃO NO PALCO" data-capsule="K105 Supercardioid Condenser" data-preamp="Transformerless 48V" data-spl="Transientes Cristalinos" data-artists="Michael Bublé, Alter Bridge, Tarja Turunen" data-icon="👑">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #ec4899; background: radial-gradient(circle, rgba(236, 72, 153, 0.2), #07090e);">👑</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">Neumann KMS 105</div>
-                        <div class="mic-card-sub">ESTÚDIO NO PALCO</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">Michael Bublé, Alter Bridge</div>
-                  </div>
-
-                  <div class="mic-visual-card" data-mic-id="dpa-dfacto-4018v" data-category="live" data-title="DPA d:facto 4018V" data-sub="PRECISÃO DINAMARQUESA 160dB SPL" data-capsule="Supercardioid Modular" data-preamp="Linear Dynamic Range 120dB" data-spl="Suporta 160dB SPL Sem Distorção" data-artists="Sting, Céline Dion, Stevie Wonder, Dave Grohl" data-icon="💎">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                      <div class="mic-cutout-badge" style="border-color: #14b8a6; background: radial-gradient(circle, rgba(20, 184, 166, 0.2), #07090e);">💎</div>
-                      <div style="min-width: 0;">
-                        <div class="mic-card-title">DPA d:facto 4018V</div>
-                        <div class="mic-card-sub">PRECISÃO 160dB SPL</div>
-                      </div>
-                    </div>
-                    <div class="mic-card-artists">Sting, Céline Dion</div>
-                  </div>
-                </div>
-
-                <!-- VOCAL SUITE ENHANCEMENTS & FISIOLOGIA VOCAL EXCLUSIVA DO GEM DA VOZ -->
-                <div style="margin-top: 8px; padding: 6px 8px; background: rgba(244, 63, 94, 0.06); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 6px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-family: var(--font-mono); font-size: 8.5px; font-weight: 800; color: #f43f5e;">🧬 FISIOLOGIA VOCAL & DE-ESSER (SOMENTE NO GEM DA VOZ)</span>
-                    <span style="font-family: var(--font-mono); font-size: 7.5px; color: #fda4af;">10 Motores Biquad</span>
-                  </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-family: var(--font-mono); font-size: 7.5px;">
-                    <label style="display: flex; align-items: center; gap: 2px; color: #fda4af; cursor: pointer;" title="Flexibilidade harmônica e calor suave nas cordas vocais"><input type="checkbox" id="chk-gem-vox-hirano" checked /> 🌊 Onda de Hirano</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #fda4af; cursor: pointer;" title="Calor íntimo e corpo em 190Hz"><input type="checkbox" id="chk-gem-vox-oq" checked /> 👄 Quociente Aberto</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #f43f5e; cursor: pointer;" title="Ressonância do tubo epilaríngeo 2.85kHz para projeção frontal"><input type="checkbox" id="chk-gem-vox-titze" checked /> 📢 Tubo de Titze</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #fbbf24; cursor: pointer;" title="Agrupamento harmônico 3.2kHz para furar o instrumental"><input type="checkbox" id="chk-gem-vox-singer" checked /> 👑 Formante Cantor</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #38bdf8; cursor: pointer;" title="Notch cirúrgico 1.25kHz contra som anasalado"><input type="checkbox" id="chk-gem-vox-antinasal" checked /> 👃 Anti-Nasal Sinus</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #a78bfa; cursor: pointer;" title="Reforço fundamental em 85Hz para densidade"><input type="checkbox" id="chk-gem-vox-fry" checked /> 🎙️ Vocal Fry 85Hz</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #c084fc; cursor: pointer;" title="Alinhador de impedância acústica entre peito e cabeça"><input type="checkbox" id="chk-gem-vox-passaggio" checked /> 🎭 Passaggio 1.75k</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #34d399; cursor: pointer;" title="Fechamento glótico rápido para nitidez nas consoantes"><input type="checkbox" id="chk-gem-vox-bernoulli" checked /> 💨 Bernoulli 4.6k</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #6ee7b7; cursor: pointer;" title="Filtro de dispersão aberta de ar em 11kHz"><input type="checkbox" id="chk-gem-vox-morse" checked /> 💋 Radiação Morse</label>
-                    <label style="display: flex; align-items: center; gap: 2px; color: #fb7185; cursor: pointer;" title="De-Esser cirúrgico em 6.8kHz sem perda de ar"><input type="checkbox" id="chk-gem-vox-stevens" checked /> 🤫 Stevens De-Esser</label>
-                  </div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; border-top: 1px solid rgba(244, 63, 94, 0.2); padding-top: 3px;">
-                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 8px; color: #f43f5e; cursor: pointer;"><input type="checkbox" id="chk-v5-diffvox-sheen" checked /> ✨ DiffVox Brilho 251</label>
-                    <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 8px; color: #d946ef; cursor: pointer;"><input type="checkbox" id="chk-micro-acoustic-mechanical" checked /> 🫁 Pulso Glótico & Trato</label>
                   </div>
                 </div>
               </div>

@@ -440,106 +440,152 @@ body {
   box-shadow: 0 0 10px rgba(236, 72, 153, 0.3);
 }
 
-/* HORIZONTAL SCROLLING MIC CAROUSEL RIBBON */
-.mic-ribbon-carousel {
+/* =========================================================================
+   VERTICAL HARDWARE RACK BAYS & CHANNEL STRIP GRID ARCHITECTURE
+   ========================================================================= */
+.mic-vertical-bays-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+  .mic-vertical-bays-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mic-vertical-bay {
+  background: rgba(10, 15, 26, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
   display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 4px 2px 8px 2px;
+  flex-direction: column;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.mic-bay-header {
+  padding: 6px 10px;
+  font-family: var(--font-display);
+  font-size: 8.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mic-bay-header.tube {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(15, 23, 42, 0.6));
+  color: #fbbf24;
+  border-bottom-color: rgba(245, 158, 11, 0.3);
+}
+
+.mic-bay-header.broadcast {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.2), rgba(15, 23, 42, 0.6));
+  color: #f87171;
+  border-bottom-color: rgba(239, 68, 68, 0.3);
+}
+
+.mic-bay-header.live {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.2), rgba(15, 23, 42, 0.6));
+  color: #34d399;
+  border-bottom-color: rgba(16, 185, 129, 0.3);
+}
+
+.mic-bay-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  max-height: 220px;
+  overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #ec4899 rgba(15, 23, 42, 0.5);
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(15, 23, 42, 0.5);
 }
 
-.mic-ribbon-carousel::-webkit-scrollbar {
-  height: 4px;
+.mic-bay-list::-webkit-scrollbar {
+  width: 4px;
 }
-
-.mic-ribbon-carousel::-webkit-scrollbar-thumb {
-  background: #ec4899;
+.mic-bay-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
 }
 
-.mic-visual-card {
-  min-width: 135px;
-  max-width: 145px;
-  flex: 0 0 auto;
-  background: linear-gradient(145deg, rgba(13, 18, 28, 0.95), rgba(8, 10, 16, 0.95));
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: 6px 8px;
+.mic-vertical-card {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(8, 12, 20, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 5px 7px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  gap: 6px;
   position: relative;
-  overflow: hidden;
   user-select: none;
 }
 
-.mic-visual-card:hover {
-  border-color: #ec4899;
-  transform: translateY(-2px);
-  background: linear-gradient(145deg, rgba(236, 72, 153, 0.15), rgba(13, 18, 28, 0.95));
-  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.25);
+.mic-vertical-card:hover {
+  border-color: #f472b6;
+  background: linear-gradient(145deg, rgba(244, 114, 182, 0.15), rgba(15, 23, 42, 0.9));
+  transform: translateX(2px);
 }
 
-.mic-visual-card.active {
+.mic-vertical-card.active {
   border-color: #ec4899;
   background: linear-gradient(145deg, rgba(236, 72, 153, 0.25), rgba(15, 23, 42, 0.95));
-  box-shadow: 0 0 14px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.35);
 }
 
-.mic-visual-card.active::before {
-  content: 'ATIVO';
+.mic-vertical-card.active::after {
+  content: '●';
   position: absolute;
-  top: 3px;
-  right: 4px;
-  font-family: var(--font-mono);
-  font-size: 6.5px;
-  font-weight: 800;
-  background: #ec4899;
-  color: #ffffff;
-  padding: 0 3px;
-  border-radius: 2px;
+  right: 6px;
+  font-size: 8px;
+  color: #ec4899;
+  text-shadow: 0 0 6px #ec4899;
 }
 
-.mic-cutout-badge {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  border-radius: 5px;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.2), #07090e);
-  border: 1px solid rgba(236, 72, 153, 0.3);
+.mic-v-badge {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.mic-card-title {
+.mic-v-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.mic-v-title {
   font-family: var(--font-display);
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 800;
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 1.1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.mic-card-sub {
+.mic-v-sub {
   font-family: var(--font-mono);
-  font-size: 7px;
-  color: #f472b6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mic-card-artists {
-  font-family: var(--font-mono);
-  font-size: 6.5px;
+  font-size: 6.8px;
   color: #94a3b8;
   white-space: nowrap;
   overflow: hidden;
