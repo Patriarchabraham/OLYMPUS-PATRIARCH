@@ -523,25 +523,33 @@ select.studio-select:focus, input.studio-input:focus {
   gap: 20px;
 }
 
-/* MASTER COCKPIT 3-COLUMN RACK */
+/* MASTER COCKPIT FULL-WIDTH CENTERED HORIZONTAL SUITE */
 .master-cockpit-grid {
-  display: grid;
-  grid-template-columns: 320px 1fr 340px;
-  gap: 16px;
-  align-items: stretch;
-  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  margin-top: 10px;
 }
 
-@media (max-width: 1280px) {
-  .master-cockpit-grid {
+.cockpit-horizontal-deck {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 14px;
+  width: 100%;
+}
+
+@media (max-width: 1080px) {
+  .cockpit-horizontal-deck {
     grid-template-columns: 1fr;
   }
 }
 
-.cockpit-column {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.cockpit-horizontal-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  width: 100%;
 }
 
 /* BROADCAST TELEMETRY HUD */

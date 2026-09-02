@@ -503,7 +503,7 @@ body {
   flex-direction: column;
   gap: 4px;
   padding: 6px;
-  max-height: 220px;
+  max-height: 280px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) rgba(15, 23, 42, 0.5);
@@ -520,13 +520,13 @@ body {
 .mic-vertical-card {
   background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(8, 12, 20, 0.9));
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 5px;
-  padding: 5px 7px;
+  border-radius: 6px;
+  padding: 6px 9px;
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   position: relative;
   user-select: none;
 }
