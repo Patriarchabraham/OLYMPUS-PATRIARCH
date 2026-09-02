@@ -802,7 +802,34 @@ function setupVisualMicrophoneGrid() {
 	const micSelect = document.getElementById(
 		'select-vocal-microphone-model',
 	) as HTMLSelectElement | null
-	const micCards = document.querySelectorAll('.mic-visual-card')
+	const micCards = document.querySelectorAll<HTMLElement>('.mic-visual-card')
+	const filterPills = document.querySelectorAll<HTMLElement>('.mic-filter-pill')
+
+	const showcaseBadge = document.getElementById('mic-showcase-badge')
+	const showcaseTitle = document.getElementById('mic-showcase-title')
+	const showcaseSub = document.getElementById('mic-showcase-sub')
+	const showcaseCapsule = document.getElementById('mic-showcase-capsule')
+	const showcasePreamp = document.getElementById('mic-showcase-preamp')
+	const showcaseSpl = document.getElementById('mic-showcase-spl')
+	const showcaseArtists = document.getElementById('mic-showcase-artists')
+
+	const updateShowcaseFromCard = (card: HTMLElement) => {
+		const icon = card.getAttribute('data-icon') || '🎙️'
+		const title = card.getAttribute('data-title') || 'Microfone Selecionado'
+		const sub = card.getAttribute('data-sub') || 'CALIBRAÇÃO ANALÓGICA'
+		const capsule = card.getAttribute('data-capsule') || 'Linear'
+		const preamp = card.getAttribute('data-preamp') || 'Estúdio'
+		const spl = card.getAttribute('data-spl') || '64-Bit DSP'
+		const artists = card.getAttribute('data-artists') || ''
+
+		if (showcaseBadge) showcaseBadge.textContent = icon
+		if (showcaseTitle) showcaseTitle.textContent = title
+		if (showcaseSub) showcaseSub.textContent = sub
+		if (showcaseCapsule) showcaseCapsule.textContent = `Cápsula: ${capsule}`
+		if (showcasePreamp) showcasePreamp.textContent = `Pré: ${preamp}`
+		if (showcaseSpl) showcaseSpl.textContent = `Calibração: ${spl}`
+		if (showcaseArtists) showcaseArtists.textContent = `🎤 ${artists}`
+	}
 
 	micCards.forEach((card) => {
 		card.addEventListener('click', () => {
@@ -811,6 +838,7 @@ function setupVisualMicrophoneGrid() {
 
 			micCards.forEach((c) => c.classList.remove('active'))
 			card.classList.add('active')
+			updateShowcaseFromCard(card)
 
 			if (micSelect) {
 				micSelect.value = micId
@@ -825,12 +853,32 @@ function setupVisualMicrophoneGrid() {
 			micCards.forEach((c) => {
 				if (c.getAttribute('data-mic-id') === currentVal) {
 					c.classList.add('active')
+					updateShowcaseFromCard(c)
+					c.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
 				} else {
 					c.classList.remove('active')
 				}
 			})
 		})
 	}
+
+	// Category Filtering
+	filterPills.forEach((pill) => {
+		pill.addEventListener('click', () => {
+			filterPills.forEach((p) => p.classList.remove('active'))
+			pill.classList.add('active')
+
+			const filter = pill.getAttribute('data-filter') || 'all'
+			micCards.forEach((card) => {
+				const cat = card.getAttribute('data-category')
+				if (filter === 'all' || cat === filter || card.getAttribute('data-mic-id') === 'bypass') {
+					card.style.display = 'flex'
+				} else {
+					card.style.display = 'none'
+				}
+			})
+		})
+	})
 }
 
 // ─── AUDIO LOADING & TRANSPORT DOCK ──────────────────────────────────────────
