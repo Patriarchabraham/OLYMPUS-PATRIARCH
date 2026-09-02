@@ -614,71 +614,51 @@
             </div>
           </div>
 
-          <!-- BOX 13: 🎙️ GABINETE DE MICROFONES (SPAN 3 / LADO A LADO) -->
-          <div class="compact-box span-3">
+          <!-- BOX 13: 🎙️ MICROFONES VOCAIS & FISIOLOGIA -->
+          <div class="compact-box">
             <div class="compact-box-header">
-              <span>🎙️ GABINETE VISUAL DE MICROFONES & FISIOLOGIA VOCAL</span>
-              <span style="font-size: 8px; color: #ec4899;">13 MICS CALIBRADOS</span>
+              <span>🎙️ MICROFONE VOCAL & FISIOLOGIA</span>
+              <span style="font-size: 8px; color: #ec4899;">13 MODELOS</span>
             </div>
             
-            <select id="select-vocal-microphone-model" class="studio-select" style="font-size: 9px; padding: 3px; border-color: rgba(236, 72, 153, 0.5); background: rgba(236, 72, 153, 0.08); color: #ffffff;">
-              <option value="bypass" selected>🎙️ Microfone Vocal: Padrão do Álbum Selecionado</option>
-              <optgroup label="👑 ESTÚDIO — CONDENSADORES & VÁLVULAS LENDÁRIAS">
-                <option value="neumann-u87-ai">👑 Neumann U87 Ai — Padrão-Ouro Mundial (Dio, Dickinson, Halford)</option>
-                <option value="neumann-u47-tube">✨ Neumann U47 Vintage Tube — Válvula VF14 Calor Titânico (Beatles, Sinatra)</option>
-                <option value="telefunken-ela-m251">💎 Telefunken ELA M 251E — Diamond Series Brilho 14kHz (André Matos)</option>
-                <option value="sony-c800g">⚡ Sony C-800G — Refrigeração Peltier Modern Hi-Fi (Metalcore / Pop Highs)</option>
-                <option value="manley-reference-gold">✨ Manley Reference Gold — Válvula 12AT7 & Abertura 30kHz (Pavarotti)</option>
-                <option value="akg-c414-xls">🎛️ AKG C414 XLS — Ultra-Linear & Cirúrgico (Geoff Tate, Mercury)</option>
-              </optgroup>
-              <optgroup label="🎙️ ESTÚDIO — DINÂMICOS BROADCAST">
-                <option value="shure-sm7b">🎙️ Shure SM7B — Dynamic Classic (Hetfield, Serj Tankian, Michael Jackson)</option>
-                <option value="electrovoice-re20">🎙️ Electro-Voice RE20 — Variable-D Zero Mud (Thom Yorke, Heavy Screams)</option>
-              </optgroup>
-              <optgroup label="🎤 PALCO — AO VIVO & HIGH SPL">
-                <option value="shure-sm58-live">🎤 Shure SM58 Live — Palco #1 do Mundo (Mick Jagger, Robert Plant)</option>
-                <option value="shure-beta58a-live">🎤 Shure Beta 58A — Supercardioid Live (James LaBrie, Myles Kennedy)</option>
-                <option value="sennheiser-e945-live">⚡ Sennheiser e945 — Som Alemão (Tobias Sammet, Bruce Dickinson Live)</option>
-                <option value="neumann-kms105-live">👑 Neumann KMS 105 — Estúdio de Mão (Michael Bublé, Alter Bridge)</option>
-                <option value="dpa-dfacto-4018v">💎 DPA d:facto 4018V — Precisão Dinamarquesa 160dB SPL (Sting, Céline Dion)</option>
-              </optgroup>
-            </select>
+            <div>
+              <label style="font-family: var(--font-mono); font-size: 7.5px; color: #ec4899; font-weight: 700; display: block; margin-bottom: 2px;">MICROFONE VOCAL:</label>
+              <select id="select-vocal-microphone-model" class="studio-select" style="font-size: 8.5px; padding: 3px; width: 100%; border-color: rgba(236, 72, 153, 0.5); background: rgba(236, 72, 153, 0.08); color: #ffffff;">
+                <option value="bypass" selected>🎙️ Original do Álbum (Padrão do Disco)</option>
+                <optgroup label="👑 CONDENSADORES & VÁLVULAS LENDÁRIAS">
+                  <option value="neumann-u87-ai">👑 Neumann U87 Ai (Padrão-Ouro · Dio, Dickinson, Halford)</option>
+                  <option value="neumann-u47-tube">✨ Neumann U47 Vintage Tube (Válvula VF14 · Beatles, Sinatra)</option>
+                  <option value="telefunken-ela-m251">💎 Telefunken ELA M 251E (Diamond Sheen 14k · André Matos, Mariah)</option>
+                  <option value="sony-c800g">⚡ Sony C-800G (Peltier Tube Modern Hi-Fi · Sebastian Bach, Metalcore)</option>
+                  <option value="manley-reference-gold">✨ Manley Ref Gold (Válvula 12AT7 Abertura 30k · Pavarotti, Enya)</option>
+                  <option value="akg-c414-xls">🎛️ AKG C414 XLS (Ultra-Linear & Cirúrgico · Geoff Tate, Mercury)</option>
+                </optgroup>
+                <optgroup label="🎙️ DINÂMICOS & BROADCAST ROCK">
+                  <option value="shure-sm7b">🎙️ Shure SM7B (Broadcast Punch · James Hetfield, Serj Tankian)</option>
+                  <option value="electrovoice-re20">🎙️ Electro-Voice RE20 (Variable-D Zero Mud · Thom Yorke, Screams)</option>
+                </optgroup>
+                <optgroup label="🎤 AO VIVO & PALCO (HIGH SPL)">
+                  <option value="shure-sm58-live">🎤 Shure SM58 Live (Palco #1 do Mundo · Mick Jagger, Plant)</option>
+                  <option value="shure-beta58a-live">🎤 Shure Beta 58A (Supercardioid · James LaBrie, Myles Kennedy)</option>
+                  <option value="sennheiser-e945-live">⚡ Sennheiser e945 (Som Alemão · Tobias Sammet, Dickinson)</option>
+                  <option value="neumann-kms105-live">👑 Neumann KMS 105 (Estúdio no Palco · Michael Bublé, Alter Bridge)</option>
+                  <option value="dpa-dfacto-4018v">💎 DPA d:facto 4018V (Precisão 160dB SPL · Sting, Céline Dion)</option>
+                </optgroup>
+              </select>
+            </div>
 
-            <!-- 3 BAYS VERTICAIS LADO A LADO -->
-            <div class="mic-vertical-bays-grid" style="margin-top: 4px;">
-              <!-- BAY 1: VÁLVULAS & ESTÚDIO -->
-              <div class="mic-vertical-bay">
-                <div class="mic-bay-header studio"><span>👑 Válvulas & Estúdio</span><span style="font-size: 7.5px; opacity: 0.8;">6 Mics</span></div>
-                <div class="mic-bay-list" style="max-height: 180px;">
-                  <div class="mic-vertical-card" data-mic-id="neumann-u87-ai" data-category="studio" data-title="Neumann U87 Ai" data-sub="PADRÃO-OURO DE ESTÚDIO" data-capsule="K67 Dual Diaphragm" data-preamp="FET Transformerless" data-spl="127dB SPL (0.5% THD)" data-artists="Ronnie James Dio, Bruce Dickinson, Rob Halford" data-icon="👑"><div class="mic-v-badge" style="border-color: #f59e0b; color: #f59e0b;">👑</div><div class="mic-v-info"><div class="mic-v-title">Neumann U87 Ai</div><div class="mic-v-sub">Dio, Dickinson, Halford</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="neumann-u47-tube" data-category="tube" data-title="Neumann U47 Vintage Tube" data-sub="VÁLVULA VF14 · CALOR TITÂNICO" data-capsule="M7 Brass Capsule" data-preamp="Telefunken VF14 Tube" data-spl="Calor Harmônico" data-artists="Beatles, Sinatra, Gilmour" data-icon="✨"><div class="mic-v-badge" style="border-color: #f97316; color: #f97316;">✨</div><div class="mic-v-info"><div class="mic-v-title">Neumann U47 Tube</div><div class="mic-v-sub">Beatles, Sinatra, Gilmour</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="telefunken-ela-m251" data-category="tube" data-title="Telefunken ELA M 251E" data-sub="DIAMOND SERIES · SHEEN 14kHz" data-capsule="CK12 Diamond" data-preamp="GE 6072A Triode" data-spl="Agudos Aéreos 14k-20k" data-artists="André Matos, Mariah Carey" data-icon="💎"><div class="mic-v-badge" style="border-color: #06b6d4; color: #06b6d4;">💎</div><div class="mic-v-info"><div class="mic-v-title">Telefunken 251E</div><div class="mic-v-sub">André Matos, Jackson</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="sony-c800g" data-category="tube" data-title="Sony C-800G" data-sub="PELTIER TUBE · MODERN HI-FI" data-capsule="Dual 6-Micron Gold" data-preamp="6AU6 Vacuum Tube" data-spl="Ultra-Detalhamento" data-artists="Sebastian Bach, Metalcore" data-icon="⚡"><div class="mic-v-badge" style="border-color: #38bdf8; color: #38bdf8;">⚡</div><div class="mic-v-info"><div class="mic-v-title">Sony C-800G</div><div class="mic-v-sub">Sebastian Bach, Metalcore</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="manley-reference-gold" data-category="tube" data-title="Manley Reference Gold" data-sub="VÁLVULA 12AT7 & ABERTURA 30kHz" data-capsule="CK12 Gold Dual" data-preamp="Manley Vacuum 12AT7" data-spl="Ultra-Abertura 30kHz" data-artists="Pavarotti, Enya" data-icon="✨"><div class="mic-v-badge" style="border-color: #eab308; color: #eab308;">✨</div><div class="mic-v-info"><div class="mic-v-title">Manley Ref Gold</div><div class="mic-v-sub">Pavarotti, Enya, Hi-End</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="akg-c414-xls" data-category="tube" data-title="AKG C414 XLS" data-sub="ULTRA-LINEAR & CIRÚRGICO" data-capsule="Nylon C12" data-preamp="Transformerless Linear" data-spl="Precisão Acústica" data-artists="Freddie Mercury, Geoff Tate" data-icon="🎛️"><div class="mic-v-badge" style="border-color: #a855f7; color: #a855f7;">🎛️</div><div class="mic-v-info"><div class="mic-v-title">AKG C414 XLS</div><div class="mic-v-sub">Freddie Mercury, Tate</div></div></div>
-                </div>
-              </div>
-
-              <!-- BAY 2: DINÂMICOS & ROCK -->
-              <div class="mic-vertical-bay">
-                <div class="mic-bay-header broadcast"><span>🎙️ Dinâmicos & Rock</span><span style="font-size: 7.5px; opacity: 0.8;">3 Mics</span></div>
-                <div class="mic-bay-list" style="max-height: 180px;">
-                  <div class="mic-vertical-card active" data-mic-id="bypass" data-category="broadcast" data-title="Álbum Original" data-sub="PADRÃO DO DISCO" data-capsule="Linear Original" data-preamp="Mesa do Álbum" data-spl="64-Bit DSP" data-artists="Timbre do produtor" data-icon="💿"><div class="mic-v-badge" style="border-color: #cbd5e1; color: #cbd5e1;">💿</div><div class="mic-v-info"><div class="mic-v-title">Álbum Original</div><div class="mic-v-sub">Padrão do Produtor</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="shure-sm7b" data-category="broadcast" data-title="Shure SM7B" data-sub="BROADCAST DYNAMIC · PUNCH" data-capsule="Unidyne III" data-preamp="Pneumatic Shock" data-spl="Rejeição de Sala" data-artists="James Hetfield, Serj Tankian" data-icon="🎙️"><div class="mic-v-badge" style="border-color: #e11d48; color: #e11d48;">🎙️</div><div class="mic-v-info"><div class="mic-v-title">Shure SM7B</div><div class="mic-v-sub">Hetfield, Serj Tankian</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="electrovoice-re20" data-category="broadcast" data-title="Electro-Voice RE20" data-sub="VARIABLE-D · ZERO PROXIMITY" data-capsule="Variable-D" data-preamp="Steel Shield" data-spl="Grave Controlado" data-artists="Thom Yorke, Screams" data-icon="🎙️"><div class="mic-v-badge" style="border-color: #84cc16; color: #84cc16;">🎙️</div><div class="mic-v-info"><div class="mic-v-title">Electro-Voice RE20</div><div class="mic-v-sub">Thom Yorke, Screams</div></div></div>
-                </div>
-              </div>
-
-              <!-- BAY 3: PALCO & AO VIVO -->
-              <div class="mic-vertical-bay">
-                <div class="mic-bay-header live"><span>🎤 Palco & Ao Vivo</span><span style="font-size: 7.5px; opacity: 0.8;">5 Mics</span></div>
-                <div class="mic-bay-list" style="max-height: 180px;">
-                  <div class="mic-vertical-card" data-mic-id="shure-sm58-live" data-category="live" data-title="Shure SM58 Live" data-sub="PALCO #1 DO MUNDO" data-capsule="Dynamic Stage" data-preamp="Mid Presence" data-spl="Corte no Instrumental" data-artists="Mick Jagger, Robert Plant" data-icon="🎤"><div class="mic-v-badge" style="border-color: #10b981; color: #10b981;">🎤</div><div class="mic-v-info"><div class="mic-v-title">Shure SM58 Live</div><div class="mic-v-sub">Mick Jagger, Plant</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="shure-beta58a-live" data-category="live" data-title="Shure Beta 58A" data-sub="SUPERCARDIOID LIVE" data-capsule="Neodymium" data-preamp="Isolation" data-spl="Alto Ganho" data-artists="James LaBrie, Myles Kennedy" data-icon="🎤"><div class="mic-v-badge" style="border-color: #6366f1; color: #6366f1;">🎤</div><div class="mic-v-info"><div class="mic-v-title">Shure Beta 58A</div><div class="mic-v-sub">LaBrie, Myles Kennedy</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="sennheiser-e945-live" data-category="live" data-title="Sennheiser e945" data-sub="SOM ALEMÃO · CORTE" data-capsule="Supercardioid" data-preamp="German Dynamic" data-spl="Voz Suave" data-artists="Tobias Sammet, Dickinson Live" data-icon="⚡"><div class="mic-v-badge" style="border-color: #a855f7; color: #a855f7;">⚡</div><div class="mic-v-info"><div class="mic-v-title">Sennheiser e945</div><div class="mic-v-sub">Tobias Sammet Live</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="neumann-kms105-live" data-category="live" data-title="Neumann KMS 105" data-sub="ESTÚDIO DE MÃO" data-capsule="K105 Condenser" data-preamp="Transformerless 48V" data-spl="Cristalino" data-artists="Michael Bublé, Alter Bridge" data-icon="👑"><div class="mic-v-badge" style="border-color: #ec4899; color: #ec4899;">👑</div><div class="mic-v-info"><div class="mic-v-title">Neumann KMS 105</div><div class="mic-v-sub">Estúdio no Palco</div></div></div>
-                  <div class="mic-vertical-card" data-mic-id="dpa-dfacto-4018v" data-category="live" data-title="DPA d:facto 4018V" data-sub="PRECISÃO 160dB SPL" data-capsule="Modular Supercardioid" data-preamp="Dynamic Range 120dB" data-spl="160dB SPL" data-artists="Sting, Céline Dion" data-icon="💎"><div class="mic-v-badge" style="border-color: #38bdf8; color: #38bdf8;">💎</div><div class="mic-v-info"><div class="mic-v-title">DPA 4018V</div><div class="mic-v-sub">Sting, Céline Dion</div></div></div>
-                </div>
+            <!-- FISIOLOGIA VOCAL CIRÚRGICA -->
+            <div style="padding: 4px 6px; background: rgba(236, 72, 153, 0.06); border: 1px solid rgba(236, 72, 153, 0.25); border-radius: 4px; display: flex; flex-direction: column; gap: 2px;">
+              <span style="font-family: var(--font-mono); font-size: 7.5px; font-weight: 800; color: #f472b6;">🧬 FISIOLOGIA VOCAL:</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-family: var(--font-mono); font-size: 7.5px;">
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-hirano" checked /> 🌊 Onda Hirano</label>
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-oq" checked /> 📊 Quociente OQ</label>
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-titze" checked /> 🏛️ Tubo Titze</label>
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-singer" checked /> 👑 Formante 2.8k</label>
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-antinasal" checked /> 👃 Anti-Nasal</label>
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-fry" checked /> ⚡ Vocal Fry</label>
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-passaggio" checked /> 🚀 Passaggio</label>
+                <label style="display: flex; align-items: center; gap: 2px; color: #fbcfe8; cursor: pointer;"><input type="checkbox" id="chk-gem-vox-stevens" checked /> 💎 De-Esser 6.2k</label>
               </div>
             </div>
           </div>
