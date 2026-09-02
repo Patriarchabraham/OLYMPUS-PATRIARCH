@@ -523,33 +523,49 @@ select.studio-select:focus, input.studio-input:focus {
   gap: 20px;
 }
 
-/* MASTER COCKPIT FULL-WIDTH CENTERED HORIZONTAL SUITE */
+/* MASTER COCKPIT MODULAR COMPACT BOXES GRID (SIDE BY SIDE) */
 .master-cockpit-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 12px;
   width: 100%;
   margin-top: 10px;
 }
 
-.cockpit-horizontal-deck {
-  display: grid;
-  grid-template-columns: 1fr 1.35fr;
-  gap: 14px;
-  width: 100%;
+.compact-box {
+  background: linear-gradient(180deg, #101624, #090d16);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
 }
 
-@media (max-width: 1080px) {
-  .cockpit-horizontal-deck {
-    grid-template-columns: 1fr;
+.compact-box:hover {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.compact-box.span-2 {
+  grid-column: span 2;
+}
+
+.compact-box.span-3 {
+  grid-column: span 3;
+}
+
+.compact-box.span-full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 990px) {
+  .compact-box.span-2,
+  .compact-box.span-3 {
+    grid-column: span 1;
   }
-}
-
-.cockpit-horizontal-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 14px;
-  width: 100%;
 }
 
 /* BROADCAST TELEMETRY HUD */
