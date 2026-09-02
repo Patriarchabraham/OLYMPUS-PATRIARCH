@@ -44,7 +44,7 @@ echo [2/3] Aguardando inicializacao do servidor na porta 7777...
 powershell -Command "$tries=0; while($tries -lt 15){ try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:7777' -UseBasicParsing -TimeoutSec 1; if($r.StatusCode -eq 200){ break } } catch { Start-Sleep -Milliseconds 400; $tries++ } }"
 
 echo [3/3] Abrindo janela nativa do Master of Masters Studio Pro...
-start msedge --app=http://127.0.0.1:7777 --start-maximized 2>nul || start chrome --app=http://127.0.0.1:7777 --start-maximized 2>nul || start http://127.0.0.1:7777
+start msedge --app="http://127.0.0.1:7777/?v=%RANDOM%" --start-maximized 2>nul || start chrome --app="http://127.0.0.1:7777/?v=%RANDOM%" --start-maximized 2>nul || start http://127.0.0.1:7777/?v=%RANDOM%
 
 echo.
 echo ===============================================================================
