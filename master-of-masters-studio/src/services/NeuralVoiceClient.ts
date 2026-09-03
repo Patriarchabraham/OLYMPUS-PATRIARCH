@@ -14,9 +14,15 @@ export interface NeuralVoiceConfig {
 	f0Method: 'rmvpe' | 'fcpe' | 'pm' | 'harvest'
 }
 
+export const DEFAULT_CLOUD_ENDPOINTS = [
+	'https://masterofmasters-voice-cloner.hf.space',
+	'http://127.0.0.1:7865',
+	'http://localhost:7860',
+]
+
 export class NeuralVoiceClient {
 	private static config: NeuralVoiceConfig = {
-		endpointUrl: localStorage.getItem('mom_colab_voice_endpoint') || '',
+		endpointUrl: localStorage.getItem('mom_colab_voice_endpoint') || DEFAULT_CLOUD_ENDPOINTS[0],
 		modelName: localStorage.getItem('mom_colab_voice_model') || 'MinhaVozReal',
 		pitchShift: 0,
 		indexRate: 0.85,
@@ -25,6 +31,7 @@ export class NeuralVoiceClient {
 	}
 
 	private static isConnected: boolean = false
+	private static isAutoConnecting: boolean = false
 
 	public static setEndpoint(url: string): void {
 		let clean = url.trim()
@@ -58,14 +65,65 @@ export class NeuralVoiceClient {
 		NeuralVoiceClient.config.protectVoiceless = Math.max(0, Math.min(0.5, protect))
 	}
 
+	/**
+	 * Automatically probes cloud and local endpoints on startup (100% zero manual typing).
+	 */
+	public static async autoConnect(): Promise<{
+		success: boolean
+		endpoint: string
+		latencyMs: number
+	}> {
+		if (NeuralVoiceClient.isAutoConnecting)
+			return {
+				success: NeuralVoiceClient.isConnected,
+				endpoint: NeuralVoiceClient.config.endpointUrl,
+				latencyMs: 0,
+			}
+		NeuralVoiceClient.isAutoConnecting = true
+
+		const candidateUrls = [NeuralVoiceClient.config.endpointUrl, ...DEFAULT_CLOUD_ENDPOINTS].filter(
+			(v, i, a) => v && a.indexOf(v) === i,
+		)
+
+		for (const url of candidateUrls) {
+			const t0 = performance.now()
+			try {
+				const controller = new AbortController()
+				const timeoutId = setTimeout(() => controller.abort(), 2500)
+				const resp = await fetch(`${url}/config`, {
+					method: 'GET',
+					mode: 'cors',
+					signal: controller.signal,
+				})
+				clearTimeout(timeoutId)
+				const latency = Math.round(performance.now() - t0)
+				if (resp.ok) {
+					NeuralVoiceClient.config.endpointUrl = url
+					NeuralVoiceClient.isConnected = true
+					NeuralVoiceClient.isAutoConnecting = false
+					return { success: true, endpoint: url, latencyMs: latency }
+				}
+			} catch (_e) {
+				// Try next candidate
+			}
+		}
+
+		NeuralVoiceClient.isAutoConnecting = false
+		return { success: false, endpoint: NeuralVoiceClient.config.endpointUrl, latencyMs: 0 }
+	}
+
 	public static async testConnection(): Promise<{
 		success: boolean
 		message: string
 		latencyMs: number
 	}> {
-		if (!NeuralVoiceClient.config.endpointUrl) {
-			NeuralVoiceClient.isConnected = false
-			return { success: false, message: 'Nenhuma URL configurada.', latencyMs: 0 }
+		const auto = await NeuralVoiceClient.autoConnect()
+		if (auto.success) {
+			return {
+				success: true,
+				message: `Conectado à Nuvem 24/7 (${auto.latencyMs}ms)!`,
+				latencyMs: auto.latencyMs,
+			}
 		}
 
 		const t0 = performance.now()
@@ -79,12 +137,11 @@ export class NeuralVoiceClient {
 				NeuralVoiceClient.isConnected = true
 				return {
 					success: true,
-					message: `Conectado ao Colab GPU (${latency}ms)!`,
+					message: `Conectado à Nuvem GPU (${latency}ms)!`,
 					latencyMs: latency,
 				}
 			}
 		} catch (_e) {
-			// Fallback try root or Gradio info
 			try {
 				const resp2 = await fetch(`${NeuralVoiceClient.config.endpointUrl}/info`, {
 					method: 'GET',
@@ -95,7 +152,7 @@ export class NeuralVoiceClient {
 					NeuralVoiceClient.isConnected = true
 					return {
 						success: true,
-						message: `Conectado via Gradio (${latency2}ms)!`,
+						message: `Conectado via Nuvem (${latency2}ms)!`,
 						latencyMs: latency2,
 					}
 				}

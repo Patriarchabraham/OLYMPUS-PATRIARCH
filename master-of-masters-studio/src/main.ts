@@ -1327,44 +1327,19 @@ function setupMasterProcessing() {
 		if (file) handleUserVoiceFile(file)
 	})
 
-	// ─── COLAB 48kHz RVC NEURAL VOICE CONNECTOR ──────────────────────────────
-	const inputColabUrl = document.getElementById(
-		'input-colab-endpoint-url',
-	) as HTMLInputElement | null
-	const btnTestColab = document.getElementById(
-		'btn-test-colab-connection',
-	) as HTMLButtonElement | null
+	// ─── 24/7 PERMANENT CLOUD NEURAL ENGINE CONNECTOR ──────────────────────
 	const colabStatusLed = document.getElementById('colab-voice-status-led') as HTMLElement | null
 
-	if (inputColabUrl) {
-		inputColabUrl.value = NeuralVoiceClient.getEndpoint()
-		inputColabUrl.addEventListener('input', () => {
-			NeuralVoiceClient.setEndpoint(inputColabUrl.value)
-		})
-	}
-
-	btnTestColab?.addEventListener('click', async () => {
-		if (btnTestColab) btnTestColab.textContent = '⏳...'
+	// Automatically connect to 24/7 cloud in background (Zero manual interaction)
+	NeuralVoiceClient.autoConnect().then((res) => {
 		if (colabStatusLed) {
-			colabStatusLed.textContent = '● CONECTANDO...'
-			colabStatusLed.style.color = '#f59e0b'
-		}
-		const res = await NeuralVoiceClient.testConnection()
-		if (res.success) {
-			if (colabStatusLed) {
-				colabStatusLed.textContent = `● GPU ONLINE (${res.latencyMs}ms)`
+			if (res.success) {
+				colabStatusLed.textContent = `● NUVEM GPU ONLINE (${res.latencyMs}ms)`
 				colabStatusLed.style.color = '#10b981'
+			} else {
+				colabStatusLed.textContent = '● MOTOR NEURAL LOCAL ATIVO'
+				colabStatusLed.style.color = '#38bdf8'
 			}
-			if (btnTestColab) btnTestColab.textContent = '✅ Conectado'
-		} else {
-			if (colabStatusLed) {
-				colabStatusLed.textContent = '● OFFLINE'
-				colabStatusLed.style.color = '#ef4444'
-			}
-			if (btnTestColab) btnTestColab.textContent = '❌ Testar'
-			alert(
-				`Colab: ${res.message}\nCertifique-se de colar a URL do Gradio (ex: https://xxxx.gradio.live) gerada na Célula 3 do Notebook.`,
-			)
 		}
 	})
 
