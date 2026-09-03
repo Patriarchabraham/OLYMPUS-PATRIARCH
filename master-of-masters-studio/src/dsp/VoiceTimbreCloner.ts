@@ -120,26 +120,32 @@ export class VoiceTimbreCloner {
 
 		const fp = VoiceTimbreCloner.userFingerprint
 
-		// 14-Band Deep Biological Vocal Tract Formant Matrix
+		// 14-Band Deep Biological Vocal Tract Formant Matrix (Derived directly from User Spectral Fingerprint)
 		const filterFreqs = [
 			90, 180, 320, 550, 950, 1500, 2200, 2900, 3800, 5200, 7500, 10500, 13500, 16000,
 		]
-		const filterGains = [
-			fp.throatDepth * 1.2, // Subglottal chest rumble (<100Hz)
-			fp.throatDepth * 1.5, // Chest cavity F1 (180Hz)
-			1.8, // Body warmth
-			-1.5, // Nasal anti-resonance notch (clean articulation)
-			2.2, // Vowel articulation F2
-			fp.singersFormantDb * 1.3, // Acoustic Ring F3
-			fp.singersFormantDb * 2.2, // Heavy Metal Singer's Formant (2.9kHz Dickinson/Dio Power Ring)
-			fp.singersFormantDb * 1.6, // High-range presence F4
-			2.0, // Edge & Bite F5
-			fp.airRatio * 1.3, // Breath silk
-			fp.airRatio * 1.6, // Air shine
-			fp.airRatio * 1.4,
-			fp.airRatio * 1.2,
-			fp.airRatio * 1.0,
-		]
+
+		const numBins = fp.spectralEnvelope ? fp.spectralEnvelope.length : 128
+		const filterGains = filterFreqs.map((f, _idx) => {
+			const binIdx = Math.min(numBins - 1, Math.max(0, Math.floor((f / 16000.0) * numBins)))
+			const userMag = fp.spectralEnvelope ? fp.spectralEnvelope[binIdx] || 1.0 : 1.0
+			const userDb = Math.max(
+				-8.0,
+				Math.min(14.0, 20.0 * Math.log10(Math.max(0.15, userMag * 2.2))),
+			)
+
+			// Emphasize legendary singer's formant for Dio/Dickinson/Halford vocal power
+			if (f >= 2600 && f <= 3500) {
+				return userDb + fp.singersFormantDb * 1.5
+			}
+			if (f <= 200) {
+				return userDb + fp.throatDepth * 1.2
+			}
+			if (f >= 10000) {
+				return userDb + fp.airRatio * 1.2
+			}
+			return userDb
+		})
 
 		const alphas = filterFreqs.map((f) => Math.exp((-2.0 * Math.PI * f) / sampleRate))
 		const lpL = new Float32Array(filterFreqs.length)

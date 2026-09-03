@@ -212,9 +212,6 @@ export class NeuralInstrumentTimbreCloner {
 
 		let peak = 0
 		let rms = 0
-		const _midEnergy = 0
-		const _lowEnergy = 0
-		const _highEnergy = 0
 
 		const step = Math.max(1, Math.floor(len / 4000))
 		let count = 0
@@ -230,15 +227,37 @@ export class NeuralInstrumentTimbreCloner {
 		const calculatedRms = Math.sqrt(rms / (count || 1))
 		const crestFactor = peak / (calculatedRms || 0.0001)
 
+		// Real band energies from reference audio
+		const freqs = [100, 250, 750, 1600, 3200, 4800, 8000]
+		const alphas = freqs.map((f) => Math.exp((-2.0 * Math.PI * f) / sr))
+		const bandEnergies = new Float32Array(freqs.length)
+		const lp = new Float32Array(freqs.length)
+
+		for (let i = 0; i < len; i += step) {
+			const mono = (left[i] + right[i]) * 0.5
+			for (let k = 0; k < freqs.length; k++) {
+				lp[k] = alphas[k] * lp[k] + (1.0 - alphas[k]) * mono
+				const b = lp[k] - (k > 0 ? lp[k - 1] : 0)
+				bandEnergies[k] += Math.abs(b)
+			}
+		}
+
+		// Normalize spectralCurve bins
+		let totalBandEnergy = 0.0001
+		for (let k = 0; k < freqs.length; k++) totalBandEnergy += bandEnergies[k]
+		for (let k = 0; k < freqs.length; k++) {
+			spectralCurve[k] = bandEnergies[k] / totalBandEnergy
+		}
+
 		// Distortion estimation from crest factor (heavily distorted guitar has low crest factor < 2.5)
-		const saturationDrive = Math.max(0.2, Math.min(2.5, 4.0 / (crestFactor + 0.1)))
+		const saturationDrive = Math.max(0.4, Math.min(2.8, 4.2 / (crestFactor + 0.1)))
 
 		return {
 			spectralCurve,
 			saturationDrive,
-			oddHarmonicsRatio: type === 'guitar' ? 0.75 : 0.45,
-			evenHarmonicsRatio: type === 'guitar' ? 0.45 : 0.65,
-			transientAttackDb: type === 'guitar' ? 4.5 : 3.0,
+			oddHarmonicsRatio: type === 'guitar' ? 0.78 : 0.45,
+			evenHarmonicsRatio: type === 'guitar' ? 0.48 : 0.65,
+			transientAttackDb: type === 'guitar' ? 4.8 : 3.2,
 			lowEndResonanceHz: type === 'guitar' ? 110.0 : 55.0,
 			sampleRate: sr,
 		}

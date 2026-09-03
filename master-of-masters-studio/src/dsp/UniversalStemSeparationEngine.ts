@@ -11,7 +11,6 @@
 import type { MasterAlbumSetup } from '../database/masters-database'
 import { AudioBufferHelper } from './AudioBufferHelper'
 import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
-import { DrumReplacerEngine } from './DrumReplacerEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
 import { NeuralInstrumentTimbreCloner } from './NeuralInstrumentTimbreCloner'
 import { generateSaturationCurve } from './SaturationCurves'
@@ -179,16 +178,16 @@ export class UniversalStemSeparationEngine {
 			let bR_out = r
 
 			if (hasUserVoice) {
-				bL_out -= voxCore * 0.85
-				bR_out -= voxCore * 0.85
+				bL_out -= voxCore * 1.0
+				bR_out -= voxCore * 1.0
 			}
 			if (hasGuitarClone) {
-				bL_out -= gtrSide * 0.85
-				bR_out += gtrSide * 0.85
+				bL_out -= gtrSide * 1.0
+				bR_out += gtrSide * 1.0
 			}
 			if (hasBassClone) {
-				bL_out -= bassTone * 0.85
-				bR_out -= bassTone * 0.85
+				bL_out -= bassTone * 1.0
+				bR_out -= bassTone * 1.0
 			}
 
 			baseL[i] = bL_out
@@ -200,21 +199,9 @@ export class UniversalStemSeparationEngine {
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
-		// 1. Drum Acoustic Transient & Shell Augmentation + Drum Mics (GEM 4)
-		let acousticKickBuf = kickBuf
-		let acousticSnareBuf = snareBuf
-		if (album.drumSampleKit) {
-			acousticKickBuf = DrumReplacerEngine.processDrumTrackAugmentation(
-				kickBuf,
-				album,
-				drumBlend * 0.45,
-			)
-			acousticSnareBuf = DrumReplacerEngine.processDrumTrackAugmentation(
-				snareBuf,
-				album,
-				drumBlend * 0.45,
-			)
-		}
+		// 1. Natural Acoustic Drums (No artificial sine-wave boing triggers)
+		const acousticKickBuf = kickBuf
+		const acousticSnareBuf = snareBuf
 
 		if (instrumentMics?.drumMicId && instrumentMics.drumMicId !== 'bypass') {
 			const kickRes = VocalMicrophoneRemasterEngine.processInstrumentMicRemaster(
@@ -287,7 +274,7 @@ export class UniversalStemSeparationEngine {
 				gtrDeltaBuf.getChannelData(0),
 				gtrDeltaBuf.getChannelData(1),
 				sampleRate,
-				0.75,
+				1.0, // 100% full clone rewrite
 			)
 			gtrDeltaBuf.copyToChannel(clonedGtr.left, 0)
 			gtrDeltaBuf.copyToChannel(clonedGtr.right, 1)
@@ -336,7 +323,7 @@ export class UniversalStemSeparationEngine {
 				bassDeltaBuf.getChannelData(0),
 				bassDeltaBuf.getChannelData(1),
 				sampleRate,
-				0.75,
+				1.0, // 100% full clone rewrite
 			)
 			bassDeltaBuf.copyToChannel(clonedBass.left, 0)
 			bassDeltaBuf.copyToChannel(clonedBass.right, 1)
@@ -392,7 +379,7 @@ export class UniversalStemSeparationEngine {
 			const clonedVox = VoiceTimbreCloner.processTimbreTransfer(
 				cleanVoxL,
 				cleanVoxR,
-				0.75,
+				1.0, // 100% full clone rewrite
 				0,
 				sampleRate,
 			)
