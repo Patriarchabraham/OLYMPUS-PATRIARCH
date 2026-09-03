@@ -277,21 +277,48 @@ body {
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
 }
 
-/* FORM CONTROLS */
-select.studio-select, input.studio-input {
-  background: #060910;
+/* FORM CONTROLS & ULTRA-READABLE DROPDOWNS */
+select.studio-select, input.studio-input, select {
+  background: #080c14 !important;
   border: 1px solid #243048;
   border-radius: 6px;
-  padding: 8px 12px;
-  color: #f1f5f9;
+  padding: 6px 10px;
+  color: #f8fafc !important;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   outline: none;
   width: 100%;
   cursor: pointer;
 }
-select.studio-select:focus, input.studio-input:focus {
+
+select.studio-select:focus, input.studio-input:focus, select:focus {
   border-color: var(--gold-primary);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+select option, select.studio-select option {
+  background-color: #0c121e !important;
+  color: #f8fafc !important;
+  font-family: var(--font-mono), monospace !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+}
+
+select optgroup, select.studio-select optgroup {
+  background-color: #05080e !important;
+  color: #fbbf24 !important;
+  font-family: var(--font-mono), monospace !important;
+  font-weight: 900 !important;
+  font-size: 11px !important;
+  padding: 6px 8px !important;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+select option:checked, select.studio-select option:checked {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+  font-weight: 800 !important;
 }
 
 /* BUTTONS */
