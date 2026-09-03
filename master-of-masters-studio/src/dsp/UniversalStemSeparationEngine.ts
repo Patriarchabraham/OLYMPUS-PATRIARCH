@@ -14,10 +14,7 @@ import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
 import { NeuralInstrumentTimbreCloner } from './NeuralInstrumentTimbreCloner'
 import { generateSaturationCurve } from './SaturationCurves'
-import {
-	type SunoGuitarReconstructionOptions,
-	SunoSmartRhythmGuitarReconstructorEngine,
-} from './SunoSmartRhythmGuitarReconstructorEngine'
+import type { SunoGuitarReconstructionOptions } from './SunoSmartRhythmGuitarReconstructorEngine'
 import { VocalEngine, type VocalPhysiologyOptions } from './VocalEngine'
 import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
 import { type PitchCorrectionOptions, VocalPitchCorrector } from './VocalPitchCorrector'
@@ -148,46 +145,49 @@ export class UniversalStemSeparationEngine {
 			const transient = Math.max(0, envFast - envSlow * 1.2)
 			const isTransient = Math.min(1.0, transient * 5.0)
 
-			// 1. Kick Drum Transient
+			// 1. Kick Drum Transient (Mono sub-transient)
 			const kickImpulse = sub * isTransient * 0.8
 			kL[i] = kickImpulse
 			kR[i] = kickImpulse
 
-			// 2. Snare Drum Transient (center mid-band snap)
+			// 2. Snare Drum Transient (Center mid-band snap)
 			const snareImpulse = (midBand - lowMid) * isTransient * 0.8
 			snL[i] = snareImpulse
 			snR[i] = snareImpulse
 
-			// 3. Bass Sub Harmonic (Sub 100Hz mono tone)
-			const bassTone = sub * (1.0 - isTransient * 0.8)
-			bL[i] = bassTone
-			bR[i] = bassTone
+			// 3. Bass Stem (Center sub + low-mid below 400Hz)
+			const bassStem = lowMid
+			bL[i] = bassStem
+			bR[i] = bassStem
 
-			// 4. Electric Guitar Side-Band
-			const gtrSide = side * 0.7
-			gL[i] = gtrSide
-			gR[i] = -gtrSide
+			// 4. Electric Guitar Stem (Full-spectrum stereo side guitars L/R)
+			const gtrStem = side
+			gL[i] = gtrStem
+			gR[i] = -gtrStem
 
-			// 5. Vocal Center-Presence Signal (Center Mid-Band 300Hz - 4500Hz without transients)
-			const voxCore = (midBand - sub) * (1.0 - isTransient * 0.8)
-			vL[i] = voxCore
-			vR[i] = voxCore
+			// 5. Vocal Stem (Full-spectrum center channel above 120Hz, preserving all highs and consonants)
+			const voxStem = mid - sub
+			vL[i] = voxStem
+			vR[i] = voxStem
 
-			// Base Master with Smart Ducking for Cloned Elements (Ensures clones replace original audio)
+			// Base Master with 100% Complete Stem Replacement for Cloned Elements
 			let bL_out = l
 			let bR_out = r
 
 			if (hasUserVoice) {
-				bL_out -= voxCore * 1.0
-				bR_out -= voxCore * 1.0
+				// 100% Full-spectrum vocal subtraction from base mix
+				bL_out -= voxStem
+				bR_out -= voxStem
 			}
 			if (hasGuitarClone) {
-				bL_out -= gtrSide * 1.0
-				bR_out += gtrSide * 1.0
+				// 100% Full stereo guitar subtraction from base mix
+				bL_out -= gtrStem
+				bR_out += gtrStem
 			}
 			if (hasBassClone) {
-				bL_out -= bassTone * 1.0
-				bR_out -= bassTone * 1.0
+				// 100% Bass subtraction from base mix
+				bL_out -= bassStem
+				bR_out -= bassStem
 			}
 
 			baseL[i] = bL_out
@@ -280,27 +280,7 @@ export class UniversalStemSeparationEngine {
 			gtrDeltaBuf.copyToChannel(clonedGtr.right, 1)
 		}
 
-		// 2.5. 🎸 Intelligent Autonomous Suno Rhythm Guitar Reconstruction & Extra GEM Wall
-		let extraGtrWallBuf: AudioBuffer | null = null
-		if (
-			instrumentMics?.sunoGuitarReconstruction?.enabled ||
-			instrumentMics?.sunoGuitarReconstruction?.enableExtraGemWall
-		) {
-			const reconRes = SunoSmartRhythmGuitarReconstructorEngine.processGuitarReconstruction(
-				gtrDeltaBuf.getChannelData(0),
-				gtrDeltaBuf.getChannelData(1),
-				instrumentMics.sunoGuitarReconstruction,
-				sampleRate,
-			)
-			gtrDeltaBuf.copyToChannel(reconRes.processedL, 0)
-			gtrDeltaBuf.copyToChannel(reconRes.processedR, 1)
-
-			if (instrumentMics.sunoGuitarReconstruction.enableExtraGemWall !== false) {
-				extraGtrWallBuf = AudioBufferHelper.createAudioBuffer(2, length, sampleRate)
-				extraGtrWallBuf.copyToChannel(reconRes.extraWallL, 0)
-				extraGtrWallBuf.copyToChannel(reconRes.extraWallR, 1)
-			}
-		}
+		// 2.5. 🎸 Natural Guitar Stems (No artificial synthesizer notes or fake extra instruments)
 
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
@@ -495,17 +475,6 @@ export class UniversalStemSeparationEngine {
 
 			gtrGain.connect(masterSumBus)
 			gtrSrc.start(0)
-		}
-
-		// 🎸 Extra GEM Layer: Wide Suno Rhythm Guitar Wall (-90% Left / +90% Right)
-		if (extraGtrWallBuf) {
-			const wallSrc = masterCtx.createBufferSource()
-			wallSrc.buffer = extraGtrWallBuf
-			const wallGain = masterCtx.createGain()
-			wallGain.gain.value = 0.18 * intensity
-			wallSrc.connect(wallGain)
-			wallGain.connect(masterSumBus)
-			wallSrc.start(0)
 		}
 
 		// Bass Sub Resonance & Neural Cloned Bass Growl

@@ -1491,8 +1491,7 @@ function setupMasterProcessing() {
 			if (labelDrumBlendVal) labelDrumBlendVal.textContent = '65%'
 			if (labelGuitarBlendVal) labelGuitarBlendVal.textContent = '65%'
 			if (labelBassBlendVal) labelBassBlendVal.textContent = '65%'
-			if (labelVocalBlendVal) labelVocalBlendVal.textContent = '65%'
-			if (selectGuitarDoubling) selectGuitarDoubling.value = 'double_2x'
+			if (selectGuitarDoubling) selectGuitarDoubling.value = 'off'
 		} else {
 			if (sourceModeHint)
 				sourceModeHint.innerHTML =
