@@ -9,6 +9,7 @@
  */
 
 import type { MasterAlbumSetup } from '../database/masters-database'
+import { AIVocalDeArtifactEngine } from './AIVocalDeArtifactEngine'
 import { AudioBufferHelper } from './AudioBufferHelper'
 import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
@@ -278,6 +279,19 @@ export class UniversalStemSeparationEngine {
 			)
 			gtrDeltaBuf.copyToChannel(clonedGtr.left, 0)
 			gtrDeltaBuf.copyToChannel(clonedGtr.right, 1)
+		} else {
+			// 🎸 Suno Guitar De-Fizzer & 4x12 Acoustic Cabinet Damping (Kills digital AI mosquito fizz)
+			const gL = gtrDeltaBuf.getChannelData(0)
+			const gR = gtrDeltaBuf.getChannelData(1)
+			const alphaCab = Math.exp((-2.0 * Math.PI * 6500.0) / sampleRate)
+			let lpL = 0,
+				lpR = 0
+			for (let i = 0; i < length; i++) {
+				lpL = alphaCab * lpL + (1.0 - alphaCab) * gL[i]
+				lpR = alphaCab * lpR + (1.0 - alphaCab) * gR[i]
+				gL[i] = Math.tanh(lpL * 1.2)
+				gR[i] = Math.tanh(lpR * 1.2)
+			}
 		}
 
 		// 2.5. 🎸 Natural Guitar Stems (No artificial synthesizer notes or fake extra instruments)
@@ -353,6 +367,20 @@ export class UniversalStemSeparationEngine {
 		// 5. Vocal Silk Polish, Vocal Physiology Conditioning & Vocal Mics (GEM 1)
 		let cleanVoxL = voxDeltaBuf.getChannelData(0)
 		let cleanVoxR = voxDeltaBuf.getChannelData(1)
+
+		// 5.0. 🛡️ AI Vocal De-Artifacting (Surgically strips metallic robotic comb-filtering & AI sibilance fizz)
+		const deArtifacted = AIVocalDeArtifactEngine.processVocalDeArtifact(
+			cleanVoxL,
+			cleanVoxR,
+			{
+				removeAIMetalClank: true,
+				deFizzIntensity: 0.85,
+				chestBodyWarmth: 0.8,
+			},
+			sampleRate,
+		)
+		cleanVoxL = deArtifacted.left
+		cleanVoxR = deArtifacted.right
 
 		// 5.1. 🎙️ Real User Voice Timbre & Formant Transfer (Applied strictly to Vocal Stem)
 		if (VoiceTimbreCloner.hasUserVoice()) {
