@@ -1730,7 +1730,7 @@ function setupMasterProcessing() {
 				},
 				inputSourceMode: selectInputSourceMode
 					? (selectInputSourceMode.value as any)
-					: 'studio_demo',
+					: 'ai_generated',
 				customDrive: parseFloat(sliderSat.value) / 100,
 				customWidth: parseFloat(sliderWidth.value) / 100,
 				intensityScale: parseFloat(sliderIntensity.value) / 100,

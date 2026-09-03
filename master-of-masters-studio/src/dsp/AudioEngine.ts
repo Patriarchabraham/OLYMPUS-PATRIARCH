@@ -36,7 +36,6 @@ import {
 	InverseProductionOptimizer,
 	type OptimizedMasterParameters,
 } from './InverseProductionOptimizer'
-import { IterativeMixtureConsistencyEngine } from './IterativeMixtureConsistencyEngine'
 import { MasterTapePhysicsEngine } from './MasterTapePhysicsEngine'
 import { MicroAcousticMechanicalEngine } from './MicroAcousticMechanicalEngine'
 import { MicroTimingPocketQuantizer } from './MicroTimingPocketQuantizer'
@@ -351,18 +350,24 @@ export class AudioEngine {
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
-		// STAGE 1: SIGNAL PATH SELECTION (STUDIO MASTERING VS. AI STEM RESYNTHESIS)
+		// STAGE 1: SIGNAL PATH SELECTION (STEM RESYNTHESIS & CLONE INTEGRATION)
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		let weldedStemBuffer: AudioBuffer
 
+		const hasActiveClones =
+			VoiceTimbreCloner.hasUserVoice() ||
+			NeuralInstrumentTimbreCloner.hasGuitarClone() ||
+			NeuralInstrumentTimbreCloner.hasBassClone()
+
 		if (
+			!hasActiveClones &&
 			isRealStudio &&
 			drumReplacementBlend <= 0.05 &&
 			guitarReampBlend <= 0.05 &&
 			(!harmonyOptions.guitarDoubling || harmonyOptions.guitarDoubling === 'off')
 		) {
-			// 100% PURE AUDIOPHILE STUDIO MASTERING PATH (Zero phase-smear, pristine real drums/guitars)
+			// 100% PURE AUDIOPHILE STUDIO MASTERING PATH (Only when NO clones are active and studio demo selected)
 			onProgress?.(
 				15,
 				'🎙️ Modo Gravação de Estúdio: Preservando 100% da dinâmica natural dos instrumentos reais...',
@@ -376,11 +381,12 @@ export class AudioEngine {
 				1,
 			)
 		} else {
-			// AI RECONSTRUCTION PATH (For Suno/Udio/Lo-Fi or when explicitly requested)
-			onProgress?.(
-				15,
-				`Separando e refinando camadas com consistência de fase TF para "${album.band} - ${album.albumTitle}"...`,
-			)
+			// UNIVERSAL STEM SEPARATION & CLONE INTEGRATION PATH (Voice, Guitar, Bass Cloners active)
+			const statusMsg = hasActiveClones
+				? '⚡ Processando e integrando CLONES de Voz, Guitarra e Baixo nos stems isolados...'
+				: `Separando e refinando camadas com consistência de fase TF para "${album.band} - ${album.albumTitle}"...`
+			onProgress?.(15, statusMsg)
+
 			weldedStemBuffer = await UniversalStemSeparationEngine.processAndWeld10Layers(
 				new OfflineAudioContext(2, length, sr),
 				activeInputBuffer,
@@ -402,14 +408,6 @@ export class AudioEngine {
 					enableDiffVoxSheen: options.enableDiffVoxSheen,
 					sunoGuitarReconstruction: options.sunoGuitarReconstruction,
 				},
-			)
-
-			// V4 ITERATIVE MIXTURE CONSISTENCY: Enforce 100% zero comb-filtering
-			IterativeMixtureConsistencyEngine.enforceConsistency(
-				activeInputBuffer.getChannelData(0),
-				activeInputBuffer.getChannelData(1),
-				[weldedStemBuffer.getChannelData(0)],
-				[weldedStemBuffer.getChannelData(1)],
 			)
 		}
 
