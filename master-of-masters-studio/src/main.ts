@@ -33,6 +33,7 @@ import { MicModelingEngine } from './dsp/MicModelingEngine'
 import { MidiFileExportEngine } from './dsp/MidiFileExportEngine'
 import { Mp3EncoderEngine } from './dsp/Mp3EncoderEngine'
 import { MultiFormatEncoder } from './dsp/MultiFormatEncoder'
+import { NeuralInstrumentTimbreCloner } from './dsp/NeuralInstrumentTimbreCloner'
 import { PerceptualLoudnessMatcher } from './dsp/PerceptualLoudnessMatcher'
 import { ReleaseBundleExportEngine, type ReleaseFileItem } from './dsp/ReleaseBundleExportEngine'
 import { SongArrangerEngine, type SongSection } from './dsp/SongArrangerEngine'
@@ -1396,6 +1397,61 @@ function setupMasterProcessing() {
 	const valSunoGuitarBite = document.getElementById('val-suno-guitar-bite')
 	sliderSunoGuitarBite?.addEventListener('input', () => {
 		if (valSunoGuitarBite) valSunoGuitarBite.textContent = `${sliderSunoGuitarBite.value}%`
+	})
+
+	// ─── GUITAR & BASS NEURAL TIMBRE CLONERS ─────────────────────────────────
+	const guitarDropzone = document.getElementById('guitar-ref-dropzone')
+	const guitarInput = document.getElementById('guitar-ref-file-input') as HTMLInputElement | null
+	const guitarIdle = document.getElementById('guitar-ref-idle')
+	const guitarActive = document.getElementById('guitar-ref-active')
+	const guitarFilename = document.getElementById('guitar-ref-filename')
+	const guitarStatusBadge = document.getElementById('guitar-clone-status-badge')
+
+	guitarDropzone?.addEventListener('click', () => guitarInput?.click())
+	guitarInput?.addEventListener('change', async () => {
+		const file = guitarInput.files?.[0]
+		if (!file) return
+		if (guitarFilename) guitarFilename.textContent = file.name
+		guitarIdle?.classList.add('hidden')
+		guitarActive?.classList.remove('hidden')
+		try {
+			const arr = await file.arrayBuffer()
+			// @ts-expect-error
+			const ctx = new (window.AudioContext || window.webkitAudioContext)()
+			const buf = await ctx.decodeAudioData(arr)
+			const fp = await NeuralInstrumentTimbreCloner.analyzeGuitarSample(buf)
+			if (guitarStatusBadge) {
+				guitarStatusBadge.textContent = `⚡ CLONE GUITARRA ATIVO (${fp.saturationDrive.toFixed(1)}x Drive)`
+				guitarStatusBadge.style.color = '#10b981'
+			}
+		} catch (_e) {}
+	})
+
+	const bassDropzone = document.getElementById('bass-ref-dropzone')
+	const bassInput = document.getElementById('bass-ref-file-input') as HTMLInputElement | null
+	const bassIdle = document.getElementById('bass-ref-idle')
+	const bassActive = document.getElementById('bass-ref-active')
+	const bassFilename = document.getElementById('bass-ref-filename')
+	const bassStatusBadge = document.getElementById('bass-clone-status-badge')
+
+	bassDropzone?.addEventListener('click', () => bassInput?.click())
+	bassInput?.addEventListener('change', async () => {
+		const file = bassInput.files?.[0]
+		if (!file) return
+		if (bassFilename) bassFilename.textContent = file.name
+		bassIdle?.classList.add('hidden')
+		bassActive?.classList.remove('hidden')
+		try {
+			const arr = await file.arrayBuffer()
+			// @ts-expect-error
+			const ctx = new (window.AudioContext || window.webkitAudioContext)()
+			const buf = await ctx.decodeAudioData(arr)
+			const fp = await NeuralInstrumentTimbreCloner.analyzeBassSample(buf)
+			if (bassStatusBadge) {
+				bassStatusBadge.textContent = `⚡ CLONE BAIXO ATIVO (${fp.saturationDrive.toFixed(1)}x Growl)`
+				bassStatusBadge.style.color = '#10b981'
+			}
+		} catch (_e) {}
 	})
 
 	const sliderTransientPunch = document.getElementById('slider-transient-punch') as HTMLInputElement

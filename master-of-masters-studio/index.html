@@ -469,20 +469,34 @@
             </div>
           </div>
 
-          <!-- BOX 10: 🎸 GUITARRAS & AGENTE SUNO -->
+          <!-- BOX 10: 🎸 GUITARRAS & CLONE DE DISTORÇÃO -->
           <div class="compact-box">
             <div class="compact-box-header">
-              <span>🎸 RIG GUITARRA & AGENTE SUNO</span>
-              <span style="font-size: 8px; color: #f59e0b;">CRUNCH BITE</span>
+              <span>🎸 GUITARRA: RIG & CLONE DISTORÇÃO</span>
+              <span id="guitar-clone-status-badge" style="font-size: 7.5px; color: #f59e0b; font-family: var(--font-mono);">⚡ 5150 Crunch</span>
             </div>
+
+            <!-- CLONAR TIMBRE DE GUITARRA DROPZONE -->
+            <div id="guitar-ref-dropzone" style="border: 1px dashed rgba(245, 158, 11, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.05);">
+              <input type="file" id="guitar-ref-file-input" accept="audio/*" class="hidden" />
+              <div id="guitar-ref-idle">
+                <div style="font-family: var(--font-display); font-size: 8.5px; font-weight: 800; color: #f59e0b;">📥 CLONAR TIMBRE / DISTORÇÃO GUITARRA</div>
+                <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Arraste WAV/MP3 com seu riff/drive de referência</div>
+              </div>
+              <div id="guitar-ref-active" class="hidden">
+                <div id="guitar-ref-filename" style="color: #f59e0b; font-weight: 800; font-size: 8.5px;">guitar_ref.wav</div>
+                <div style="font-family: var(--font-mono); font-size: 7px; color: var(--emerald-primary);">⚡ DISTORÇÃO & CABINE CLONADAS!</div>
+              </div>
+            </div>
+
             <div>
               <label style="font-family: var(--font-mono); font-size: 7.5px; color: #38bdf8; font-weight: 700; display: block;">RIG GUITARRA & CABINE:</label>
               <select id="select-guitar-rig-model" class="studio-select" style="font-size: 8.5px; padding: 2px; width: 100%;">
-                <option value="bypass" selected>⚡ Rig Guitarra Original</option>
-                <option value="peavey_5150_mesa_os">⚡ Peavey 5150 + Mesa 4x12 OS</option>
-                <option value="marshall_jcm800_greenback">⚡ Marshall JCM800 + Greenbacks (Maiden)</option>
-                <option value="mesa_dual_rectifier_bogner">⚡ Mesa Dual Rectifier (Master Puppets)</option>
-                <option value="soldano_slo100">⚡ Soldano SLO-100 Super Lead</option>
+                <option value="bypass" selected>⚡ Rig Guitarra: Timbre Clonado / Padrão</option>
+                <option value="peavey_5150_mesa_os">⚡ Peavey 5150 + Mesa 4x12 OS (In Flames, EVH)</option>
+                <option value="marshall_jcm800_greenback">⚡ Marshall JCM800 + Greenbacks (Maiden, Slayer)</option>
+                <option value="mesa_dual_rectifier_bogner">⚡ Mesa Dual Rectifier (Master Puppets, Tool)</option>
+                <option value="soldano_slo100">⚡ Soldano SLO-100 Super Lead (Clapton, Moore)</option>
                 <option value="engl_powerball">⚡ ENGL Powerball II Modern Metal</option>
               </select>
             </div>
@@ -497,10 +511,15 @@
               </select>
             </div>
             <!-- SUNO RESCUE MINI -->
-            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 4px; padding: 4px; display: flex; flex-direction: column; gap: 2px;">
-              <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 7.5px; font-weight: 800; color: #f59e0b; cursor: pointer;">
-                <input type="checkbox" id="chk-suno-guitar-rescue" checked /> 🤖 Agente AI: Reconstrutor Suno
-              </label>
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 4px; padding: 3px 5px; display: flex; flex-direction: column; gap: 2px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 3px; font-family: var(--font-mono); font-size: 7.5px; font-weight: 800; color: #f59e0b; cursor: pointer;">
+                  <input type="checkbox" id="chk-suno-guitar-rescue" checked /> 🤖 Reconstrutor Suno
+                </label>
+                <label style="display: flex; align-items: center; gap: 3px; font-family: var(--font-mono); font-size: 7px; color: #fbbf24; cursor: pointer;">
+                  <input type="checkbox" id="chk-suno-extra-gem-wall" checked /> 🔥 Paredão L/R
+                </label>
+              </div>
               <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 3px; align-items: center;">
                 <select id="select-suno-guitar-style" class="studio-select" style="font-size: 7.5px; padding: 1px;">
                   <option value="chug_5150" selected>⚡ 5150 Downpicking</option>
@@ -512,26 +531,37 @@
                   <input type="range" id="slider-suno-guitar-bite" min="10" max="100" value="75" style="width: 100%; height: 3px; accent-color: #f59e0b;" />
                 </div>
               </div>
-              <label style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 7px; color: #fbbf24; cursor: pointer;">
-                <input type="checkbox" id="chk-suno-extra-gem-wall" checked /> 🔥 Injetar GEM Extra Paredão L/R
-              </label>
             </div>
           </div>
 
-          <!-- BOX 11: ⚡ BAIXO & BATERIA RIGS -->
+          <!-- BOX 11: ⚡ BAIXO, BATERIA & CLONE DE BAIXO -->
           <div class="compact-box">
             <div class="compact-box-header">
-              <span>⚡ BAIXO & BATERIA RIGS</span>
-              <span style="font-size: 8px; color: #10b981;">RHYTHM SECTION</span>
+              <span>⚡ BAIXO: RIG & CLONE GROWL</span>
+              <span id="bass-clone-status-badge" style="font-size: 7.5px; color: #10b981; font-family: var(--font-mono);">⚡ SVT 8x10</span>
             </div>
+
+            <!-- CLONAR TIMBRE DE BAIXO DROPZONE -->
+            <div id="bass-ref-dropzone" style="border: 1px dashed rgba(16, 185, 129, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(16, 185, 129, 0.05);">
+              <input type="file" id="bass-ref-file-input" accept="audio/*" class="hidden" />
+              <div id="bass-ref-idle">
+                <div style="font-family: var(--font-display); font-size: 8.5px; font-weight: 800; color: #10b981;">📥 CLONAR TIMBRE / GROWL DE BAIXO</div>
+                <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Arraste WAV/MP3 com o timbre de baixo de referência</div>
+              </div>
+              <div id="bass-ref-active" class="hidden">
+                <div id="bass-ref-filename" style="color: #10b981; font-weight: 800; font-size: 8.5px;">baixo_ref.wav</div>
+                <div style="font-family: var(--font-mono); font-size: 7px; color: var(--emerald-primary);">⚡ GROWL & SUBGRAVE CLONADOS!</div>
+              </div>
+            </div>
+
             <div>
               <label style="font-family: var(--font-mono); font-size: 7.5px; color: #10b981; font-weight: 700; display: block;">RIG DE BAIXO & DI:</label>
               <select id="select-bass-rig-model" class="studio-select" style="font-size: 8.5px; padding: 2px; width: 100%;">
-                <option value="bypass" selected>🎸 Baixo Original</option>
-                <option value="spector_ampeg_svt">🎸 Spector NS-2 + Ampeg SVT 8x10</option>
-                <option value="fender_precision_sansamp">🎸 Fender P-Bass + SansAmp (Harris)</option>
+                <option value="bypass" selected>🎸 Baixo: Timbre Clonado / Padrão</option>
+                <option value="spector_ampeg_svt">🎸 Spector NS-2 + Ampeg SVT 8x10 (Bob Rock)</option>
+                <option value="fender_precision_sansamp">🎸 Fender P-Bass + SansAmp (Steve Harris)</option>
                 <option value="musicman_gk800">🎸 Music Man + Gallien-Krueger (Flea)</option>
-                <option value="warwick_darkglass_b7k">🎸 Warwick + Darkglass B7K</option>
+                <option value="warwick_darkglass_b7k">🎸 Warwick + Darkglass B7K (Modern)</option>
               </select>
             </div>
             <div>
@@ -544,26 +574,28 @@
                 <option value="sansamp-bd-di">🎛️ SansAmp Bass Driver Overdrive</option>
               </select>
             </div>
-            <div>
-              <label style="font-family: var(--font-mono); font-size: 7.5px; color: #f59e0b; font-weight: 700; display: block;">KIT DE BATERIA FÍSICO:</label>
-              <select id="select-drum-kit-model" class="studio-select" style="font-size: 8.5px; padding: 2px; width: 100%;">
-                <option value="bypass" selected>🥁 Bateria Original</option>
-                <option value="ludwig_black_beauty">🥁 Ludwig Black Beauty 1970 14x6.5"</option>
-                <option value="tama_starclassic">🥁 Tama Starclassic Bubinga (Grohl)</option>
-                <option value="sonor_cast_bronze">🥁 Sonor Cast Bronze 14x8" (Carey)</option>
-                <option value="pearl_ref_pure">🥁 Pearl Reference Pure (Casagrande)</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-family: var(--font-mono); font-size: 7.5px; color: #f59e0b; font-weight: 700; display: block;">MICS BATERIA & SALA:</label>
-              <select id="select-drum-microphone-model" class="studio-select" style="font-size: 8.5px; padding: 2px; width: 100%;">
-                <option value="bypass" selected>🥁 Originais do Álbum</option>
-                <option value="shure-beta52a">💥 Shure Beta 52A Sub-Bumbo</option>
-                <option value="audix-d6-kick">⚡ Audix D6 Bumbo Duplo</option>
-                <option value="shure-sm57-snare">🥁 Shure SM57 Caixa</option>
-                <option value="neumann-km184-overheads">✨ Neumann KM 184 Overheads</option>
-                <option value="coles-4038-room">🏰 Coles 4038 Room BBC</option>
-              </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3px;">
+              <div>
+                <label style="font-family: var(--font-mono); font-size: 7px; color: #f59e0b; font-weight: 700; display: block;">KIT BATERIA:</label>
+                <select id="select-drum-kit-model" class="studio-select" style="font-size: 7.5px; padding: 1px; width: 100%;">
+                  <option value="bypass" selected>🥁 Original</option>
+                  <option value="ludwig_black_beauty">🥁 Ludwig 1970</option>
+                  <option value="tama_starclassic">🥁 Tama Starclassic</option>
+                  <option value="sonor_cast_bronze">🥁 Sonor Bronze</option>
+                  <option value="pearl_ref_pure">🥁 Pearl Ref</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-family: var(--font-mono); font-size: 7px; color: #f59e0b; font-weight: 700; display: block;">MIC BATERIA:</label>
+                <select id="select-drum-microphone-model" class="studio-select" style="font-size: 7.5px; padding: 1px; width: 100%;">
+                  <option value="bypass" selected>🥁 Original</option>
+                  <option value="shure-beta52a">💥 Beta 52A</option>
+                  <option value="audix-d6-kick">⚡ Audix D6</option>
+                  <option value="shure-sm57-snare">🥁 SM57 Snare</option>
+                  <option value="neumann-km184-overheads">✨ KM 184</option>
+                  <option value="coles-4038-room">🏰 Coles 4038</option>
+                </select>
+              </div>
             </div>
           </div>
 

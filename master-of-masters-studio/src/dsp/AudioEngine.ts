@@ -44,6 +44,7 @@ import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher'
 import { MusicalSectionAnalyzer, type SongSection } from './MusicalSectionAnalyzer'
 import { NeuralAmpModelerEngine, type NeuralAmpModelType } from './NeuralAmpModelerEngine'
+import { NeuralInstrumentTimbreCloner } from './NeuralInstrumentTimbreCloner'
 import { NeuralWaveformDeClipperEngine } from './NeuralWaveformDeClipperEngine'
 import { Polyphase16xTruePeakLimiter } from './Polyphase16xTruePeakLimiter'
 import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDeviceSimulator'
@@ -667,13 +668,19 @@ export class AudioEngine {
 		// STAGE 4.5: AUTONOMOUS AI RHYTHM GUITAR GUARDIAN & SUPREME GUITAR WALL
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
-		if (options.enableGuitarRescue === true) {
+		if (options.enableGuitarRescue === true || NeuralInstrumentTimbreCloner.hasGuitarClone()) {
 			onProgress?.(
 				52,
-				'🎸 Agente AI Autônomo refinando presença de guitarras base com corpo analógico...',
+				'🎸 Agente AI & Clone Neural refinando distorção e presença de guitarras base...',
 			)
-			const rL = weldedStemBuffer.getChannelData(0)
-			const rR = weldedStemBuffer.getChannelData(1)
+			let rL = weldedStemBuffer.getChannelData(0)
+			let rR = weldedStemBuffer.getChannelData(1)
+
+			if (NeuralInstrumentTimbreCloner.hasGuitarClone()) {
+				const gtrCloned = NeuralInstrumentTimbreCloner.processGuitarTransfer(rL, rR, sr, 0.85)
+				rL = gtrCloned.left
+				rR = gtrCloned.right
+			}
 
 			const rescueResult = AutonomousRhythmGuitarGuardianAgent.auditAndRescueRhythmGuitars(
 				rL,
@@ -689,6 +696,14 @@ export class AudioEngine {
 			)
 			weldedStemBuffer.copyToChannel(rescueResult.left, 0)
 			weldedStemBuffer.copyToChannel(rescueResult.right, 1)
+		}
+
+		if (NeuralInstrumentTimbreCloner.hasBassClone()) {
+			const bL = weldedStemBuffer.getChannelData(0)
+			const bR = weldedStemBuffer.getChannelData(1)
+			const bassCloned = NeuralInstrumentTimbreCloner.processBassTransfer(bL, bR, sr, 0.85)
+			weldedStemBuffer.copyToChannel(bassCloned.left, 0)
+			weldedStemBuffer.copyToChannel(bassCloned.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
