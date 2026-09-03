@@ -25,6 +25,7 @@ import { AlbumBatchMasterEngine, type AlbumTrackItem } from './dsp/AlbumBatchMas
 import { MasteringEngine, type MasteringResult } from './dsp/AudioEngine'
 import { BinauralStudioMonitor } from './dsp/BinauralStudioMonitor'
 import { ClassicAlbumSongGenerator } from './dsp/ClassicAlbumSongGenerator'
+import { FullMixReferenceStemExtractor } from './dsp/FullMixReferenceStemExtractor'
 import { GemWelderEngine, type WelderResult } from './dsp/GemWelderEngine'
 import { KeyDetectorEngine } from './dsp/KeyDetectorEngine'
 import { LiveRigAuditionEngine } from './dsp/LiveRigAuditionEngine'
@@ -1297,9 +1298,18 @@ function setupMasterProcessing() {
 			// @ts-expect-error
 			const ctx = new (window.AudioContext || window.webkitAudioContext)()
 			const userBuf = await ctx.decodeAudioData(arr)
-			const fp = await VoiceTimbreCloner.analyzeUserVoiceSample(userBuf)
+
+			// 🌟 AUTOMATIC FULL-MIX STEM EXTRACTION & MEGA-STUDIO ACOUSTIC INPAINTING
+			const extracted = await FullMixReferenceStemExtractor.extractAndRepairStem(
+				userBuf,
+				'vocal',
+				ctx,
+			)
+			const fp = await VoiceTimbreCloner.analyzeUserVoiceSample(extracted.stemBuffer)
+
 			if (masterVoiceBadge) {
-				masterVoiceBadge.textContent = `⚡ CLONE ATIVO (+${fp.singersFormantDb.toFixed(1)}dB Metal Power)`
+				const tag = extracted.isFullMixDetected ? 'MÚSICA COMPLETA' : 'TIMBRE'
+				masterVoiceBadge.textContent = `⚡ CLONE ATIVO [${tag}] (+${fp.singersFormantDb.toFixed(1)}dB Presence)`
 				masterVoiceBadge.style.color = 'var(--emerald-primary)'
 				masterVoiceBadge.style.borderColor = 'var(--emerald-primary)'
 			}
@@ -1399,7 +1409,7 @@ function setupMasterProcessing() {
 		if (valSunoGuitarBite) valSunoGuitarBite.textContent = `${sliderSunoGuitarBite.value}%`
 	})
 
-	// ─── GUITAR & BASS NEURAL TIMBRE CLONERS ─────────────────────────────────
+	// ─── GUITAR & BASS NEURAL TIMBRE CLONERS WITH FULL-MIX INPAINTING ─────────
 	const guitarDropzone = document.getElementById('guitar-ref-dropzone')
 	const guitarInput = document.getElementById('guitar-ref-file-input') as HTMLInputElement | null
 	const guitarIdle = document.getElementById('guitar-ref-idle')
@@ -1419,9 +1429,13 @@ function setupMasterProcessing() {
 			// @ts-expect-error
 			const ctx = new (window.AudioContext || window.webkitAudioContext)()
 			const buf = await ctx.decodeAudioData(arr)
-			const fp = await NeuralInstrumentTimbreCloner.analyzeGuitarSample(buf)
+
+			// Extract & Inpaint Guitar Stem from Full Song or Isolated Track
+			const extracted = await FullMixReferenceStemExtractor.extractAndRepairStem(buf, 'guitar', ctx)
+			const fp = await NeuralInstrumentTimbreCloner.analyzeGuitarSample(extracted.stemBuffer)
 			if (guitarStatusBadge) {
-				guitarStatusBadge.textContent = `⚡ CLONE GUITARRA ATIVO (${fp.saturationDrive.toFixed(1)}x Drive)`
+				const tag = extracted.isFullMixDetected ? 'MÚSICA' : 'STEM'
+				guitarStatusBadge.textContent = `⚡ CLONE GUITARRA [${tag}] (${fp.saturationDrive.toFixed(1)}x Drive)`
 				guitarStatusBadge.style.color = '#10b981'
 			}
 		} catch (_e) {}
@@ -1446,9 +1460,13 @@ function setupMasterProcessing() {
 			// @ts-expect-error
 			const ctx = new (window.AudioContext || window.webkitAudioContext)()
 			const buf = await ctx.decodeAudioData(arr)
-			const fp = await NeuralInstrumentTimbreCloner.analyzeBassSample(buf)
+
+			// Extract & Inpaint Bass Stem from Full Song or Isolated Track
+			const extracted = await FullMixReferenceStemExtractor.extractAndRepairStem(buf, 'bass', ctx)
+			const fp = await NeuralInstrumentTimbreCloner.analyzeBassSample(extracted.stemBuffer)
 			if (bassStatusBadge) {
-				bassStatusBadge.textContent = `⚡ CLONE BAIXO ATIVO (${fp.saturationDrive.toFixed(1)}x Growl)`
+				const tag = extracted.isFullMixDetected ? 'MÚSICA' : 'STEM'
+				bassStatusBadge.textContent = `⚡ CLONE BAIXO [${tag}] (${fp.saturationDrive.toFixed(1)}x Growl)`
 				bassStatusBadge.style.color = '#10b981'
 			}
 		} catch (_e) {}
