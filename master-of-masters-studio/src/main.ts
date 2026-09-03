@@ -39,6 +39,7 @@ import { SongArrangerEngine, type SongSection } from './dsp/SongArrangerEngine'
 import { SPATIAL_PRESETS, SpatialEngine, type SpatialNodePos } from './dsp/SpatialEngine'
 import { VOCALIST_PRESETS, VocalEngine, type VocalistPresetKey } from './dsp/VocalEngine'
 import { VoiceTimbreCloner } from './dsp/VoiceTimbreCloner'
+import { NeuralVoiceClient } from './services/NeuralVoiceClient'
 import { StereoPeakMeter } from './visualizers/PeakMeter'
 import { PhaseGoniometer } from './visualizers/PhaseGoniometer'
 import { SpectrumVisualizer } from './visualizers/SpectrumAnalyzer'
@@ -1313,6 +1314,47 @@ function setupMasterProcessing() {
 	masterVoiceInput?.addEventListener('change', () => {
 		const file = masterVoiceInput.files?.[0]
 		if (file) handleUserVoiceFile(file)
+	})
+
+	// ─── COLAB 48kHz RVC NEURAL VOICE CONNECTOR ──────────────────────────────
+	const inputColabUrl = document.getElementById(
+		'input-colab-endpoint-url',
+	) as HTMLInputElement | null
+	const btnTestColab = document.getElementById(
+		'btn-test-colab-connection',
+	) as HTMLButtonElement | null
+	const colabStatusLed = document.getElementById('colab-voice-status-led') as HTMLElement | null
+
+	if (inputColabUrl) {
+		inputColabUrl.value = NeuralVoiceClient.getEndpoint()
+		inputColabUrl.addEventListener('input', () => {
+			NeuralVoiceClient.setEndpoint(inputColabUrl.value)
+		})
+	}
+
+	btnTestColab?.addEventListener('click', async () => {
+		if (btnTestColab) btnTestColab.textContent = '⏳...'
+		if (colabStatusLed) {
+			colabStatusLed.textContent = '● CONECTANDO...'
+			colabStatusLed.style.color = '#f59e0b'
+		}
+		const res = await NeuralVoiceClient.testConnection()
+		if (res.success) {
+			if (colabStatusLed) {
+				colabStatusLed.textContent = `● GPU ONLINE (${res.latencyMs}ms)`
+				colabStatusLed.style.color = '#10b981'
+			}
+			if (btnTestColab) btnTestColab.textContent = '✅ Conectado'
+		} else {
+			if (colabStatusLed) {
+				colabStatusLed.textContent = '● OFFLINE'
+				colabStatusLed.style.color = '#ef4444'
+			}
+			if (btnTestColab) btnTestColab.textContent = '❌ Testar'
+			alert(
+				`Colab: ${res.message}\nCertifique-se de colar a URL do Gradio (ex: https://xxxx.gradio.live) gerada na Célula 3 do Notebook.`,
+			)
+		}
 	})
 
 	const selectGuitarDoubling = document.getElementById(

@@ -365,36 +365,48 @@
             </div>
           </div>
 
-          <!-- BOX 8: 🎙️ CLONAR VOZ & AUTO-TUNE -->
+          <!-- BOX 8: 🎙️ CLONAR VOZ HD & AUTO-TUNE (48kHz RVC v2 + COLAB) -->
           <div class="compact-box">
             <div class="compact-box-header">
-              <span>🎙️ VOZ REAL & AUTO-TUNE</span>
-              <span id="master-voice-clone-badge" style="font-family: var(--font-mono); font-size: 7.5px; color: #f472b6;">Sem Amostra</span>
+              <span>🎙️ VOZ REAL HD (48kHz RVC v2)</span>
+              <span id="master-voice-clone-badge" style="font-family: var(--font-mono); font-size: 7.5px; color: #f472b6;">⚡ Pronta</span>
             </div>
-            <div id="master-user-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 5px; padding: 5px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.05);">
+
+            <!-- COLAB GPU CLOUD LINK & STATUS -->
+            <div style="background: rgba(236, 72, 153, 0.06); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 4px; padding: 4px; display: flex; flex-direction: column; gap: 3px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-family: var(--font-mono); font-size: 7.5px; color: #f472b6; font-weight: 700;">🌐 COLAB GPU (48kHz RVC):</span>
+                <span id="colab-voice-status-led" style="font-family: var(--font-mono); font-size: 7.5px; color: #10b981; font-weight: 700;">● GPU ONLINE</span>
+              </div>
+              <div style="display: flex; gap: 3px;">
+                <input type="text" id="input-colab-endpoint-url" placeholder="URL do Colab (ex: https://xxxx.gradio.live)" style="flex: 1; font-family: var(--font-mono); font-size: 7.5px; background: #05070c; border: 1px solid var(--border-subtle); color: #cbd5e1; padding: 2px 4px; border-radius: 3px;" />
+                <button type="button" id="btn-test-colab-connection" class="switch-toggle-btn" style="font-size: 7.5px; padding: 2px 5px; border-color: #ec4899; color: #f472b6;">⚡ Testar</button>
+              </div>
+            </div>
+
+            <div id="master-user-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 5px; padding: 4px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.05);">
               <input type="file" id="master-user-voice-input" accept="audio/*" class="hidden" />
               <div id="master-user-voice-idle">
-                <div style="font-family: var(--font-display); font-size: 9.5px; font-weight: 800; color: #ffffff;">📥 CLONAR MINHA VOZ REAL</div>
-                <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8;">Cante acapella (10s-30s) para copiar formantes</div>
+                <div style="font-family: var(--font-display); font-size: 9px; font-weight: 800; color: #ffffff;">📥 CARREGAR MINHA VOZ REAL</div>
+                <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Amostra acapella (WAV/MP3) para treino/match</div>
               </div>
               <div id="master-user-voice-active" class="hidden">
-                <div id="master-user-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 9.5px;">minha_voz.wav</div>
-                <div id="master-user-voice-stats" style="font-family: var(--font-mono); font-size: 7.5px; color: var(--emerald-primary);">⚡ TIMBRE EXTRAÍDO!</div>
+                <div id="master-user-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 9px;">minha_voz.wav</div>
+                <div id="master-user-voice-stats" style="font-family: var(--font-mono); font-size: 7.5px; color: var(--emerald-primary);">⚡ TIMBRE 48kHz CONECTADO!</div>
               </div>
             </div>
-            <div style="background: #080c14; padding: 4px 6px; border-radius: 5px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 3px;">
+
+            <!-- AUTO-TUNE CIRÚRGICO -->
+            <div style="background: #080c14; padding: 3px 5px; border-radius: 4px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 2px;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-family: var(--font-mono); font-size: 8px; color: #ec4899; font-weight: 700;">AUTO-TUNE:</span>
-                <label style="display: flex; align-items: center; gap: 3px; font-family: var(--font-mono); font-size: 8px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-pitch-correct-enable" /> Ativar</label>
+                <span style="font-family: var(--font-mono); font-size: 7.5px; color: #ec4899; font-weight: 700;">AUTO-TUNE & SCALE:</span>
+                <label style="display: flex; align-items: center; gap: 2px; font-family: var(--font-mono); font-size: 7.5px; color: #cbd5e1; cursor: pointer;"><input type="checkbox" id="chk-pitch-correct-enable" /> Ativar</label>
               </div>
-              <div id="label-detected-key-badge" style="font-family: var(--font-mono); font-size: 7.5px; color: var(--emerald-primary); background: rgba(16, 185, 129, 0.12); padding: 1px 4px; border-radius: 3px; border: 1px solid var(--emerald-primary); font-weight: 800; text-align: center;">
-                ⚡ TOM: Pronto
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 3px;">
-                <select id="select-pitch-root-key" class="studio-select" style="font-size: 8px; padding: 2px;">
+              <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 2px;">
+                <select id="select-pitch-root-key" class="studio-select" style="font-size: 7.5px; padding: 1px;">
                   <option value="C" selected>C (Dó)</option><option value="C#">C#</option><option value="D">D</option><option value="D#">D#</option><option value="E">E</option><option value="F">F</option><option value="F#">F#</option><option value="G">G</option><option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option><option value="B">B</option>
                 </select>
-                <select id="select-pitch-scale" class="studio-select" style="font-size: 8px; padding: 2px;">
+                <select id="select-pitch-scale" class="studio-select" style="font-size: 7.5px; padding: 1px;">
                   <option value="chromatic" selected>Cromática (Auto)</option><option value="minor">Menor (Eólio)</option><option value="major">Maior (Jônio)</option><option value="pentatonic">Pentatônica Blues</option><option value="dorian">Dórico</option><option value="harmonic_minor">Menor Harmônica</option>
                 </select>
               </div>
