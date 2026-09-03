@@ -120,20 +120,24 @@ export class VoiceTimbreCloner {
 
 		const fp = VoiceTimbreCloner.userFingerprint
 
-		// 12-Band Deep Vocal Tract Formant Matrix
-		const filterFreqs = [120, 240, 480, 850, 1400, 2100, 2900, 3800, 5200, 7500, 10500, 14000]
+		// 14-Band Deep Biological Vocal Tract Formant Matrix
+		const filterFreqs = [
+			90, 180, 320, 550, 950, 1500, 2200, 2900, 3800, 5200, 7500, 10500, 13500, 16000,
+		]
 		const filterGains = [
-			fp.throatDepth * 1.1, // Subglottal power
-			fp.throatDepth * 1.4, // Chest resonance F1
-			1.5, // Body warmth
-			-1.0, // Nasal anti-resonance
-			2.0, // Vowel articulation F2
-			fp.singersFormantDb * 1.2, // Acoustic Ring F3
-			fp.singersFormantDb * 1.8, // Heavy Metal Singer's Formant (2.9kHz)
-			fp.singersFormantDb * 1.3, // High-range presence F4
-			1.8, // Edge & Bite F5
-			fp.airRatio * 1.2, // Breath silk
-			fp.airRatio * 1.5, // Air shine
+			fp.throatDepth * 1.2, // Subglottal chest rumble (<100Hz)
+			fp.throatDepth * 1.5, // Chest cavity F1 (180Hz)
+			1.8, // Body warmth
+			-1.5, // Nasal anti-resonance notch (clean articulation)
+			2.2, // Vowel articulation F2
+			fp.singersFormantDb * 1.3, // Acoustic Ring F3
+			fp.singersFormantDb * 2.2, // Heavy Metal Singer's Formant (2.9kHz Dickinson/Dio Power Ring)
+			fp.singersFormantDb * 1.6, // High-range presence F4
+			2.0, // Edge & Bite F5
+			fp.airRatio * 1.3, // Breath silk
+			fp.airRatio * 1.6, // Air shine
+			fp.airRatio * 1.4,
+			fp.airRatio * 1.2,
 			fp.airRatio * 1.0,
 		]
 
@@ -141,15 +145,29 @@ export class VoiceTimbreCloner {
 		const lpL = new Float32Array(filterFreqs.length)
 		const lpR = new Float32Array(filterFreqs.length)
 
+		let prevSampleL = 0
+		let _prevSampleR = 0
+		let jitterPhase = 0
+
 		for (let i = 0; i < length; i++) {
 			const l = inputLeft[i]
 			const r = inputRight[i]
 
+			// 1. Voiced / Unvoiced (V/UV) Consonant & Plosive Detector
+			// Preserves 's', 't', 'k', 'p', breath without robotic phase-smearing
+			const zcrL = l > 0 !== prevSampleL > 0 ? 1.0 : 0.0
+			const diffL = Math.abs(l - prevSampleL)
+			const isConsonant = zcrL > 0.5 || diffL > 0.25
+			prevSampleL = l
+			_prevSampleR = r
+
+			// 2. Human Micro-Jitter & Shimmer Injection (Involuntary Vocal Muscle Micro-Dynamics)
+			jitterPhase += 0.003
+			const microJitter = Math.sin(jitterPhase * 1.3) * 0.0035 + Math.cos(jitterPhase * 2.7) * 0.002
+			const microShimmer = 1.0 + Math.sin(jitterPhase * 0.9) * 0.02
+
 			let morphedL = 0.0
 			let morphedR = 0.0
-
-			let _prevBandL = l
-			let _prevBandR = r
 
 			for (let k = 0; k < filterFreqs.length; k++) {
 				const a = alphas[k]
@@ -162,14 +180,20 @@ export class VoiceTimbreCloner {
 				const linearGain = 10 ** ((filterGains[k] * transferBlend) / 20.0)
 				morphedL += bandL * linearGain
 				morphedR += bandR * linearGain
-
-				_prevBandL = bandL
-				_prevBandR = bandR
 			}
 
+			// 3. Tube Preamp Triode Even Harmonics (Warm Human Body)
+			const drive = morphedL * 1.15
+			const tubeL = Math.tanh(drive) + drive * drive * 0.08
+			const tubeR = Math.tanh(morphedR * 1.15) + morphedR * morphedR * 0.08
+
+			// Consonant Protection: If consonant/breath, pass uncolored; if vowel, apply humanized tube timbre
+			const finalL = isConsonant ? l : tubeL * microShimmer
+			const finalR = isConsonant ? r : tubeR * microShimmer
+
 			// Blend morphed vocal with dry input
-			outL[i] = l * (1.0 - transferBlend) + morphedL * transferBlend
-			outR[i] = r * (1.0 - transferBlend) + morphedR * transferBlend
+			outL[i] = (l * (1.0 - transferBlend) + finalL * transferBlend) * (1.0 + microJitter)
+			outR[i] = (r * (1.0 - transferBlend) + finalR * transferBlend) * (1.0 + microJitter)
 		}
 
 		// RMS Unity-Gain Normalizer

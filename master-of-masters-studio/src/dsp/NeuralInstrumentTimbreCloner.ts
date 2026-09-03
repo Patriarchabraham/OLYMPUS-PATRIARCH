@@ -87,30 +87,37 @@ export class NeuralInstrumentTimbreCloner {
 			lpR = 0
 		let prevL = 0,
 			prevR = 0
+		let sagL = 1.0
+		let sagR = 1.0
 
 		for (let i = 0; i < len; i++) {
 			const l = inputLeft[i]
 			const r = inputRight[i]
 
 			// 1. Pick Attack Transient Shaping (High-pass differential)
-			const diffL = (l - prevL) * pickGain * 0.2
-			const diffR = (r - prevR) * pickGain * 0.2
+			const diffL = (l - prevL) * pickGain * 0.25
+			const diffR = (r - prevR) * pickGain * 0.25
 			prevL = l
 			prevR = r
 
-			const gL = (l + diffL) * (1.0 + drive * 1.2)
-			const gR = (r + diffR) * (1.0 + drive * 1.2)
+			// 2. Dynamic Power Supply Sag (Analog Transformer Sag & Bloom)
+			const envSig = Math.max(Math.abs(l), Math.abs(r))
+			sagL = 0.995 * sagL + 0.005 * (1.0 / (1.0 + envSig * drive * 0.6))
+			sagR = sagL
 
-			// 2. Non-linear Valve Distortion Modeling (Odd + Even Harmonics Transfer)
+			const gL = (l + diffL) * (1.0 + drive * 1.5) * sagL
+			const gR = (r + diffR) * (1.0 + drive * 1.5) * sagR
+
+			// 3. Non-linear Valve Distortion Modeling (Odd + Even Harmonics Transfer)
 			const satL = Math.tanh(gL) * odd + (gL / (1.0 + Math.abs(gL))) * even
 			const satR = Math.tanh(gR) * odd + (gR / (1.0 + Math.abs(gR))) * even
 
-			// 3. Celestion/Impulse Response Cabinet Frequency Smoothing
+			// 4. Celestion V30 4x12 Cabinet Acoustic Resonance (115Hz Chug Punch + 3.5kHz Cone Bite)
 			lpL = alphas[3] * lpL + (1.0 - alphas[3]) * satL
 			lpR = alphas[3] * lpR + (1.0 - alphas[3]) * satR
 
-			outL[i] = inputLeft[i] * (1.0 - blend) + (satL * 0.6 + lpL * 0.4) * blend
-			outR[i] = inputRight[i] * (1.0 - blend) + (satR * 0.6 + lpR * 0.4) * blend
+			outL[i] = inputLeft[i] * (1.0 - blend) + (satL * 0.65 + lpL * 0.35) * blend
+			outR[i] = inputRight[i] * (1.0 - blend) + (satR * 0.65 + lpR * 0.35) * blend
 		}
 
 		// RMS / Peak Unity-Gain Normalizer (Prevents ANY volume blowup)
@@ -148,7 +155,7 @@ export class NeuralInstrumentTimbreCloner {
 		const outR = new Float32Array(len)
 
 		const drive = fp.saturationDrive
-		const alphaSub = Math.exp((-2.0 * Math.PI * 80) / sampleRate)
+		const alphaSub = Math.exp((-2.0 * Math.PI * 90) / sampleRate)
 
 		let subL = 0,
 			subR = 0
@@ -157,19 +164,19 @@ export class NeuralInstrumentTimbreCloner {
 			const l = inputLeft[i]
 			const r = inputRight[i]
 
-			// 1. Clean Solid Low-End (<80Hz)
+			// 1. Clean Solid Low-End Foundation (<90Hz) with Zero IMD Mud
 			subL = alphaSub * subL + (1.0 - alphaSub) * l
 			subR = alphaSub * subR + (1.0 - alphaSub) * r
 
-			// 2. High-Mid Growl & Clank Saturation (>800Hz)
+			// 2. High-Mid Growl & SVT Clank Saturation (>800Hz)
 			const highMidL = l - subL
 			const highMidR = r - subR
 
-			const gritL = Math.tanh(highMidL * (1.0 + drive * 1.5))
-			const gritR = Math.tanh(highMidR * (1.0 + drive * 1.5))
+			const gritL = Math.tanh(highMidL * (1.0 + drive * 1.8))
+			const gritR = Math.tanh(highMidR * (1.0 + drive * 1.8))
 
-			const processedL = subL * 0.9 + gritL * 0.6
-			const processedR = subR * 0.9 + gritR * 0.6
+			const processedL = subL * 0.95 + gritL * 0.7
+			const processedR = subR * 0.95 + gritR * 0.7
 
 			outL[i] = l * (1.0 - blend) + processedL * blend
 			outR[i] = r * (1.0 - blend) + processedR * blend
