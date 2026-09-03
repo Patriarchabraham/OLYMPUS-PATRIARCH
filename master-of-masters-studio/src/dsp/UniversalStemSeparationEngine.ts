@@ -115,13 +115,13 @@ export class UniversalStemSeparationEngine {
 		let envFast = 0
 		let envSlow = 0
 
+		const hasUserVoice = VoiceTimbreCloner.hasUserVoice()
+		const hasGuitarClone = NeuralInstrumentTimbreCloner.hasGuitarClone()
+		const hasBassClone = NeuralInstrumentTimbreCloner.hasBassClone()
+
 		for (let i = 0; i < length; i++) {
 			const l = leftIn[i]
 			const r = rightIn[i]
-
-			// Base Master preserves 100% of original signal
-			baseL[i] = l
-			baseR[i] = r
 
 			const mid = 0.5 * (l + r)
 			const side = 0.5 * (l - r)
@@ -173,6 +173,26 @@ export class UniversalStemSeparationEngine {
 			const voxCore = (midBand - sub) * (1.0 - isTransient * 0.8)
 			vL[i] = voxCore
 			vR[i] = voxCore
+
+			// Base Master with Smart Ducking for Cloned Elements (Ensures clones replace original audio)
+			let bL_out = l
+			let bR_out = r
+
+			if (hasUserVoice) {
+				bL_out -= voxCore * 0.85
+				bR_out -= voxCore * 0.85
+			}
+			if (hasGuitarClone) {
+				bL_out -= gtrSide * 0.85
+				bR_out += gtrSide * 0.85
+			}
+			if (hasBassClone) {
+				bL_out -= bassTone * 0.85
+				bR_out -= bassTone * 0.85
+			}
+
+			baseL[i] = bL_out
+			baseR[i] = bR_out
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────
@@ -456,30 +476,36 @@ export class UniversalStemSeparationEngine {
 			snareSrc.start(0)
 		}
 
-		// Heavy Guitar Toneprint Delta (Lush analog warmth & roar)
-		if (guitarBlend > 0 && album.guitarToneprint) {
+		// Heavy Guitar Toneprint & Neural Cloned Guitar Delta (Full Roar & Valve Saturation)
+		if ((guitarBlend > 0 && album.guitarToneprint) || hasGuitarClone) {
 			const tp = album.guitarToneprint
 			const gtrSrc = masterCtx.createBufferSource()
 			gtrSrc.buffer = processedGtrBuf
 
-			const gtrSat = masterCtx.createWaveShaper()
-			gtrSat.curve = generateSaturationCurve(
-				tp.ampModel,
-				(tp.distortionGain || 0.75) * 0.35 * guitarBlend,
-			)
-			gtrSat.oversample = '4x'
-
-			const gtrCab = masterCtx.createBiquadFilter()
-			gtrCab.type = 'peaking'
-			gtrCab.frequency.value = tp.cabResonanceHz || 110
-			gtrCab.gain.value = 2.2 * guitarBlend
-
 			const gtrGain = masterCtx.createGain()
-			gtrGain.gain.value = 0.16 * guitarBlend * intensity
+			// If Neural Clone is active, output at full prominence to replace original guitar
+			gtrGain.gain.value = hasGuitarClone ? 0.82 * intensity : 0.16 * guitarBlend * intensity
 
-			gtrSrc.connect(gtrSat)
-			gtrSat.connect(gtrCab)
-			gtrCab.connect(gtrGain)
+			if (tp && !hasGuitarClone) {
+				const gtrSat = masterCtx.createWaveShaper()
+				gtrSat.curve = generateSaturationCurve(
+					tp.ampModel,
+					(tp.distortionGain || 0.75) * 0.35 * guitarBlend,
+				)
+				gtrSat.oversample = '4x'
+
+				const gtrCab = masterCtx.createBiquadFilter()
+				gtrCab.type = 'peaking'
+				gtrCab.frequency.value = tp.cabResonanceHz || 110
+				gtrCab.gain.value = 2.2 * guitarBlend
+
+				gtrSrc.connect(gtrSat)
+				gtrSat.connect(gtrCab)
+				gtrCab.connect(gtrGain)
+			} else {
+				gtrSrc.connect(gtrGain)
+			}
+
 			gtrGain.connect(masterSumBus)
 			gtrSrc.start(0)
 		}
@@ -495,46 +521,30 @@ export class UniversalStemSeparationEngine {
 			wallSrc.start(0)
 		}
 
-		// Bass Sub Resonance Delta
-		if (bassBlend > 0) {
+		// Bass Sub Resonance & Neural Cloned Bass Growl
+		if (bassBlend > 0 || hasBassClone) {
 			const bassSrc = masterCtx.createBufferSource()
 			bassSrc.buffer = bassDeltaBuf
-			const bassCab = masterCtx.createBiquadFilter()
-			bassCab.type = 'peaking'
-			bassCab.frequency.value = 85
-			bassCab.gain.value = 1.2 * bassBlend
 
 			const bassGain = masterCtx.createGain()
-			bassGain.gain.value = 0.06 * bassBlend * intensity
+			// If Neural Clone is active, output at full prominence
+			bassGain.gain.value = hasBassClone ? 0.85 * intensity : 0.08 * bassBlend * intensity
 
-			bassSrc.connect(bassCab)
-			bassCab.connect(bassGain)
+			bassSrc.connect(bassGain)
 			bassGain.connect(masterSumBus)
 			bassSrc.start(0)
 		}
 
-		// Vocal Silk Air & Presence Delta (100% Clean, Phase-Linear, Pure Audiophile Polish)
-		if (vocalBlend > 0) {
+		// Vocal Silk Air & Cloned Voice Presence (100% Prominent, Studio Center Focus)
+		if (vocalBlend > 0 || hasUserVoice) {
 			const voxSrc = masterCtx.createBufferSource()
 			voxSrc.buffer = voxDeltaBuf
 
-			const voxPres = masterCtx.createBiquadFilter()
-			voxPres.type = 'peaking'
-			voxPres.frequency.value = 3400
-			voxPres.gain.value = 1.2 * vocalBlend
-			voxPres.Q.value = Math.SQRT1_2
-
-			const voxAir = masterCtx.createBiquadFilter()
-			voxAir.type = 'highshelf'
-			voxAir.frequency.value = 11500
-			voxAir.gain.value = 1.5 * vocalBlend
-
 			const voxGain = masterCtx.createGain()
-			voxGain.gain.value = 0.06 * vocalBlend * intensity
+			// If Real Voice Clone is active, output at full prominence to replace original vocals
+			voxGain.gain.value = hasUserVoice ? 0.88 * intensity : 0.08 * vocalBlend * intensity
 
-			voxSrc.connect(voxPres)
-			voxPres.connect(voxAir)
-			voxAir.connect(voxGain)
+			voxSrc.connect(voxGain)
 			voxGain.connect(masterSumBus)
 			voxSrc.start(0)
 		}
