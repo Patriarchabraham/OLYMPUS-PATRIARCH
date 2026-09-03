@@ -43,6 +43,7 @@ import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher'
 import { MusicalSectionAnalyzer, type SongSection } from './MusicalSectionAnalyzer'
 import { NeuralAmpModelerEngine, type NeuralAmpModelType } from './NeuralAmpModelerEngine'
+import { NeuralInstrumentTimbreCloner } from './NeuralInstrumentTimbreCloner'
 import { NeuralWaveformDeClipperEngine } from './NeuralWaveformDeClipperEngine'
 import { Polyphase16xTruePeakLimiter } from './Polyphase16xTruePeakLimiter'
 import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDeviceSimulator'
@@ -61,6 +62,7 @@ import {
 } from './ThermionicVintagePhysicsEngine'
 import { UniversalStemSeparationEngine } from './UniversalStemSeparationEngine'
 import type { VocalPhysiologyOptions } from './VocalEngine'
+import { VoiceTimbreCloner } from './VoiceTimbreCloner'
 import {
 	type AudioStats,
 	audioBufferTo24BitWavBlob,
