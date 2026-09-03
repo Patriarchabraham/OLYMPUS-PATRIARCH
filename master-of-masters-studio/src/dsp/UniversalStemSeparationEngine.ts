@@ -13,6 +13,7 @@ import { AudioBufferHelper } from './AudioBufferHelper'
 import { DiffVoxVocalSheenEngine } from './DiffVoxVocalSheenEngine'
 import { DrumReplacerEngine } from './DrumReplacerEngine'
 import { HarmonyEngine, type HarmonyOptions } from './HarmonyEngine'
+import { NeuralInstrumentTimbreCloner } from './NeuralInstrumentTimbreCloner'
 import { generateSaturationCurve } from './SaturationCurves'
 import {
 	type SunoGuitarReconstructionOptions,
@@ -21,6 +22,7 @@ import {
 import { VocalEngine, type VocalPhysiologyOptions } from './VocalEngine'
 import { VocalMicrophoneRemasterEngine } from './VocalMicrophoneRemasterEngine'
 import { type PitchCorrectionOptions, VocalPitchCorrector } from './VocalPitchCorrector'
+import { VoiceTimbreCloner } from './VoiceTimbreCloner'
 
 export interface InstrumentMicsOptions {
 	vocalMicId?: string
@@ -259,6 +261,18 @@ export class UniversalStemSeparationEngine {
 			gtrDeltaBuf.copyToChannel(gtrMicRes.right, 1)
 		}
 
+		// 2.3. 🎸 Neural Cloned Guitar Distortion Profile Transfer (Applied strictly to Guitar Stem)
+		if (NeuralInstrumentTimbreCloner.hasGuitarClone()) {
+			const clonedGtr = NeuralInstrumentTimbreCloner.processGuitarTransfer(
+				gtrDeltaBuf.getChannelData(0),
+				gtrDeltaBuf.getChannelData(1),
+				sampleRate,
+				0.75,
+			)
+			gtrDeltaBuf.copyToChannel(clonedGtr.left, 0)
+			gtrDeltaBuf.copyToChannel(clonedGtr.right, 1)
+		}
+
 		// 2.5. 🎸 Intelligent Autonomous Suno Rhythm Guitar Reconstruction & Extra GEM Wall
 		let extraGtrWallBuf: AudioBuffer | null = null
 		if (
@@ -294,6 +308,18 @@ export class UniversalStemSeparationEngine {
 			)
 			bassDeltaBuf.copyToChannel(doubledBass.left, 0)
 			bassDeltaBuf.copyToChannel(doubledBass.right, 1)
+		}
+
+		// 3.3. ⚡ Neural Cloned Bass Growl & Drive Transfer (Applied strictly to Bass Stem)
+		if (NeuralInstrumentTimbreCloner.hasBassClone()) {
+			const clonedBass = NeuralInstrumentTimbreCloner.processBassTransfer(
+				bassDeltaBuf.getChannelData(0),
+				bassDeltaBuf.getChannelData(1),
+				sampleRate,
+				0.75,
+			)
+			bassDeltaBuf.copyToChannel(clonedBass.left, 0)
+			bassDeltaBuf.copyToChannel(clonedBass.right, 1)
 		}
 
 		if (instrumentMics?.bassMicId && instrumentMics.bassMicId !== 'bypass') {
@@ -340,6 +366,20 @@ export class UniversalStemSeparationEngine {
 		// 5. Vocal Silk Polish, Vocal Physiology Conditioning & Vocal Mics (GEM 1)
 		let cleanVoxL = voxDeltaBuf.getChannelData(0)
 		let cleanVoxR = voxDeltaBuf.getChannelData(1)
+
+		// 5.1. 🎙️ Real User Voice Timbre & Formant Transfer (Applied strictly to Vocal Stem)
+		if (VoiceTimbreCloner.hasUserVoice()) {
+			const clonedVox = VoiceTimbreCloner.processTimbreTransfer(
+				cleanVoxL,
+				cleanVoxR,
+				0.75,
+				0,
+				sampleRate,
+			)
+			cleanVoxL = clonedVox.left
+			cleanVoxR = clonedVox.right
+		}
+
 		if (vocalPhysiology) {
 			const physRes = VocalEngine.processVocalPhysiologyStereo(
 				cleanVoxL,

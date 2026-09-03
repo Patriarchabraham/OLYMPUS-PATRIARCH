@@ -44,7 +44,6 @@ import { MultiBandTransientPunchEngine } from './MultiBandTransientPunchEngine'
 import { MultibandDynamicMatcher } from './MultibandDynamicMatcher'
 import { MusicalSectionAnalyzer, type SongSection } from './MusicalSectionAnalyzer'
 import { NeuralAmpModelerEngine, type NeuralAmpModelType } from './NeuralAmpModelerEngine'
-import { NeuralInstrumentTimbreCloner } from './NeuralInstrumentTimbreCloner'
 import { NeuralWaveformDeClipperEngine } from './NeuralWaveformDeClipperEngine'
 import { Polyphase16xTruePeakLimiter } from './Polyphase16xTruePeakLimiter'
 import { type RealWorldDevice, RealWorldDeviceSimulator } from './RealWorldDeviceSimulator'
@@ -668,19 +667,10 @@ export class AudioEngine {
 		// STAGE 4.5: AUTONOMOUS AI RHYTHM GUITAR GUARDIAN & SUPREME GUITAR WALL
 		// ─────────────────────────────────────────────────────────────────────────
 		await new Promise((resolve) => setTimeout(resolve, 0))
-		if (options.enableGuitarRescue === true || NeuralInstrumentTimbreCloner.hasGuitarClone()) {
-			onProgress?.(
-				52,
-				'🎸 Agente AI & Clone Neural refinando distorção e presença de guitarras base...',
-			)
-			let rL = weldedStemBuffer.getChannelData(0)
-			let rR = weldedStemBuffer.getChannelData(1)
-
-			if (NeuralInstrumentTimbreCloner.hasGuitarClone()) {
-				const gtrCloned = NeuralInstrumentTimbreCloner.processGuitarTransfer(rL, rR, sr, 0.85)
-				rL = gtrCloned.left
-				rR = gtrCloned.right
-			}
+		if (options.enableGuitarRescue === true) {
+			onProgress?.(52, '🎸 Agente AI Autônomo refinando presença de guitarras base...')
+			const rL = weldedStemBuffer.getChannelData(0)
+			const rR = weldedStemBuffer.getChannelData(1)
 
 			const rescueResult = AutonomousRhythmGuitarGuardianAgent.auditAndRescueRhythmGuitars(
 				rL,
@@ -689,21 +679,15 @@ export class AudioEngine {
 					sensitivity: 0.5,
 					ampModel: album.saturation.type || 'peavey_5150',
 					distortionDrive:
-						customDrive !== undefined ? customDrive * 0.5 : (album.saturation.drive || 0.45) * 0.5,
-					blendIntensity: 0.35,
+						customDrive !== undefined
+							? customDrive * 0.35
+							: (album.saturation.drive || 0.45) * 0.35,
+					blendIntensity: 0.2,
 				},
 				sr,
 			)
 			weldedStemBuffer.copyToChannel(rescueResult.left, 0)
 			weldedStemBuffer.copyToChannel(rescueResult.right, 1)
-		}
-
-		if (NeuralInstrumentTimbreCloner.hasBassClone()) {
-			const bL = weldedStemBuffer.getChannelData(0)
-			const bR = weldedStemBuffer.getChannelData(1)
-			const bassCloned = NeuralInstrumentTimbreCloner.processBassTransfer(bL, bR, sr, 0.85)
-			weldedStemBuffer.copyToChannel(bassCloned.left, 0)
-			weldedStemBuffer.copyToChannel(bassCloned.right, 1)
 		}
 
 		// ─────────────────────────────────────────────────────────────────────────

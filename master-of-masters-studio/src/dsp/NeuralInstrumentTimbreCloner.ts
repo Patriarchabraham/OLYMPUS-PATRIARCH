@@ -93,16 +93,15 @@ export class NeuralInstrumentTimbreCloner {
 			const r = inputRight[i]
 
 			// 1. Pick Attack Transient Shaping (High-pass differential)
-			const diffL = (l - prevL) * pickGain * 0.4
-			const diffR = (r - prevR) * pickGain * 0.4
+			const diffL = (l - prevL) * pickGain * 0.2
+			const diffR = (r - prevR) * pickGain * 0.2
 			prevL = l
 			prevR = r
 
-			const gL = (l + diffL) * (1.0 + drive * 2.5)
-			const gR = (r + diffR) * (1.0 + drive * 2.5)
+			const gL = (l + diffL) * (1.0 + drive * 1.2)
+			const gR = (r + diffR) * (1.0 + drive * 1.2)
 
 			// 2. Non-linear Valve Distortion Modeling (Odd + Even Harmonics Transfer)
-			// Triode wave-shaping with dynamic bias
 			const satL = Math.tanh(gL) * odd + (gL / (1.0 + Math.abs(gL))) * even
 			const satR = Math.tanh(gR) * odd + (gR / (1.0 + Math.abs(gR))) * even
 
@@ -112,6 +111,19 @@ export class NeuralInstrumentTimbreCloner {
 
 			outL[i] = inputLeft[i] * (1.0 - blend) + (satL * 0.6 + lpL * 0.4) * blend
 			outR[i] = inputRight[i] * (1.0 - blend) + (satR * 0.6 + lpR * 0.4) * blend
+		}
+
+		// RMS / Peak Unity-Gain Normalizer (Prevents ANY volume blowup)
+		let inRms = 0.0001
+		let outRms = 0.0001
+		for (let i = 0; i < len; i += 8) {
+			inRms += inputLeft[i] * inputLeft[i] + inputRight[i] * inputRight[i]
+			outRms += outL[i] * outL[i] + outR[i] * outR[i]
+		}
+		const gainComp = Math.min(1.2, Math.sqrt(inRms / outRms))
+		for (let i = 0; i < len; i++) {
+			outL[i] *= gainComp
+			outR[i] *= gainComp
 		}
 
 		return { left: outL, right: outR }
@@ -137,12 +149,9 @@ export class NeuralInstrumentTimbreCloner {
 
 		const drive = fp.saturationDrive
 		const alphaSub = Math.exp((-2.0 * Math.PI * 80) / sampleRate)
-		const _alphaMids = Math.exp((-2.0 * Math.PI * 1800) / sampleRate)
 
 		let subL = 0,
 			subR = 0
-		const _midL = 0,
-			_midR = 0
 
 		for (let i = 0; i < len; i++) {
 			const l = inputLeft[i]
@@ -156,14 +165,27 @@ export class NeuralInstrumentTimbreCloner {
 			const highMidL = l - subL
 			const highMidR = r - subR
 
-			const gritL = Math.tanh(highMidL * (1.0 + drive * 2.0))
-			const gritR = Math.tanh(highMidR * (1.0 + drive * 2.0))
+			const gritL = Math.tanh(highMidL * (1.0 + drive * 1.5))
+			const gritR = Math.tanh(highMidR * (1.0 + drive * 1.5))
 
-			const processedL = subL * 1.2 + gritL * 0.9
-			const processedR = subR * 1.2 + gritR * 0.9
+			const processedL = subL * 0.9 + gritL * 0.6
+			const processedR = subR * 0.9 + gritR * 0.6
 
 			outL[i] = l * (1.0 - blend) + processedL * blend
 			outR[i] = r * (1.0 - blend) + processedR * blend
+		}
+
+		// RMS Unity-Gain Normalizer
+		let inRms = 0.0001
+		let outRms = 0.0001
+		for (let i = 0; i < len; i += 8) {
+			inRms += inputLeft[i] * inputLeft[i] + inputRight[i] * inputRight[i]
+			outRms += outL[i] * outL[i] + outR[i] * outR[i]
+		}
+		const gainComp = Math.min(1.2, Math.sqrt(inRms / outRms))
+		for (let i = 0; i < len; i++) {
+			outL[i] *= gainComp
+			outR[i] *= gainComp
 		}
 
 		return { left: outL, right: outR }
