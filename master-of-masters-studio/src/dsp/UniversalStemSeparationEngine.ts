@@ -156,8 +156,8 @@ export class UniversalStemSeparationEngine {
 			snL[i] = snareImpulse
 			snR[i] = snareImpulse
 
-			// 3. Bass Stem (Center sub + low-mid below 400Hz)
-			const bassStem = lowMid
+			// 3. Bass Stem (Full-spectrum bass guitar: sub fundamental + body + SVT pick growl up to 1800Hz)
+			const bassStem = midBand
 			bL[i] = bassStem
 			bR[i] = bassStem
 
@@ -172,25 +172,24 @@ export class UniversalStemSeparationEngine {
 			vL[i] = voxStem
 			vR[i] = voxStem
 
-			// Base Master with 100% Complete Stem Replacement for Cloned Elements
+			// Base Master with Complete Stem Replacement for Cloned and Polished Elements
 			let bL_out = l
 			let bR_out = r
 
-			if (hasUserVoice) {
-				// 100% Full-spectrum vocal subtraction from base mix
-				bL_out -= voxStem
-				bR_out -= voxStem
-			}
-			if (hasGuitarClone) {
-				// 100% Clean in-phase guitar subtraction from base mix
-				bL_out -= gtrL
-				bR_out -= gtrR
-			}
-			if (hasBassClone) {
-				// 100% Bass subtraction from base mix
-				bL_out -= bassStem
-				bR_out -= bassStem
-			}
+			// Vocal Ducking: 100% when user clone active, 82% ducking of raw Suno vocal when studio remastering
+			const voxDucking = hasUserVoice ? 1.0 : 0.82
+			bL_out -= voxStem * voxDucking
+			bR_out -= voxStem * voxDucking
+
+			// Guitar Ducking: 100% when guitar clone active, 70% ducking of raw Suno guitars when studio remastering
+			const gtrDucking = hasGuitarClone ? 1.0 : 0.7
+			bL_out -= gtrL * gtrDucking
+			bR_out -= gtrR * gtrDucking
+
+			// Bass Ducking: 100% when bass clone active, 75% ducking of muddy Suno bass when studio remastering
+			const bassDucking = hasBassClone ? 1.0 : 0.75
+			bL_out -= bassStem * bassDucking
+			bR_out -= bassStem * bassDucking
 
 			baseL[i] = bL_out
 			baseR[i] = bR_out
@@ -525,13 +524,15 @@ export class UniversalStemSeparationEngine {
 		}
 
 		// Vocal Silk Air & Cloned Voice Presence (100% Prominent, Studio Center Focus)
-		if (vocalBlend > 0 || hasUserVoice) {
+		{
 			const voxSrc = masterCtx.createBufferSource()
 			voxSrc.buffer = voxDeltaBuf
 
 			const voxGain = masterCtx.createGain()
-			// If Real Voice Clone is active, output at full prominence to replace original vocals
-			voxGain.gain.value = hasUserVoice ? 0.88 * intensity : 0.08 * vocalBlend * intensity
+			// Guarantee vocal is ALWAYS crystal clear, upfront, and prominent
+			voxGain.gain.value = hasUserVoice
+				? 0.9 * intensity
+				: Math.max(0.78, (vocalBlend || 0.65) * 0.9) * intensity
 
 			voxSrc.connect(voxGain)
 			voxGain.connect(masterSumBus)
