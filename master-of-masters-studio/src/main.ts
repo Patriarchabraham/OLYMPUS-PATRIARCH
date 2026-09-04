@@ -4091,6 +4091,24 @@ function setupGenerativeTabs() {
 	let colabSampleAudioBuffer: AudioBuffer | null = null
 	let colabVoiceAudioBuffer: AudioBuffer | null = null
 
+	// 📡 100% AUTOMATIC DISCOVERY RELAY (ZERO MANUAL COPY/PASTE)
+	ColabFreeMusicBridge.startAutoDiscovery((discoveredUrl, latency) => {
+		if (inputColabUrl) inputColabUrl.value = discoveredUrl
+		if (badgeColabStatus) {
+			badgeColabStatus.textContent = `🟢 Conectado Automaticamente ao Google Colab T4 (${latency}ms)`
+			badgeColabStatus.style.color = '#10b981'
+			badgeColabStatus.style.borderColor = '#10b981'
+		}
+		if (btnColabGenerate) {
+			btnColabGenerate.textContent = '🚀 GERAR MÚSICA NA GPU T4 (AUTO-CONECTADO) & CLONAR VOZ'
+		}
+		showStudioToast(
+			`⚡ Google Colab emparelhado automaticamente (${latency}ms)! Zero configuração.`,
+			'success',
+			5000,
+		)
+	})
+
 	const COLAB_PRESETS: Record<string, string> = {
 		maiden:
 			'Classic 80s British Heavy Metal, 145 BPM in E minor, galloping dual bass, twin harmonized overdrive guitars, Steve Harris clack attack, Bruce Dickinson soaring vocals with 3kHz acoustic ring',

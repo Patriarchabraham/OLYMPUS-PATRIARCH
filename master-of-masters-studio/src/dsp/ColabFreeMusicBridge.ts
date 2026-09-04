@@ -28,13 +28,84 @@ export interface ColabGenerationResponse {
 
 export class ColabFreeMusicBridge {
 	private static colabEndpointUrl = ''
+	private static autoDiscoveryStarted = false
+	public static readonly RELAY_CHANNEL = 'https://ntfy.sh/olympus_master_studio_relay'
 
 	public static setEndpoint(url: string) {
 		ColabFreeMusicBridge.colabEndpointUrl = url.trim().replace(/\/+$/, '')
+		if (url) localStorage.setItem('colab_auto_url', ColabFreeMusicBridge.colabEndpointUrl)
 	}
 
 	public static getEndpoint(): string {
 		return ColabFreeMusicBridge.colabEndpointUrl
+	}
+
+	/**
+	 * Automatically discovers active Colab instances via cloud relay without user intervention.
+	 * Eliminates all manual copy-pasting of URLs.
+	 */
+	public static startAutoDiscovery(onFound: (url: string, latencyMs: number) => void) {
+		if (ColabFreeMusicBridge.autoDiscoveryStarted) return
+		ColabFreeMusicBridge.autoDiscoveryStarted = true
+
+		// Check saved local storage
+		const saved = localStorage.getItem('colab_auto_url')
+		if (saved) {
+			ColabFreeMusicBridge.setEndpoint(saved)
+			ColabFreeMusicBridge.testConnection(saved).then((t) => {
+				if (t.ok) onFound(saved, t.latencyMs)
+			})
+		}
+
+		// Initial poll of the relay channel
+		fetch(`${ColabFreeMusicBridge.RELAY_CHANNEL}/json?poll=1`)
+			.then((r) => r.text())
+			.then((text) => {
+				const lines = text.trim().split('\n')
+				for (let i = lines.length - 1; i >= 0; i--) {
+					try {
+						const data = JSON.parse(lines[i])
+						const candidateUrl = (data.message || '').trim()
+						if (candidateUrl?.startsWith('http')) {
+							if (
+								candidateUrl.includes('gradio.live') ||
+								candidateUrl.includes('ngrok') ||
+								candidateUrl.includes('loca.lt')
+							) {
+								ColabFreeMusicBridge.setEndpoint(candidateUrl)
+								ColabFreeMusicBridge.testConnection(candidateUrl).then((t) => {
+									if (t.ok) onFound(candidateUrl, t.latencyMs)
+								})
+								break
+							}
+						}
+					} catch (_) {}
+				}
+			})
+			.catch(() => {})
+
+		// Real-time EventSource listener for instant connection as soon as Colab starts
+		try {
+			const sse = new EventSource(`${ColabFreeMusicBridge.RELAY_CHANNEL}/sse`)
+			sse.onmessage = (e) => {
+				try {
+					const data = JSON.parse(e.data)
+					const candidateUrl = (data.message || '').trim()
+					if (candidateUrl?.startsWith('http')) {
+						if (
+							candidateUrl.includes('gradio.live') ||
+							candidateUrl.includes('ngrok') ||
+							candidateUrl.includes('loca.lt')
+						) {
+							ColabFreeMusicBridge.setEndpoint(candidateUrl)
+							ColabFreeMusicBridge.testConnection(candidateUrl).then((t) => {
+								if (t.ok) onFound(candidateUrl, t.latencyMs)
+							})
+						}
+					}
+				} catch (_) {}
+			}
+		} catch (_) {}
 	}
 
 	/**

@@ -19,6 +19,7 @@
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
+    "@gradio/client": "^2.5.1",
     "lamejs": "^1.2.1"
   }
 }
