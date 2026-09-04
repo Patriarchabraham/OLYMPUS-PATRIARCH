@@ -19,6 +19,8 @@ export interface InstrumentFingerprint {
 export class NeuralInstrumentTimbreCloner {
 	private static guitarFingerprint: InstrumentFingerprint | null = null
 	private static bassFingerprint: InstrumentFingerprint | null = null
+	public static guitarBuffer: AudioBuffer | null = null
+	public static bassBuffer: AudioBuffer | null = null
 
 	/**
 	 * Analyzes an uploaded Guitar Reference audio (WAV/MP3) and builds its distortion fingerprint.

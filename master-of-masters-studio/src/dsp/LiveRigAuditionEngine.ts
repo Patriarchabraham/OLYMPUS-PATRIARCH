@@ -10,6 +10,7 @@ import { generateSaturationCurve } from './SaturationCurves'
 
 export class LiveRigAuditionEngine {
 	private static ctx: AudioContext | null = null
+	public static inputNode: MediaElementAudioSourceNode | null = null
 	private static isAuditionActive = false
 
 	// Real-time DSP Nodes
