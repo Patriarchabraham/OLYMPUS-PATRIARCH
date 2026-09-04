@@ -31,16 +31,24 @@ export class LocalAlgorithmicRecomposerEngine {
 		const sections: RecomposeScriptSection[] = []
 
 		let currentTag: RecomposeScriptSection['tag'] = 'verse'
+		let currentBars = 8
 		let currentLyrics: string[] = []
+
+		const extractBars = (txt: string, defaultBars: number): number => {
+			const m = txt.match(/(\d+)\s*(?:compassos?|comp|bars?|c\b)/i)
+			if (m) {
+				const n = parseInt(m[1], 10)
+				if (!Number.isNaN(n) && n > 0 && n <= 64) return n
+			}
+			return defaultBars
+		}
 
 		const flush = () => {
 			if (currentLyrics.length > 0 || sections.length === 0) {
-				const bars =
-					currentTag === 'intro' ? 4 : currentTag === 'chorus' ? 8 : currentTag === 'solo' ? 8 : 4
 				sections.push({
 					tag: currentTag,
 					lyrics: currentLyrics.join(' ').trim(),
-					bars,
+					bars: currentBars,
 				})
 				currentLyrics = []
 			}
@@ -54,9 +62,11 @@ export class LocalAlgorithmicRecomposerEngine {
 			if (lower.includes('[intro')) {
 				flush()
 				currentTag = 'intro'
+				currentBars = extractBars(line, 8)
 			} else if (lower.includes('[verse') || lower.includes('[verso')) {
 				flush()
 				currentTag = 'verse'
+				currentBars = extractBars(line, 16)
 			} else if (
 				lower.includes('[pre-chorus') ||
 				lower.includes('[pre-refrão') ||
@@ -64,6 +74,7 @@ export class LocalAlgorithmicRecomposerEngine {
 			) {
 				flush()
 				currentTag = 'pre_chorus'
+				currentBars = extractBars(line, 8)
 			} else if (
 				lower.includes('[chorus') ||
 				lower.includes('[refrão') ||
@@ -71,12 +82,15 @@ export class LocalAlgorithmicRecomposerEngine {
 			) {
 				flush()
 				currentTag = 'chorus'
+				currentBars = extractBars(line, 16)
 			} else if (lower.includes('[solo') || lower.includes('[guitar solo')) {
 				flush()
 				currentTag = 'solo'
+				currentBars = extractBars(line, 16)
 			} else if (lower.includes('[outro') || lower.includes('[final')) {
 				flush()
 				currentTag = 'outro'
+				currentBars = extractBars(line, 8)
 			} else {
 				currentLyrics.push(line)
 			}

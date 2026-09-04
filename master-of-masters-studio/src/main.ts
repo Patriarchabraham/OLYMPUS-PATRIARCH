@@ -4076,7 +4076,27 @@ function setupGenerativeTabs() {
 	const colabVoiceActive = document.getElementById('colab-voice-active') as HTMLElement
 	const colabVoiceFilename = document.getElementById('colab-voice-filename') as HTMLElement
 	const colabVoiceStats = document.getElementById('colab-voice-stats') as HTMLElement
-	const selectColabDuration = document.getElementById('select-colab-duration') as HTMLSelectElement
+	const sliderColabBpm = document.getElementById('slider-colab-bpm') as HTMLInputElement
+	const valColabBpm = document.getElementById('val-colab-bpm') as HTMLElement
+	const selectColabKey = document.getElementById('select-colab-key') as HTMLSelectElement
+	const selectColabGtrRig = document.getElementById('select-colab-gtr-rig') as HTMLSelectElement
+	const selectColabBassRig = document.getElementById('select-colab-bass-rig') as HTMLSelectElement
+	const selectColabDrumKit = document.getElementById('select-colab-drum-kit') as HTMLSelectElement
+	const btnColabForceRhythmSolo = document.getElementById(
+		'btn-colab-force-rhythm-solo',
+	) as HTMLButtonElement
+	const sliderColabVoiceBlend = document.getElementById(
+		'slider-colab-voice-blend',
+	) as HTMLInputElement
+	const valColabVoiceBlend = document.getElementById('val-colab-voice-blend') as HTMLElement
+	const selectColabVoicePitch = document.getElementById(
+		'select-colab-voice-pitch',
+	) as HTMLSelectElement
+	const checkColabSingersFormant = document.getElementById(
+		'check-colab-singers-formant',
+	) as HTMLInputElement
+	const sliderColabDuration = document.getElementById('slider-colab-duration') as HTMLInputElement
+	const badgeColabDurationCalc = document.getElementById('badge-colab-duration-calc') as HTMLElement
 	const selectColabDestination = document.getElementById(
 		'select-colab-destination',
 	) as HTMLSelectElement
@@ -4090,6 +4110,62 @@ function setupGenerativeTabs() {
 
 	let colabSampleAudioBuffer: AudioBuffer | null = null
 	let colabVoiceAudioBuffer: AudioBuffer | null = null
+
+	function updateColabDurationDisplay() {
+		const dur = parseInt(sliderColabDuration?.value || '120', 10)
+		const bpm = parseInt(sliderColabBpm?.value || '145', 10)
+		const min = Math.floor(dur / 60)
+		const sec = dur % 60
+		const minSec = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
+		const beats = dur / (60 / bpm)
+		const bars = Math.round(beats / 4)
+		if (badgeColabDurationCalc) {
+			badgeColabDurationCalc.textContent = `${minSec} (${dur}s) · ~${bars} comp @ ${bpm} BPM`
+		}
+	}
+
+	sliderColabBpm?.addEventListener('input', () => {
+		if (valColabBpm) valColabBpm.textContent = `${sliderColabBpm.value} BPM`
+		updateColabDurationDisplay()
+	})
+
+	sliderColabDuration?.addEventListener('input', () => {
+		updateColabDurationDisplay()
+	})
+
+	sliderColabVoiceBlend?.addEventListener('input', () => {
+		if (valColabVoiceBlend) valColabVoiceBlend.textContent = `${sliderColabVoiceBlend.value}%`
+	})
+
+	document.querySelectorAll('.btn-colab-quick-duration').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const d = btn.getAttribute('data-dur')
+			if (d && sliderColabDuration) {
+				sliderColabDuration.value = d
+				document
+					.querySelectorAll('.btn-colab-quick-duration')
+					.forEach((b) => b.classList.remove('active'))
+				btn.classList.add('active')
+				updateColabDurationDisplay()
+			}
+		})
+	})
+
+	btnColabForceRhythmSolo?.addEventListener('click', () => {
+		const soloDirective =
+			'\n[Guitar Solo: 16 compassos - Twin Leads over Heavy Rhythm Guitars & Galloping Bass - DO NOT MUTE RHYTHM SECTION]\n'
+		if (colabLyrics) {
+			const start = colabLyrics.selectionStart || colabLyrics.value.length
+			const val = colabLyrics.value
+			colabLyrics.value = `${val.slice(0, start)}${soloDirective}${val.slice(start)}`
+			colabLyrics.focus()
+			showStudioToast(
+				'🎸 Diretiva de Guitarras Base no Solo injetada com sucesso!',
+				'success',
+				3000,
+			)
+		}
+	})
 
 	// 📡 100% AUTOMATIC DISCOVERY RELAY (ZERO MANUAL COPY/PASTE)
 	ColabFreeMusicBridge.startAutoDiscovery((discoveredUrl, latency) => {
@@ -4207,8 +4283,16 @@ function setupGenerativeTabs() {
 			'Classic British Heavy Metal, 145 BPM in E minor, galloping dual bass, twin harmonized overdrive guitars'
 		const lyricsText =
 			colabLyrics?.value?.trim() ||
-			'[Intro Riff]\n[Verse 1]\nThunder on the highway\n[Chorus]\nFire in the sky\n[Outro]'
-		const duration = parseInt(selectColabDuration?.value || '60', 10)
+			'[Intro: 8 compassos]\n[Verse 1: 16 compassos]\nThunder on the highway\n[Chorus: 16 compassos]\nFire in the sky\n[Guitar Solo: 16 compassos]\n[Outro: 8 compassos]'
+		const duration = parseInt(sliderColabDuration?.value || '120', 10)
+		const bpm = parseInt(sliderColabBpm?.value || '145', 10)
+		const key = selectColabKey?.value || 'Em'
+		const gtrRig = selectColabGtrRig?.value || 'twin_leads'
+		const bassRig = selectColabBassRig?.value || 'steve_harris'
+		const drumKit = selectColabDrumKit?.value || 'metal_double_kick'
+		const blend = parseInt(sliderColabVoiceBlend?.value || '85', 10) / 100
+		const pitchShift = parseInt(selectColabVoicePitch?.value || '0', 10)
+		const boostRing = checkColabSingersFormant?.checked ?? true
 
 		btnColabGenerate.disabled = true
 		colabProgressWrap?.classList.remove('hidden')
@@ -4222,6 +4306,14 @@ function setupGenerativeTabs() {
 					prompt: promptText,
 					lyrics: lyricsText,
 					durationSec: duration,
+					tempoBpm: bpm,
+					musicalKey: key,
+					guitarRig: gtrRig,
+					bassRig: bassRig,
+					drumKit: drumKit,
+					voiceBlend: blend,
+					pitchShiftSemis: pitchShift,
+					singersFormantBoost: boostRing,
 					sampleAudioBuffer: colabSampleAudioBuffer,
 					referenceVoiceBuffer: colabVoiceAudioBuffer,
 				},
@@ -4242,8 +4334,8 @@ function setupGenerativeTabs() {
 				const cloned = VoiceTimbreCloner.processTimbreTransfer(
 					left,
 					right,
-					0.45,
-					0,
+					blend,
+					pitchShift,
 					finalBuffer.sampleRate,
 				)
 				finalBuffer.copyToChannel(cloned.left, 0)
@@ -4254,7 +4346,7 @@ function setupGenerativeTabs() {
 			if (colabProgressPct) colabProgressPct.textContent = '100%'
 			if (colabProgressText) colabProgressText.textContent = 'Canção pronta!'
 
-			const trackName = `Colab_Metal_${duration}s.wav`
+			const trackName = `Colab_Metal_${key}_${bpm}BPM_${duration}s.wav`
 			loadBufferIntoStudio(finalBuffer, trackName)
 
 			const dest = selectColabDestination?.value || 'master_console'
@@ -4293,6 +4385,12 @@ function setupGenerativeTabs() {
 	const offlineVoiceStats = document.getElementById('offline-voice-stats') as HTMLElement
 	const offlineBpmSlider = document.getElementById('offline-bpm-slider') as HTMLInputElement
 	const offlineBpmVal = document.getElementById('offline-bpm-val') as HTMLElement
+	const sliderOfflineDuration = document.getElementById(
+		'slider-offline-duration',
+	) as HTMLInputElement
+	const badgeOfflineDurationCalc = document.getElementById(
+		'badge-offline-duration-calc',
+	) as HTMLElement
 	const offlineVoiceBlend = document.getElementById('offline-voice-blend') as HTMLInputElement
 	const offlineBlendVal = document.getElementById('offline-blend-val') as HTMLElement
 	const btnOfflineRecompose = document.getElementById(
@@ -4305,8 +4403,25 @@ function setupGenerativeTabs() {
 
 	let offlineSampleBuffer: AudioBuffer | null = null
 
+	function updateOfflineDurationDisplay() {
+		const dur = parseInt(sliderOfflineDuration?.value || '120', 10)
+		const bpm = parseInt(offlineBpmSlider?.value || '128', 10)
+		const min = Math.floor(dur / 60)
+		const sec = dur % 60
+		const minSec = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
+		const beats = dur / (60 / bpm)
+		const bars = Math.round(beats / 4)
+		if (badgeOfflineDurationCalc) {
+			badgeOfflineDurationCalc.textContent = `${minSec} (${dur}s) · ~${bars} comp`
+		}
+	}
+
 	offlineBpmSlider?.addEventListener('input', () => {
 		if (offlineBpmVal) offlineBpmVal.textContent = `${offlineBpmSlider.value} BPM`
+		updateOfflineDurationDisplay()
+	})
+	sliderOfflineDuration?.addEventListener('input', () => {
+		updateOfflineDurationDisplay()
 	})
 	offlineVoiceBlend?.addEventListener('input', () => {
 		if (offlineBlendVal) offlineBlendVal.textContent = `${offlineVoiceBlend.value}%`
@@ -4336,6 +4451,7 @@ function setupGenerativeTabs() {
 			const bpm = LocalAlgorithmicRecomposerEngine.detectTempo(offlineSampleBuffer)
 			if (offlineBpmSlider) offlineBpmSlider.value = String(bpm)
 			if (offlineBpmVal) offlineBpmVal.textContent = `${bpm} BPM`
+			updateOfflineDurationDisplay()
 			if (offlineSampleStats) {
 				offlineSampleStats.textContent = `● Andamento Detectado: ${bpm} BPM (${(offlineSampleBuffer.duration).toFixed(1)}s)`
 			}
@@ -4393,8 +4509,27 @@ function setupGenerativeTabs() {
 				},
 			)
 
-			const trackName = `Recomposed_Offline_${bpm}BPM.wav`
-			loadBufferIntoStudio(recomposed, trackName)
+			const finalOfflineBuffer = recomposed
+			const blend = parseInt(offlineVoiceBlend?.value || '85', 10) / 100
+			if (VoiceTimbreCloner.hasUserVoice()) {
+				const left = finalOfflineBuffer.getChannelData(0)
+				const right =
+					finalOfflineBuffer.numberOfChannels > 1 ? finalOfflineBuffer.getChannelData(1) : left
+				const cloned = VoiceTimbreCloner.processTimbreTransfer(
+					left,
+					right,
+					blend,
+					0,
+					finalOfflineBuffer.sampleRate,
+				)
+				finalOfflineBuffer.copyToChannel(cloned.left, 0)
+				if (finalOfflineBuffer.numberOfChannels > 1)
+					finalOfflineBuffer.copyToChannel(cloned.right, 1)
+			}
+
+			const dur = Math.round(finalOfflineBuffer.duration)
+			const trackName = `Recomposed_Offline_${bpm}BPM_${dur}s.wav`
+			loadBufferIntoStudio(finalOfflineBuffer, trackName)
 
 			const tabMastering = document.querySelector(
 				'.studio-tab[data-tab="tab-mastering"]',
