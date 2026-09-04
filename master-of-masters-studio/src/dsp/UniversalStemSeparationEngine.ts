@@ -121,7 +121,7 @@ export class UniversalStemSeparationEngine {
 			const r = rightIn[i]
 
 			const mid = 0.5 * (l + r)
-			const side = 0.5 * (l - r)
+			const _side = 0.5 * (l - r)
 
 			// Lowpass filters
 			lpSubL = alphaSub * lpSubL + (1.0 - alphaSub) * l
@@ -161,10 +161,11 @@ export class UniversalStemSeparationEngine {
 			bL[i] = bassStem
 			bR[i] = bassStem
 
-			// 4. Electric Guitar Stem (Full-spectrum stereo side guitars L/R)
-			const gtrStem = side
-			gL[i] = gtrStem
-			gR[i] = -gtrStem
+			// 4. Electric Guitar Stem (Coherent In-Phase Stereo Rhythm Guitars L/R)
+			const gtrL = l - mid * 0.55
+			const gtrR = r - mid * 0.55
+			gL[i] = gtrL
+			gR[i] = gtrR
 
 			// 5. Vocal Stem (Full-spectrum center channel above 120Hz, preserving all highs and consonants)
 			const voxStem = mid - sub
@@ -181,9 +182,9 @@ export class UniversalStemSeparationEngine {
 				bR_out -= voxStem
 			}
 			if (hasGuitarClone) {
-				// 100% Full stereo guitar subtraction from base mix
-				bL_out -= gtrStem
-				bR_out += gtrStem
+				// 100% Clean in-phase guitar subtraction from base mix
+				bL_out -= gtrL
+				bR_out -= gtrR
 			}
 			if (hasBassClone) {
 				// 100% Bass subtraction from base mix
@@ -472,14 +473,16 @@ export class UniversalStemSeparationEngine {
 		}
 
 		// Heavy Guitar Toneprint & Neural Cloned Guitar Delta (Full Roar & Valve Saturation)
-		if ((guitarBlend > 0 && album.guitarToneprint) || hasGuitarClone) {
+		{
 			const tp = album.guitarToneprint
 			const gtrSrc = masterCtx.createBufferSource()
 			gtrSrc.buffer = processedGtrBuf
 
 			const gtrGain = masterCtx.createGain()
-			// If Neural Clone is active, output at full prominence to replace original guitar
-			gtrGain.gain.value = hasGuitarClone ? 0.82 * intensity : 0.16 * guitarBlend * intensity
+			// Guarantee rhythm guitars ALWAYS enter with full prominence, wide stereo, and zero phase cancellation
+			gtrGain.gain.value = hasGuitarClone
+				? 0.85 * intensity
+				: Math.max(0.7, (guitarBlend || 0.65) * 0.85) * intensity
 
 			if (tp && !hasGuitarClone) {
 				const gtrSat = masterCtx.createWaveShaper()
@@ -506,13 +509,15 @@ export class UniversalStemSeparationEngine {
 		}
 
 		// Bass Sub Resonance & Neural Cloned Bass Growl
-		if (bassBlend > 0 || hasBassClone) {
+		{
 			const bassSrc = masterCtx.createBufferSource()
 			bassSrc.buffer = bassDeltaBuf
 
 			const bassGain = masterCtx.createGain()
-			// If Neural Clone is active, output at full prominence
-			bassGain.gain.value = hasBassClone ? 0.85 * intensity : 0.08 * bassBlend * intensity
+			// Guarantee bass always has tight punch and SVT growl
+			bassGain.gain.value = hasBassClone
+				? 0.85 * intensity
+				: Math.max(0.65, (bassBlend || 0.65) * 0.75) * intensity
 
 			bassSrc.connect(bassGain)
 			bassGain.connect(masterSumBus)
