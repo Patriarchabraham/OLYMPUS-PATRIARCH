@@ -68,6 +68,8 @@ let vocalBuffer: AudioBuffer | null = null
 let aiTargetBuffer: AudioBuffer | null = null
 let aiRefBuffer: AudioBuffer | null = null
 let v4ReferenceBuffer: AudioBuffer | null = null
+let globalUserVoiceBuffer: AudioBuffer | null = null
+let _globalUserVoiceFilename = ''
 
 let spatialNodes: SpatialNodePos[] = JSON.parse(JSON.stringify(SPATIAL_PRESETS[0].nodes))
 let draggedNodeId: string | null = null
@@ -767,19 +769,35 @@ function setupMicLockerModule() {
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
 function setupTabs() {
-	const tabs = document.querySelectorAll('.studio-tab') as NodeListOf<HTMLButtonElement>
+	const tabs = document.querySelectorAll('.studio-tab') as NodeListOf<HTMLElement>
 	const contents = document.querySelectorAll('.tab-content')
 
 	tabs.forEach((tab) => {
 		tab.addEventListener('click', () => {
-			tabs.forEach((t) => t.classList.remove('active'))
-			contents.forEach((c) => c.classList.add('hidden'))
-
-			tab.classList.add('active')
 			const targetId = tab.getAttribute('data-tab')
-			if (targetId) {
-				document.getElementById(targetId)?.classList.remove('hidden')
-			}
+			if (!targetId) return
+
+			contents.forEach((c) => c.classList.add('hidden'))
+			document.getElementById(targetId)?.classList.remove('hidden')
+
+			// Sync top navigation bar active pill
+			document.querySelectorAll('.nav-pill-btn').forEach((p) => {
+				if (p.getAttribute('data-tab') === targetId) {
+					p.classList.add('active')
+				} else {
+					p.classList.remove('active')
+				}
+			})
+
+			// Sync in-page 3-method switcher active button
+			document.querySelectorAll('.gen-method-btn').forEach((mb) => {
+				if (mb.getAttribute('data-tab') === targetId) {
+					mb.classList.add('active')
+				} else {
+					mb.classList.remove('active')
+				}
+			})
+
 			if (targetId === 'tab-spatial') {
 				renderSpatialRadar()
 			}
@@ -870,6 +888,144 @@ function setupVisualMicrophoneGrid() {
 	}
 }
 
+// ─── UNIVERSAL VOICE CLONING SYNC (ALL 3 METHODS + MASTER CONSOLE) ───────────
+async function syncGlobalUserVoice(
+	fileOrBuffer: File | AudioBuffer,
+	nameHint?: string,
+): Promise<AudioBuffer | null> {
+	try {
+		let vBuf: AudioBuffer
+		let filename: string
+
+		// @ts-expect-error
+		const ctx = audioCtx || new (window.AudioContext || window.webkitAudioContext)()
+
+		if (fileOrBuffer instanceof File) {
+			filename = fileOrBuffer.name
+			const decoded = await UniversalAudioFormatDecoder.decodeAudioFile(fileOrBuffer, ctx)
+			// Automatic full-mix vocal stem extraction & acoustic repair
+			const extracted = await FullMixReferenceStemExtractor.extractAndRepairStem(
+				decoded,
+				'vocal',
+				ctx,
+			)
+			vBuf = extracted.stemBuffer
+		} else {
+			vBuf = fileOrBuffer
+			filename = nameHint || 'minha-voz-estudio.wav'
+		}
+
+		globalUserVoiceBuffer = vBuf
+		_globalUserVoiceFilename = filename
+
+		// Analyze voice timbre & formants (+6dB Singer's Formant ring)
+		const fp = await VoiceTimbreCloner.analyzeUserVoiceSample(vBuf)
+		const ringDb = fp.singersFormantDb.toFixed(1)
+		const durationSec = vBuf.duration.toFixed(1)
+
+		// 1. Home Creation Hub
+		const homeVoiceStatus = document.getElementById('global-voice-sync-status')
+		if (homeVoiceStatus) {
+			homeVoiceStatus.textContent = `⚡ VOZ ATIVA: "${filename}" (${durationSec}s · +${ringDb}dB Anel do Cantor). Sincronizada nos 3 Métodos!`
+			homeVoiceStatus.style.color = '#34d399'
+		}
+		const btnHomeVoiceUpload = document.getElementById('btn-global-voice-upload')
+		if (btnHomeVoiceUpload) {
+			btnHomeVoiceUpload.textContent = `✅ Voz Ativa: ${filename.length > 18 ? `${filename.slice(0, 16)}...` : filename}`
+			btnHomeVoiceUpload.style.background = 'rgba(52, 211, 153, 0.2)'
+			btnHomeVoiceUpload.style.borderColor = '#10b981'
+			btnHomeVoiceUpload.style.color = '#34d399'
+		}
+
+		// 2. Master Console (Unit 01 Box 8) & Transport Dock
+		const masterVoiceFilename = document.getElementById('master-user-voice-filename')
+		const masterVoiceIdle = document.getElementById('master-user-voice-idle')
+		const masterVoiceActive = document.getElementById('master-user-voice-active')
+		const masterVoiceBadge = document.getElementById('master-voice-clone-badge')
+		const transportVoiceBtn = document.getElementById('transport-user-voice-btn')
+
+		if (masterVoiceFilename) masterVoiceFilename.textContent = filename
+		masterVoiceIdle?.classList.add('hidden')
+		masterVoiceActive?.classList.remove('hidden')
+		if (masterVoiceBadge) {
+			masterVoiceBadge.textContent = `⚡ CLONE ATIVO (+${ringDb}dB Presence)`
+			masterVoiceBadge.style.color = 'var(--emerald-primary)'
+			masterVoiceBadge.style.borderColor = 'var(--emerald-primary)'
+		}
+		if (transportVoiceBtn) {
+			transportVoiceBtn.style.borderColor = 'var(--emerald-primary)'
+			transportVoiceBtn.style.color = 'var(--emerald-primary)'
+			transportVoiceBtn.textContent = `🎙️ ${filename.slice(0, 14)}`
+		}
+
+		// 3. Method 1 (Colab Dual-Track)
+		const colabVoiceFilename = document.getElementById('colab-voice-filename')
+		const colabVoiceIdle = document.getElementById('colab-voice-idle')
+		const colabVoiceActive = document.getElementById('colab-voice-active')
+		const colabVoiceStats = document.getElementById('colab-voice-stats')
+		if (colabVoiceFilename) colabVoiceFilename.textContent = filename
+		colabVoiceIdle?.classList.add('hidden')
+		colabVoiceActive?.classList.remove('hidden')
+		if (colabVoiceStats) {
+			colabVoiceStats.textContent = `⚡ 14 Formantes Ativos (+${ringDb}dB Anel do Cantor)`
+		}
+
+		// 4. Method 2 (Granular Recomposer Offline)
+		const offlineVoiceFilename = document.getElementById('offline-voice-filename')
+		const offlineVoiceIdle = document.getElementById('offline-voice-idle')
+		const offlineVoiceActive = document.getElementById('offline-voice-active')
+		const offlineVoiceStats = document.getElementById('offline-voice-stats')
+		if (offlineVoiceFilename) offlineVoiceFilename.textContent = filename
+		offlineVoiceIdle?.classList.add('hidden')
+		offlineVoiceActive?.classList.remove('hidden')
+		if (offlineVoiceStats) {
+			offlineVoiceStats.textContent = `⚡ Timbre Real Ativo (+${ringDb}dB Presença)`
+		}
+
+		// 5. Method 3 (MusicGen-Melody + RVC v2)
+		const pythonVoiceFilename = document.getElementById('python-voice-filename')
+		const pythonVoiceIdle = document.getElementById('python-voice-idle')
+		const pythonVoiceActive = document.getElementById('python-voice-active')
+		const pythonVoiceStats = document.getElementById('python-voice-stats')
+		if (pythonVoiceFilename) pythonVoiceFilename.textContent = filename
+		pythonVoiceIdle?.classList.add('hidden')
+		pythonVoiceActive?.classList.remove('hidden')
+		if (pythonVoiceStats) {
+			pythonVoiceStats.textContent = `⚡ Perfil RVC v2 & 14 Formantes Ativos (+${ringDb}dB)`
+		}
+
+		// 6. Unit 04 (Vocal Match & Tuning)
+		const userVoiceName = document.getElementById('user-voice-name')
+		const userVoiceIdle = document.getElementById('user-voice-idle')
+		const userVoiceActive = document.getElementById('user-voice-active')
+		const labelUserVoiceStatus = document.getElementById('label-user-voice-status')
+		if (userVoiceName) userVoiceName.textContent = filename
+		userVoiceIdle?.classList.add('hidden')
+		userVoiceActive?.classList.remove('hidden')
+		if (labelUserVoiceStatus) {
+			labelUserVoiceStatus.textContent = `⚡ CLONE ATIVO (+${ringDb}dB Metal Power)`
+			labelUserVoiceStatus.style.color = 'var(--emerald-primary)'
+		}
+
+		// 7. Unit 05 (Vocal Lab / User Voice Upload)
+		const voiceUploadStatus = document.getElementById('voice-upload-status')
+		if (voiceUploadStatus) {
+			voiceUploadStatus.textContent = `✅ Voz ativa: "${filename}" (${durationSec}s)`
+			voiceUploadStatus.style.color = '#10b981'
+		}
+
+		showStudioToast(
+			`🎙️ Voz "${filename}" sincronizada com sucesso em todos os 3 métodos!`,
+			'success',
+			4000,
+		)
+		return vBuf
+	} catch (err: any) {
+		showStudioToast(`Erro ao sincronizar voz: ${err?.message || err}`, 'warn', 5000)
+		return null
+	}
+}
+
 // ─── AUDIO LOADING & TRANSPORT DOCK ──────────────────────────────────────────
 function setupAudioLoading() {
 	audioDropzone.addEventListener('click', () => audioFileInput.click())
@@ -889,6 +1045,17 @@ function setupAudioLoading() {
 		audioDropzone.classList.remove('border-amber-400')
 		const file = e.dataTransfer?.files[0]
 		if (file) loadAudioFile(file)
+	})
+
+	// ─── GLOBAL USER VOICE UPLOAD (HOME CREATION HUB) ──────────────────────────
+	const btnGlobalVoiceUpload = document.getElementById('btn-global-voice-upload')
+	const inputGlobalVoiceFile = document.getElementById(
+		'input-global-voice-file',
+	) as HTMLInputElement
+	btnGlobalVoiceUpload?.addEventListener('click', () => inputGlobalVoiceFile?.click())
+	inputGlobalVoiceFile?.addEventListener('change', () => {
+		const file = inputGlobalVoiceFile.files?.[0]
+		if (file) syncGlobalUserVoice(file)
 	})
 
 	// ─── V4 HYPERREFERENCE FILE DROPZONE (ST-ITO) ───────────────────────────────
@@ -1342,48 +1509,34 @@ function setupMasterProcessing() {
 	// ─── MASTER VOICE CLONER WIRING ──────────────────────────────────────────
 	const masterVoiceDropzone = document.getElementById('master-user-voice-dropzone')
 	const masterVoiceInput = document.getElementById('master-user-voice-input') as HTMLInputElement
-	const masterVoiceIdle = document.getElementById('master-user-voice-idle')
-	const masterVoiceActive = document.getElementById('master-user-voice-active')
-	const masterVoiceFilename = document.getElementById('master-user-voice-filename')
-	const masterVoiceBadge = document.getElementById('master-voice-clone-badge')
+	const _masterVoiceIdle = document.getElementById('master-user-voice-idle')
+	const _masterVoiceActive = document.getElementById('master-user-voice-active')
+	const _masterVoiceFilename = document.getElementById('master-user-voice-filename')
+	const _masterVoiceBadge = document.getElementById('master-voice-clone-badge')
 	const transportVoiceBtn = document.getElementById('transport-user-voice-btn')
 
 	const handleUserVoiceFile = async (file: File) => {
 		if (!file) return
-		if (masterVoiceFilename) masterVoiceFilename.textContent = file.name
-		masterVoiceIdle?.classList.add('hidden')
-		masterVoiceActive?.classList.remove('hidden')
-
-		try {
-			// @ts-expect-error
-			const ctx = new (window.AudioContext || window.webkitAudioContext)()
-			const userBuf = await UniversalAudioFormatDecoder.decodeAudioFile(file, ctx)
-
-			// 🌟 AUTOMATIC FULL-MIX STEM EXTRACTION & MEGA-STUDIO ACOUSTIC INPAINTING
-			const extracted = await FullMixReferenceStemExtractor.extractAndRepairStem(
-				userBuf,
-				'vocal',
-				ctx,
-			)
-			const fp = await VoiceTimbreCloner.analyzeUserVoiceSample(extracted.stemBuffer)
-
-			if (masterVoiceBadge) {
-				const tag = extracted.isFullMixDetected ? 'MÚSICA COMPLETA' : 'TIMBRE'
-				masterVoiceBadge.textContent = `⚡ CLONE ATIVO [${tag}] (+${fp.singersFormantDb.toFixed(1)}dB Presence)`
-				masterVoiceBadge.style.color = 'var(--emerald-primary)'
-				masterVoiceBadge.style.borderColor = 'var(--emerald-primary)'
-			}
-			if (transportVoiceBtn) {
-				transportVoiceBtn.style.borderColor = 'var(--emerald-primary)'
-				transportVoiceBtn.style.color = 'var(--emerald-primary)'
-			}
-		} catch (_e) {}
+		await syncGlobalUserVoice(file)
 	}
 
 	masterVoiceDropzone?.addEventListener('click', () => masterVoiceInput?.click())
 	transportVoiceBtn?.addEventListener('click', () => masterVoiceInput?.click())
 	masterVoiceInput?.addEventListener('change', () => {
 		const file = masterVoiceInput.files?.[0]
+		if (file) handleUserVoiceFile(file)
+	})
+	masterVoiceDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		masterVoiceDropzone.style.borderColor = 'var(--emerald-primary)'
+	})
+	masterVoiceDropzone?.addEventListener('dragleave', () => {
+		masterVoiceDropzone.style.borderColor = ''
+	})
+	masterVoiceDropzone?.addEventListener('drop', (e: DragEvent) => {
+		e.preventDefault()
+		masterVoiceDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
 		if (file) handleUserVoiceFile(file)
 	})
 
@@ -2604,18 +2757,8 @@ function setupMasterProcessing() {
 	inputUserVoiceFile?.addEventListener('change', async (e: any) => {
 		const file = e.target?.files?.[0]
 		if (!file) return
-		try {
-			voiceUploadStatus.textContent = '⏳ Decodificando áudio da sua voz...'
-			const arrayBuf = await file.arrayBuffer()
-			const ctx = new AudioContext()
-			customUserVoiceBuffer = await ctx.decodeAudioData(arrayBuf)
-			await ctx.close()
-			voiceUploadStatus.textContent = `✅ Voz carregada com sucesso: "${file.name}" (${customUserVoiceBuffer.duration.toFixed(1)}s)`
-			voiceUploadStatus.style.color = '#10b981'
-		} catch (err: any) {
-			voiceUploadStatus.textContent = `❌ Erro ao ler voz: ${err.message || String(err)}`
-			voiceUploadStatus.style.color = '#f43f5e'
-		}
+		const buf = await syncGlobalUserVoice(file)
+		if (buf) customUserVoiceBuffer = buf
 	})
 
 	// User Voice Microphone Recording
@@ -2643,8 +2786,7 @@ function setupMasterProcessing() {
 				customUserVoiceBuffer = await ctx.decodeAudioData(arrayBuf)
 				await ctx.close()
 				stream.getTracks().forEach((t) => t.stop())
-				voiceUploadStatus.textContent = `✅ Voz gravada via microfone (${customUserVoiceBuffer.duration.toFixed(1)}s)`
-				voiceUploadStatus.style.color = '#10b981'
+				await syncGlobalUserVoice(customUserVoiceBuffer, 'gravacao-microfone.wav')
 			}
 
 			mediaRecorder.start()
@@ -3226,29 +3368,28 @@ function setupVocalModule() {
 	// ─── USER REAL VOICE TIMBRE CLONING ────────────────────────────────────────
 	const userVoiceDropzone = document.getElementById('user-voice-dropzone')
 	const userVoiceFileInput = document.getElementById('user-voice-file-input') as HTMLInputElement
-	const userVoiceIdle = document.getElementById('user-voice-idle')
-	const userVoiceActive = document.getElementById('user-voice-active')
-	const userVoiceName = document.getElementById('user-voice-name')
-	const labelUserVoiceStatus = document.getElementById('label-user-voice-status')
+	const _userVoiceIdle = document.getElementById('user-voice-idle')
+	const _userVoiceActive = document.getElementById('user-voice-active')
+	const _userVoiceName = document.getElementById('user-voice-name')
+	const _labelUserVoiceStatus = document.getElementById('label-user-voice-status')
 
 	userVoiceDropzone?.addEventListener('click', () => userVoiceFileInput?.click())
 	userVoiceFileInput?.addEventListener('change', async () => {
 		const file = userVoiceFileInput.files?.[0]
-		if (!file) return
-		if (userVoiceName) userVoiceName.textContent = file.name
-		userVoiceIdle?.classList.add('hidden')
-		userVoiceActive?.classList.remove('hidden')
-
-		try {
-			// @ts-expect-error
-			const ctx = new (window.AudioContext || window.webkitAudioContext)()
-			const userBuf = await UniversalAudioFormatDecoder.decodeAudioFile(file, ctx)
-			const fp = await VoiceTimbreCloner.analyzeUserVoiceSample(userBuf)
-			if (labelUserVoiceStatus) {
-				labelUserVoiceStatus.textContent = `⚡ CLONE ATIVO (+${fp.singersFormantDb.toFixed(1)}dB Metal Power)`
-				labelUserVoiceStatus.style.color = 'var(--emerald-primary)'
-			}
-		} catch (_e) {}
+		if (file) await syncGlobalUserVoice(file)
+	})
+	userVoiceDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		userVoiceDropzone.style.borderColor = 'var(--emerald-primary)'
+	})
+	userVoiceDropzone?.addEventListener('dragleave', () => {
+		userVoiceDropzone.style.borderColor = ''
+	})
+	userVoiceDropzone?.addEventListener('drop', async (e: DragEvent) => {
+		e.preventDefault()
+		userVoiceDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
+		if (file) await syncGlobalUserVoice(file)
 	})
 
 	selectVocalPreset.addEventListener('change', () => {
@@ -4061,10 +4202,10 @@ function setupGenerativeTabs() {
 	const colabSampleFilename = document.getElementById('colab-sample-filename') as HTMLElement
 	const colabVoiceDropzone = document.getElementById('colab-voice-dropzone') as HTMLElement
 	const colabVoiceInput = document.getElementById('colab-voice-file-input') as HTMLInputElement
-	const colabVoiceIdle = document.getElementById('colab-voice-idle') as HTMLElement
-	const colabVoiceActive = document.getElementById('colab-voice-active') as HTMLElement
-	const colabVoiceFilename = document.getElementById('colab-voice-filename') as HTMLElement
-	const colabVoiceStats = document.getElementById('colab-voice-stats') as HTMLElement
+	const _colabVoiceIdle = document.getElementById('colab-voice-idle') as HTMLElement
+	const _colabVoiceActive = document.getElementById('colab-voice-active') as HTMLElement
+	const _colabVoiceFilename = document.getElementById('colab-voice-filename') as HTMLElement
+	const _colabVoiceStats = document.getElementById('colab-voice-stats') as HTMLElement
 	const sliderColabBpm = document.getElementById('slider-colab-bpm') as HTMLInputElement
 	const valColabBpm = document.getElementById('val-colab-bpm') as HTMLElement
 	const selectColabKey = document.getElementById('select-colab-key') as HTMLSelectElement
@@ -4167,6 +4308,32 @@ function setupGenerativeTabs() {
 		if (btnColabGenerate) {
 			btnColabGenerate.textContent = '🚀 GERAR MÚSICA NA GPU T4 (AUTO-CONECTADO) & CLONAR VOZ'
 		}
+
+		// Sync Method 3 (Python/MusicGen) & Home Hub Status
+		PythonColabBridgeEngine.setUrl(discoveredUrl)
+		const homeColabBadge = document.getElementById('home-colab-status-badge')
+		if (homeColabBadge) {
+			homeColabBadge.textContent = `🟢 Google Colab T4 Online (${latency}ms) · 100% Automático`
+			homeColabBadge.style.color = '#10b981'
+			homeColabBadge.style.borderColor = '#10b981'
+			homeColabBadge.style.background = 'rgba(16, 185, 129, 0.15)'
+		}
+		const inputPythonUrl = document.getElementById('input-python-url') as HTMLInputElement | null
+		if (inputPythonUrl) inputPythonUrl.value = discoveredUrl
+		const badgePythonStatus = document.getElementById('badge-python-status')
+		if (badgePythonStatus) {
+			badgePythonStatus.textContent = `🟢 Conectado Automaticamente ao Google Colab T4 (${latency}ms)`
+			badgePythonStatus.style.color = '#10b981'
+			badgePythonStatus.style.borderColor = '#10b981'
+		}
+		const btnPythonGenerate = document.getElementById(
+			'btn-python-trigger-generate',
+		) as HTMLButtonElement | null
+		if (btnPythonGenerate) {
+			btnPythonGenerate.textContent =
+				'🚀 GERAR COM MUSICGEN-MELODY + RVC v2 NO COLAB T4 (AUTO-CONECTADO)'
+		}
+
 		showStudioToast(
 			`⚡ Google Colab emparelhado automaticamente (${latency}ms)! Zero configuração.`,
 			'success',
@@ -4246,23 +4413,50 @@ function setupGenerativeTabs() {
 			showStudioToast(`Erro ao decodificar amostra: ${err?.message || err}`, 'warn')
 		}
 	})
+	colabSampleDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		colabSampleDropzone.style.borderColor = '#38bdf8'
+	})
+	colabSampleDropzone?.addEventListener('dragleave', () => {
+		colabSampleDropzone.style.borderColor = ''
+	})
+	colabSampleDropzone?.addEventListener('drop', async (e: DragEvent) => {
+		e.preventDefault()
+		colabSampleDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
+		if (!file) return
+		if (colabSampleFilename) colabSampleFilename.textContent = file.name
+		colabSampleIdle?.classList.add('hidden')
+		colabSampleActive?.classList.remove('hidden')
+		try {
+			colabSampleAudioBuffer = await UniversalAudioFormatDecoder.decodeAudioFile(file)
+			showStudioToast(`📁 Música de amostra decodificada: ${file.name}`, 'success')
+		} catch (err: any) {
+			showStudioToast(`Erro ao decodificar amostra: ${err?.message || err}`, 'warn')
+		}
+	})
 
 	colabVoiceDropzone?.addEventListener('click', () => colabVoiceInput?.click())
 	colabVoiceInput?.addEventListener('change', async () => {
 		const file = colabVoiceInput.files?.[0]
 		if (!file) return
-		if (colabVoiceFilename) colabVoiceFilename.textContent = file.name
-		colabVoiceIdle?.classList.add('hidden')
-		colabVoiceActive?.classList.remove('hidden')
-		try {
-			colabVoiceAudioBuffer = await UniversalAudioFormatDecoder.decodeAudioFile(file)
-			const fp = await VoiceTimbreCloner.analyzeUserVoiceSample(colabVoiceAudioBuffer)
-			if (colabVoiceStats) {
-				colabVoiceStats.textContent = `⚡ 14 Formantes Ativos (+${fp.singersFormantDb.toFixed(1)}dB Anel do Cantor)`
-			}
-			showStudioToast(`🎙️ Voz real decodificada com sucesso: ${file.name}`, 'success')
-		} catch (err: any) {
-			showStudioToast(`Erro ao decodificar áudio da voz: ${err?.message || err}`, 'warn')
+		const buf = await syncGlobalUserVoice(file)
+		if (buf) colabVoiceAudioBuffer = buf
+	})
+	colabVoiceDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		colabVoiceDropzone.style.borderColor = '#38bdf8'
+	})
+	colabVoiceDropzone?.addEventListener('dragleave', () => {
+		colabVoiceDropzone.style.borderColor = ''
+	})
+	colabVoiceDropzone?.addEventListener('drop', async (e: DragEvent) => {
+		e.preventDefault()
+		colabVoiceDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
+		if (file) {
+			const buf = await syncGlobalUserVoice(file)
+			if (buf) colabVoiceAudioBuffer = buf
 		}
 	})
 
@@ -4304,7 +4498,7 @@ function setupGenerativeTabs() {
 					pitchShiftSemis: pitchShift,
 					singersFormantBoost: boostRing,
 					sampleAudioBuffer: colabSampleAudioBuffer,
-					referenceVoiceBuffer: colabVoiceAudioBuffer,
+					referenceVoiceBuffer: colabVoiceAudioBuffer || globalUserVoiceBuffer,
 				},
 				(status) => {
 					if (colabProgressText) colabProgressText.textContent = status
@@ -4315,7 +4509,7 @@ function setupGenerativeTabs() {
 
 			const finalBuffer = res.audioBuffer
 
-			if (VoiceTimbreCloner.hasUserVoice() || colabVoiceAudioBuffer) {
+			if (VoiceTimbreCloner.hasUserVoice() || colabVoiceAudioBuffer || globalUserVoiceBuffer) {
 				if (colabProgressText)
 					colabProgressText.textContent = 'Filtro espectral: transferindo formantes da sua voz...'
 				const left = finalBuffer.getChannelData(0)
@@ -4368,10 +4562,10 @@ function setupGenerativeTabs() {
 	const offlineScript = document.getElementById('offline-script-lyrics') as HTMLTextAreaElement
 	const offlineVoiceDropzone = document.getElementById('offline-voice-dropzone') as HTMLElement
 	const offlineVoiceInput = document.getElementById('offline-voice-file-input') as HTMLInputElement
-	const offlineVoiceIdle = document.getElementById('offline-voice-idle') as HTMLElement
-	const offlineVoiceActive = document.getElementById('offline-voice-active') as HTMLElement
-	const offlineVoiceFilename = document.getElementById('offline-voice-filename') as HTMLElement
-	const offlineVoiceStats = document.getElementById('offline-voice-stats') as HTMLElement
+	const _offlineVoiceIdle = document.getElementById('offline-voice-idle') as HTMLElement
+	const _offlineVoiceActive = document.getElementById('offline-voice-active') as HTMLElement
+	const _offlineVoiceFilename = document.getElementById('offline-voice-filename') as HTMLElement
+	const _offlineVoiceStats = document.getElementById('offline-voice-stats') as HTMLElement
 	const offlineBpmSlider = document.getElementById('offline-bpm-slider') as HTMLInputElement
 	const offlineBpmVal = document.getElementById('offline-bpm-val') as HTMLElement
 	const sliderOfflineDuration = document.getElementById(
@@ -4449,24 +4643,54 @@ function setupGenerativeTabs() {
 			showStudioToast(`Erro ao carregar áudio de amostra: ${err?.message || err}`, 'warn')
 		}
 	})
+	offlineSampleDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		offlineSampleDropzone.style.borderColor = '#10b981'
+	})
+	offlineSampleDropzone?.addEventListener('dragleave', () => {
+		offlineSampleDropzone.style.borderColor = ''
+	})
+	offlineSampleDropzone?.addEventListener('drop', async (e: DragEvent) => {
+		e.preventDefault()
+		offlineSampleDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
+		if (!file) return
+		if (offlineSampleFilename) offlineSampleFilename.textContent = file.name
+		offlineSampleIdle?.classList.add('hidden')
+		offlineSampleActive?.classList.remove('hidden')
+		try {
+			offlineSampleBuffer = await UniversalAudioFormatDecoder.decodeAudioFile(file)
+			const bpm = LocalAlgorithmicRecomposerEngine.detectTempo(offlineSampleBuffer)
+			if (offlineBpmSlider) offlineBpmSlider.value = String(bpm)
+			if (offlineBpmVal) offlineBpmVal.textContent = `${bpm} BPM`
+			updateOfflineDurationDisplay()
+			if (offlineSampleStats) {
+				offlineSampleStats.textContent = `● Andamento Detectado: ${bpm} BPM (${(offlineSampleBuffer.duration).toFixed(1)}s)`
+			}
+			showStudioToast(`📁 Música de amostra carregada: ${bpm} BPM detectados!`, 'success')
+		} catch (err: any) {
+			showStudioToast(`Erro ao carregar áudio de amostra: ${err?.message || err}`, 'warn')
+		}
+	})
 
 	offlineVoiceDropzone?.addEventListener('click', () => offlineVoiceInput?.click())
 	offlineVoiceInput?.addEventListener('change', async () => {
 		const file = offlineVoiceInput.files?.[0]
 		if (!file) return
-		if (offlineVoiceFilename) offlineVoiceFilename.textContent = file.name
-		offlineVoiceIdle?.classList.add('hidden')
-		offlineVoiceActive?.classList.remove('hidden')
-		try {
-			const vBuf = await UniversalAudioFormatDecoder.decodeAudioFile(file)
-			const fp = await VoiceTimbreCloner.analyzeUserVoiceSample(vBuf)
-			if (offlineVoiceStats) {
-				offlineVoiceStats.textContent = `⚡ Timbre Real Ativo (+${fp.singersFormantDb.toFixed(1)}dB Presença)`
-			}
-			showStudioToast(`🎙️ Voz do usuário indexada para re-composição: ${file.name}`, 'success')
-		} catch (err: any) {
-			showStudioToast(`Erro ao decodificar voz: ${err?.message || err}`, 'warn')
-		}
+		await syncGlobalUserVoice(file)
+	})
+	offlineVoiceDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		offlineVoiceDropzone.style.borderColor = '#10b981'
+	})
+	offlineVoiceDropzone?.addEventListener('dragleave', () => {
+		offlineVoiceDropzone.style.borderColor = ''
+	})
+	offlineVoiceDropzone?.addEventListener('drop', async (e: DragEvent) => {
+		e.preventDefault()
+		offlineVoiceDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
+		if (file) await syncGlobalUserVoice(file)
 	})
 
 	btnOfflineRecompose?.addEventListener('click', async () => {
@@ -4546,6 +4770,9 @@ function setupGenerativeTabs() {
 	const btnCopyPythonCode = document.getElementById('btn-copy-python-code') as HTMLButtonElement
 	const pythonPrompt = document.getElementById('python-music-prompt') as HTMLTextAreaElement
 	const pythonLyrics = document.getElementById('python-music-lyrics') as HTMLTextAreaElement
+	const sliderPythonBpm = document.getElementById('slider-python-bpm') as HTMLInputElement | null
+	const valPythonBpm = document.getElementById('val-python-bpm')
+	const selectPythonKey = document.getElementById('select-python-key') as HTMLSelectElement | null
 	const pythonSampleDropzone = document.getElementById('python-sample-dropzone') as HTMLElement
 	const pythonSampleInput = document.getElementById('python-sample-file-input') as HTMLInputElement
 	const pythonSampleIdle = document.getElementById('python-sample-idle') as HTMLElement
@@ -4553,9 +4780,26 @@ function setupGenerativeTabs() {
 	const pythonSampleFilename = document.getElementById('python-sample-filename') as HTMLElement
 	const pythonVoiceDropzone = document.getElementById('python-voice-dropzone') as HTMLElement
 	const pythonVoiceInput = document.getElementById('python-voice-file-input') as HTMLInputElement
-	const pythonVoiceIdle = document.getElementById('python-voice-idle') as HTMLElement
-	const pythonVoiceActive = document.getElementById('python-voice-active') as HTMLElement
-	const pythonVoiceFilename = document.getElementById('python-voice-filename') as HTMLElement
+	const _pythonVoiceIdle = document.getElementById('python-voice-idle') as HTMLElement
+	const _pythonVoiceActive = document.getElementById('python-voice-active') as HTMLElement
+	const _pythonVoiceFilename = document.getElementById('python-voice-filename') as HTMLElement
+	const sliderPythonVoiceBlend = document.getElementById(
+		'slider-python-voice-blend',
+	) as HTMLInputElement | null
+	const valPythonVoiceBlend = document.getElementById('val-python-voice-blend')
+	const selectPythonVoicePitch = document.getElementById(
+		'select-python-voice-pitch',
+	) as HTMLSelectElement | null
+	const _checkPythonSingersFormant = document.getElementById(
+		'check-python-singers-formant',
+	) as HTMLInputElement | null
+	const sliderPythonDuration = document.getElementById(
+		'slider-python-duration',
+	) as HTMLInputElement | null
+	const badgePythonDurationCalc = document.getElementById('badge-python-duration-calc')
+	const selectPythonDestination = document.getElementById(
+		'select-python-destination',
+	) as HTMLSelectElement | null
 	const btnPythonGenerate = document.getElementById(
 		'btn-python-trigger-generate',
 	) as HTMLButtonElement
@@ -4566,6 +4810,80 @@ function setupGenerativeTabs() {
 
 	let pythonSampleBlob: Blob | null = null
 	let pythonVoiceBlob: Blob | null = null
+
+	function updatePythonDurationDisplay() {
+		const dur = parseInt(sliderPythonDuration?.value || '120', 10)
+		const bpm = parseInt(sliderPythonBpm?.value || '145', 10)
+		const min = Math.floor(dur / 60)
+		const sec = dur % 60
+		const minSec = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
+		const beats = dur / (60 / bpm)
+		const bars = Math.round(beats / 4)
+		if (badgePythonDurationCalc) {
+			badgePythonDurationCalc.textContent = `${minSec} (${dur}s) · ~${bars} comp @ ${bpm} BPM`
+		}
+	}
+
+	sliderPythonBpm?.addEventListener('input', () => {
+		if (valPythonBpm) valPythonBpm.textContent = `${sliderPythonBpm.value} BPM`
+		updatePythonDurationDisplay()
+	})
+
+	sliderPythonDuration?.addEventListener('input', () => {
+		updatePythonDurationDisplay()
+	})
+
+	sliderPythonVoiceBlend?.addEventListener('input', () => {
+		if (valPythonVoiceBlend) valPythonVoiceBlend.textContent = `${sliderPythonVoiceBlend.value}%`
+	})
+
+	const PYTHON_PRESETS: Record<string, { prompt: string; bpm: number; key: string }> = {
+		heavy_metal: {
+			prompt:
+				'Classic British Heavy Metal with twin harmonized lead guitars, galloping Steve Harris bass attack, acoustic punchy drums, soaring melody',
+			bpm: 145,
+			key: 'Em',
+		},
+		power_metal: {
+			prompt:
+				'European Power Metal at fast tempo, majestic twin guitar leads, relentless double bass drums, soaring vibrato vocals, epic choir pads',
+			bpm: 175,
+			key: 'Dm',
+		},
+		thrash: {
+			prompt:
+				'1986 Bay Area Thrash Metal, aggressive palm-muted riffs, laser-tight rhythm section, Lars punchy snare, razor-sharp guitar solos',
+			bpm: 190,
+			key: 'Em',
+		},
+		classic_rock: {
+			prompt:
+				'1980s Arena Hard Rock, crunch overdrive guitars, solid groove bass, reverb acoustic drums, huge melodic chorus hook',
+			bpm: 120,
+			key: 'Am',
+		},
+	}
+
+	document.querySelectorAll('.btn-python-preset').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const presetKey = btn.getAttribute('data-preset')
+			if (presetKey && PYTHON_PRESETS[presetKey]) {
+				const pr = PYTHON_PRESETS[presetKey]
+				if (pythonPrompt) pythonPrompt.value = pr.prompt
+				if (sliderPythonBpm) {
+					sliderPythonBpm.value = String(pr.bpm)
+					if (valPythonBpm) valPythonBpm.textContent = `${pr.bpm} BPM`
+				}
+				if (selectPythonKey) selectPythonKey.value = pr.key
+				updatePythonDurationDisplay()
+				showStudioToast(
+					`🎸 Preset "${presetKey.toUpperCase()}" aplicado ao MusicGen!`,
+					'info',
+					2000,
+				)
+			}
+		})
+	})
 
 	btnCopyPythonCode?.addEventListener('click', async () => {
 		const code = PythonColabBridgeEngine.getPythonServerScriptCode()
@@ -4578,7 +4896,8 @@ function setupGenerativeTabs() {
 	})
 
 	btnTestPython?.addEventListener('click', async () => {
-		const url = inputPythonUrl?.value?.trim() || 'http://127.0.0.1:8000'
+		const url =
+			inputPythonUrl?.value?.trim() || ColabFreeMusicBridge.getEndpoint() || 'http://127.0.0.1:8000'
 		PythonColabBridgeEngine.setUrl(url)
 		if (badgePythonStatus) {
 			badgePythonStatus.textContent = '⏳ Verificando servidor Python...'
@@ -4611,20 +4930,47 @@ function setupGenerativeTabs() {
 		pythonSampleActive?.classList.remove('hidden')
 		showStudioToast(`🎧 Amostra para guia melódico: ${file.name}`, 'info')
 	})
+	pythonSampleDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		pythonSampleDropzone.style.borderColor = '#f59e0b'
+	})
+	pythonSampleDropzone?.addEventListener('dragleave', () => {
+		pythonSampleDropzone.style.borderColor = ''
+	})
+	pythonSampleDropzone?.addEventListener('drop', (e: DragEvent) => {
+		e.preventDefault()
+		pythonSampleDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
+		if (!file) return
+		pythonSampleBlob = file
+		if (pythonSampleFilename) pythonSampleFilename.textContent = file.name
+		pythonSampleIdle?.classList.add('hidden')
+		pythonSampleActive?.classList.remove('hidden')
+		showStudioToast(`🎧 Amostra para guia melódico: ${file.name}`, 'info')
+	})
 
 	pythonVoiceDropzone?.addEventListener('click', () => pythonVoiceInput?.click())
 	pythonVoiceInput?.addEventListener('change', async () => {
 		const file = pythonVoiceInput.files?.[0]
 		if (!file) return
 		pythonVoiceBlob = file
-		if (pythonVoiceFilename) pythonVoiceFilename.textContent = file.name
-		pythonVoiceIdle?.classList.add('hidden')
-		pythonVoiceActive?.classList.remove('hidden')
-		try {
-			const vBuf = await UniversalAudioFormatDecoder.decodeAudioFile(file)
-			await VoiceTimbreCloner.analyzeUserVoiceSample(vBuf)
-			showStudioToast(`🎙️ Voz indexada para RVC v2: ${file.name}`, 'success')
-		} catch (_) {}
+		await syncGlobalUserVoice(file)
+	})
+	pythonVoiceDropzone?.addEventListener('dragover', (e) => {
+		e.preventDefault()
+		pythonVoiceDropzone.style.borderColor = '#ec4899'
+	})
+	pythonVoiceDropzone?.addEventListener('dragleave', () => {
+		pythonVoiceDropzone.style.borderColor = ''
+	})
+	pythonVoiceDropzone?.addEventListener('drop', async (e: DragEvent) => {
+		e.preventDefault()
+		pythonVoiceDropzone.style.borderColor = ''
+		const file = e.dataTransfer?.files[0]
+		if (file) {
+			pythonVoiceBlob = file
+			await syncGlobalUserVoice(file)
+		}
 	})
 
 	btnPythonGenerate?.addEventListener('click', async () => {
@@ -4633,42 +4979,78 @@ function setupGenerativeTabs() {
 			'Heavy Metal track following the melody of the sample, with distorted dual lead guitars, punchy acoustic drums and energetic drive'
 		const lyricsText =
 			pythonLyrics?.value?.trim() ||
-			'[Verse]\nCante com voz poderosa no compasso\n[Chorus]\nRefrão épico e cortante'
+			'[Verse 1: 16 compassos]\nCante com voz poderosa no compasso\n[Chorus: 16 compassos]\nRefrão épico e cortante\n[Guitar Solo: 16 compassos]\n[Outro: 8 compassos]'
+
+		const duration = parseInt(sliderPythonDuration?.value || '120', 10)
+		const bpm = parseInt(sliderPythonBpm?.value || '145', 10)
+		const key = selectPythonKey?.value || 'Em'
+
+		// Auto-fallback: If no direct pythonVoiceBlob, but user has uploaded voice anywhere in the studio
+		let activeVoiceBlob = pythonVoiceBlob
+		if (!activeVoiceBlob && globalUserVoiceBuffer) {
+			activeVoiceBlob = audioBufferTo24BitWavBlob(globalUserVoiceBuffer)
+		}
 
 		btnPythonGenerate.disabled = true
 		pythonProgressWrap?.classList.remove('hidden')
-		if (pythonProgressBar) pythonProgressBar.style.width = '30%'
-		if (pythonProgressPct) pythonProgressPct.textContent = '30%'
+		if (pythonProgressBar) pythonProgressBar.style.width = '20%'
+		if (pythonProgressPct) pythonProgressPct.textContent = '20%'
+		if (pythonProgressText)
+			pythonProgressText.textContent = 'Iniciando síntese de áudio neural no Colab...'
 
 		try {
 			const res = await PythonColabBridgeEngine.generate(
-				promptText,
+				`${promptText} [Key: ${key}, Tempo: ${bpm} BPM]`,
 				lyricsText,
-				60,
+				duration,
 				pythonSampleBlob,
-				pythonVoiceBlob,
+				activeVoiceBlob,
 				(msg) => {
 					if (pythonProgressText) pythonProgressText.textContent = msg
-					if (pythonProgressBar) pythonProgressBar.style.width = '70%'
-					if (pythonProgressPct) pythonProgressPct.textContent = '70%'
+					if (pythonProgressBar) pythonProgressBar.style.width = '65%'
+					if (pythonProgressPct) pythonProgressPct.textContent = '65%'
 				},
 			)
 
+			const finalBuffer = res.audioBuffer
+
+			// Apply voice blend & RVC timbre transfer if user voice is active
+			if (VoiceTimbreCloner.hasUserVoice() || activeVoiceBlob || globalUserVoiceBuffer) {
+				const blend = parseInt(sliderPythonVoiceBlend?.value || '85', 10) / 100
+				const pitchShift = parseInt(selectPythonVoicePitch?.value || '0', 10)
+				if (pythonProgressText)
+					pythonProgressText.textContent = 'Filtro espectral: transferindo formantes da sua voz...'
+				const left = finalBuffer.getChannelData(0)
+				const right = finalBuffer.numberOfChannels > 1 ? finalBuffer.getChannelData(1) : left
+				const cloned = VoiceTimbreCloner.processTimbreTransfer(
+					left,
+					right,
+					blend,
+					pitchShift,
+					finalBuffer.sampleRate,
+				)
+				finalBuffer.copyToChannel(cloned.left, 0)
+				if (finalBuffer.numberOfChannels > 1) finalBuffer.copyToChannel(cloned.right, 1)
+			}
+
 			if (pythonProgressBar) pythonProgressBar.style.width = '100%'
 			if (pythonProgressPct) pythonProgressPct.textContent = '100%'
-			if (pythonProgressText) pythonProgressText.textContent = 'Geração concluída!'
+			if (pythonProgressText) pythonProgressText.textContent = 'Canção pronta!'
 
-			const trackName = 'MusicGen_RVC_Composed.wav'
-			loadBufferIntoStudio(res.audioBuffer, trackName)
+			const trackName = `MusicGen_RVC_${key}_${bpm}BPM_${duration}s.wav`
+			loadBufferIntoStudio(finalBuffer, trackName)
 
-			const tabMastering = document.querySelector(
-				'.studio-tab[data-tab="tab-mastering"]',
-			) as HTMLButtonElement
-			tabMastering?.click()
+			const dest = selectPythonDestination?.value || 'master_console'
+			if (dest === 'master_console') {
+				const tabMastering = document.querySelector(
+					'.studio-tab[data-tab="tab-mastering"]',
+				) as HTMLButtonElement
+				tabMastering?.click()
+			}
 
-			showStudioToast(`🎉 ${res.message}`, 'success', 6000)
+			showStudioToast(`🎉 ${res.message} Carregada no estúdio!`, 'success', 6000)
 		} catch (err: any) {
-			showStudioToast(`Erro no servidor Python: ${err?.message || err}`, 'warn', 6000)
+			showStudioToast(`Erro no servidor Python/Colab: ${err?.message || err}`, 'warn', 6000)
 		} finally {
 			btnPythonGenerate.disabled = false
 		}

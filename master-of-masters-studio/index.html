@@ -70,40 +70,44 @@
     <!-- WORKSPACE MODE SWITCHER (MENU ORGANIZADO) -->
     <div class="nav-pills-container">
       <button type="button" class="nav-pill-btn active studio-tab" data-tab="tab-mastering">
-        🎛️ 1. Master Console
+        🎛️ Master Console (Home)
       </button>
+
+      <!-- 3 MÉTODOS DE GERAÇÃO DESTACADOS -->
+      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-colab" style="border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.08); font-weight: 800;">
+        🌐 1. Gerador Colab T4
+      </button>
+      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-offline" style="border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.08); font-weight: 800;">
+        ⚙️ 2. Re-Compositor Offline
+      </button>
+      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-python" style="border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.08); font-weight: 800;">
+        🧠 3. MusicGen + RVC (Colab)
+      </button>
+
+      <!-- SUITE DE PROCESSAMENTO & MASTERING -->
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gemelli">
-        💎 2. Gem Welder
+        💎 Gem Welder
       </button>
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-miclocker">
-        🎤 3. Mic Locker
+        🎤 Mic Locker
       </button>
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-vocal">
-        🎙️ 4. Vocal God
+        🎙️ Vocal God
       </button>
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-spatial">
-        🎧 5. Mixer 3D
+        🎧 Mixer 3D
       </button>
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-aimatch">
-        🧠 6. Master IA
+        🧠 Master IA
       </button>
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-meters">
-        📊 7. Medição
+        📊 Medição
       </button>
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-batch">
-        ⚡ 8. Em Lote
+        ⚡ Em Lote
       </button>
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-arranger">
-        ✂️ 9. Arranjador DAW
-      </button>
-      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-colab" style="border-color: #38bdf8; color: #38bdf8;">
-        🌐 10. Gerador IA (Colab)
-      </button>
-      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-offline" style="border-color: #10b981; color: #10b981;">
-        ⚙️ 11. Re-Compositor Offline
-      </button>
-      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-python" style="border-color: #f59e0b; color: #f59e0b;">
-        🐍 12. Servidor Python/Colab
+        ✂️ Arranjador DAW
       </button>
     </div>
 
@@ -136,6 +140,90 @@
           <button type="button" id="btn-toggle-producers-drawer" class="switch-toggle-btn" style="display: flex; align-items: center; gap: 6px;">
             <span>🗂️ Galeria de Produtores</span>
           </button>
+        </div>
+
+        <!-- ===================================================================
+             🚀 SUITE DE CRIAÇÃO MUSICAL & CLONAGEM DE VOZ (3 MÉTODOS AUTOMÁTICOS)
+             =================================================================== -->
+        <div class="creation-hub-container">
+          <div class="creation-hub-header">
+            <div class="creation-hub-title">
+              <span style="font-size: 18px; animation: pulse 2s infinite;">✨</span>
+              <div>
+                <h3>SUITE DE CRIAÇÃO DE MÚSICA & VOZ · 3 MÉTODOS INDEPENDENTES</h3>
+                <span>Escolha o método desejado para gerar. Se um método não ficar perfeito, experimente os outros com 1 clique!</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <span id="home-colab-status-badge" style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid #38bdf8; padding: 4px 8px; border-radius: 6px;">
+                ⏳ Aguardando Sinal do Google Colab T4
+              </span>
+            </div>
+          </div>
+
+          <div class="creation-hub-grid">
+            <!-- MÉTODO 1 CARD -->
+            <div class="creation-card card-method-1 studio-tab" data-tab="tab-gen-colab">
+              <div class="creation-card-top">
+                <span class="creation-card-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">MÉTODO 1 · 100% AUTO</span>
+                <span style="font-size: 16px;">🌐</span>
+              </div>
+              <div>
+                <div class="creation-card-name">Gerador Dual-Track (Colab T4)</div>
+                <div class="creation-card-desc">Geração de canções completas na GPU T4 gratuita do Google Colab. Controle de BPM, tom, letra com contagem de compassos, botão "Forçar Guitarras Base no Solo" e clone de voz RVC v2.</div>
+              </div>
+              <div class="creation-card-btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; border-color: #38bdf8;">
+                <span>🚀 ABRIR MÉTODO 1 (COLAB T4) →</span>
+              </div>
+            </div>
+
+            <!-- MÉTODO 2 CARD -->
+            <div class="creation-card card-method-2 studio-tab" data-tab="tab-gen-offline">
+              <div class="creation-card-top">
+                <span class="creation-card-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">MÉTODO 2 · 100% OFFLINE</span>
+                <span style="font-size: 16px;">⚙️</span>
+              </div>
+              <div>
+                <div class="creation-card-name">Re-Compositor Granular (Navegador)</div>
+                <div class="creation-card-desc">Funciona 100% offline sem internet. Fatie qualquer música de amostra por compassos musicais, reestruture as seções conforme o seu roteiro e aplique a sua voz clonada no navegador.</div>
+              </div>
+              <div class="creation-card-btn" style="background: linear-gradient(135deg, #059669, #047857); color: #ffffff; border-color: #10b981;">
+                <span>⚡ ABRIR MÉTODO 2 (OFFLINE) →</span>
+              </div>
+            </div>
+
+            <!-- MÉTODO 3 CARD -->
+            <div class="creation-card card-method-3 studio-tab" data-tab="tab-gen-python">
+              <div class="creation-card-top">
+                <span class="creation-card-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">MÉTODO 3 · 100% AUTO</span>
+                <span style="font-size: 16px;">🧠</span>
+              </div>
+              <div>
+                <div class="creation-card-name">MusicGen-Melody + RVC v2 (Colab T4)</div>
+                <div class="creation-card-desc">Extração direta da harmonia e melodia da sua amostra com redes neurais profundas da Meta + clonagem vocal com index k-NN do RVC v2. 100% automático via Colab.</div>
+              </div>
+              <div class="creation-card-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color: #ffffff; border-color: #f59e0b;">
+                <span>🐍 ABRIR MÉTODO 3 (MUSICGEN) →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GLOBAL VOICE CLONE STATUS BANNER -->
+          <div class="global-voice-sync-bar">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 16px;">🎙️</span>
+              <div>
+                <span style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6; text-transform: uppercase;">CLONE DE VOZ UNIVERSAL (SINCRONIZADO EM TODOS OS MÉTODOS):</span>
+                <span id="global-voice-sync-status" style="font-family: var(--font-mono); font-size: 9.5px; color: #cbd5e1; margin-left: 6px;">
+                  Nenhuma voz carregada ainda. Envie um áudio em qualquer aba (WhatsApp OGG, gravador, M4A, MP3) e ela será aplicada em todos os 3 métodos!
+                </span>
+              </div>
+            </div>
+            <button type="button" id="btn-global-voice-upload" class="switch-toggle-btn" style="padding: 4px 10px; font-size: 9px; color: #f472b6; border-color: #f472b6; background: rgba(236, 72, 153, 0.1); font-weight: 800;">
+              🎙️ Carregar Minha Voz Agora
+            </button>
+            <input type="file" id="input-global-voice-file" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+          </div>
         </div>
 
         <!-- QUICK PRODUCER & ALBUM SELECTOR BAR -->
@@ -1835,6 +1923,22 @@
           </div>
         </div>
 
+        <!-- UNIFIED IN-PAGE 3-METHOD SWITCHER -->
+        <div class="gen-methods-subnav">
+          <button type="button" class="gen-method-btn active studio-tab" data-tab="tab-gen-colab">
+            <span class="method-tag" style="color: #38bdf8;">MÉTODO 1 · ATIVO</span>
+            <span class="method-title">🌐 Gerador Dual-Track Neural (Colab T4)</span>
+          </button>
+          <button type="button" class="gen-method-btn studio-tab" data-tab="tab-gen-offline">
+            <span class="method-tag" style="color: #10b981;">MÉTODO 2 · ALTERNATIVA</span>
+            <span class="method-title">⚙️ Re-Compositor Granular (Offline)</span>
+          </button>
+          <button type="button" class="gen-method-btn studio-tab" data-tab="tab-gen-python">
+            <span class="method-tag" style="color: #f59e0b;">MÉTODO 3 · ALTERNATIVA</span>
+            <span class="method-title">🧠 MusicGen-Melody + RVC (Colab)</span>
+          </button>
+        </div>
+
         <!-- COLAB AUTOMATIC SYNC & CONNECTION BAR -->
         <div style="background: #06090f; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);">
           <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 320px;">
@@ -2078,6 +2182,22 @@
           </div>
         </div>
 
+        <!-- UNIFIED IN-PAGE 3-METHOD SWITCHER -->
+        <div class="gen-methods-subnav">
+          <button type="button" class="gen-method-btn studio-tab" data-tab="tab-gen-colab">
+            <span class="method-tag" style="color: #38bdf8;">MÉTODO 1 · ALTERNATIVA</span>
+            <span class="method-title">🌐 Gerador Dual-Track Neural (Colab T4)</span>
+          </button>
+          <button type="button" class="gen-method-btn active method-2 studio-tab" data-tab="tab-gen-offline">
+            <span class="method-tag" style="color: #10b981;">MÉTODO 2 · ATIVO</span>
+            <span class="method-title">⚙️ Re-Compositor Granular (Offline)</span>
+          </button>
+          <button type="button" class="gen-method-btn studio-tab" data-tab="tab-gen-python">
+            <span class="method-tag" style="color: #f59e0b;">MÉTODO 3 · ALTERNATIVA</span>
+            <span class="method-title">🧠 MusicGen-Melody + RVC (Colab)</span>
+          </button>
+        </div>
+
         <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px;">
           <!-- LEFT: SAMPLE REQUIRED & SCRIPT -->
           <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -2175,82 +2295,181 @@
       <div class="rack-chassis">
         <div class="rack-header">
           <div>
-            <span class="rack-unit-tag">UNIT 12 · SERVIDOR PYTHON / COLAB ESPECIALISTA (MUSICGEN + RVC v2)</span>
-            <h2 class="rack-title">Servidor Neural Dedicado de Estúdio (MusicGen-Melody + RVC)</h2>
-            <p class="rack-subtitle">Executa composição neural orientada pela harmonia da sua amostra com o extrator de afinação RMVPE e clonagem k-NN do RVC v2 na GPU.</p>
+            <span class="rack-unit-tag">UNIT 12 · MÉTODO 3: MUSICGEN-MELODY + RVC v2 (GOOGLE COLAB T4 AUTOMÁTICO)</span>
+            <h2 class="rack-title">Compositor Neural Melódico & Clonagem k-NN (Colab Gratuito T4)</h2>
+            <p class="rack-subtitle">Extrai as notas, harmonia e progressão de acordes da sua amostra com redes neurais da Meta e clona a sua voz em 48kHz via RVC v2 com RMVPE.</p>
           </div>
-          <div style="display: flex; gap: 6px;">
-            <button type="button" id="btn-copy-python-code" class="switch-toggle-btn" style="padding: 6px 10px; font-size: 10px; border-color: #f59e0b; color: var(--gold-light);">
-              📋 Copiar Código Python
-            </button>
-            <a href="./scripts/google_colab_free_music_generator.ipynb" download="google_colab_free_music_generator.ipynb" class="btn-gold-action" style="padding: 6px 10px; font-size: 10px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-              📥 Baixar Notebook (.ipynb)
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="https://colab.research.google.com/" target="_blank" rel="noreferrer" class="btn-gold-action" style="padding: 6px 12px; font-size: 11px; text-decoration: none; display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 800;">
+              🚀 ABRIR GOOGLE COLAB (GRÁTIS)
             </a>
           </div>
         </div>
 
-        <!-- SERVER CONNECTION BAR -->
-        <div style="background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px;">
-            <span style="font-size: 16px;">🐍</span>
+        <!-- UNIFIED IN-PAGE 3-METHOD SWITCHER -->
+        <div class="gen-methods-subnav">
+          <button type="button" class="gen-method-btn studio-tab" data-tab="tab-gen-colab">
+            <span class="method-tag" style="color: #38bdf8;">MÉTODO 1 · ALTERNATIVA</span>
+            <span class="method-title">🌐 Gerador Dual-Track Neural (Colab T4)</span>
+          </button>
+          <button type="button" class="gen-method-btn studio-tab" data-tab="tab-gen-offline">
+            <span class="method-tag" style="color: #10b981;">MÉTODO 2 · ALTERNATIVA</span>
+            <span class="method-title">⚙️ Re-Compositor Granular (Offline)</span>
+          </button>
+          <button type="button" class="gen-method-btn active method-3 studio-tab" data-tab="tab-gen-python">
+            <span class="method-tag" style="color: #f59e0b;">MÉTODO 3 · ATIVO</span>
+            <span class="method-title">🧠 MusicGen-Melody + RVC (Colab)</span>
+          </button>
+        </div>
+
+        <!-- COLAB AUTOMATIC SYNC & CONNECTION BAR -->
+        <div style="background: #06090f; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);">
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 320px;">
+            <span style="font-size: 20px; animation: pulse 2s infinite;">📡</span>
             <div style="flex: 1;">
-              <label style="font-family: var(--font-mono); font-size: 9px; color: #f59e0b; font-weight: 700; display: block;">ENDEREÇO DO SERVIDOR (LOCALHOST OU NGROK DO COLAB):</label>
-              <input type="text" id="input-python-url" class="studio-select" style="width: 100%; font-size: 11px; padding: 4px 8px;" value="http://127.0.0.1:8000" />
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-family: var(--font-display); font-size: 11px; font-weight: 800; color: #f59e0b; text-transform: uppercase;">SINCRONIZAÇÃO AUTOMÁTICA EM NUVEM (SEM COPIAR NADA)</span>
+                <span id="badge-python-status" style="font-family: var(--font-mono); font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid #f59e0b;">
+                  ⏳ Aguardando sinal do Colab ou Gerando Prévia Direta
+                </span>
+              </div>
+              <div style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; margin-top: 2px;">
+                Conectado automaticamente à GPU T4 pelo lançador simultâneo. MusicGen-Melody e RVC v2 carregados na nuvem.
+              </div>
             </div>
-            <button type="button" id="btn-test-python-conn" class="switch-toggle-btn" style="padding: 6px 12px; font-size: 11px; margin-top: 12px; border-color: #f59e0b; color: #f59e0b;">
-              Verificar Servidor
-            </button>
           </div>
-          <div id="badge-python-status" style="font-family: var(--font-mono); font-size: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid var(--border-subtle);">
-            ○ Servidor Local Offline (Disponível prévia estéreo)
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="input-python-url" class="studio-select" style="width: 140px; font-size: 9.5px; padding: 4px 6px;" placeholder="URL Manual (Opcional)" title="Detectado automaticamente via relay" />
+            <button type="button" id="btn-test-python-conn" class="switch-toggle-btn" style="padding: 5px 8px; font-size: 9.5px; border-color: #f59e0b; color: #f59e0b;">
+              Testar
+            </button>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-top: 14px;">
-          <!-- LEFT: SCRIPT & HARMONY PROMPT -->
+          <!-- LEFT: PROMPT, PRESETS & LYRICS -->
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
-              <label style="font-family: var(--font-mono); font-size: 10.5px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 4px;">🎛️ PROMPT PARA O MUSICGEN-MELODY:</label>
-              <textarea id="python-music-prompt" class="studio-select" rows="3" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical;" placeholder="Ex: Heavy Metal track following the melody of the sample, with distorted dual lead guitars, punchy acoustic drums and energetic drive"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="font-family: var(--font-mono); font-size: 10.5px; color: var(--gold-light); font-weight: 700;">🎛️ PROMPT DO MUSICGEN-MELODY:</label>
+                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="heavy_metal" style="font-size: 8px; padding: 2px 6px;">⚡ Heavy Metal</button>
+                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="power_metal" style="font-size: 8px; padding: 2px 6px;">🔥 Power Metal</button>
+                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="thrash" style="font-size: 8px; padding: 2px 6px;">🥊 Thrash Metal</button>
+                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="classic_rock" style="font-size: 8px; padding: 2px 6px;">👑 80s Rock</button>
+                </div>
+              </div>
+              <textarea id="python-music-prompt" class="studio-select" rows="3" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical;" placeholder="Ex: Heavy Metal track following the melody of the sample, with distorted dual lead guitars, punchy acoustic drums, galloping bass and energetic drive"></textarea>
+
+              <!-- BPM & KEY -->
+              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; margin-bottom: 2px;">
+                    <span style="color: #94a3b8; font-weight: 700;">ANDAMENTO (BPM):</span>
+                    <span id="val-python-bpm" style="color: #f59e0b; font-weight: 800;">145 BPM</span>
+                  </div>
+                  <input type="range" id="slider-python-bpm" min="60" max="240" value="145" style="width: 100%; height: 5px; accent-color: #f59e0b; cursor: pointer;" />
+                </div>
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">TOM / ESCALA MUSICAL:</label>
+                  <select id="select-python-key" class="studio-select" style="width: 100%; font-size: 9.5px; padding: 3px 6px;">
+                    <option value="Em" selected>🎸 Em (Mi Menor - Iron Maiden / Metallica)</option>
+                    <option value="Dm">⚡ Dm (Ré Menor - Judas Priest / Power)</option>
+                    <option value="Am">👑 Am (Lá Menor - Dio / Black Sabbath)</option>
+                    <option value="Bm">🔥 Bm (Si Menor - Heavy Clássico)</option>
+                    <option value="Gm">🎼 Gm (Sol Menor - Rock Sinfônico)</option>
+                    <option value="C">✨ C (Dó Maior / Hino Metal)</option>
+                    <option value="D">⚡ D (Ré Maior / Hard Rock)</option>
+                    <option value="Ebm">⚔️ Ebm / D#m (Afinação Meio Tom Abaixo)</option>
+                    <option value="Drop-D">💣 Drop-D (Afinação Drop-D Pesada)</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
-              <label style="font-family: var(--font-mono); font-size: 10.5px; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 4px;">📜 LETRA PARA O MOTOR VOCAL RVC:</label>
-              <textarea id="python-music-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Verse]&#10;Cante esta melodia com o timbre clonado...&#10;[Chorus]&#10;Refrão estrondoso com potência máxima!"></textarea>
+              <label style="font-family: var(--font-mono); font-size: 10.5px; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 4px;">📜 LETRA & DIRETIVAS VOCAIS PARA O RVC v2:</label>
+              <textarea id="python-music-lyrics" class="studio-select" rows="6" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Verse 1: 16 compassos]&#10;Cante esta melodia com o timbre clonado e afinação precisa...&#10;[Chorus: 16 compassos]&#10;Refrão estrondoso com o anel do cantor rasgando a mixagem!&#10;[Guitar Solo: 16 compassos]&#10;[Outro: 8 compassos]"></textarea>
             </div>
           </div>
 
-          <!-- RIGHT: AUDIO DROPS & DISPATCH -->
+          <!-- RIGHT: AUDIO DROPS, VOICE CLONE & DISPATCH -->
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <!-- MÚSICA DE AMOSTRA -->
+            <!-- MÚSICA DE AMOSTRA (QUALQUER FORMATO) -->
             <div id="python-sample-dropzone" style="border: 1px dashed #f59e0b; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.04);">
               <input type="file" id="python-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="python-sample-idle">
-                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f59e0b;">🎧 MÚSICA DE AMOSTRA (MELODY GUIDE)</div>
+                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f59e0b;">🎧 MÚSICA DE AMOSTRA (MELODY & CHORD GUIDE)</div>
                 <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">O MusicGen extrai a melodia e acordes deste áudio (qualquer formato)</div>
               </div>
               <div id="python-sample-active" class="hidden">
                 <div id="python-sample-filename" style="color: #f59e0b; font-weight: 800; font-size: 10px;">sample.wav</div>
-                <div id="python-sample-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">● Melodia Extraída</div>
+                <div id="python-sample-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">● Melodia e Harmonia Extraídas</div>
               </div>
             </div>
 
-            <!-- VOZ PARA RVC v2 -->
-            <div id="python-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04);">
-              <input type="file" id="python-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
-              <div id="python-voice-idle">
-                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ AMOSTRA DA SUA VOZ (RVC v2 INDEX)</div>
-                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Qualquer formato: áudio de WhatsApp, gravador ou microfone</div>
+            <!-- CLONE DA SUA VOZ (QUALQUER FORMATO) -->
+            <div style="background: #080c14; border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 8px; padding: 10px;">
+              <div id="python-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 6px; padding: 8px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04); margin-bottom: 8px;">
+                <input type="file" id="python-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+                <div id="python-voice-idle">
+                  <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONAR MINHA VOZ REAL (QUALQUER FORMATO)</div>
+                  <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador de voz, iPhone M4A ou MP3</div>
+                </div>
+                <div id="python-voice-active" class="hidden">
+                  <div id="python-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 10px;">minha_voz.ogg</div>
+                  <div id="python-voice-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">⚡ Perfil RVC v2 & 14 Formantes Ativos!</div>
+                </div>
               </div>
-              <div id="python-voice-active" class="hidden">
-                <div id="python-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 10px;">minha_voz.ogg</div>
-                <div id="python-voice-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">⚡ Perfil RVC v2 Indexado</div>
+
+              <!-- CONTROLES FINOS DA VOZ CLONADA -->
+              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; align-items: center;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px; margin-bottom: 2px;">
+                    <span style="color: #94a3b8;">INTENSIDADE DO CLONE:</span>
+                    <span id="val-python-voice-blend" style="color: #f472b6; font-weight: 700;">85%</span>
+                  </div>
+                  <input type="range" id="slider-python-voice-blend" min="0" max="100" value="85" style="width: 100%; height: 4px; accent-color: #ec4899; cursor: pointer;" />
+                </div>
+                <div>
+                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">OITAVA / EXTENSÃO:</label>
+                  <select id="select-python-voice-pitch" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 2px;">
+                    <option value="0" selected>Original (0 semitons)</option>
+                    <option value="-12">Barítono (-12 semitons)</option>
+                    <option value="12">Tenor Agudo (+12 semitons)</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <input type="checkbox" id="check-python-singers-formant" checked style="accent-color: #ec4899; cursor: pointer;" />
+                <label for="check-python-singers-formant" style="font-family: var(--font-mono); font-size: 8.5px; color: #e2e8f0; cursor: pointer;">
+                  🔥 Anel do Cantor (+6dB em 2.8-3.2 kHz para cortar mix pesada)
+                </label>
+              </div>
+            </div>
+
+            <!-- CONTROLE CONTÍNUO DE DURAÇÃO & CÁLCULO DINÂMICO DE COMPASSOS -->
+            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-family: var(--font-mono); font-size: 9.5px; color: var(--gold-light); font-weight: 700;">⏱️ DURAÇÃO & COMPASSOS:</label>
+                <span id="badge-python-duration-calc" style="font-family: var(--font-mono); font-size: 9.5px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; padding: 2px 6px; border-radius: 4px;">
+                  02:00 (120s) · 72 comp @ 145 BPM
+                </span>
+              </div>
+              <input type="range" id="slider-python-duration" min="15" max="300" step="1" value="120" style="width: 100%; height: 6px; accent-color: #f59e0b; cursor: pointer;" />
+
+              <div style="margin-top: 4px;">
+                <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">DESTINO DO ÁUDIO APÓS GERAR:</label>
+                <select id="select-python-destination" class="studio-select" style="width: 100%; font-size: 9.5px; padding: 3px 6px;">
+                  <option value="master_console" selected>🏆 Master Console 64-Bit (Processar com Compressores & EQ Analógicos)</option>
+                  <option value="player_only">🎧 Apenas Carregar no Player do Estúdio</option>
+                </select>
               </div>
             </div>
 
             <!-- BOTÃO DISPARAR NA GPU -->
             <button type="button" id="btn-python-trigger-generate" class="btn-gold-action" style="padding: 12px; font-weight: 900; font-size: 12px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; box-shadow: 0 0 20px rgba(245,158,11,0.35);">
-              🐍 DISPARAR NO SERVIDOR NEURAL & REESCREVER NO STUDIO
+              🚀 GERAR COM MUSICGEN-MELODY + RVC v2 NO COLAB & MASTERIZAR
             </button>
 
             <!-- PROGRESSO PYTHON -->
