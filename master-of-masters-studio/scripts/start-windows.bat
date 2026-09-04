@@ -38,17 +38,22 @@ if "!SERVER_LAUNCHED!"=="0" (
     set "SERVER_LAUNCHED=1"
 )
 
-echo [2/3] Aguardando inicializacao do servidor na porta 7777...
+echo [2/4] Aguardando inicializacao do servidor na porta 7777...
 
 :: Loop de checagem: aguarda a porta 7777 responder
 powershell -Command "$tries=0; while($tries -lt 15){ try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:7777' -UseBasicParsing -TimeoutSec 1; if($r.StatusCode -eq 200){ break } } catch { Start-Sleep -Milliseconds 400; $tries++ } }"
 
-echo [3/3] Abrindo janela nativa do Master of Masters Studio Pro...
+echo [3/4] Abrindo janela nativa do Master of Masters Studio Pro...
 start msedge --app="http://127.0.0.1:7777/?v=%RANDOM%" --start-maximized 2>nul || start chrome --app="http://127.0.0.1:7777/?v=%RANDOM%" --start-maximized 2>nul || start http://127.0.0.1:7777/?v=%RANDOM%
+
+echo [4/4] Inicializando Google Colab simultaneamente em segundo plano (GPU T4)...
+start /b "" powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0colab_autopilot.ps1"
 
 echo.
 echo ===============================================================================
 echo   ✅ Master of Masters Studio Pro ATIVO em http://127.0.0.1:7777
+echo   🚀 Google Colab (GPU T4 Gratuita) iniciando simultaneamente sozinho!
+echo   📡 Sincronizacao automatica: o estudio conecta sozinho sem copiar links.
 echo   (Mantenha esta janela aberta enquanto estiver masterizando)
 echo ===============================================================================
 echo.
