@@ -96,6 +96,15 @@
       <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-arranger">
         ✂️ 9. Arranjador DAW
       </button>
+      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-colab" style="border-color: #38bdf8; color: #38bdf8;">
+        🌐 10. Gerador IA (Colab)
+      </button>
+      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-offline" style="border-color: #10b981; color: #10b981;">
+        ⚙️ 11. Re-Compositor Offline
+      </button>
+      <button type="button" class="nav-pill-btn studio-tab" data-tab="tab-gen-python" style="border-color: #f59e0b; color: #f59e0b;">
+        🐍 12. Servidor Python/Colab
+      </button>
     </div>
 
     <!-- DSP CORE STATUS & ANDROID INSTALL -->
@@ -423,10 +432,10 @@
             </div>
 
             <div id="master-user-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 5px; padding: 4px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.05);">
-              <input type="file" id="master-user-voice-input" accept="audio/*" class="hidden" />
+              <input type="file" id="master-user-voice-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="master-user-voice-idle">
                 <div style="font-family: var(--font-display); font-size: 9px; font-weight: 800; color: #ffffff;">📥 CARREGAR MINHA VOZ REAL</div>
-                <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Amostra acapella (WAV/MP3) para treino/match</div>
+                <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Amostra acapella (Qualquer formato / WhatsApp)</div>
               </div>
               <div id="master-user-voice-active" class="hidden">
                 <div id="master-user-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 9px;">minha_voz.wav</div>
@@ -516,7 +525,7 @@
 
             <!-- CLONAR TIMBRE DE GUITARRA DROPZONE -->
             <div id="guitar-ref-dropzone" style="border: 1px dashed rgba(245, 158, 11, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.05);">
-              <input type="file" id="guitar-ref-file-input" accept="audio/*" class="hidden" />
+              <input type="file" id="guitar-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="guitar-ref-idle">
                 <div style="font-family: var(--font-display); font-size: 8.5px; font-weight: 800; color: #f59e0b;">📥 CLONAR TIMBRE / DISTORÇÃO GUITARRA</div>
                 <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Arraste WAV/MP3 com seu riff/drive de referência</div>
@@ -581,10 +590,10 @@
 
             <!-- CLONAR TIMBRE DE BAIXO DROPZONE -->
             <div id="bass-ref-dropzone" style="border: 1px dashed rgba(16, 185, 129, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(16, 185, 129, 0.05);">
-              <input type="file" id="bass-ref-file-input" accept="audio/*" class="hidden" />
+              <input type="file" id="bass-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="bass-ref-idle">
                 <div style="font-family: var(--font-display); font-size: 8.5px; font-weight: 800; color: #10b981;">📥 CLONAR TIMBRE / GROWL DE BAIXO</div>
-                <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Arraste WAV/MP3 com o timbre de baixo de referência</div>
+                <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Arraste qualquer áudio com o timbre de baixo de referência</div>
               </div>
               <div id="bass-ref-active" class="hidden">
                 <div id="bass-ref-filename" style="color: #10b981; font-weight: 800; font-size: 8.5px;">baixo_ref.wav</div>
@@ -828,7 +837,7 @@
                     🎵 Arraste ou clique para carregar WAV/MP3 de Referência Externa (DNA: ÁLBUM SELECIONADO)
                   </span>
                   <span id="v4-ref-dna-status" class="hidden">DNA: ÁLBUM SELECIONADO</span>
-                  <input type="file" id="v4-ref-file-input" accept="audio/*" class="hidden" />
+                  <input type="file" id="v4-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
                 </div>
                 <!-- CANDIDATE TOURNAMENT -->
                 <div id="v4-tournament-results-hub" class="hidden" style="display: flex; flex-direction: column; gap: 4px; background: #04060a; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 5px; padding: 6px;">
@@ -1357,10 +1366,10 @@
             <div class="studio-card">
               <span style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 8px;">CARREGAR FAIXA DE VOZ:</span>
               <div id="vocal-dropzone" style="border: 2px dashed rgba(239, 68, 68, 0.5); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: #05070b;">
-                <input type="file" id="vocal-file-input" accept="audio/*" class="hidden" />
+                <input type="file" id="vocal-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
                 <div id="vocal-drop-idle">
                   <div style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #ffffff;">Carregar Voz Isolada</div>
-                  <div style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">WAV, MP3, FLAC</div>
+                  <div style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">Qualquer formato de áudio (WAV, MP3, OGG, WhatsApp)</div>
                 </div>
                 <div id="vocal-drop-active" class="hidden">
                   <div id="vocal-file-name" style="color: var(--red-light); font-weight: 700;">vocal.wav</div>
@@ -1377,13 +1386,13 @@
                 <span id="label-user-voice-status" style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; background: #160d20; padding: 2px 6px; border-radius: 4px;">Nenhuma Amostra</span>
               </div>
               <p style="font-size: 10px; color: #94a3b8; margin-bottom: 8px;">
-                Carregue uma amostra sua cantando (10s a 30s) para transferir seus formantes reais e alcance para a música do Suno!
+                Carregue uma amostra sua cantando (qualquer áudio: WhatsApp, gravador de celular, WAV/MP3) para transferir seus formantes reais para a música!
               </p>
               <div id="user-voice-dropzone" style="border: 2px dashed rgba(236, 72, 153, 0.5); border-radius: 8px; padding: 14px; text-align: center; cursor: pointer; background: #060408;">
-                <input type="file" id="user-voice-file-input" accept="audio/*" class="hidden" />
+                <input type="file" id="user-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
                 <div id="user-voice-idle">
-                  <div style="font-family: var(--font-display); font-size: 12px; font-weight: 700; color: #ffffff;">📥 CARREGAR AMOSTRA DA SUA VOZ (WAV/MP3)</div>
-                  <div style="font-family: var(--font-mono); font-size: 9px; color: #64748b; margin-top: 2px;">Cante acapella com potência e alcance</div>
+                  <div style="font-family: var(--font-display); font-size: 12px; font-weight: 700; color: #ffffff;">📥 CARREGAR AMOSTRA DA SUA VOZ (QUALQUER FORMATO)</div>
+                  <div style="font-family: var(--font-mono); font-size: 9px; color: #64748b; margin-top: 2px;">Voz falada ou cantada (WhatsApp, celular, microfone)</div>
                 </div>
                 <div id="user-voice-active" class="hidden">
                   <div id="user-voice-name" style="color: #ec4899; font-weight: 700; font-size: 11px;">minha_voz.wav</div>
@@ -1570,16 +1579,16 @@
           <div class="studio-card">
             <span style="font-family: var(--font-mono); font-size: 11px; color: var(--red-light); font-weight: 700; display: block; margin-bottom: 8px;">1. SUA FAIXA ALVO (NÃO MASTERIZADA):</span>
             <div id="ai-target-dropzone" style="border: 2px dashed rgba(239, 68, 68, 0.5); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; background: #05070b;">
-              <input type="file" id="ai-target-file-input" accept="audio/*" class="hidden" />
+              <input type="file" id="ai-target-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="ai-target-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #ffffff;">Carregar Faixa Alvo</div>
-              <div id="ai-target-info" style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">WAV, MP3, FLAC</div>
+              <div id="ai-target-info" style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">Qualquer Formato de Áudio</div>
             </div>
           </div>
 
           <div class="studio-card">
             <span style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 8px;">2. FAIXA COMERCIAL DE REFERÊNCIA:</span>
             <div id="ai-ref-dropzone" style="border: 2px dashed rgba(245, 158, 11, 0.5); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; background: #05070b;">
-              <input type="file" id="ai-ref-file-input" accept="audio/*" class="hidden" />
+              <input type="file" id="ai-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="ai-ref-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #ffffff;">Carregar Faixa de Referência</div>
               <div id="ai-ref-info" style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">Música comercial de estúdio</div>
             </div>
@@ -1675,10 +1684,10 @@
 
         <div class="studio-card" style="display: flex; flex-direction: column; gap: 14px;">
           <div id="batch-dropzone" style="border: 2px dashed #242f44; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: #05070b;">
-            <input type="file" id="batch-file-input" accept="audio/*" multiple class="hidden" />
+            <input type="file" id="batch-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" multiple class="hidden" />
             <div style="font-size: 32px; margin-bottom: 6px;">📦</div>
             <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: #ffffff;">Clique ou Arraste Múltiplas Músicas</div>
-            <div style="font-family: var(--font-mono); font-size: 11px; color: #64748b; margin-top: 4px;">Processamento em 24-bit WAV</div>
+            <div style="font-family: var(--font-mono); font-size: 11px; color: #64748b; margin-top: 4px;">Qualquer formato de áudio</div>
           </div>
           <div id="batch-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
           <button type="button" id="btn-run-batch" disabled class="btn-gold-action" style="width: 100%;">
@@ -1807,6 +1816,336 @@
 
       </div>
     </section>
+    
+    <!-- =======================================================================
+         WORKSPACE 10: 🌐 GERADOR IA DUAL-TRACK (GOOGLE COLAB GRATUITO T4)
+         ======================================================================= -->
+    <section id="tab-gen-colab" class="tab-content hidden">
+      <div class="rack-chassis">
+        <div class="rack-header">
+          <div>
+            <span class="rack-unit-tag">UNIT 10 · GERADOR IA DUAL-TRACK (GOOGLE COLAB GRATUITO T4)</span>
+            <h2 class="rack-title">Gerador de Música com Letra & Base Neural Gratuita</h2>
+            <p class="rack-subtitle">Gere canções completas com instrumentos e letras na GPU T4 gratuita do Google Colab e intercepte automaticamente para clonar a sua voz e masterizar em 64-bit.</p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="https://colab.research.google.com/" target="_blank" rel="noreferrer" class="btn-gold-action" style="padding: 6px 12px; font-size: 11px; text-decoration: none; display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: 800;">
+              🚀 ABRIR GOOGLE COLAB (GRÁTIS)
+            </a>
+          </div>
+        </div>
+
+        <!-- COLAB CONNECTION BAR -->
+        <div style="background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px;">
+            <span style="font-size: 16px;">🔗</span>
+            <div style="flex: 1;">
+              <label style="font-family: var(--font-mono); font-size: 9px; color: #38bdf8; font-weight: 700; display: block;">ENDPOINT DO GOOGLE COLAB (GRADIO / NGROK):</label>
+              <input type="text" id="input-colab-url" class="studio-select" style="width: 100%; font-size: 11px; padding: 4px 8px;" placeholder="Ex: https://xxxx.gradio.live ou https://xxxx.ngrok-free.app" />
+            </div>
+            <button type="button" id="btn-test-colab-conn" class="switch-toggle-btn" style="padding: 6px 12px; font-size: 11px; margin-top: 12px; border-color: #38bdf8; color: #38bdf8;">
+              Testar Conexão
+            </button>
+          </div>
+          <div id="badge-colab-status" style="font-family: var(--font-mono); font-size: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid var(--border-subtle);">
+            ○ Desconectado (Gera prévia estrutural offline)
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-top: 14px;">
+          <!-- LEFT: SCRIPT & LYRICS DIRECTOR -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
+              <label style="font-family: var(--font-mono); font-size: 10.5px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 4px;">📝 PROMPT DE ESTILO MUSICAL & INSTRUMENTAÇÃO:</label>
+              <textarea id="colab-music-prompt" class="studio-select" rows="2" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical;" placeholder="Ex: 80s British Heavy Metal, dual harmonized guitars, galloping bass, Bruce Dickinson style vocals, 145 BPM, massive production"></textarea>
+
+              <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px;">
+                <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="maiden" style="font-size: 8px; padding: 2px 6px;">⚡ Powerslave Metal</button>
+                <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="priest" style="font-size: 8px; padding: 2px 6px;">🔥 Painkiller Speed</button>
+                <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="dio" style="font-size: 8px; padding: 2px 6px;">👑 Holy Diver Epic</button>
+                <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="metallica" style="font-size: 8px; padding: 2px 6px;">🥊 Black Album Chug</button>
+              </div>
+            </div>
+
+            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="font-family: var(--font-mono); font-size: 10.5px; color: #38bdf8; font-weight: 700;">📜 LETRA & ROTEIRO ESTRUTURAL:</label>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Intro Riff]" style="font-size: 8px; padding: 1px 5px;">+ Intro</button>
+                  <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Verse 1]" style="font-size: 8px; padding: 1px 5px;">+ Verso</button>
+                  <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Chorus]" style="font-size: 8px; padding: 1px 5px;">+ Refrão</button>
+                  <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Guitar Solo]" style="font-size: 8px; padding: 1px 5px;">+ Solo</button>
+                  <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Outro]" style="font-size: 8px; padding: 1px 5px;">+ Final</button>
+                </div>
+              </div>
+              <textarea id="colab-music-lyrics" class="studio-select" rows="6" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Intro Riff]&#10;[Verse 1]&#10;Riding through the thunder, screaming in the night...&#10;[Chorus]&#10;Master of the masters, burning with the light!&#10;[Guitar Solo]&#10;[Outro]"></textarea>
+            </div>
+          </div>
+
+          <!-- RIGHT: SAMPLES, VOICE CLONING & GENERATION -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- MÚSICA DE AMOSTRA DROPZONE (QUALQUER FORMATO) -->
+            <div id="colab-sample-dropzone" style="border: 1px dashed #38bdf8; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.04);">
+              <input type="file" id="colab-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="colab-sample-idle">
+                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #38bdf8;">🎧 MÚSICA DE AMOSTRA (OPCIONAL)</div>
+                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Arraste qualquer áudio (MP3, WAV, WhatsApp OGG, M4A) para guiar o andamento e tom</div>
+              </div>
+              <div id="colab-sample-active" class="hidden">
+                <div id="colab-sample-filename" style="color: #38bdf8; font-weight: 800; font-size: 10px;">sample.wav</div>
+                <div id="colab-sample-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">● Amostra Carregada</div>
+              </div>
+            </div>
+
+            <!-- CLONE DA SUA VOZ (QUALQUER FORMATO) -->
+            <div id="colab-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04);">
+              <input type="file" id="colab-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="colab-voice-idle">
+                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONAR MINHA VOZ REAL (QUALQUER FORMATO)</div>
+                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Envie áudio de WhatsApp, gravador de celular, MP3 ou WAV para substituir a voz</div>
+              </div>
+              <div id="colab-voice-active" class="hidden">
+                <div id="colab-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 10px;">minha_voz.ogg</div>
+                <div id="colab-voice-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">⚡ 14 Formantes & Anel 2.9kHz Ativos!</div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 12px;">
+              <div>
+                <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">DURAÇÃO:</label>
+                <select id="select-colab-duration" class="studio-select" style="width: 100%; font-size: 9.5px; padding: 2px;">
+                  <option value="30">⚡ 30s (Trecho/Refrão)</option>
+                  <option value="60" selected>⚡ 60s (Single Direto)</option>
+                  <option value="120">🔥 120s (Música Completa)</option>
+                  <option value="180">👑 180s (Épico Estendido)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">DESTINO APÓS GERAR:</label>
+                <select id="select-colab-destination" class="studio-select" style="width: 100%; font-size: 9.5px; padding: 2px;">
+                  <option value="master_console" selected>🏆 Master Console 64-Bit</option>
+                  <option value="player_only">🎧 Apenas Ouvir Prévia</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- BOTÃO GERAR MÚSICA -->
+            <button type="button" id="btn-colab-trigger-generate" class="btn-red-action" style="padding: 12px; font-weight: 900; font-size: 12px; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8; box-shadow: 0 0 20px rgba(56,189,248,0.35);">
+              🚀 GERAR MÚSICA NO COLAB & CLONAR VOZ NO ESTÚDIO
+            </button>
+
+            <!-- PROGRESSO -->
+            <div id="colab-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                <span id="colab-progress-text" style="color: #38bdf8;">Processando...</span>
+                <span id="colab-progress-pct" style="color: #ffffff;">0%</span>
+              </div>
+              <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden;">
+                <div id="colab-progress-bar" style="background: #38bdf8; height: 100%; width: 0%; transition: width 0.3s;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         WORKSPACE 11: ⚙️ RE-COMPOSITOR ALGORÍTMICO OFFLINE (100% NO NAVEGADOR)
+         ======================================================================= -->
+    <section id="tab-gen-offline" class="tab-content hidden">
+      <div class="rack-chassis">
+        <div class="rack-header">
+          <div>
+            <span class="rack-unit-tag">UNIT 11 · RE-COMPOSITOR ALGORÍTMICO & GRANULAR OFFLINE</span>
+            <h2 class="rack-title">Re-Compositor Baseado na Amostra (100% Offline / Sem Internet)</h2>
+            <p class="rack-subtitle">Fatia a sua música de amostra por transientes de compasso, rearranja a estrutura conforme o seu script e aplica a sua voz clonada diretamente no navegador.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px;">
+          <!-- LEFT: SAMPLE REQUIRED & SCRIPT -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- MÚSICA DE AMOSTRA OBRIGATÓRIA -->
+            <div id="offline-sample-dropzone" style="border: 2px dashed #10b981; border-radius: 8px; padding: 14px; text-align: center; cursor: pointer; background: rgba(16, 185, 129, 0.05);">
+              <input type="file" id="offline-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="offline-sample-idle">
+                <div style="font-family: var(--font-display); font-size: 11px; font-weight: 800; color: #10b981;">📁 CARREGAR MÚSICA DE AMOSTRA BASE (OBRIGATÓRIO)</div>
+                <div style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; margin-top: 2px;">Envie a música original (WAV, MP3, OGG, M4A) de onde extrairemos os riffs e batidas</div>
+              </div>
+              <div id="offline-sample-active" class="hidden">
+                <div id="offline-sample-filename" style="color: #10b981; font-weight: 800; font-size: 11px;">amostra.wav</div>
+                <div id="offline-sample-stats" style="font-family: var(--font-mono); font-size: 8.5px; color: var(--emerald-primary);">● Fatiamento por Transientes Pronto!</div>
+              </div>
+            </div>
+
+            <!-- SCRIPT ESTRUTURAL -->
+            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="font-family: var(--font-mono); font-size: 10.5px; color: #10b981; font-weight: 700;">📜 SCRIPT DE REARRANJO ESTRUTURAL:</label>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Intro]" style="font-size: 8px; padding: 1px 5px;">+ Intro</button>
+                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Verse]" style="font-size: 8px; padding: 1px 5px;">+ Verso</button>
+                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Chorus]" style="font-size: 8px; padding: 1px 5px;">+ Refrão</button>
+                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Solo]" style="font-size: 8px; padding: 1px 5px;">+ Solo</button>
+                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Outro]" style="font-size: 8px; padding: 1px 5px;">+ Final</button>
+                </div>
+              </div>
+              <textarea id="offline-script-lyrics" class="studio-select" rows="8" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Intro]&#10;[Verse]&#10;Minha nova letra cantada pelo meu clone de voz...&#10;[Chorus]&#10;O refrão com guitarras da amostra e pressão total!&#10;[Solo]&#10;[Outro]"></textarea>
+            </div>
+          </div>
+
+          <!-- RIGHT: CONTROLS & VOICE CLONE -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- CLONAR VOZ DROPZONE -->
+            <div id="offline-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04);">
+              <input type="file" id="offline-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="offline-voice-idle">
+                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONAR MINHA VOZ (QUALQUER FORMATO)</div>
+                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador de voz, iPhone M4A ou MP3</div>
+              </div>
+              <div id="offline-voice-active" class="hidden">
+                <div id="offline-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 10px;">voz.ogg</div>
+                <div id="offline-voice-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">⚡ Clone Ativo no Re-Compositor</div>
+              </div>
+            </div>
+
+            <!-- CONTROLES ADICIONAIS -->
+            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9.5px;">
+                <span style="color: #94a3b8;">AJUSTE DE ANDAMENTO (BPM):</span>
+                <span id="offline-bpm-label" style="color: #10b981; font-weight: 700;">Auto (Da Amostra)</span>
+              </div>
+              <input type="range" id="offline-bpm-slider" min="60" max="200" value="128" style="width: 100%; height: 4px; accent-color: #10b981; cursor: pointer;" />
+
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9.5px; margin-top: 4px;">
+                <span style="color: #94a3b8;">INTENSIDADE DA CLONAGEM VOCAL:</span>
+                <span id="offline-blend-label" style="color: #f472b6; font-weight: 700;">85%</span>
+              </div>
+              <input type="range" id="offline-blend-slider" min="0" max="100" value="85" style="width: 100%; height: 4px; accent-color: #ec4899; cursor: pointer;" />
+            </div>
+
+            <!-- BOTÃO DISPARAR RE-COMPOSIÇÃO -->
+            <button type="button" id="btn-offline-trigger-recompose" class="btn-gold-action" style="padding: 12px; font-weight: 900; font-size: 12px; background: linear-gradient(135deg, #059669, #047857); border-color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.35);">
+              ⚡ RECOMPOR MÚSICA NOVA OFFLINE & ENVIAR AO MASTER
+            </button>
+
+            <!-- PROGRESSO OFFLINE -->
+            <div id="offline-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                <span id="offline-progress-text" style="color: #10b981;">Fatiando...</span>
+                <span id="offline-progress-pct" style="color: #ffffff;">0%</span>
+              </div>
+              <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden;">
+                <div id="offline-progress-bar" style="background: #10b981; height: 100%; width: 0%; transition: width 0.3s;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         WORKSPACE 12: 🐍 SERVIDOR PYTHON / COLAB ESPECIALISTA (MUSICGEN + RVC v2)
+         ======================================================================= -->
+    <section id="tab-gen-python" class="tab-content hidden">
+      <div class="rack-chassis">
+        <div class="rack-header">
+          <div>
+            <span class="rack-unit-tag">UNIT 12 · SERVIDOR PYTHON / COLAB ESPECIALISTA (MUSICGEN + RVC v2)</span>
+            <h2 class="rack-title">Servidor Neural Dedicado de Estúdio (MusicGen-Melody + RVC)</h2>
+            <p class="rack-subtitle">Executa composição neural orientada pela harmonia da sua amostra com o extrator de afinação RMVPE e clonagem k-NN do RVC v2 na GPU.</p>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" id="btn-copy-python-code" class="switch-toggle-btn" style="padding: 6px 10px; font-size: 10px; border-color: #f59e0b; color: var(--gold-light);">
+              📋 Copiar Código Python
+            </button>
+            <a href="./scripts/google_colab_free_music_generator.ipynb" download="google_colab_free_music_generator.ipynb" class="btn-gold-action" style="padding: 6px 10px; font-size: 10px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+              📥 Baixar Notebook (.ipynb)
+            </a>
+          </div>
+        </div>
+
+        <!-- SERVER CONNECTION BAR -->
+        <div style="background: #06090f; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px;">
+            <span style="font-size: 16px;">🐍</span>
+            <div style="flex: 1;">
+              <label style="font-family: var(--font-mono); font-size: 9px; color: #f59e0b; font-weight: 700; display: block;">ENDEREÇO DO SERVIDOR (LOCALHOST OU NGROK DO COLAB):</label>
+              <input type="text" id="input-python-url" class="studio-select" style="width: 100%; font-size: 11px; padding: 4px 8px;" value="http://127.0.0.1:8000" />
+            </div>
+            <button type="button" id="btn-test-python-conn" class="switch-toggle-btn" style="padding: 6px 12px; font-size: 11px; margin-top: 12px; border-color: #f59e0b; color: #f59e0b;">
+              Verificar Servidor
+            </button>
+          </div>
+          <div id="badge-python-status" style="font-family: var(--font-mono); font-size: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid var(--border-subtle);">
+            ○ Servidor Local Offline (Disponível prévia estéreo)
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-top: 14px;">
+          <!-- LEFT: SCRIPT & HARMONY PROMPT -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
+              <label style="font-family: var(--font-mono); font-size: 10.5px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 4px;">🎛️ PROMPT PARA O MUSICGEN-MELODY:</label>
+              <textarea id="python-music-prompt" class="studio-select" rows="3" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical;" placeholder="Ex: Heavy Metal track following the melody of the sample, with distorted dual lead guitars, punchy acoustic drums and energetic drive"></textarea>
+            </div>
+
+            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
+              <label style="font-family: var(--font-mono); font-size: 10.5px; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 4px;">📜 LETRA PARA O MOTOR VOCAL RVC:</label>
+              <textarea id="python-music-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Verse]&#10;Cante esta melodia com o timbre clonado...&#10;[Chorus]&#10;Refrão estrondoso com potência máxima!"></textarea>
+            </div>
+          </div>
+
+          <!-- RIGHT: AUDIO DROPS & DISPATCH -->
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- MÚSICA DE AMOSTRA -->
+            <div id="python-sample-dropzone" style="border: 1px dashed #f59e0b; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.04);">
+              <input type="file" id="python-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="python-sample-idle">
+                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f59e0b;">🎧 MÚSICA DE AMOSTRA (MELODY GUIDE)</div>
+                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">O MusicGen extrai a melodia e acordes deste áudio (qualquer formato)</div>
+              </div>
+              <div id="python-sample-active" class="hidden">
+                <div id="python-sample-filename" style="color: #f59e0b; font-weight: 800; font-size: 10px;">sample.wav</div>
+                <div id="python-sample-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">● Melodia Extraída</div>
+              </div>
+            </div>
+
+            <!-- VOZ PARA RVC v2 -->
+            <div id="python-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04);">
+              <input type="file" id="python-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="python-voice-idle">
+                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ AMOSTRA DA SUA VOZ (RVC v2 INDEX)</div>
+                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Qualquer formato: áudio de WhatsApp, gravador ou microfone</div>
+              </div>
+              <div id="python-voice-active" class="hidden">
+                <div id="python-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 10px;">minha_voz.ogg</div>
+                <div id="python-voice-stats" style="font-family: var(--font-mono); font-size: 8px; color: var(--emerald-primary);">⚡ Perfil RVC v2 Indexado</div>
+              </div>
+            </div>
+
+            <!-- BOTÃO DISPARAR NA GPU -->
+            <button type="button" id="btn-python-trigger-generate" class="btn-gold-action" style="padding: 12px; font-weight: 900; font-size: 12px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; box-shadow: 0 0 20px rgba(245,158,11,0.35);">
+              🐍 DISPARAR NO SERVIDOR NEURAL & REESCREVER NO STUDIO
+            </button>
+
+            <!-- PROGRESSO PYTHON -->
+            <div id="python-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
+                <span id="python-progress-text" style="color: #f59e0b;">Conectando...</span>
+                <span id="python-progress-pct" style="color: #ffffff;">0%</span>
+              </div>
+              <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden;">
+                <div id="python-progress-bar" style="background: #f59e0b; height: 100%; width: 0%; transition: width 0.3s;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
 
   </main>
 
@@ -1816,11 +2155,11 @@
   <footer class="master-transport-dock">
     <!-- FILE STATUS & LOAD -->
     <div style="display: flex; align-items: center; gap: 10px; min-width: 290px;">
-      <div id="audio-dropzone" style="width: 42px; height: 42px; border-radius: 8px; background: #121824; border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--red-light);" title="Carregar Música do Suno ou Master (WAV/MP3)">
-        <input type="file" id="audio-file-input" accept="audio/*" class="hidden" />
+      <div id="audio-dropzone" style="width: 42px; height: 42px; border-radius: 8px; background: #121824; border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--red-light);" title="Carregar Música do Suno ou Master (Qualquer Formato)">
+        <input type="file" id="audio-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
         📥
       </div>
-      <div id="transport-user-voice-btn" style="width: 42px; height: 42px; border-radius: 8px; background: #200d29; border: 1px solid #ec4899; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #f472b6;" title="Carregar Amostra da Sua Voz Real (WAV/MP3)">
+      <div id="transport-user-voice-btn" style="width: 42px; height: 42px; border-radius: 8px; background: #200d29; border: 1px solid #ec4899; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #f472b6;" title="Carregar Amostra da Sua Voz Real (Qualquer Formato)">
         🎙️
       </div>
       <div style="font-family: var(--font-mono); font-size: 11px;">
@@ -1981,7 +2320,7 @@
 
       <label class="btn-gold-action" style="text-align: center; cursor: pointer; padding: 8px;">
         📁 Selecionar Faixas do Álbum (Múltiplos Arquivos)
-        <input type="file" id="input-batch-files" multiple accept="audio/*" style="display: none;" />
+        <input type="file" id="input-batch-files" multiple accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" style="display: none;" />
       </label>
 
       <div id="batch-tracks-list" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;">
@@ -2035,8 +2374,8 @@
             🎙️ Gravar Minha Voz (Mic)
           </button>
           <label class="switch-toggle-btn" style="padding: 6px; font-size: 10px; text-align: center; cursor: pointer; border-color: #ec4899; color: #f472b6;">
-            📁 Enviar Áudio da Minha Voz
-            <input type="file" id="input-user-voice-file" accept="audio/*" style="display: none;" />
+            📁 Enviar Áudio da Minha Voz (Qualquer Formato)
+            <input type="file" id="input-user-voice-file" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" style="display: none;" />
           </label>
         </div>
         <div id="voice-upload-status" style="font-family: var(--font-mono); font-size: 9px; color: #10b981;">Nenhuma voz enviada (o motor sintetizará a linha vocal melódica).</div>
