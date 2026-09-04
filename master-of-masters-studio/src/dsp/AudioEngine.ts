@@ -553,8 +553,8 @@ export class AudioEngine {
 			40,
 			'🌊 Desmascarando Bumbo/Baixo e limpando frequências emboladas (250Hz-450Hz)...',
 		)
-		let lChan = weldedStemBuffer.getChannelData(0)
-		let rChan = weldedStemBuffer.getChannelData(1)
+		let lChan: Float32Array = weldedStemBuffer.getChannelData(0)
+		let rChan: Float32Array = weldedStemBuffer.getChannelData(1)
 
 		if (enableKickBassUnmask) {
 			const unmasked = SmartKickBassUnmasker.processUnmask(lChan, rChan, 0.65 * intensityScale, sr)

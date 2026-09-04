@@ -8,7 +8,7 @@
  * 4. Studio Early Reflections (<25ms impulse response) replicating legendary tracking spaces (Abbey Road 2, Sound City, Power Station, Wisseloord).
  */
 
-import type { MasterAlbumSetup } from '../database/producers-legends-rock-metal'
+import type { MasterAlbumSetup } from '../database/masters-database'
 
 export class AbsoluteInstrumentFingerprintEngine {
 	/**
@@ -39,9 +39,14 @@ export class AbsoluteInstrumentFingerprintEngine {
 
 		// Stage 2: Hammerstein-Wiener Tube Curve parameters based on album saturation type
 		const isVintageBritish =
-			album.saturation.type === 'neve_1073' || album.saturation.type === 'marshall_plexi'
+			album.saturation.type === 'neve_tube' ||
+			(album.saturation.type as string) === 'neve_1073' ||
+			album.saturation.type === 'marshall_jcm800' ||
+			(album.saturation.type as string) === 'marshall_plexi'
 		const isHighGainModern =
-			album.saturation.type === 'peavey_5150' || album.saturation.type === 'mesa_dual_rectifier'
+			album.saturation.type === 'peavey_5150' ||
+			album.saturation.type === 'mesa_rectifier' ||
+			(album.saturation.type as string) === 'mesa_dual_rectifier'
 
 		const _tubeEvenHarmonic = isVintageBritish ? 0.35 : 0.18
 		const _tubeOddHarmonic = isHighGainModern ? 0.45 : 0.25

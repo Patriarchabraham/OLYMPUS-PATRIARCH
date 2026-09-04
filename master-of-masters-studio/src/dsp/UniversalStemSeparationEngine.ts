@@ -365,8 +365,8 @@ export class UniversalStemSeparationEngine {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		// 5. Vocal Silk Polish, Vocal Physiology Conditioning & Vocal Mics (GEM 1)
-		let cleanVoxL = voxDeltaBuf.getChannelData(0)
-		let cleanVoxR = voxDeltaBuf.getChannelData(1)
+		let cleanVoxL: Float32Array = voxDeltaBuf.getChannelData(0)
+		let cleanVoxR: Float32Array = voxDeltaBuf.getChannelData(1)
 
 		// 5.0. 🛡️ AI Vocal De-Artifacting (Surgically strips metallic robotic comb-filtering & AI sibilance fizz)
 		const deArtifacted = AIVocalDeArtifactEngine.processVocalDeArtifact(

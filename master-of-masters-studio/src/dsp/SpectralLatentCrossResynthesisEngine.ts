@@ -8,7 +8,7 @@
  * 4. Latent Space Cross-Synthesis Matrix: transforms thin, dry, or synthetic stems into deep, molecularly rich analog recordings.
  */
 
-import type { MasterAlbumSetup } from '../database/producers-legends-rock-metal'
+import type { MasterAlbumSetup } from '../database/masters-database'
 
 export class SpectralLatentCrossResynthesisEngine {
 	/**

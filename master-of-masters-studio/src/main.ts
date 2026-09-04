@@ -1575,8 +1575,8 @@ function setupMasterProcessing() {
 
 			sliderSat.value = `${Math.round(cal.recommendedDrive * 100)}`
 			sliderWidth.value = `${Math.round(cal.recommendedWidth * 100)}`
-			if (valSat) valSat.textContent = `${Math.round(cal.recommendedDrive * 100)}%`
-			if (valWidth) valWidth.textContent = `${Math.round(cal.recommendedWidth * 100)}%`
+			if (labelSatVal) labelSatVal.textContent = `${Math.round(cal.recommendedDrive * 100)}%`
+			if (labelWidthVal) labelWidthVal.textContent = `${Math.round(cal.recommendedWidth * 100)}%`
 
 			const chkDynamicDeHarsh = document.getElementById('chk-dynamic-deharsh') as HTMLInputElement
 			const chkKickBassUnmask = document.getElementById('chk-kick-bass-unmask') as HTMLInputElement
@@ -2042,11 +2042,11 @@ function setupMasterProcessing() {
 
 						if (candData && lastMasterResult) {
 							// Update active buffer in player
-							const candBuf = AudioBufferHelper.createAudioBuffer(
-								2,
-								candData.leftBuffer.length,
-								44100,
-							)
+							const candBuf = new AudioBuffer({
+								numberOfChannels: 2,
+								length: candData.leftBuffer.length,
+								sampleRate: 44100,
+							})
 							candBuf.copyToChannel(candData.leftBuffer, 0)
 							candBuf.copyToChannel(candData.rightBuffer, 1)
 							const candBlob = audioBufferTo24BitWavBlob(candBuf)
@@ -2086,11 +2086,11 @@ function setupMasterProcessing() {
 					if (stemType && stemType !== 'all' && lastMasterResult.masteredStems) {
 						const stemChan = (lastMasterResult.masteredStems as any)[stemType]
 						if (stemChan) {
-							targetBuffer = AudioBufferHelper.createAudioBuffer(
-								2,
-								stemChan.length,
-								lastMasterResult.masterBuffer.sampleRate,
-							)
+							targetBuffer = new AudioBuffer({
+								numberOfChannels: 2,
+								length: stemChan.length,
+								sampleRate: lastMasterResult.masterBuffer.sampleRate,
+							})
 							targetBuffer.copyToChannel(stemChan, 0)
 							targetBuffer.copyToChannel(stemChan, 1)
 						}
@@ -2687,18 +2687,8 @@ function setupMasterProcessing() {
 			// Save stems and master buffer
 			currentGeneratedStems = generatedResult.stems
 			audioBuffer = generatedResult.masterBuffer
-			loadedFile = new File(
-				[new Uint8Array(100)],
-				`${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_ORIGINAL_COMPOSED.wav`,
-				{ type: 'audio/wav' },
-			)
-
-			updateTrackInfo(
-				`${activeAlbum.band} - Composição Inédita Gerada`,
-				generatedResult.masterBuffer.duration,
-			)
-			drawWaveform(generatedResult.masterBuffer)
-			drawSpectrum(generatedResult.masterBuffer)
+			const trackName = `${activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')}_ORIGINAL_COMPOSED.wav`
+			loadBufferIntoStudio(generatedResult.masterBuffer, trackName)
 			modalAiSongGenerator.classList.add('hidden')
 
 			alert(
@@ -2808,8 +2798,7 @@ function setupMasterProcessing() {
 		mixerState.vocals.gain = parseFloat(faderVox.value)
 
 		audioBuffer = LiveStemMixerEngine.mixStems(currentGeneratedStems, mixerState)
-		drawWaveform(audioBuffer)
-		drawSpectrum(audioBuffer)
+		loadBufferIntoStudio(audioBuffer, 'Stem_Remix_Master.wav')
 		modalStemMixer.classList.add('hidden')
 		alert('✅ Mixagem das stems aplicada com sucesso ao áudio master!')
 	})
@@ -2818,7 +2807,7 @@ function setupMasterProcessing() {
 	const btnExportMidiFile = document.getElementById('btn-export-midi-file') as HTMLButtonElement
 	btnExportMidiFile?.addEventListener('click', () => {
 		const midiBytes = MidiFileExportEngine.generateMultiTrackMidi(145, 60, 40)
-		const blob = new Blob([midiBytes], { type: 'audio/midi' })
+		const blob = new Blob([midiBytes as BlobPart], { type: 'audio/midi' })
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement('a')
 		a.href = url
@@ -2952,7 +2941,7 @@ Master of Masters Studio Pro — 64-Bit Quantum Analog DSP & AI Maestro Orchestr
 			alert('Carregue ou processe um master primeiro para exportar o Box Set!')
 			return
 		}
-		const buf = lastMasterResult?.masteredBuffer || audioBuffer!
+		const buf = lastMasterResult?.masterBuffer || audioBuffer!
 		const baseName = activeAlbum.band.replace(/[^a-zA-Z0-9_-]/g, '_')
 		const scoreText =
 			currentMaestroScore?.fullConductorScoreHtml ||
@@ -2983,7 +2972,7 @@ Master of Masters Studio Pro — 64-Bit Quantum Analog DSP & AI Maestro Orchestr
 		const presets = PresetManager.getPresets()
 		const p = presets.find((item) => item.id === id)
 		if (!p) return
-		selectProducer(p.producerId, p.albumId)
+		selectMasterSetup(p.producerId, p.albumId)
 		sliderSat.value = String(p.satDrive)
 		sliderWidth.value = String(p.stereoWidth)
 		sliderIntensity.value = String(p.intensity)

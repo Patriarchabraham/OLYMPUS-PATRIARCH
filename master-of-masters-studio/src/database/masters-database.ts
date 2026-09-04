@@ -1,3 +1,4 @@
+import type { SaturationType } from '../dsp/SaturationCurves'
 import { ALL_20_PRODUCERS_FULL } from './all-producers-full'
 import { PRODUCERS_PART2 } from './all-producers-full-part2'
 import { PRODUCERS_MIDDLE } from './all-producers-middle'
@@ -6,27 +7,7 @@ import { PRODUCERS_ICONS_PROG_POP } from './producers-icons-prog-pop'
 import { PRODUCERS_LEGENDS_EXPANDED_DISCOGRAPHY } from './producers-legends-expanded-discography'
 import { PRODUCERS_LEGENDS_ROCK_METAL } from './producers-legends-rock-metal'
 
-export type SaturationType =
-	| 'neve_tube'
-	| 'ssl_vca'
-	| 'tape_warmth'
-	| 'distressor_nuke'
-	| 'shadow_hills'
-	| 'pultec_tube'
-	| 'fairchild_mu'
-	| 'la2a_opto'
-	| 'mesa_rectifier'
-	| 'peavey_5150'
-	| 'marshall_jcm800'
-	| 'boss_hm2_buzzsaw'
-	| 'ts9_screamer'
-	| 'soldano_slo100'
-	| 'ampeg_svt'
-	| 'sansamp_di'
-	| 'darkglass_b7k'
-	| 'bigmuff_bass_fuzz'
-	| 'dbx160_vca'
-	| 'api_thrust'
+export type { SaturationType }
 
 export interface GuitarToneprint {
 	ampModel: SaturationType

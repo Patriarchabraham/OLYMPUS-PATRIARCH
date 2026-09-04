@@ -280,8 +280,8 @@ export class SongArrangerEngine {
 				`Processando seção ${sIdx + 1}/${validSections.length}: ${sec.name} (${sec.repeatCount}x)...`,
 			)
 
-			let segL = srcLeft.subarray(startSample, endSample)
-			let segR = srcRight.subarray(startSample, endSample)
+			let segL: Float32Array = srcLeft.subarray(startSample, endSample)
+			let segR: Float32Array = srcRight.subarray(startSample, endSample)
 
 			// If Natural Regeneration requested for this section
 			if (sec.isNaturalRegen) {
