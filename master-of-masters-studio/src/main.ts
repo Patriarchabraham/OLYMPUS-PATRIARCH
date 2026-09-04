@@ -4192,7 +4192,7 @@ function setupGenerativeTabs() {
 	// =========================================================================
 	const inputColabUrl = document.getElementById('input-colab-url') as HTMLInputElement
 	const btnTestColab = document.getElementById('btn-test-colab-conn') as HTMLButtonElement
-	const badgeColabStatus = document.getElementById('badge-colab-status') as HTMLElement
+	const _badgeColabStatus = document.getElementById('badge-colab-status') as HTMLElement
 	const colabPrompt = document.getElementById('colab-music-prompt') as HTMLTextAreaElement
 	const colabLyrics = document.getElementById('colab-music-lyrics') as HTMLTextAreaElement
 	const colabSampleDropzone = document.getElementById('colab-sample-dropzone') as HTMLElement
@@ -4298,47 +4298,113 @@ function setupGenerativeTabs() {
 	})
 
 	// 📡 100% AUTOMATIC DISCOVERY RELAY (ZERO MANUAL COPY/PASTE)
-	ColabFreeMusicBridge.startAutoDiscovery((discoveredUrl, latency) => {
-		if (inputColabUrl) inputColabUrl.value = discoveredUrl
-		if (badgeColabStatus) {
-			badgeColabStatus.textContent = `🟢 Conectado Automaticamente ao Google Colab T4 (${latency}ms)`
-			badgeColabStatus.style.color = '#10b981'
-			badgeColabStatus.style.borderColor = '#10b981'
-		}
-		if (btnColabGenerate) {
-			btnColabGenerate.textContent = '🚀 GERAR MÚSICA NA GPU T4 (AUTO-CONECTADO) & CLONAR VOZ'
-		}
-
-		// Sync Method 3 (Python/MusicGen) & Home Hub Status
-		PythonColabBridgeEngine.setUrl(discoveredUrl)
+	// 📡 CENTRALIZED 100% AUTOMATIC DISCOVERY & STATUS SYNCHRONIZATION
+	function syncAllColabBadges(online: boolean, latencyMs: number, url: string, statusMsg?: string) {
 		const homeColabBadge = document.getElementById('home-colab-status-badge')
-		if (homeColabBadge) {
-			homeColabBadge.textContent = `🟢 Google Colab T4 Online (${latency}ms) · 100% Automático`
-			homeColabBadge.style.color = '#10b981'
-			homeColabBadge.style.borderColor = '#10b981'
-			homeColabBadge.style.background = 'rgba(16, 185, 129, 0.15)'
-		}
-		const inputPythonUrl = document.getElementById('input-python-url') as HTMLInputElement | null
-		if (inputPythonUrl) inputPythonUrl.value = discoveredUrl
+		const badgeColabStatus = document.getElementById('badge-colab-status')
 		const badgePythonStatus = document.getElementById('badge-python-status')
-		if (badgePythonStatus) {
-			badgePythonStatus.textContent = `🟢 Conectado Automaticamente ao Google Colab T4 (${latency}ms)`
-			badgePythonStatus.style.color = '#10b981'
-			badgePythonStatus.style.borderColor = '#10b981'
-		}
+		const inputColabUrl = document.getElementById('input-colab-url') as HTMLInputElement | null
+		const inputPythonUrl = document.getElementById('input-python-url') as HTMLInputElement | null
+		const btnColabGenerate = document.getElementById(
+			'btn-colab-trigger-generate',
+		) as HTMLButtonElement | null
 		const btnPythonGenerate = document.getElementById(
 			'btn-python-trigger-generate',
 		) as HTMLButtonElement | null
-		if (btnPythonGenerate) {
-			btnPythonGenerate.textContent =
-				'🚀 GERAR COM MUSICGEN-MELODY + RVC v2 NO COLAB T4 (AUTO-CONECTADO)'
-		}
 
+		if (online && url) {
+			if (inputColabUrl) inputColabUrl.value = url
+			if (inputPythonUrl) inputPythonUrl.value = url
+			PythonColabBridgeEngine.setUrl(url)
+			ColabFreeMusicBridge.setEndpoint(url)
+
+			if (homeColabBadge) {
+				homeColabBadge.textContent = `🟢 Google Colab T4 Online (${latencyMs}ms) · 100% Automático`
+				homeColabBadge.style.color = '#10b981'
+				homeColabBadge.style.borderColor = '#10b981'
+				homeColabBadge.style.background = 'rgba(16, 185, 129, 0.18)'
+				homeColabBadge.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.35)'
+				homeColabBadge.title = `Conexão neural ativa com a GPU T4 (${latencyMs}ms)! Clique para telemetria.`
+			}
+			if (badgeColabStatus) {
+				badgeColabStatus.textContent = `🟢 Conectado ao Google Colab T4 (${latencyMs}ms) · 100% Automático`
+				badgeColabStatus.style.color = '#10b981'
+				badgeColabStatus.style.borderColor = '#10b981'
+				badgeColabStatus.style.background = 'rgba(16, 185, 129, 0.15)'
+			}
+			if (badgePythonStatus) {
+				badgePythonStatus.textContent = `🟢 Conectado ao Google Colab T4 (${latencyMs}ms) · MusicGen + RVC v2`
+				badgePythonStatus.style.color = '#10b981'
+				badgePythonStatus.style.borderColor = '#10b981'
+				badgePythonStatus.style.background = 'rgba(16, 185, 129, 0.15)'
+			}
+			if (btnColabGenerate) {
+				btnColabGenerate.textContent = '🚀 GERAR MÚSICA NA GPU T4 (AUTO-CONECTADO) & CLONAR VOZ'
+				btnColabGenerate.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.45)'
+			}
+			if (btnPythonGenerate) {
+				btnPythonGenerate.textContent =
+					'🚀 GERAR COM MUSICGEN-MELODY + RVC v2 NO COLAB T4 (AUTO-CONECTADO)'
+			}
+		} else {
+			if (homeColabBadge) {
+				homeColabBadge.textContent =
+					statusMsg || '⏳ Sintonizando GPU T4... (Clique para Abrir Colab)'
+				homeColabBadge.style.color = '#38bdf8'
+				homeColabBadge.style.borderColor = '#38bdf8'
+				homeColabBadge.style.background = 'rgba(56, 189, 248, 0.12)'
+				homeColabBadge.style.boxShadow = 'none'
+				homeColabBadge.title =
+					'Aguardando sinal do Google Colab T4. Clique para abrir ou verificar.'
+			}
+			if (badgeColabStatus) {
+				badgeColabStatus.textContent =
+					statusMsg || '⏳ Aguardando Sinal da GPU T4 (ou Gera Prévia Direta)'
+				badgeColabStatus.style.color = '#38bdf8'
+				badgeColabStatus.style.borderColor = 'rgba(56, 189, 248, 0.4)'
+				badgeColabStatus.style.background = 'rgba(56, 189, 248, 0.08)'
+			}
+			if (badgePythonStatus) {
+				badgePythonStatus.textContent =
+					statusMsg || '⏳ Aguardando Servidor Colab T4 (ou Gera Prévia Local)'
+				badgePythonStatus.style.color = '#f59e0b'
+				badgePythonStatus.style.borderColor = 'rgba(245, 158, 11, 0.4)'
+				badgePythonStatus.style.background = 'rgba(245, 158, 11, 0.08)'
+			}
+		}
+	}
+
+	ColabFreeMusicBridge.onStatusChange = (status) => {
+		syncAllColabBadges(status.connected, status.latencyMs, status.url, status.statusText)
+	}
+
+	ColabFreeMusicBridge.startAutoDiscovery((discoveredUrl, latency) => {
+		syncAllColabBadges(true, latency, discoveredUrl)
 		showStudioToast(
 			`⚡ Google Colab emparelhado automaticamente (${latency}ms)! Zero configuração.`,
 			'success',
 			5000,
 		)
+	})
+
+	const homeColabBadge = document.getElementById('home-colab-status-badge')
+	homeColabBadge?.addEventListener('click', async () => {
+		if (ColabFreeMusicBridge.isOnline()) {
+			showStudioToast(
+				`🟢 Conexão neural ativa com o Google Colab T4 (${ColabFreeMusicBridge.getLatency()}ms)!`,
+				'success',
+				3500,
+			)
+			return
+		}
+		showStudioToast('🚀 Sintonizando sinal e abrindo Google Colab T4...', 'info', 3000)
+		syncAllColabBadges(false, 0, '', '⏳ Abrindo Google Colab T4 e sintonizando...')
+		await ColabFreeMusicBridge.launchColabAutopilot()
+		const check = await ColabFreeMusicBridge.forceCheck()
+		if (check.ok) {
+			syncAllColabBadges(true, check.latencyMs, check.url)
+			showStudioToast(`🟢 Conectado ao Google Colab T4 (${check.latencyMs}ms)!`, 'success', 4000)
+		}
 	})
 
 	const COLAB_PRESETS: Record<string, string> = {
@@ -4375,27 +4441,18 @@ function setupGenerativeTabs() {
 
 	btnTestColab?.addEventListener('click', async () => {
 		const url = inputColabUrl?.value?.trim() || ''
-		ColabFreeMusicBridge.setEndpoint(url)
-		if (badgeColabStatus) {
-			badgeColabStatus.textContent = '⏳ Testando conexão com Colab...'
-			badgeColabStatus.style.color = '#38bdf8'
-		}
+		if (url) ColabFreeMusicBridge.setEndpoint(url)
+		syncAllColabBadges(false, 0, '', '⏳ Testando conexão com Colab...')
 		const test = await ColabFreeMusicBridge.testConnection(url)
-		if (badgeColabStatus) {
-			if (test.ok) {
-				badgeColabStatus.textContent = `● Conectado ao Colab (${test.latencyMs}ms)`
-				badgeColabStatus.style.color = '#10b981'
-				badgeColabStatus.style.borderColor = '#10b981'
-				showStudioToast('🌐 Conexão ativa com o Google Colab!', 'success')
-			} else {
-				badgeColabStatus.textContent = `○ ${test.message} (Gera prévia estéreo local)`
-				badgeColabStatus.style.color = '#f59e0b'
-				badgeColabStatus.style.borderColor = 'var(--border-subtle)'
-				showStudioToast(
-					'Modo offline: Gerará prévia estéreo direta se o Colab não estiver rodando',
-					'info',
-				)
-			}
+		if (test.ok) {
+			syncAllColabBadges(true, test.latencyMs, url || ColabFreeMusicBridge.getEndpoint())
+			showStudioToast('🌐 Conexão ativa com o Google Colab!', 'success')
+		} else {
+			syncAllColabBadges(false, 0, '', `○ ${test.message}`)
+			showStudioToast(
+				'Modo offline: Gerará prévia estéreo direta se o Colab não estiver rodando',
+				'info',
+			)
 		}
 	})
 
@@ -4766,7 +4823,7 @@ function setupGenerativeTabs() {
 	// =========================================================================
 	const inputPythonUrl = document.getElementById('input-python-url') as HTMLInputElement
 	const btnTestPython = document.getElementById('btn-test-python-conn') as HTMLButtonElement
-	const badgePythonStatus = document.getElementById('badge-python-status') as HTMLElement
+	const _badgePythonStatus = document.getElementById('badge-python-status') as HTMLElement
 	const btnCopyPythonCode = document.getElementById('btn-copy-python-code') as HTMLButtonElement
 	const pythonPrompt = document.getElementById('python-music-prompt') as HTMLTextAreaElement
 	const pythonLyrics = document.getElementById('python-music-lyrics') as HTMLTextAreaElement
@@ -4899,24 +4956,14 @@ function setupGenerativeTabs() {
 		const url =
 			inputPythonUrl?.value?.trim() || ColabFreeMusicBridge.getEndpoint() || 'http://127.0.0.1:8000'
 		PythonColabBridgeEngine.setUrl(url)
-		if (badgePythonStatus) {
-			badgePythonStatus.textContent = '⏳ Verificando servidor Python...'
-			badgePythonStatus.style.color = '#f59e0b'
-		}
+		syncAllColabBadges(false, 0, '', '⏳ Verificando servidor Python/Colab...')
 		const status = await PythonColabBridgeEngine.checkHealth(url)
-		if (badgePythonStatus) {
-			if (status.connected) {
-				badgePythonStatus.textContent = `● Servidor Online: ${status.gpuName} (${status.latencyMs}ms)`
-				badgePythonStatus.style.color = '#10b981'
-				badgePythonStatus.style.borderColor = '#10b981'
-				showStudioToast(`Servidor Python conectado: ${status.gpuName}`, 'success')
-			} else {
-				badgePythonStatus.textContent =
-					'○ Servidor Python não detectado (Gera prévia estéreo local)'
-				badgePythonStatus.style.color = '#f59e0b'
-				badgePythonStatus.style.borderColor = 'var(--border-subtle)'
-				showStudioToast('Servidor local offline. Modo de prévia procedural ativo.', 'info')
-			}
+		if (status.connected) {
+			syncAllColabBadges(true, status.latencyMs, url)
+			showStudioToast(`🌐 Servidor Conectado: ${status.gpuName} (${status.latencyMs}ms)`, 'success')
+		} else {
+			syncAllColabBadges(false, 0, '', '○ Servidor não detectado (Gera prévia local)')
+			showStudioToast('Servidor offline. Modo de prévia procedural ativo.', 'info')
 		}
 	})
 

@@ -1083,4 +1083,35 @@ select option:checked, select.studio-select option:checked {
   margin-top: 10px;
 }
 
+/* ULTRA-LUXURY TELEMETRY PILL & RADAR GLOW */
+.telemetry-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.radar-sweep {
+  animation: radar-pulse 2.2s infinite ease-in-out;
+}
+
+@keyframes radar-pulse {
+  0% { box-shadow: 0 0 3px rgba(56, 189, 248, 0.2); opacity: 0.85; }
+  50% { box-shadow: 0 0 14px rgba(56, 189, 248, 0.65); opacity: 1; }
+  100% { box-shadow: 0 0 3px rgba(56, 189, 248, 0.2); opacity: 0.85; }
+}
+
+@keyframes green-beacon {
+  0% { box-shadow: 0 0 4px rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 18px rgba(16, 185, 129, 0.7); }
+  100% { box-shadow: 0 0 4px rgba(16, 185, 129, 0.3); }
+}
+
 .hidden { display: none !important; }
+

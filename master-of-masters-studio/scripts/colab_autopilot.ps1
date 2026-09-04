@@ -1,7 +1,7 @@
 # Master of Masters Studio Pro — Colab Autopilot Launcher
 # Executado simultaneamente na abertura do software pelo icone no desktop
 
-$colabNotebookUrl = "https://colab.research.google.com/"
+$colabNotebookUrl = "https://colab.research.google.com/github/Patriarchabraham/OLYMPUS-PATRIARCH/blob/main/master-of-masters-studio/scripts/google_colab_free_music_generator.ipynb"
 $notebookPath = Join-Path $PSScriptRoot "google_colab_free_music_generator.ipynb"
 
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -15,45 +15,61 @@ try {
     }
 } catch {}
 
-# 2. Abre o Google Colab no navegador padrao
-Write-Host "1. Abrindo Google Colab simultaneamente..." -ForegroundColor White
+# 2. Abre o Google Colab DIRETAMENTE no notebook do estudio
+Write-Host "1. Abrindo Notebook do Gerador no Google Colab (GPU T4)..." -ForegroundColor White
 Start-Process $colabNotebookUrl
 
-# 3. Aguarda carregamento inicial da pagina
-Write-Host "2. Aguardando inicializacao do ambiente Colab (4 segundos)..." -ForegroundColor Gray
+# 3. Dispara a execucao automatica na GPU T4 com tentativas progressivas
+Write-Host "2. Sincronizando com a GPU T4 do Colab (Autopilot Ativo)..." -ForegroundColor Yellow
+$wshell = New-Object -ComObject wscript.shell
+
+function Try-ActivateAndRunColab {
+    $colabTitles = @("google_colab", "Colab", "Google Colaboratory", "colab.research.google.com")
+    $found = $false
+    foreach ($title in $colabTitles) {
+        if ($wshell.AppActivate($title)) {
+            $found = $true
+            break
+        }
+    }
+    if ($found) {
+        Start-Sleep -Milliseconds 600
+        # Send Ctrl+F9 (Run all / Executar tudo)
+        $wshell.SendKeys("^{F9}")
+        Start-Sleep -Milliseconds 600
+        # Confirm potential "Run anyway" warning dialogs
+        $wshell.SendKeys("{ENTER}")
+        Start-Sleep -Milliseconds 400
+        $wshell.SendKeys("{ENTER}")
+        return $true
+    }
+    return $false
+}
+
+# Tentativa 1 (aos 6 segundos)
+Start-Sleep -Seconds 6
+$ok1 = Try-ActivateAndRunColab
+
+# Tentativa 2 (aos 10 segundos)
 Start-Sleep -Seconds 4
+$ok2 = Try-ActivateAndRunColab
 
-# 4. Dispara a execucao automatica na GPU T4 (Ctrl + F9 e Enter)
-Write-Host "3. Disparando execucao na GPU T4 (Ctrl + F9)..." -ForegroundColor Yellow
-try {
-    $wshell = New-Object -ComObject wscript.shell
-    $activated = $wshell.AppActivate("Google Colaboratory")
-    if (-not $activated) {
-        $activated = $wshell.AppActivate("Colab")
-    }
-    if (-not $activated) {
-        $activated = $wshell.AppActivate("Colaboratory")
-    }
+# Tentativa 3 (aos 14 segundos)
+Start-Sleep -Seconds 4
+$ok3 = Try-ActivateAndRunColab
 
-    Start-Sleep -Milliseconds 600
-    $wshell.SendKeys("^{F9}")
-    Start-Sleep -Milliseconds 600
-    $wshell.SendKeys("{ENTER}")
+if ($ok1 -or $ok2 -or $ok3) {
     Write-Host "Comando de execucao enviado com sucesso ao Colab!" -ForegroundColor Green
-} catch {
+} else {
     Write-Host "Aviso: Pressione Ctrl+F9 no Colab se a aba nao recebeu o foco." -ForegroundColor Yellow
 }
 
-# 5. Devolve o foco imediato para a janela do Master of Masters Studio Pro
-Start-Sleep -Milliseconds 900
+# 4. Devolve o foco imediato para a janela do Master of Masters Studio Pro
+Start-Sleep -Milliseconds 800
 try {
     $studioActivated = $wshell.AppActivate("Master of Masters")
-    if (-not $studioActivated) {
-        $wshell.AppActivate("MASTER OF MASTERS")
-    }
-    if (-not $studioActivated) {
-        $wshell.AppActivate("http://127.0.0.1:7777")
-    }
+    if (-not $studioActivated) { $wshell.AppActivate("MASTER OF MASTERS") }
+    if (-not $studioActivated) { $wshell.AppActivate("http://127.0.0.1:7777") }
 } catch {}
 
 Write-Host ""
