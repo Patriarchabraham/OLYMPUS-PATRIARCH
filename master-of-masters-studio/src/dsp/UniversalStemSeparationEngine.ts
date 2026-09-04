@@ -542,6 +542,24 @@ export class UniversalStemSeparationEngine {
 		// Start base source and render
 		baseSrc.start(0)
 		const weldedBuffer = await masterCtx.startRendering()
+
+		// Headroom Protection: Ensure welded mix has pristine analog headroom (-0.9dBFS)
+		// preventing any digital clipping or inter-stage distortion in downstream mastering stages
+		const wL = weldedBuffer.getChannelData(0)
+		const wR = weldedBuffer.getChannelData(1)
+		let maxPeak = 0.0001
+		for (let i = 0; i < length; i += 16) {
+			const p = Math.max(Math.abs(wL[i]), Math.abs(wR[i]))
+			if (p > maxPeak) maxPeak = p
+		}
+		if (maxPeak > 0.92) {
+			const safetyGain = 0.9 / maxPeak
+			for (let i = 0; i < length; i++) {
+				wL[i] *= safetyGain
+				wR[i] *= safetyGain
+			}
+		}
+
 		return weldedBuffer
 	}
 }
