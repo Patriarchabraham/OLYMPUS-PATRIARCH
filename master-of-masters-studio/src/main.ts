@@ -4387,8 +4387,7 @@ function setupGenerativeTabs() {
 		)
 	})
 
-	const homeColabBadge = document.getElementById('home-colab-status-badge')
-	homeColabBadge?.addEventListener('click', async () => {
+	async function handleColabStatusBadgeClick() {
 		if (ColabFreeMusicBridge.isOnline()) {
 			showStudioToast(
 				`🟢 Conexão neural ativa com o Google Colab T4 (${ColabFreeMusicBridge.getLatency()}ms)!`,
@@ -4404,7 +4403,31 @@ function setupGenerativeTabs() {
 		if (check.ok) {
 			syncAllColabBadges(true, check.latencyMs, check.url)
 			showStudioToast(`🟢 Conectado ao Google Colab T4 (${check.latencyMs}ms)!`, 'success', 4000)
+		} else {
+			showStudioToast(
+				'💡 Dica: Quando der Play (▶) no notebook do Colab, o estúdio detectará e conectará automaticamente!',
+				'info',
+				5000,
+			)
 		}
+	}
+
+	const homeColabBadge = document.getElementById('home-colab-status-badge')
+	homeColabBadge?.addEventListener('click', handleColabStatusBadgeClick)
+	const badgeColabStatusEl = document.getElementById('badge-colab-status')
+	badgeColabStatusEl?.addEventListener('click', handleColabStatusBadgeClick)
+	const badgePythonStatusEl = document.getElementById('badge-python-status')
+	badgePythonStatusEl?.addEventListener('click', handleColabStatusBadgeClick)
+
+	document.querySelectorAll('.btn-open-colab-notebook').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			showStudioToast(
+				'🚀 Google Colab aberto em nova aba! Dê Play (▶) na célula de código e este console conectará 100% sozinho.',
+				'info',
+				6000,
+			)
+			syncAllColabBadges(false, 0, '', '⏳ Aguardando você dar Play (▶) no Colab...')
+		})
 	})
 
 	const COLAB_PRESETS: Record<string, string> = {
@@ -4446,13 +4469,26 @@ function setupGenerativeTabs() {
 		const test = await ColabFreeMusicBridge.testConnection(url)
 		if (test.ok) {
 			syncAllColabBadges(true, test.latencyMs, url || ColabFreeMusicBridge.getEndpoint())
-			showStudioToast('🌐 Conexão ativa com o Google Colab!', 'success')
+			showStudioToast(`🟢 Google Colab Conectado (${test.latencyMs}ms)!`, 'success')
 		} else {
 			syncAllColabBadges(false, 0, '', `○ ${test.message}`)
 			showStudioToast(
 				'Modo offline: Gerará prévia estéreo direta se o Colab não estiver rodando',
 				'info',
 			)
+		}
+	})
+
+	inputColabUrl?.addEventListener('input', async () => {
+		const url = inputColabUrl.value.trim()
+		if (url.startsWith('http')) {
+			syncAllColabBadges(false, 0, '', '⏳ Auto-detectando URL...')
+			const test = await ColabFreeMusicBridge.testConnection(url)
+			if (test.ok) {
+				ColabFreeMusicBridge.setEndpoint(url)
+				syncAllColabBadges(true, test.latencyMs, url)
+				showStudioToast(`🟢 Conectado ao Google Colab T4 (${test.latencyMs}ms)!`, 'success')
+			}
 		}
 	})
 
@@ -4962,8 +4998,29 @@ function setupGenerativeTabs() {
 			syncAllColabBadges(true, status.latencyMs, url)
 			showStudioToast(`🌐 Servidor Conectado: ${status.gpuName} (${status.latencyMs}ms)`, 'success')
 		} else {
-			syncAllColabBadges(false, 0, '', '○ Servidor não detectado (Gera prévia local)')
-			showStudioToast('Servidor offline. Modo de prévia procedural ativo.', 'info')
+			const test = await ColabFreeMusicBridge.testConnection(url)
+			if (test.ok) {
+				ColabFreeMusicBridge.setEndpoint(url)
+				syncAllColabBadges(true, test.latencyMs, url)
+				showStudioToast(`🟢 Google Colab Conectado (${test.latencyMs}ms)!`, 'success')
+			} else {
+				syncAllColabBadges(false, 0, '', '○ Servidor não detectado (Gera prévia local)')
+				showStudioToast('Servidor offline. Modo de prévia procedural ativo.', 'info')
+			}
+		}
+	})
+
+	inputPythonUrl?.addEventListener('input', async () => {
+		const url = inputPythonUrl.value.trim()
+		if (url.startsWith('http')) {
+			syncAllColabBadges(false, 0, '', '⏳ Auto-detectando URL...')
+			const test = await ColabFreeMusicBridge.testConnection(url)
+			if (test.ok) {
+				ColabFreeMusicBridge.setEndpoint(url)
+				PythonColabBridgeEngine.setUrl(url)
+				syncAllColabBadges(true, test.latencyMs, url)
+				showStudioToast(`🟢 Conectado ao Google Colab T4 (${test.latencyMs}ms)!`, 'success')
+			}
 		}
 	})
 

@@ -111,8 +111,11 @@
       </button>
     </div>
 
-    <!-- DSP CORE STATUS & ANDROID INSTALL -->
+    <!-- DSP CORE STATUS, COLAB STATUS & ANDROID INSTALL -->
     <div style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 10px; flex-shrink: 0; white-space: nowrap;">
+      <button type="button" id="home-colab-status-badge" class="telemetry-pill radar-sweep" style="padding: 4px 10px; font-size: 9.5px; border-radius: 5px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid #38bdf8; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 5px;" title="Clique para conectar ou abrir o Google Colab T4 gratuito">
+        ⏳ Colab T4
+      </button>
       <button type="button" id="btn-android-install-header" class="btn-gold-action" style="padding: 4px 8px; font-size: 9.5px; display: flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399; font-weight: 800; white-space: nowrap;" title="Instalar App no Android (Oppo Find Ultra / Samsung S24 Ultra)">
         📲 ANDROID
       </button>
@@ -1922,7 +1925,7 @@
             </span>
           </div>
           <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-            <a href="https://colab.research.google.com/github/Patriarchabraham/OLYMPUS-PATRIARCH/blob/main/master-of-masters-studio/scripts/google_colab_free_music_generator.ipynb" target="_blank" rel="noreferrer" class="btn-gold-action" style="padding: 5px 12px; font-size: 10px; text-decoration: none; display: flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8; font-weight: 800; box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);" title="Abrir Google Colab T4 gratuito para processamento neural">
+            <a href="https://colab.research.google.com/github/Patriarchabraham/OLYMPUS-PATRIARCH/blob/main/master-of-masters-studio/scripts/google_colab_free_music_generator.ipynb" target="_blank" rel="noreferrer" class="btn-gold-action btn-open-colab-notebook" style="padding: 5px 12px; font-size: 10px; text-decoration: none; display: flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8; font-weight: 800; box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);" title="Abrir Google Colab T4 gratuito para processamento neural">
               🚀 ABRIR COLAB T4 (GRÁTIS)
             </a>
             <details style="position: relative; display: inline-block;">
@@ -1953,34 +1956,36 @@
           </button>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-top: 14px;">
-          <!-- LEFT: SCRIPT, STYLE & LYRICS DIRECTOR -->
-          <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; margin-top: 10px;">
+          <!-- LEFT: SCRIPT, STYLE & INSTRUMENT RIGS DIRECTOR -->
+          <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- 1. PAINEL DE ESTILO, ANDAMENTO & RIGS DE INSTRUMENTOS -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <label style="font-family: var(--font-mono); font-size: 10.5px; color: var(--gold-light); font-weight: 700;">🎸 ESTILO MUSICAL & RIGS ANALÓGICOS:</label>
+            <div class="daw-module-box neon-blue">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: var(--gold-light);">
+                  <span>🎸</span> ESTILO MUSICAL & RIGS ANALÓGICOS
+                </span>
                 <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                  <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="maiden" style="font-size: 8px; padding: 2px 6px;">⚡ Powerslave Metal</button>
-                  <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="priest" style="font-size: 8px; padding: 2px 6px;">🔥 Painkiller Speed</button>
-                  <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="dio" style="font-size: 8px; padding: 2px 6px;">👑 Holy Diver Epic</button>
-                  <button type="button" class="btn-colab-preset switch-toggle-btn" data-preset="metallica" style="font-size: 8px; padding: 2px 6px;">🥊 Black Album Chug</button>
+                  <button type="button" class="btn-colab-preset btn-preset-pill" data-preset="maiden">⚡ Powerslave Metal</button>
+                  <button type="button" class="btn-colab-preset btn-preset-pill" data-preset="priest">🔥 Painkiller Speed</button>
+                  <button type="button" class="btn-colab-preset btn-preset-pill" data-preset="dio">👑 Holy Diver Epic</button>
+                  <button type="button" class="btn-colab-preset btn-preset-pill" data-preset="metallica">🥊 Black Album Chug</button>
                 </div>
               </div>
-              <textarea id="colab-music-prompt" class="studio-select" rows="2" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical;" placeholder="Ex: 80s British Heavy Metal, dual harmonized guitars, galloping bass, Bruce Dickinson style vocals, 145 BPM, massive production"></textarea>
+              <textarea id="colab-music-prompt" class="studio-select" rows="2" style="width: 100%; font-size: 11px; padding: 8px 10px; resize: vertical; border-radius: 6px;" placeholder="Ex: 80s British Heavy Metal, dual harmonized guitars, galloping bass, Bruce Dickinson style vocals, 145 BPM, massive production"></textarea>
 
               <!-- CONTROLES CIRÚRGICOS DE ANDAMENTO E TONALIDADE -->
-              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
+              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 10px; margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
                 <div>
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; margin-bottom: 2px;">
-                    <span style="color: #94a3b8; font-weight: 700;">ANDAMENTO (BPM):</span>
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; margin-bottom: 3px;">
+                    <span style="color: #94a3b8; font-weight: 700; letter-spacing: 0.05em;">ANDAMENTO (BPM):</span>
                     <span id="val-colab-bpm" style="color: #38bdf8; font-weight: 800;">145 BPM</span>
                   </div>
                   <input type="range" id="slider-colab-bpm" min="60" max="240" value="145" style="width: 100%; height: 5px; accent-color: #38bdf8; cursor: pointer;" />
                 </div>
                 <div>
-                  <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">TOM / ESCALA MUSICAL:</label>
-                  <select id="select-colab-key" class="studio-select" style="width: 100%; font-size: 9.5px; padding: 3px 6px;">
+                  <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 3px; letter-spacing: 0.05em;">TOM / ESCALA MUSICAL:</label>
+                  <select id="select-colab-key" class="studio-select" style="width: 100%; font-size: 9.5px; padding: 4px 6px;">
                     <option value="Em" selected>🎸 Em (Mi Menor - Iron Maiden / Metallica)</option>
                     <option value="Dm">⚡ Dm (Ré Menor - Judas Priest / Power)</option>
                     <option value="Am">👑 Am (Lá Menor - Dio / Black Sabbath)</option>
@@ -1995,10 +2000,10 @@
               </div>
 
               <!-- RIGS ANALÓGICOS ESPECÍFICOS -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 6px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 6px;">
                 <div>
-                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">GUITARRAS:</label>
-                  <select id="select-colab-gtr-rig" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 2px;">
+                  <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">GUITARRAS:</label>
+                  <select id="select-colab-gtr-rig" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 3px 5px;">
                     <option value="twin_leads" selected>Twin Leads (Maiden)</option>
                     <option value="chug_5150">5150 Chug (Thrash)</option>
                     <option value="plexi_jcm800">JCM800 Crunch (80s)</option>
@@ -2006,16 +2011,16 @@
                   </select>
                 </div>
                 <div>
-                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">BAIXO:</label>
-                  <select id="select-colab-bass-rig" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 2px;">
+                  <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">BAIXO:</label>
+                  <select id="select-colab-bass-rig" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 3px 5px;">
                     <option value="steve_harris" selected>Steve Harris Gallop</option>
                     <option value="ampeg_svt">Ampeg SVT 8x10 Tube</option>
                     <option value="darkglass_b7k">Darkglass Modern Metal</option>
                   </select>
                 </div>
                 <div>
-                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block;">BATERIA:</label>
-                  <select id="select-colab-drum-kit" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 2px;">
+                  <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">BATERIA:</label>
+                  <select id="select-colab-drum-kit" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 3px 5px;">
                     <option value="metal_double_kick" selected>Modern Double-Bass</option>
                     <option value="classic_rock_80s">Ludwig Classic Rock 80s</option>
                     <option value="power_blast_fills">Power Blast & Fast Fills</option>
@@ -2025,41 +2030,49 @@
             </div>
 
             <!-- 2. ROTEIRO ESTRUTURAL & LETRA COM COMPASSOS CIRÚRGICOS -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
-                <label style="font-family: var(--font-mono); font-size: 10.5px; color: #38bdf8; font-weight: 700;">📜 LETRA & ROTEIRO ESTRUTURAL (LINHA DO TEMPO):</label>
-                <button type="button" id="btn-colab-force-rhythm-solo" class="switch-toggle-btn" style="font-size: 8.5px; padding: 2px 7px; color: #f59e0b; border-color: #f59e0b; font-weight: 800; background: rgba(245, 158, 11, 0.1);" title="Garante que as guitarras base e o baixo galopante NÃO serão silenciados durante o solo de guitarra (superando a falha clássica do Suno)">
+            <div class="daw-module-box neon-blue">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: #38bdf8;">
+                  <span>📜</span> LETRA & ROTEIRO ESTRUTURAL (LINHA DO TEMPO)
+                </span>
+                <button type="button" id="btn-colab-force-rhythm-solo" class="btn-tag-pill" style="color: #f59e0b; border-color: #f59e0b; background: rgba(245, 158, 11, 0.12);" title="Garante que as guitarras base e o baixo galopante NÃO serão silenciados durante o solo de guitarra">
                   🎸 Forçar Guitarras Base no Solo
                 </button>
               </div>
 
               <!-- TAGS ESTRUTURAIS COM COMPASSOS -->
               <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px;">
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Intro: 8 compassos - Dual Guitars & Gallop Bass]" style="font-size: 8px; padding: 2px 6px;">+ Intro (8c)</button>
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Verse 1: 16 compassos - Chugged Rhythm]" style="font-size: 8px; padding: 2px 6px;">+ Verso 1 (16c)</button>
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Pre-Chorus: 8 compassos - Building Energy]" style="font-size: 8px; padding: 2px 6px;">+ Pré-Refrão (8c)</button>
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Chorus: 16 compassos - Full Power Harmonies]" style="font-size: 8px; padding: 2px 6px;">+ Refrão (16c)</button>
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Verse 2: 16 compassos - Driving Riff]" style="font-size: 8px; padding: 2px 6px;">+ Verso 2 (16c)</button>
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Guitar Solo: 16 compassos - Twin Leads over Rhythm Guitars & Gallop Bass]" style="font-size: 8px; padding: 2px 6px; border-color: #38bdf8; color: #38bdf8;">+ Solo Twin (16c)</button>
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Bridge: 8 compassos - Melodic Interlude]" style="font-size: 8px; padding: 2px 6px;">+ Ponte (8c)</button>
-                <button type="button" class="btn-colab-insert-tag switch-toggle-btn" data-tag="[Outro: 8 compassos - Climax & Epic Finish]" style="font-size: 8px; padding: 2px 6px;">+ Final (8c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Intro: 8 compassos - Dual Guitars & Gallop Bass]">+ Intro (8c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Verse 1: 16 compassos - Chugged Rhythm]">+ Verso 1 (16c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Pre-Chorus: 8 compassos - Building Energy]">+ Pré-Refrão (8c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Chorus: 16 compassos - Full Power Harmonies]">+ Refrão (16c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Verse 2: 16 compassos - Driving Riff]">+ Verso 2 (16c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Guitar Solo: 16 compassos - Twin Leads over Rhythm Guitars & Gallop Bass]" style="border-color: #38bdf8; color: #38bdf8;">+ Solo Twin (16c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Bridge: 8 compassos - Melodic Interlude]">+ Ponte (8c)</button>
+                <button type="button" class="btn-colab-insert-tag btn-tag-pill" data-tag="[Outro: 8 compassos - Climax & Epic Finish]">+ Final (8c)</button>
               </div>
 
-              <textarea id="colab-music-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Intro: 8 compassos - Dual Guitars & Gallop Bass]&#10;[Verse 1: 16 compassos - Chugged Rhythm]&#10;Riding through the thunder, screaming in the night...&#10;[Chorus: 16 compassos - Full Power Harmonies]&#10;Master of the masters, burning with the light!&#10;[Guitar Solo: 16 compassos - Twin Leads over Rhythm Guitars & Gallop Bass]&#10;[Outro: 8 compassos - Climax & Epic Finish]"></textarea>
+              <textarea id="colab-music-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 8px 10px; resize: vertical; font-family: var(--font-mono); border-radius: 6px;" placeholder="[Intro: 8 compassos - Dual Guitars & Gallop Bass]&#10;[Verse 1: 16 compassos - Chugged Rhythm]&#10;Riding through the thunder, screaming in the night...&#10;[Chorus: 16 compassos - Full Power Harmonies]&#10;Master of the masters, burning with the light!&#10;[Guitar Solo: 16 compassos - Twin Leads over Rhythm Guitars & Gallop Bass]&#10;[Outro: 8 compassos - Climax & Epic Finish]"></textarea>
             </div>
           </div>
 
           <!-- RIGHT: SAMPLES, DURATION, VOICE CLONING & GENERATION -->
-          <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- DROPZONES LADO A LADO (AMOSTRA + VOZ) -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px;">
+            <div class="daw-module-box neon-blue">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: #f472b6;">
+                  <span>🎙️</span> AMOSTRAS & CLONAGEM VOCAL
+                </span>
+                <span style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; letter-spacing: 0.05em;">AUTO 64-BIT</span>
+              </div>
               <div class="generator-two-dropzones">
                 <!-- MÚSICA DE AMOSTRA DROPZONE (QUALQUER FORMATO) -->
-                <div id="colab-sample-dropzone" style="border: 1px dashed #38bdf8; border-radius: 6px; padding: 6px; text-align: center; cursor: pointer; background: rgba(56, 189, 248, 0.04); min-height: 54px; display: flex; flex-direction: column; justify-content: center;">
+                <div id="colab-sample-dropzone" class="dropzone-luxury">
                   <input type="file" id="colab-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
                   <div id="colab-sample-idle">
-                    <div style="font-family: var(--font-display); font-size: 9.5px; font-weight: 800; color: #38bdf8;">🎧 AMOSTRA (GUIA)</div>
-                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 1px;">MP3, WAV, OGG, M4A</div>
+                    <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #38bdf8;">🎧 AMOSTRA (GUIA)</div>
+                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">MP3, WAV, OGG, M4A</div>
                   </div>
                   <div id="colab-sample-active" class="hidden">
                     <div id="colab-sample-filename" style="color: #38bdf8; font-weight: 800; font-size: 9px;">sample.wav</div>
@@ -2068,11 +2081,11 @@
                 </div>
 
                 <!-- CLONE DA SUA VOZ (QUALQUER FORMATO) -->
-                <div id="colab-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 6px; padding: 6px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04); min-height: 54px; display: flex; flex-direction: column; justify-content: center;">
+                <div id="colab-voice-dropzone" class="dropzone-luxury voice-zone">
                   <input type="file" id="colab-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
                   <div id="colab-voice-idle">
-                    <div style="font-family: var(--font-display); font-size: 9.5px; font-weight: 800; color: #f472b6;">🎙️ CLONE DE VOZ</div>
-                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 1px;">WhatsApp OGG, gravador, M4A</div>
+                    <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONE DE VOZ</div>
+                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador, M4A</div>
                   </div>
                   <div id="colab-voice-active" class="hidden">
                     <div id="colab-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 9px;">minha_voz.ogg</div>
@@ -2082,17 +2095,17 @@
               </div>
 
               <!-- CONTROLES FINOS DA VOZ CLONADA -->
-              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.06);">
+              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; align-items: center; margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
                 <div>
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8px; margin-bottom: 2px;">
-                    <span style="color: #94a3b8;">INTENSIDADE DO CLONE:</span>
-                    <span id="val-colab-voice-blend" style="color: #f472b6; font-weight: 700;">85%</span>
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px; margin-bottom: 2px;">
+                    <span style="color: #94a3b8; font-weight: 700;">INTENSIDADE DO CLONE:</span>
+                    <span id="val-colab-voice-blend" style="color: #f472b6; font-weight: 800;">85%</span>
                   </div>
-                  <input type="range" id="slider-colab-voice-blend" min="0" max="100" value="85" style="width: 100%; height: 4px; accent-color: #ec4899; cursor: pointer;" />
+                  <input type="range" id="slider-colab-voice-blend" min="0" max="100" value="85" style="width: 100%; height: 5px; accent-color: #ec4899; cursor: pointer;" />
                 </div>
                 <div>
-                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">OITAVA / EXTENSÃO:</label>
-                  <select id="select-colab-voice-pitch" class="studio-select" style="width: 100%; font-size: 8px; padding: 2px 4px;">
+                  <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">OITAVA / EXTENSÃO:</label>
+                  <select id="select-colab-voice-pitch" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 3px 5px;">
                     <option value="0" selected>Original (0 semitons)</option>
                     <option value="-12">Barítono (-12 semitons)</option>
                     <option value="12">Tenor Agudo (+12 semitons)</option>
@@ -2108,10 +2121,12 @@
             </div>
 
             <!-- CONTROLE CONTÍNUO DE DURAÇÃO & CÁLCULO DINÂMICO DE COMPASSOS -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700;">⏱️ DURAÇÃO CONTÍNUA & COMPASSOS:</label>
-                <span id="badge-colab-duration-calc" style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid #38bdf8; padding: 2px 6px; border-radius: 4px;">
+            <div class="daw-module-box neon-blue">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: var(--gold-light);">
+                  <span>⏱️</span> DURAÇÃO CONTÍNUA & COMPASSOS
+                </span>
+                <span id="badge-colab-duration-calc" style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid #38bdf8; padding: 2px 8px; border-radius: 4px;">
                   02:00 (120s) · 72 comp @ 145 BPM
                 </span>
               </div>
@@ -2120,18 +2135,18 @@
               <input type="range" id="slider-colab-duration" min="15" max="300" step="1" value="120" style="width: 100%; height: 5px; accent-color: #f59e0b; cursor: pointer;" />
 
               <!-- PRESETS RÁPIDOS DE DURAÇÃO -->
-              <div style="display: flex; gap: 3px; justify-content: space-between;">
-                <button type="button" class="btn-colab-quick-duration switch-toggle-btn" data-dur="30" style="font-size: 7.5px; padding: 2px 3px; flex: 1;">30s (Trecho)</button>
-                <button type="button" class="btn-colab-quick-duration switch-toggle-btn" data-dur="60" style="font-size: 7.5px; padding: 2px 3px; flex: 1;">60s (Single)</button>
-                <button type="button" class="btn-colab-quick-duration switch-toggle-btn active" data-dur="120" style="font-size: 7.5px; padding: 2px 3px; flex: 1; border-color: #f59e0b; color: #f59e0b;">120s (2m)</button>
-                <button type="button" class="btn-colab-quick-duration switch-toggle-btn" data-dur="180" style="font-size: 7.5px; padding: 2px 3px; flex: 1;">180s (3m)</button>
-                <button type="button" class="btn-colab-quick-duration switch-toggle-btn" data-dur="240" style="font-size: 7.5px; padding: 2px 3px; flex: 1;">240s (4m)</button>
-                <button type="button" class="btn-colab-quick-duration switch-toggle-btn" data-dur="300" style="font-size: 7.5px; padding: 2px 3px; flex: 1;">300s (5m)</button>
+              <div style="display: flex; gap: 4px; justify-content: space-between;">
+                <button type="button" class="btn-colab-quick-duration btn-preset-pill" data-dur="30" style="flex: 1; text-align: center;">30s</button>
+                <button type="button" class="btn-colab-quick-duration btn-preset-pill" data-dur="60" style="flex: 1; text-align: center;">60s</button>
+                <button type="button" class="btn-colab-quick-duration btn-preset-pill active" data-dur="120" style="flex: 1; text-align: center; border-color: #f59e0b; color: #f59e0b;">120s</button>
+                <button type="button" class="btn-colab-quick-duration btn-preset-pill" data-dur="180" style="flex: 1; text-align: center;">180s</button>
+                <button type="button" class="btn-colab-quick-duration btn-preset-pill" data-dur="240" style="flex: 1; text-align: center;">240s</button>
+                <button type="button" class="btn-colab-quick-duration btn-preset-pill" data-dur="300" style="flex: 1; text-align: center;">300s</button>
               </div>
 
-              <div style="margin-top: 2px;">
-                <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">DESTINO DO ÁUDIO APÓS GERAR:</label>
-                <select id="select-colab-destination" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 2px 6px;">
+              <div style="margin-top: 4px;">
+                <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">DESTINO DO ÁUDIO APÓS GERAR:</label>
+                <select id="select-colab-destination" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 3px 6px;">
                   <option value="master_console" selected>🏆 Master Console 64-Bit (Processar com Compressores & EQ Analógicos)</option>
                   <option value="player_only">🎧 Apenas Carregar no Player do Estúdio</option>
                 </select>
@@ -2139,18 +2154,18 @@
             </div>
 
             <!-- BOTÃO GERAR MÚSICA -->
-            <button type="button" id="btn-colab-trigger-generate" class="btn-red-action" style="padding: 10px; font-weight: 900; font-size: 11px; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8; box-shadow: 0 0 20px rgba(56,189,248,0.35);">
+            <button type="button" id="btn-colab-trigger-generate" class="btn-grand-generate">
               🚀 GERAR MÚSICA NO COLAB & CLONAR VOZ NO ESTÚDIO
             </button>
 
             <!-- PROGRESSO -->
-            <div id="colab-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px;">
+            <div id="colab-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 5px; background: rgba(9, 13, 22, 0.85); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);">
               <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
-                <span id="colab-progress-text" style="color: #38bdf8;">Processando...</span>
-                <span id="colab-progress-pct" style="color: #ffffff;">0%</span>
+                <span id="colab-progress-text" style="color: #38bdf8; font-weight: 700;">Processando...</span>
+                <span id="colab-progress-pct" style="color: #ffffff; font-weight: 800;">0%</span>
               </div>
               <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden;">
-                <div id="colab-progress-bar" style="background: #38bdf8; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                <div id="colab-progress-bar" style="background: linear-gradient(90deg, #0284c7, #38bdf8); height: 100%; width: 0%; transition: width 0.3s;"></div>
               </div>
             </div>
 
@@ -2190,15 +2205,15 @@
           </button>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-top: 10px;">
           <!-- LEFT: SAMPLE REQUIRED & SCRIPT -->
-          <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- MÚSICA DE AMOSTRA OBRIGATÓRIA -->
-            <div id="offline-sample-dropzone" style="border: 2px dashed #10b981; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; background: rgba(16, 185, 129, 0.05);">
+            <div id="offline-sample-dropzone" class="dropzone-luxury offline-zone">
               <input type="file" id="offline-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="offline-sample-idle">
-                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #10b981;">📁 CARREGAR MÚSICA DE AMOSTRA BASE (OBRIGATÓRIO)</div>
-                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Envie a música original (WAV, MP3, OGG, M4A) de onde extrairemos os riffs e batidas</div>
+                <div style="font-family: var(--font-display); font-size: 11px; font-weight: 800; color: #10b981;">📁 CARREGAR MÚSICA DE AMOSTRA BASE (OBRIGATÓRIO)</div>
+                <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Envie a música original (WAV, MP3, OGG, M4A) para extração cirúrgica de riffs e batidas</div>
               </div>
               <div id="offline-sample-active" class="hidden">
                 <div id="offline-sample-filename" style="color: #10b981; font-weight: 800; font-size: 10px;">amostra.wav</div>
@@ -2207,28 +2222,30 @@
             </div>
 
             <!-- SCRIPT ESTRUTURAL -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
-                <label style="font-family: var(--font-mono); font-size: 10px; color: #10b981; font-weight: 700;">📜 SCRIPT DE REARRANJO ESTRUTURAL:</label>
+            <div class="daw-module-box neon-emerald">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: #10b981;">
+                  <span>📜</span> SCRIPT DE REARRANJO ESTRUTURAL
+                </span>
                 <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Intro: 8 compassos]" style="font-size: 8px; padding: 1px 5px;">+ Intro (8c)</button>
-                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Verse: 16 compassos]" style="font-size: 8px; padding: 1px 5px;">+ Verso (16c)</button>
-                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Chorus: 16 compassos]" style="font-size: 8px; padding: 1px 5px;">+ Refrão (16c)</button>
-                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Solo: 16 compassos]" style="font-size: 8px; padding: 1px 5px;">+ Solo (16c)</button>
-                  <button type="button" class="btn-offline-insert-tag switch-toggle-btn" data-tag="[Outro: 8 compassos]" style="font-size: 8px; padding: 1px 5px;">+ Final (8c)</button>
+                  <button type="button" class="btn-offline-insert-tag btn-tag-pill" data-tag="[Intro: 8 compassos]" style="color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08);">+ Intro (8c)</button>
+                  <button type="button" class="btn-offline-insert-tag btn-tag-pill" data-tag="[Verse: 16 compassos]" style="color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08);">+ Verso (16c)</button>
+                  <button type="button" class="btn-offline-insert-tag btn-tag-pill" data-tag="[Chorus: 16 compassos]" style="color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08);">+ Refrão (16c)</button>
+                  <button type="button" class="btn-offline-insert-tag btn-tag-pill" data-tag="[Solo: 16 compassos]" style="color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08);">+ Solo (16c)</button>
+                  <button type="button" class="btn-offline-insert-tag btn-tag-pill" data-tag="[Outro: 8 compassos]" style="color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08);">+ Final (8c)</button>
                 </div>
               </div>
-              <textarea id="offline-script-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Intro: 8 compassos]&#10;[Verse: 16 compassos]&#10;Minha nova letra cantada pelo meu clone de voz...&#10;[Chorus: 16 compassos]&#10;O refrão com guitarras da amostra e pressão total!&#10;[Solo: 16 compassos]&#10;[Outro: 8 compassos]"></textarea>
+              <textarea id="offline-script-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 8px 10px; resize: vertical; font-family: var(--font-mono); border-radius: 6px;" placeholder="[Intro: 8 compassos]&#10;[Verse: 16 compassos]&#10;Minha nova letra cantada pelo meu clone de voz...&#10;[Chorus: 16 compassos]&#10;O refrão com guitarras da amostra e pressão total!&#10;[Solo: 16 compassos]&#10;[Outro: 8 compassos]"></textarea>
             </div>
           </div>
 
           <!-- RIGHT: CONTROLS & VOICE CLONE -->
-          <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- CLONAR VOZ DROPZONE -->
-            <div id="offline-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 8px; padding: 8px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04);">
+            <div id="offline-voice-dropzone" class="dropzone-luxury voice-zone">
               <input type="file" id="offline-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
               <div id="offline-voice-idle">
-                <div style="font-family: var(--font-display); font-size: 9.5px; font-weight: 800; color: #f472b6;">🎙️ CLONAR MINHA VOZ (QUALQUER FORMATO)</div>
+                <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONAR MINHA VOZ (QUALQUER FORMATO)</div>
                 <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador de voz, iPhone M4A ou MP3</div>
               </div>
               <div id="offline-voice-active" class="hidden">
@@ -2238,40 +2255,45 @@
             </div>
 
             <!-- CONTROLES ADICIONAIS -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px;">
-                <span style="color: #94a3b8;">AJUSTE DE ANDAMENTO (BPM):</span>
-                <span id="offline-bpm-label" style="color: #10b981; font-weight: 700;">Auto (Da Amostra)</span>
+            <div class="daw-module-box neon-emerald">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: #10b981;">
+                  <span>🎛️</span> PARÂMETROS TEMPORAIS & FORMANTES
+                </span>
               </div>
-              <input type="range" id="offline-bpm-slider" min="60" max="240" value="128" style="width: 100%; height: 4px; accent-color: #10b981; cursor: pointer;" />
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px;">
+                <span style="color: #94a3b8; font-weight: 700;">AJUSTE DE ANDAMENTO (BPM):</span>
+                <span id="offline-bpm-label" style="color: #10b981; font-weight: 800;">Auto (Da Amostra)</span>
+              </div>
+              <input type="range" id="offline-bpm-slider" min="60" max="240" value="128" style="width: 100%; height: 5px; accent-color: #10b981; cursor: pointer;" />
 
               <!-- DURAÇÃO DESEJADA -->
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
                 <span style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700;">DURAÇÃO RECOMPOSTA:</span>
-                <span id="badge-offline-duration-calc" style="font-family: var(--font-mono); font-size: 8.5px; color: #10b981; font-weight: 800; background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid #10b981;">02:00 (120s) · 64 comp</span>
+                <span id="badge-offline-duration-calc" style="font-family: var(--font-mono); font-size: 8.5px; color: #10b981; font-weight: 800; background: rgba(16,185,129,0.12); padding: 2px 8px; border-radius: 4px; border: 1px solid #10b981;">02:00 (120s) · 64 comp</span>
               </div>
-              <input type="range" id="slider-offline-duration" min="15" max="300" step="1" value="120" style="width: 100%; height: 4px; accent-color: #10b981; cursor: pointer;" />
+              <input type="range" id="slider-offline-duration" min="15" max="300" step="1" value="120" style="width: 100%; height: 5px; accent-color: #10b981; cursor: pointer;" />
 
-              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px; margin-top: 2px;">
-                <span style="color: #94a3b8;">INTENSIDADE DA CLONAGEM VOCAL:</span>
-                <span id="offline-blend-label" style="color: #f472b6; font-weight: 700;">85%</span>
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px; margin-top: 4px;">
+                <span style="color: #94a3b8; font-weight: 700;">INTENSIDADE DA CLONAGEM VOCAL:</span>
+                <span id="offline-blend-label" style="color: #f472b6; font-weight: 800;">85%</span>
               </div>
-              <input type="range" id="offline-blend-slider" min="0" max="100" value="85" style="width: 100%; height: 4px; accent-color: #ec4899; cursor: pointer;" />
+              <input type="range" id="offline-blend-slider" min="0" max="100" value="85" style="width: 100%; height: 5px; accent-color: #ec4899; cursor: pointer;" />
             </div>
 
             <!-- BOTÃO DISPARAR RE-COMPOSIÇÃO -->
-            <button type="button" id="btn-offline-trigger-recompose" class="btn-gold-action" style="padding: 10px; font-weight: 900; font-size: 11px; background: linear-gradient(135deg, #059669, #047857); border-color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.35);">
+            <button type="button" id="btn-offline-trigger-recompose" class="btn-grand-generate emerald-theme">
               ⚡ RECOMPOR MÚSICA NOVA OFFLINE & ENVIAR AO MASTER
             </button>
 
             <!-- PROGRESSO OFFLINE -->
-            <div id="offline-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px;">
+            <div id="offline-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 5px; background: rgba(9, 13, 22, 0.85); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3);">
               <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
-                <span id="offline-progress-text" style="color: #10b981;">Fatiando...</span>
-                <span id="offline-progress-pct" style="color: #ffffff;">0%</span>
+                <span id="offline-progress-text" style="color: #10b981; font-weight: 700;">Fatiando...</span>
+                <span id="offline-progress-pct" style="color: #ffffff; font-weight: 800;">0%</span>
               </div>
-              <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 5px; overflow: hidden;">
-                <div id="offline-progress-bar" style="background: #10b981; height: 100%; width: 0%; transition: width 0.3s;"></div>
+              <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden;">
+                <div id="offline-progress-bar" style="background: linear-gradient(90deg, #059669, #10b981); height: 100%; width: 0%; transition: width 0.3s;"></div>
               </div>
             </div>
 
@@ -2294,7 +2316,7 @@
             </span>
           </div>
           <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-            <a href="https://colab.research.google.com/github/Patriarchabraham/OLYMPUS-PATRIARCH/blob/main/master-of-masters-studio/scripts/google_colab_free_music_generator.ipynb" target="_blank" rel="noreferrer" class="btn-gold-action" style="padding: 5px 12px; font-size: 10px; text-decoration: none; display: flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; font-weight: 800; box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);" title="Abrir Google Colab T4 gratuito">
+            <a href="https://colab.research.google.com/github/Patriarchabraham/OLYMPUS-PATRIARCH/blob/main/master-of-masters-studio/scripts/google_colab_free_music_generator.ipynb" target="_blank" rel="noreferrer" class="btn-gold-action btn-open-colab-notebook" style="padding: 5px 12px; font-size: 10px; text-decoration: none; display: flex; align-items: center; gap: 5px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; font-weight: 800; box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);" title="Abrir Google Colab T4 gratuito">
               🚀 ABRIR COLAB T4 (GRÁTIS)
             </a>
             <details style="position: relative; display: inline-block;">
@@ -2325,33 +2347,35 @@
           </button>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; margin-top: 10px;">
           <!-- LEFT: PROMPT, PRESETS & LYRICS -->
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <label style="font-family: var(--font-mono); font-size: 10px; color: var(--gold-light); font-weight: 700;">🎛️ PROMPT DO MUSICGEN-MELODY:</label>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="daw-module-box neon-amber">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: var(--gold-light);">
+                  <span>🎛️</span> PROMPT DO MUSICGEN-MELODY
+                </span>
                 <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="heavy_metal" style="font-size: 8px; padding: 2px 6px;">⚡ Heavy Metal</button>
-                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="power_metal" style="font-size: 8px; padding: 2px 6px;">🔥 Power Metal</button>
-                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="thrash" style="font-size: 8px; padding: 2px 6px;">🥊 Thrash Metal</button>
-                  <button type="button" class="btn-python-preset switch-toggle-btn" data-preset="classic_rock" style="font-size: 8px; padding: 2px 6px;">👑 80s Rock</button>
+                  <button type="button" class="btn-python-preset btn-preset-pill" data-preset="heavy_metal">⚡ Heavy Metal</button>
+                  <button type="button" class="btn-python-preset btn-preset-pill" data-preset="power_metal">🔥 Power Metal</button>
+                  <button type="button" class="btn-python-preset btn-preset-pill" data-preset="thrash">🥊 Thrash Metal</button>
+                  <button type="button" class="btn-python-preset btn-preset-pill" data-preset="classic_rock">👑 80s Rock</button>
                 </div>
               </div>
-              <textarea id="python-music-prompt" class="studio-select" rows="2" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical;" placeholder="Ex: Heavy Metal track following the melody of the sample, with distorted dual lead guitars, punchy acoustic drums, galloping bass and energetic drive"></textarea>
+              <textarea id="python-music-prompt" class="studio-select" rows="2" style="width: 100%; font-size: 11px; padding: 8px 10px; resize: vertical; border-radius: 6px;" placeholder="Ex: Heavy Metal track following the melody of the sample, with distorted dual lead guitars, punchy acoustic drums, galloping bass and energetic drive"></textarea>
 
               <!-- BPM & KEY -->
-              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.08);">
+              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 10px; margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
                 <div>
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px; margin-bottom: 2px;">
-                    <span style="color: #94a3b8; font-weight: 700;">ANDAMENTO (BPM):</span>
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px; margin-bottom: 3px;">
+                    <span style="color: #94a3b8; font-weight: 700; letter-spacing: 0.05em;">ANDAMENTO (BPM):</span>
                     <span id="val-python-bpm" style="color: #f59e0b; font-weight: 800;">145 BPM</span>
                   </div>
                   <input type="range" id="slider-python-bpm" min="60" max="240" value="145" style="width: 100%; height: 5px; accent-color: #f59e0b; cursor: pointer;" />
                 </div>
                 <div>
-                  <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">TOM / ESCALA MUSICAL:</label>
-                  <select id="select-python-key" class="studio-select" style="width: 100%; font-size: 9px; padding: 3px 6px;">
+                  <label style="font-family: var(--font-mono); font-size: 9px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 3px; letter-spacing: 0.05em;">TOM / ESCALA MUSICAL:</label>
+                  <select id="select-python-key" class="studio-select" style="width: 100%; font-size: 9.5px; padding: 4px 6px;">
                     <option value="Em" selected>🎸 Em (Mi Menor - Iron Maiden / Metallica)</option>
                     <option value="Dm">⚡ Dm (Ré Menor - Judas Priest / Power)</option>
                     <option value="Am">👑 Am (Lá Menor - Dio / Black Sabbath)</option>
@@ -2366,23 +2390,33 @@
               </div>
             </div>
 
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px;">
-              <label style="font-family: var(--font-mono); font-size: 10px; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 4px;">📜 LETRA & DIRETIVAS VOCAIS PARA O RVC v2:</label>
-              <textarea id="python-music-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 6px; resize: vertical; font-family: var(--font-mono);" placeholder="[Verse 1: 16 compassos]&#10;Cante esta melodia com o timbre clonado e afinação precisa...&#10;[Chorus: 16 compassos]&#10;Refrão estrondoso com o anel do cantor rasgando a mixagem!&#10;[Guitar Solo: 16 compassos]&#10;[Outro: 8 compassos]"></textarea>
+            <div class="daw-module-box neon-amber">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: #f59e0b;">
+                  <span>📜</span> LETRA & DIRETIVAS VOCAIS PARA O RVC v2
+                </span>
+              </div>
+              <textarea id="python-music-lyrics" class="studio-select" rows="5" style="width: 100%; font-size: 11px; padding: 8px 10px; resize: vertical; font-family: var(--font-mono); border-radius: 6px;" placeholder="[Verse 1: 16 compassos]&#10;Cante esta melodia com o timbre clonado e afinação precisa...&#10;[Chorus: 16 compassos]&#10;Refrão estrondoso com o anel do cantor rasgando a mixagem!&#10;[Guitar Solo: 16 compassos]&#10;[Outro: 8 compassos]"></textarea>
             </div>
           </div>
 
           <!-- RIGHT: AUDIO DROPS, VOICE CLONE & DISPATCH -->
-          <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- DROPZONES LADO A LADO (AMOSTRA + VOZ) -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px;">
+            <div class="daw-module-box neon-amber">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: #f472b6;">
+                  <span>🎙️</span> AMOSTRAS & MODELO NEURAL VOCAL
+                </span>
+                <span style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; letter-spacing: 0.05em;">GPU T4</span>
+              </div>
               <div class="generator-two-dropzones">
                 <!-- MÚSICA DE AMOSTRA (QUALQUER FORMATO) -->
-                <div id="python-sample-dropzone" style="border: 1px dashed #f59e0b; border-radius: 6px; padding: 6px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.04); min-height: 54px; display: flex; flex-direction: column; justify-content: center;">
+                <div id="python-sample-dropzone" class="dropzone-luxury">
                   <input type="file" id="python-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
                   <div id="python-sample-idle">
-                    <div style="font-family: var(--font-display); font-size: 9.5px; font-weight: 800; color: #f59e0b;">🎧 AMOSTRA (GUIA)</div>
-                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 1px;">Melodia & Acordes (Qualquer Áudio)</div>
+                    <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f59e0b;">🎧 AMOSTRA (GUIA)</div>
+                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">Melodia & Acordes (Qualquer Áudio)</div>
                   </div>
                   <div id="python-sample-active" class="hidden">
                     <div id="python-sample-filename" style="color: #f59e0b; font-weight: 800; font-size: 9px;">sample.wav</div>
@@ -2391,11 +2425,11 @@
                 </div>
 
                 <!-- CLONE DA SUA VOZ (QUALQUER FORMATO) -->
-                <div id="python-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 6px; padding: 6px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.04); min-height: 54px; display: flex; flex-direction: column; justify-content: center;">
+                <div id="python-voice-dropzone" class="dropzone-luxury voice-zone">
                   <input type="file" id="python-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
                   <div id="python-voice-idle">
-                    <div style="font-family: var(--font-display); font-size: 9.5px; font-weight: 800; color: #f472b6;">🎙️ CLONE DE VOZ</div>
-                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 1px;">WhatsApp OGG, gravador, M4A</div>
+                    <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONE DE VOZ</div>
+                    <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador, M4A</div>
                   </div>
                   <div id="python-voice-active" class="hidden">
                     <div id="python-voice-filename" style="color: #f472b6; font-weight: 800; font-size: 9px;">minha_voz.ogg</div>
@@ -2405,17 +2439,17 @@
               </div>
 
               <!-- CONTROLES FINOS DA VOZ CLONADA -->
-              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.06);">
+              <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; align-items: center; margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
                 <div>
-                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8px; margin-bottom: 2px;">
-                    <span style="color: #94a3b8;">INTENSIDADE DO CLONE:</span>
-                    <span id="val-python-voice-blend" style="color: #f472b6; font-weight: 700;">85%</span>
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8.5px; margin-bottom: 2px;">
+                    <span style="color: #94a3b8; font-weight: 700;">INTENSIDADE DO CLONE:</span>
+                    <span id="val-python-voice-blend" style="color: #f472b6; font-weight: 800;">85%</span>
                   </div>
-                  <input type="range" id="slider-python-voice-blend" min="0" max="100" value="85" style="width: 100%; height: 4px; accent-color: #ec4899; cursor: pointer;" />
+                  <input type="range" id="slider-python-voice-blend" min="0" max="100" value="85" style="width: 100%; height: 5px; accent-color: #ec4899; cursor: pointer;" />
                 </div>
                 <div>
-                  <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">OITAVA / EXTENSÃO:</label>
-                  <select id="select-python-voice-pitch" class="studio-select" style="width: 100%; font-size: 8px; padding: 2px 4px;">
+                  <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">OITAVA / EXTENSÃO:</label>
+                  <select id="select-python-voice-pitch" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 3px 5px;">
                     <option value="0" selected>Original (0 semitons)</option>
                     <option value="-12">Barítono (-12 semitons)</option>
                     <option value="12">Tenor Agudo (+12 semitons)</option>
@@ -2431,18 +2465,20 @@
             </div>
 
             <!-- CONTROLE CONTÍNUO DE DURAÇÃO & CÁLCULO DINÂMICO DE COMPASSOS -->
-            <div style="background: #080c14; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="font-family: var(--font-mono); font-size: 9px; color: var(--gold-light); font-weight: 700;">⏱️ DURAÇÃO & COMPASSOS:</label>
-                <span id="badge-python-duration-calc" style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; padding: 2px 6px; border-radius: 4px;">
+            <div class="daw-module-box neon-amber">
+              <div class="daw-module-header">
+                <span class="daw-module-title" style="color: var(--gold-light);">
+                  <span>⏱️</span> DURAÇÃO & COMPASSOS
+                </span>
+                <span id="badge-python-duration-calc" style="font-family: var(--font-mono); font-size: 9px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.12); border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 4px;">
                   02:00 (120s) · 72 comp @ 145 BPM
                 </span>
               </div>
               <input type="range" id="slider-python-duration" min="15" max="300" step="1" value="120" style="width: 100%; height: 5px; accent-color: #f59e0b; cursor: pointer;" />
 
-              <div style="margin-top: 2px;">
-                <label style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">DESTINO DO ÁUDIO APÓS GERAR:</label>
-                <select id="select-python-destination" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 2px 6px;">
+              <div style="margin-top: 4px;">
+                <label style="font-family: var(--font-mono); font-size: 8.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">DESTINO DO ÁUDIO APÓS GERAR:</label>
+                <select id="select-python-destination" class="studio-select" style="width: 100%; font-size: 8.5px; padding: 3px 6px;">
                   <option value="master_console" selected>🏆 Master Console 64-Bit (Processar com Compressores & EQ Analógicos)</option>
                   <option value="player_only">🎧 Apenas Carregar no Player do Estúdio</option>
                 </select>
@@ -2450,18 +2486,18 @@
             </div>
 
             <!-- BOTÃO DISPARAR NA GPU -->
-            <button type="button" id="btn-python-trigger-generate" class="btn-gold-action" style="padding: 10px; font-weight: 900; font-size: 11px; background: linear-gradient(135deg, #d97706, #b45309); border-color: #f59e0b; box-shadow: 0 0 20px rgba(245,158,11,0.35);">
+            <button type="button" id="btn-python-trigger-generate" class="btn-grand-generate amber-theme">
               🚀 GERAR COM MUSICGEN-MELODY + RVC v2 NO COLAB & MASTERIZAR
             </button>
 
             <!-- PROGRESSO PYTHON -->
-            <div id="python-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 4px;">
+            <div id="python-progress-wrap" class="hidden" style="display: flex; flex-direction: column; gap: 5px; background: rgba(9, 13, 22, 0.85); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.3);">
               <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9px;">
-                <span id="python-progress-text" style="color: #f59e0b;">Conectando...</span>
-                <span id="python-progress-pct" style="color: #ffffff;">0%</span>
+                <span id="python-progress-text" style="color: #f59e0b; font-weight: 700;">Conectando...</span>
+                <span id="python-progress-pct" style="color: #ffffff; font-weight: 800;">0%</span>
               </div>
-              <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 5px; overflow: hidden;">
-                <div id="python-progress-bar" style="background: #f59e0b; height: 100%; width: 0%; transition: width 0.3s;"></div>
+              <div style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden;">
+                <div id="python-progress-bar" style="background: linear-gradient(90deg, #d97706, #f59e0b); height: 100%; width: 0%; transition: width 0.3s;"></div>
               </div>
             </div>
 
