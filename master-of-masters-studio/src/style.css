@@ -1184,6 +1184,20 @@ select option:checked, select.studio-select option:checked {
   gap: 6px;
 }
 
+/* NATIVE DIRECT FILE PICKER OVERLAY (100% BULLETPROOF CHROMIUM/WINDOWS GESTURE) */
+.native-file-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  z-index: 30 !important;
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
 /* LUXURY ANIMATED DROPZONES */
 .dropzone-luxury {
   border: 1.5px dashed rgba(56, 189, 248, 0.45);

@@ -225,10 +225,10 @@
                 </span>
               </div>
             </div>
-            <button type="button" id="btn-global-voice-upload" class="switch-toggle-btn" style="padding: 4px 10px; font-size: 9px; color: #f472b6; border-color: #f472b6; background: rgba(236, 72, 153, 0.1); font-weight: 800;">
+            <label for="input-global-voice-file" id="btn-global-voice-upload" class="switch-toggle-btn" style="position: relative; overflow: hidden; padding: 4px 10px; font-size: 9px; color: #f472b6; border-color: #f472b6; background: rgba(236, 72, 153, 0.1); font-weight: 800; cursor: pointer; display: inline-flex; align-items: center;">
               🎙️ Carregar Minha Voz Agora
-            </button>
-            <input type="file" id="input-global-voice-file" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <input type="file" id="input-global-voice-file" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" />
+            </label>
           </div>
         </div>
 
@@ -525,8 +525,8 @@
               </div>
             </div>
 
-            <div id="master-user-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 5px; padding: 4px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.05);">
-              <input type="file" id="master-user-voice-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+            <div id="master-user-voice-dropzone" style="border: 1px dashed #ec4899; border-radius: 5px; padding: 4px; text-align: center; cursor: pointer; background: rgba(236, 72, 153, 0.05); position: relative; overflow: hidden;">
+              <input type="file" id="master-user-voice-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Minha Voz Real" />
               <div id="master-user-voice-idle">
                 <div style="font-family: var(--font-display); font-size: 9px; font-weight: 800; color: #ffffff;">📥 CARREGAR MINHA VOZ REAL</div>
                 <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Amostra acapella (Qualquer formato / WhatsApp)</div>
@@ -618,8 +618,8 @@
             </div>
 
             <!-- CLONAR TIMBRE DE GUITARRA DROPZONE -->
-            <div id="guitar-ref-dropzone" style="border: 1px dashed rgba(245, 158, 11, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.05);">
-              <input type="file" id="guitar-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+            <div id="guitar-ref-dropzone" style="border: 1px dashed rgba(245, 158, 11, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.05); position: relative; overflow: hidden;">
+              <input type="file" id="guitar-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Clonar Timbre de Guitarra" />
               <div id="guitar-ref-idle">
                 <div style="font-family: var(--font-display); font-size: 8.5px; font-weight: 800; color: #f59e0b;">📥 CLONAR TIMBRE / DISTORÇÃO GUITARRA</div>
                 <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Arraste WAV/MP3 com seu riff/drive de referência</div>
@@ -683,8 +683,8 @@
             </div>
 
             <!-- CLONAR TIMBRE DE BAIXO DROPZONE -->
-            <div id="bass-ref-dropzone" style="border: 1px dashed rgba(16, 185, 129, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(16, 185, 129, 0.05);">
-              <input type="file" id="bass-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+            <div id="bass-ref-dropzone" style="border: 1px dashed rgba(16, 185, 129, 0.6); border-radius: 4px; padding: 4px; text-align: center; cursor: pointer; background: rgba(16, 185, 129, 0.05); position: relative; overflow: hidden;">
+              <input type="file" id="bass-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Clonar Timbre de Baixo" />
               <div id="bass-ref-idle">
                 <div style="font-family: var(--font-display); font-size: 8.5px; font-weight: 800; color: #10b981;">📥 CLONAR TIMBRE / GROWL DE BAIXO</div>
                 <div style="font-family: var(--font-mono); font-size: 7px; color: #94a3b8;">Arraste qualquer áudio com o timbre de baixo de referência</div>
@@ -926,12 +926,12 @@
                     🎼 SEÇÃO: AUTO (CHORUS/VERSE)
                   </span>
                 </div>
-                <div id="v4-ref-dropzone" style="border: 1px dashed rgba(245, 158, 11, 0.5); border-radius: 5px; padding: 5px; text-align: center; cursor: pointer; background: #050811;">
+                <div id="v4-ref-dropzone" style="border: 1px dashed rgba(245, 158, 11, 0.5); border-radius: 5px; padding: 5px; text-align: center; cursor: pointer; background: #050811; position: relative; overflow: hidden;">
                   <span id="v4-ref-drop-text" style="font-family: var(--font-mono); font-size: 8px; color: #cbd5e1;">
                     🎵 Arraste ou clique para carregar WAV/MP3 de Referência Externa (DNA: ÁLBUM SELECIONADO)
                   </span>
                   <span id="v4-ref-dna-status" class="hidden">DNA: ÁLBUM SELECIONADO</span>
-                  <input type="file" id="v4-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+                  <input type="file" id="v4-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Áudio de Referência Externa" />
                 </div>
                 <!-- CANDIDATE TOURNAMENT -->
                 <div id="v4-tournament-results-hub" class="hidden" style="display: flex; flex-direction: column; gap: 4px; background: #04060a; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 5px; padding: 6px;">
@@ -1459,8 +1459,8 @@
           <div style="display: flex; flex-direction: column; gap: 14px;">
             <div class="studio-card">
               <span style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 8px;">CARREGAR FAIXA DE VOZ:</span>
-              <div id="vocal-dropzone" style="border: 2px dashed rgba(239, 68, 68, 0.5); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: #05070b;">
-                <input type="file" id="vocal-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="vocal-dropzone" style="border: 2px dashed rgba(239, 68, 68, 0.5); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: #05070b; position: relative; overflow: hidden;">
+                <input type="file" id="vocal-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Voz Isolada" />
                 <div id="vocal-drop-idle">
                   <div style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #ffffff;">Carregar Voz Isolada</div>
                   <div style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">Qualquer formato de áudio (WAV, MP3, OGG, WhatsApp)</div>
@@ -1482,8 +1482,8 @@
               <p style="font-size: 10px; color: #94a3b8; margin-bottom: 8px;">
                 Envie uma amostra sua cantando ou falando (WhatsApp OGG, gravador de celular, M4A ou MP3). O estúdio sincroniza automaticamente seu timbre 48kHz em todos os módulos de geração (Método 1 Colab T4, Método 2 Granular e Método 3 RVC v2)!
               </p>
-              <div id="user-voice-dropzone" style="border: 2px dashed rgba(236, 72, 153, 0.5); border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; background: #060408;">
-                <input type="file" id="user-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <div id="user-voice-dropzone" style="border: 2px dashed rgba(236, 72, 153, 0.5); border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; background: #060408; position: relative; overflow: hidden;">
+                <input type="file" id="user-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Amostra da Sua Voz" />
                 <div id="user-voice-idle">
                   <div style="font-family: var(--font-display); font-size: 11px; font-weight: 700; color: #ffffff;">📥 CARREGAR AMOSTRA DA SUA VOZ (QUALQUER FORMATO)</div>
                   <div style="font-family: var(--font-mono); font-size: 8.5px; color: #64748b; margin-top: 2px;">Voz falada ou cantada (WhatsApp OGG, celular, iPhone M4A, WAV)</div>
@@ -1672,8 +1672,8 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
           <div class="studio-card">
             <span style="font-family: var(--font-mono); font-size: 11px; color: var(--red-light); font-weight: 700; display: block; margin-bottom: 8px;">1. SUA FAIXA ALVO (NÃO MASTERIZADA):</span>
-            <div id="ai-target-dropzone" style="border: 2px dashed rgba(239, 68, 68, 0.5); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; background: #05070b;">
-              <input type="file" id="ai-target-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+            <div id="ai-target-dropzone" style="border: 2px dashed rgba(239, 68, 68, 0.5); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; background: #05070b; position: relative; overflow: hidden;">
+              <input type="file" id="ai-target-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Faixa Alvo" />
               <div id="ai-target-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #ffffff;">Carregar Faixa Alvo</div>
               <div id="ai-target-info" style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">Qualquer Formato de Áudio</div>
             </div>
@@ -1681,8 +1681,8 @@
 
           <div class="studio-card">
             <span style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-light); font-weight: 700; display: block; margin-bottom: 8px;">2. FAIXA COMERCIAL DE REFERÊNCIA:</span>
-            <div id="ai-ref-dropzone" style="border: 2px dashed rgba(245, 158, 11, 0.5); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; background: #05070b;">
-              <input type="file" id="ai-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+            <div id="ai-ref-dropzone" style="border: 2px dashed rgba(245, 158, 11, 0.5); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; background: #05070b; position: relative; overflow: hidden;">
+              <input type="file" id="ai-ref-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Faixa de Referência" />
               <div id="ai-ref-title" style="font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #ffffff;">Carregar Faixa de Referência</div>
               <div id="ai-ref-info" style="font-family: var(--font-mono); font-size: 10px; color: #64748b; margin-top: 2px;">Música comercial de estúdio</div>
             </div>
@@ -1777,8 +1777,8 @@
         </div>
 
         <div class="studio-card" style="display: flex; flex-direction: column; gap: 14px;">
-          <div id="batch-dropzone" style="border: 2px dashed #242f44; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: #05070b;">
-            <input type="file" id="batch-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" multiple class="hidden" />
+          <div id="batch-dropzone" style="border: 2px dashed #242f44; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: #05070b; position: relative; overflow: hidden;">
+            <input type="file" id="batch-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" multiple class="native-file-overlay" title="Carregar Múltiplas Músicas" />
             <div style="font-size: 32px; margin-bottom: 6px;">📦</div>
             <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: #ffffff;">Clique ou Arraste Múltiplas Músicas</div>
             <div style="font-family: var(--font-mono); font-size: 11px; color: #64748b; margin-top: 4px;">Qualquer formato de áudio</div>
@@ -2069,7 +2069,7 @@
               <div class="generator-two-dropzones">
                 <!-- MÚSICA DE AMOSTRA DROPZONE (QUALQUER FORMATO) -->
                 <div id="colab-sample-dropzone" class="dropzone-luxury">
-                  <input type="file" id="colab-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+                  <input type="file" id="colab-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Música de Amostra Guia" />
                   <div id="colab-sample-idle">
                     <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #38bdf8;">🎧 AMOSTRA (GUIA)</div>
                     <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">MP3, WAV, OGG, M4A</div>
@@ -2082,7 +2082,7 @@
 
                 <!-- CLONE DA SUA VOZ (QUALQUER FORMATO) -->
                 <div id="colab-voice-dropzone" class="dropzone-luxury voice-zone">
-                  <input type="file" id="colab-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+                  <input type="file" id="colab-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Amostra da Sua Voz" />
                   <div id="colab-voice-idle">
                     <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONE DE VOZ</div>
                     <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador, M4A</div>
@@ -2210,7 +2210,7 @@
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- MÚSICA DE AMOSTRA OBRIGATÓRIA -->
             <div id="offline-sample-dropzone" class="dropzone-luxury offline-zone">
-              <input type="file" id="offline-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <input type="file" id="offline-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Música de Amostra Base" />
               <div id="offline-sample-idle">
                 <div style="font-family: var(--font-display); font-size: 11px; font-weight: 800; color: #10b981;">📁 CARREGAR MÚSICA DE AMOSTRA BASE (OBRIGATÓRIO)</div>
                 <div style="font-family: var(--font-mono); font-size: 8px; color: #94a3b8; margin-top: 2px;">Envie a música original (WAV, MP3, OGG, M4A) para extração cirúrgica de riffs e batidas</div>
@@ -2243,7 +2243,7 @@
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- CLONAR VOZ DROPZONE -->
             <div id="offline-voice-dropzone" class="dropzone-luxury voice-zone">
-              <input type="file" id="offline-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+              <input type="file" id="offline-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Amostra da Sua Voz" />
               <div id="offline-voice-idle">
                 <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONAR MINHA VOZ (QUALQUER FORMATO)</div>
                 <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador de voz, iPhone M4A ou MP3</div>
@@ -2413,7 +2413,7 @@
               <div class="generator-two-dropzones">
                 <!-- MÚSICA DE AMOSTRA (QUALQUER FORMATO) -->
                 <div id="python-sample-dropzone" class="dropzone-luxury">
-                  <input type="file" id="python-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+                  <input type="file" id="python-sample-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Música de Amostra Guia" />
                   <div id="python-sample-idle">
                     <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f59e0b;">🎧 AMOSTRA (GUIA)</div>
                     <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">Melodia & Acordes (Qualquer Áudio)</div>
@@ -2426,7 +2426,7 @@
 
                 <!-- CLONE DA SUA VOZ (QUALQUER FORMATO) -->
                 <div id="python-voice-dropzone" class="dropzone-luxury voice-zone">
-                  <input type="file" id="python-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+                  <input type="file" id="python-voice-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Amostra da Sua Voz" />
                   <div id="python-voice-idle">
                     <div style="font-family: var(--font-display); font-size: 10px; font-weight: 800; color: #f472b6;">🎙️ CLONE DE VOZ</div>
                     <div style="font-family: var(--font-mono); font-size: 7.5px; color: #94a3b8; margin-top: 2px;">WhatsApp OGG, gravador, M4A</div>
@@ -2514,16 +2514,17 @@
   <footer class="master-transport-dock">
     <!-- FILE STATUS & LOAD -->
     <div style="display: flex; align-items: center; gap: 10px; min-width: 290px;">
-      <div id="audio-dropzone" style="width: 42px; height: 42px; border-radius: 8px; background: #121824; border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--red-light);" title="Carregar Música do Suno ou Master (Qualquer Formato)">
-        <input type="file" id="audio-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="hidden" />
+      <div id="audio-dropzone" style="width: 42px; height: 42px; border-radius: 8px; background: #121824; border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--red-light); position: relative; overflow: hidden;" title="Carregar Música do Suno ou Master (Qualquer Formato)">
+        <input type="file" id="audio-file-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Música do Suno ou Master" />
         📥
       </div>
-      <div id="transport-user-voice-btn" style="width: 42px; height: 42px; border-radius: 8px; background: #200d29; border: 1px solid #ec4899; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #f472b6;" title="Carregar Amostra da Sua Voz Real (Qualquer Formato)">
+      <div id="transport-user-voice-btn" style="width: 42px; height: 42px; border-radius: 8px; background: #200d29; border: 1px solid #ec4899; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #f472b6; position: relative; overflow: hidden;" title="Carregar Amostra da Sua Voz Real (Qualquer Formato)">
+        <input type="file" id="transport-user-voice-input" accept="audio/*, video/mp4, video/webm, .ogg, .opus, .m4a, .aac, .mp3, .wav, .flac, .wma, .3gp, .amr" class="native-file-overlay" title="Carregar Amostra da Sua Voz Real" />
         🎙️
       </div>
       <div style="font-family: var(--font-mono); font-size: 11px;">
         <div id="drop-idle-state">
-          <strong style="color: #ffffff; cursor: pointer;" onclick="document.getElementById('audio-file-input').click()">CARREGAR MÚSICA</strong>
+          <label for="audio-file-input" style="color: #ffffff; cursor: pointer; font-weight: 700; display: block;">CARREGAR MÚSICA</label>
           <div style="color: #64748b; font-size: 10px;">WAV, MP3, FLAC</div>
         </div>
         <div id="drop-active-state" class="hidden">

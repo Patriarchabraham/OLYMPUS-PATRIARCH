@@ -149,24 +149,32 @@ const masterProgressText = document.getElementById('master-progress-text')!
 const masterTubeFilament = document.getElementById('master-tube-filament')!
 
 // Welder & Instrument Customizers
-const selectDrummerPreset = document.getElementById('select-drummer-preset') as HTMLSelectElement
-const selectDrumSaturation = document.getElementById('select-drum-saturation') as HTMLSelectElement
-const sliderDrumDrive = document.getElementById('slider-drum-drive') as HTMLInputElement
-const labelDrumDrive = document.getElementById('label-drum-drive')!
-const drumSaturationDesc = document.getElementById('drum-saturation-desc')!
+const selectDrummerPreset = document.getElementById(
+	'select-drummer-preset',
+) as HTMLSelectElement | null
+const selectDrumSaturation = document.getElementById(
+	'select-drum-saturation',
+) as HTMLSelectElement | null
+const sliderDrumDrive = document.getElementById('slider-drum-drive') as HTMLInputElement | null
+const labelDrumDrive = document.getElementById('label-drum-drive') as HTMLElement | null
+const drumSaturationDesc = document.getElementById('drum-saturation-desc') as HTMLElement | null
 
-const selectBassistPreset = document.getElementById('select-bassist-preset') as HTMLSelectElement
-const selectBassSaturation = document.getElementById('select-bass-saturation') as HTMLSelectElement
-const sliderBassDrive = document.getElementById('slider-bass-drive') as HTMLInputElement
-const labelBassDrive = document.getElementById('label-bass-drive')!
-const bassSaturationDesc = document.getElementById('bass-saturation-desc')!
+const selectBassistPreset = document.getElementById(
+	'select-bassist-preset',
+) as HTMLSelectElement | null
+const selectBassSaturation = document.getElementById(
+	'select-bass-saturation',
+) as HTMLSelectElement | null
+const sliderBassDrive = document.getElementById('slider-bass-drive') as HTMLInputElement | null
+const labelBassDrive = document.getElementById('label-bass-drive') as HTMLElement | null
+const bassSaturationDesc = document.getElementById('bass-saturation-desc') as HTMLElement | null
 
 const selectGuitarDistortion = document.getElementById(
 	'select-guitar-distortion',
-) as HTMLSelectElement
-const sliderGuitarDrive = document.getElementById('slider-guitar-drive') as HTMLInputElement
-const labelGuitarDrive = document.getElementById('label-guitar-drive')!
-const guitarDistortionDesc = document.getElementById('guitar-distortion-desc')!
+) as HTMLSelectElement | null
+const sliderGuitarDrive = document.getElementById('slider-guitar-drive') as HTMLInputElement | null
+const labelGuitarDrive = document.getElementById('label-guitar-drive') as HTMLElement | null
+const guitarDistortionDesc = document.getElementById('guitar-distortion-desc') as HTMLElement | null
 
 const gemCardDrums = document.getElementById('gem-card-drums')!
 const gemCardBass = document.getElementById('gem-card-bass')!
@@ -292,29 +300,38 @@ function init() {
 		stereoPeakMeter = new StereoPeakMeter(peakCanvas)
 	}
 
-	setupRotaryKnobs()
-	populateQuickSelectors()
-	renderProducersList('all')
-	selectMasterSetup(ALL_MASTERS[0].id, ALL_MASTERS[0].albums[0].id)
+	const modules: Array<{ name: string; fn: () => void }> = [
+		{ name: 'RotaryKnobs', fn: setupRotaryKnobs },
+		{ name: 'QuickSelectors', fn: populateQuickSelectors },
+		{ name: 'ProducersList', fn: () => renderProducersList('all') },
+		{
+			name: 'InitialMasterSetup',
+			fn: () => selectMasterSetup(ALL_MASTERS[0].id, ALL_MASTERS[0].albums[0].id),
+		},
+		{ name: 'MicsGallery', fn: () => renderMicsGallery('all') },
+		{ name: 'InitialMic', fn: () => selectMic(LEGENDARY_MICROPHONES[0].id) },
+		{ name: 'Tabs', fn: setupTabs },
+		{ name: 'StemRack', fn: setupStemChannelRack },
+		{ name: 'MicrophoneGrid', fn: setupVisualMicrophoneGrid },
+		{ name: 'AudioLoading', fn: setupAudioLoading },
+		{ name: 'TransportDock', fn: setupTransportDock },
+		{ name: 'MasterProcessing', fn: setupMasterProcessing },
+		{ name: 'WelderProcessing', fn: setupWelderProcessing },
+		{ name: 'MicLocker', fn: setupMicLockerModule },
+		{ name: 'VocalModule', fn: setupVocalModule },
+		{ name: 'SpatialModule', fn: setupSpatialModule },
+		{ name: 'AiMatchModule', fn: setupAiMatchModule },
+		{ name: 'BatchProcessing', fn: setupBatchProcessing },
+		{ name: 'ArrangerModule', fn: setupArrangerModule },
+		{ name: 'GenerativeTabs', fn: setupGenerativeTabs },
+		{ name: 'Keybindings', fn: () => ProKeybindingsMatrix.init() },
+	]
 
-	renderMicsGallery('all')
-	selectMic(LEGENDARY_MICROPHONES[0].id)
-
-	setupTabs()
-	setupStemChannelRack()
-	setupVisualMicrophoneGrid()
-	setupAudioLoading()
-	setupTransportDock()
-	setupMasterProcessing()
-	setupWelderProcessing()
-	setupMicLockerModule()
-	setupVocalModule()
-	setupSpatialModule()
-	setupAiMatchModule()
-	setupBatchProcessing()
-	setupArrangerModule()
-	setupGenerativeTabs()
-	ProKeybindingsMatrix.init()
+	for (const mod of modules) {
+		try {
+			mod.fn()
+		} catch (_err) {}
+	}
 }
 
 // ─── ROTARY KNOBS INITIALIZATION ─────────────────────────────────────────────
@@ -1028,7 +1045,15 @@ async function syncGlobalUserVoice(
 
 // ─── AUDIO LOADING & TRANSPORT DOCK ──────────────────────────────────────────
 function setupAudioLoading() {
-	audioDropzone.addEventListener('click', () => audioFileInput.click())
+	// Prevent accidental browser file drops from navigating away
+	window.addEventListener('dragover', (e) => e.preventDefault())
+	window.addEventListener('drop', (e) => e.preventDefault())
+
+	// ─── MAIN AUDIO TRACK (FOOTER TRANSPORT) ──────────────────────────────────
+	audioFileInput.addEventListener('click', (e) => e.stopPropagation())
+	audioDropzone.addEventListener('click', (e) => {
+		if (e.target !== audioFileInput) audioFileInput.click()
+	})
 	audioFileInput.addEventListener('change', () => {
 		const file = audioFileInput.files?.[0]
 		if (file) loadAudioFile(file)
@@ -1047,12 +1072,29 @@ function setupAudioLoading() {
 		if (file) loadAudioFile(file)
 	})
 
+	// ─── DOCK FOOTER USER VOICE BUTTON ───────────────────────────────────────
+	const transportVoiceBtn = document.getElementById('transport-user-voice-btn')
+	const transportVoiceInput = document.getElementById(
+		'transport-user-voice-input',
+	) as HTMLInputElement | null
+	transportVoiceInput?.addEventListener('click', (e) => e.stopPropagation())
+	transportVoiceBtn?.addEventListener('click', (e) => {
+		if (e.target !== transportVoiceInput) transportVoiceInput?.click()
+	})
+	transportVoiceInput?.addEventListener('change', async () => {
+		const file = transportVoiceInput.files?.[0]
+		if (file) await syncGlobalUserVoice(file)
+	})
+
 	// ─── GLOBAL USER VOICE UPLOAD (HOME CREATION HUB) ──────────────────────────
 	const btnGlobalVoiceUpload = document.getElementById('btn-global-voice-upload')
 	const inputGlobalVoiceFile = document.getElementById(
 		'input-global-voice-file',
-	) as HTMLInputElement
-	btnGlobalVoiceUpload?.addEventListener('click', () => inputGlobalVoiceFile?.click())
+	) as HTMLInputElement | null
+	inputGlobalVoiceFile?.addEventListener('click', (e) => e.stopPropagation())
+	btnGlobalVoiceUpload?.addEventListener('click', (e) => {
+		if (e.target !== inputGlobalVoiceFile) inputGlobalVoiceFile?.click()
+	})
 	inputGlobalVoiceFile?.addEventListener('change', () => {
 		const file = inputGlobalVoiceFile.files?.[0]
 		if (file) syncGlobalUserVoice(file)
@@ -1060,7 +1102,7 @@ function setupAudioLoading() {
 
 	// ─── V4 HYPERREFERENCE FILE DROPZONE (ST-ITO) ───────────────────────────────
 	const v4RefDropzone = document.getElementById('v4-ref-dropzone')
-	const v4RefFileInput = document.getElementById('v4-ref-file-input') as HTMLInputElement
+	const v4RefFileInput = document.getElementById('v4-ref-file-input') as HTMLInputElement | null
 	const v4RefDropText = document.getElementById('v4-ref-drop-text')
 	const v4RefStatus = document.getElementById('v4-ref-dna-status')
 
@@ -1077,7 +1119,10 @@ function setupAudioLoading() {
 		}
 	}
 
-	v4RefDropzone?.addEventListener('click', () => v4RefFileInput?.click())
+	v4RefFileInput?.addEventListener('click', (e) => e.stopPropagation())
+	v4RefDropzone?.addEventListener('click', (e) => {
+		if (e.target !== v4RefFileInput) v4RefFileInput?.click()
+	})
 	v4RefFileInput?.addEventListener('change', () => {
 		const file = v4RefFileInput.files?.[0]
 		if (file) loadRefFile(file)
@@ -1513,15 +1558,17 @@ function setupMasterProcessing() {
 	const _masterVoiceActive = document.getElementById('master-user-voice-active')
 	const _masterVoiceFilename = document.getElementById('master-user-voice-filename')
 	const _masterVoiceBadge = document.getElementById('master-voice-clone-badge')
-	const transportVoiceBtn = document.getElementById('transport-user-voice-btn')
+	const _transportVoiceBtn = document.getElementById('transport-user-voice-btn')
 
 	const handleUserVoiceFile = async (file: File) => {
 		if (!file) return
 		await syncGlobalUserVoice(file)
 	}
 
-	masterVoiceDropzone?.addEventListener('click', () => masterVoiceInput?.click())
-	transportVoiceBtn?.addEventListener('click', () => masterVoiceInput?.click())
+	masterVoiceInput?.addEventListener('click', (e) => e.stopPropagation())
+	masterVoiceDropzone?.addEventListener('click', (e) => {
+		if (e.target !== masterVoiceInput) masterVoiceInput?.click()
+	})
 	masterVoiceInput?.addEventListener('change', () => {
 		const file = masterVoiceInput.files?.[0]
 		if (file) handleUserVoiceFile(file)
@@ -3126,61 +3173,71 @@ Master of Masters Studio Pro — 64-Bit Quantum Analog DSP & AI Maestro Orchestr
 
 // ─── WELDER ENGINE & INSTRUMENT CUSTOMIZERS ──────────────────────────────────
 function setupWelderProcessing() {
-	selectDrummerPreset.addEventListener('change', () => {
+	selectDrummerPreset?.addEventListener('change', () => {
 		const val = selectDrummerPreset.value
-		if (val === 'none') {
-			drumSaturationDesc.textContent = `Saturação e kit calibrados do álbum selecionado (${activeAlbum.gemSetup.drums.saturation.toUpperCase()}).`
-		} else {
-			drumSaturationDesc.textContent = `Kit de Baterista Ativo: ${selectDrummerPreset.options[selectDrummerPreset.selectedIndex].text}`
+		if (drumSaturationDesc) {
+			if (val === 'none') {
+				drumSaturationDesc.textContent = `Saturação e kit calibrados do álbum selecionado (${activeAlbum.gemSetup.drums.saturation.toUpperCase()}).`
+			} else {
+				drumSaturationDesc.textContent = `Kit de Baterista Ativo: ${selectDrummerPreset.options[selectDrummerPreset.selectedIndex].text}`
+			}
 		}
 	})
 
-	selectDrumSaturation.addEventListener('change', () => {
+	selectDrumSaturation?.addEventListener('change', () => {
 		const val = selectDrumSaturation.value
-		if (val === 'album_default') {
-			drumSaturationDesc.textContent = `Saturação calibrada do álbum selecionado (${activeAlbum.gemSetup.drums.saturation.toUpperCase()}).`
-		} else {
-			drumSaturationDesc.textContent = `Hardware ativo na Bateria: ${val.toUpperCase().replace('_', ' ')}.`
+		if (drumSaturationDesc) {
+			if (val === 'album_default') {
+				drumSaturationDesc.textContent = `Saturação calibrada do álbum selecionado (${activeAlbum.gemSetup.drums.saturation.toUpperCase()}).`
+			} else {
+				drumSaturationDesc.textContent = `Hardware ativo na Bateria: ${val.toUpperCase().replace('_', ' ')}.`
+			}
 		}
 	})
 
-	sliderDrumDrive.addEventListener('input', () => {
-		labelDrumDrive.textContent = `${sliderDrumDrive.value}%`
+	sliderDrumDrive?.addEventListener('input', () => {
+		if (labelDrumDrive) labelDrumDrive.textContent = `${sliderDrumDrive.value}%`
 	})
 
-	selectBassistPreset.addEventListener('change', () => {
+	selectBassistPreset?.addEventListener('change', () => {
 		const val = selectBassistPreset.value
-		if (val === 'none') {
-			bassSaturationDesc.textContent = `Timbre e amplificador calibrados do álbum selecionado (${activeAlbum.gemSetup.bass.saturation.toUpperCase()}).`
-		} else {
-			bassSaturationDesc.textContent = `Assinatura de Baixista Ativa: ${selectBassistPreset.options[selectBassistPreset.selectedIndex].text}`
+		if (bassSaturationDesc) {
+			if (val === 'none') {
+				bassSaturationDesc.textContent = `Timbre e amplificador calibrados do álbum selecionado (${activeAlbum.gemSetup.bass.saturation.toUpperCase()}).`
+			} else {
+				bassSaturationDesc.textContent = `Assinatura de Baixista Ativa: ${selectBassistPreset.options[selectBassistPreset.selectedIndex].text}`
+			}
 		}
 	})
 
-	selectBassSaturation.addEventListener('change', () => {
+	selectBassSaturation?.addEventListener('change', () => {
 		const val = selectBassSaturation.value
-		if (val === 'album_default') {
-			bassSaturationDesc.textContent = `Timbre calibrado do álbum selecionado (${activeAlbum.gemSetup.bass.saturation.toUpperCase()}).`
-		} else {
-			bassSaturationDesc.textContent = `Amplificador ativo no Baixo: ${val.toUpperCase().replace('_', ' ')}.`
+		if (bassSaturationDesc) {
+			if (val === 'album_default') {
+				bassSaturationDesc.textContent = `Timbre calibrado do álbum selecionado (${activeAlbum.gemSetup.bass.saturation.toUpperCase()}).`
+			} else {
+				bassSaturationDesc.textContent = `Amplificador ativo no Baixo: ${val.toUpperCase().replace('_', ' ')}.`
+			}
 		}
 	})
 
-	sliderBassDrive.addEventListener('input', () => {
-		labelBassDrive.textContent = `${sliderBassDrive.value}%`
+	sliderBassDrive?.addEventListener('input', () => {
+		if (labelBassDrive) labelBassDrive.textContent = `${sliderBassDrive.value}%`
 	})
 
-	selectGuitarDistortion.addEventListener('change', () => {
+	selectGuitarDistortion?.addEventListener('change', () => {
 		const val = selectGuitarDistortion.value
-		if (val === 'album_default') {
-			guitarDistortionDesc.textContent = `Distorção calibrada do álbum selecionado (${activeAlbum.gemSetup.guitars.saturation.toUpperCase()}).`
-		} else {
-			guitarDistortionDesc.textContent = `Amplificador/Pedal ativo nas Guitarras: ${val.toUpperCase().replace('_', ' ')}.`
+		if (guitarDistortionDesc) {
+			if (val === 'album_default') {
+				guitarDistortionDesc.textContent = `Distorção calibrada do álbum selecionado (${activeAlbum.gemSetup.guitars.saturation.toUpperCase()}).`
+			} else {
+				guitarDistortionDesc.textContent = `Amplificador/Pedal ativo nas Guitarras: ${val.toUpperCase().replace('_', ' ')}.`
+			}
 		}
 	})
 
-	sliderGuitarDrive.addEventListener('input', () => {
-		labelGuitarDrive.textContent = `${sliderGuitarDrive.value}%`
+	sliderGuitarDrive?.addEventListener('input', () => {
+		if (labelGuitarDrive) labelGuitarDrive.textContent = `${sliderGuitarDrive.value}%`
 	})
 
 	// ─── GEM MIXER & EDITOR CONTROLS ──────────────────────────────────────────
@@ -3263,27 +3320,30 @@ function setupWelderProcessing() {
 
 		try {
 			const drummerPresetId =
-				selectDrummerPreset.value === 'none' ? undefined : selectDrummerPreset.value
+				selectDrummerPreset?.value === 'none' ? undefined : selectDrummerPreset?.value
 			const bassistPresetId =
-				selectBassistPreset.value === 'none' ? undefined : selectBassistPreset.value
+				selectBassistPreset?.value === 'none' ? undefined : selectBassistPreset?.value
 
-			const selectedDrumVal = selectDrumSaturation.value
+			const selectedDrumVal = selectDrumSaturation?.value || 'album_default'
 			const customDrumSaturation =
 				selectedDrumVal === 'album_default' ? undefined : (selectedDrumVal as any)
 			const customDrumDrive =
-				(parseFloat(sliderDrumDrive.value) / 100) * activeAlbum.gemSetup.drums.drive
+				(sliderDrumDrive ? parseFloat(sliderDrumDrive.value) / 100 : 1.0) *
+				activeAlbum.gemSetup.drums.drive
 
-			const selectedBassVal = selectBassSaturation.value
+			const selectedBassVal = selectBassSaturation?.value || 'album_default'
 			const customBassSaturation =
 				selectedBassVal === 'album_default' ? undefined : (selectedBassVal as any)
 			const customBassDrive =
-				(parseFloat(sliderBassDrive.value) / 100) * activeAlbum.gemSetup.bass.drive
+				(sliderBassDrive ? parseFloat(sliderBassDrive.value) / 100 : 1.0) *
+				activeAlbum.gemSetup.bass.drive
 
-			const selectedDistVal = selectGuitarDistortion.value
+			const selectedDistVal = selectGuitarDistortion?.value || 'album_default'
 			const customGuitarDistortion =
 				selectedDistVal === 'album_default' ? undefined : (selectedDistVal as any)
 			const customGuitarDrive =
-				(parseFloat(sliderGuitarDrive.value) / 100) * activeAlbum.gemSetup.guitars.drive
+				(sliderGuitarDrive ? parseFloat(sliderGuitarDrive.value) / 100 : 1.0) *
+				activeAlbum.gemSetup.guitars.drive
 
 			lastWelderResult = await GemWelderEngine.processGemsAndWeld(audioBuffer, activeAlbum, {
 				customGuitarDistortion,
@@ -3341,7 +3401,10 @@ function setupWelderProcessing() {
 
 // ─── VOCAL GOD MODULE ────────────────────────────────────────────────────────
 function setupVocalModule() {
-	vocalDropzone.addEventListener('click', () => vocalFileInput.click())
+	vocalFileInput.addEventListener('click', (e) => e.stopPropagation())
+	vocalDropzone.addEventListener('click', (e) => {
+		if (e.target !== vocalFileInput) vocalFileInput.click()
+	})
 	vocalFileInput.addEventListener('change', async () => {
 		const file = vocalFileInput.files?.[0]
 		if (!file) return
@@ -3351,10 +3414,9 @@ function setupVocalModule() {
 		vocalDropActive.classList.remove('hidden')
 
 		try {
-			const arr = await file.arrayBuffer()
 			// @ts-expect-error
 			const ctx = new (window.AudioContext || window.webkitAudioContext)()
-			vocalBuffer = await ctx.decodeAudioData(arr)
+			vocalBuffer = await UniversalAudioFormatDecoder.decodeAudioFile(file, ctx)
 			vocalFileStats.textContent = `${(file.size / (1024 * 1024)).toFixed(1)} MB · ${(vocalBuffer.duration / 60).toFixed(1)} min · Pronto`
 			vocalAudioPlayer.src = URL.createObjectURL(file)
 			vocalAudioPlayer.classList.remove('hidden')
@@ -3367,13 +3429,18 @@ function setupVocalModule() {
 
 	// ─── USER REAL VOICE TIMBRE CLONING ────────────────────────────────────────
 	const userVoiceDropzone = document.getElementById('user-voice-dropzone')
-	const userVoiceFileInput = document.getElementById('user-voice-file-input') as HTMLInputElement
+	const userVoiceFileInput = document.getElementById(
+		'user-voice-file-input',
+	) as HTMLInputElement | null
 	const _userVoiceIdle = document.getElementById('user-voice-idle')
 	const _userVoiceActive = document.getElementById('user-voice-active')
 	const _userVoiceName = document.getElementById('user-voice-name')
 	const _labelUserVoiceStatus = document.getElementById('label-user-voice-status')
 
-	userVoiceDropzone?.addEventListener('click', () => userVoiceFileInput?.click())
+	userVoiceFileInput?.addEventListener('click', (e) => e.stopPropagation())
+	userVoiceDropzone?.addEventListener('click', (e) => {
+		if (e.target !== userVoiceFileInput) userVoiceFileInput?.click()
+	})
 	userVoiceFileInput?.addEventListener('change', async () => {
 		const file = userVoiceFileInput.files?.[0]
 		if (file) await syncGlobalUserVoice(file)
@@ -3616,7 +3683,10 @@ function renderSpatialChannels() {
 
 // ─── AI REFERENCE MATCH MODULE ───────────────────────────────────────────────
 function setupAiMatchModule() {
-	aiTargetDropzone.addEventListener('click', () => aiTargetFileInput.click())
+	aiTargetFileInput.addEventListener('click', (e) => e.stopPropagation())
+	aiTargetDropzone.addEventListener('click', (e) => {
+		if (e.target !== aiTargetFileInput) aiTargetFileInput.click()
+	})
 	aiTargetFileInput.addEventListener('change', async () => {
 		const file = aiTargetFileInput.files?.[0]
 		if (!file) return
@@ -3624,10 +3694,9 @@ function setupAiMatchModule() {
 		aiTargetInfo.textContent = `${(file.size / (1024 * 1024)).toFixed(1)} MB · Carregando...`
 
 		try {
-			const arr = await file.arrayBuffer()
 			// @ts-expect-error
 			const ctx = new (window.AudioContext || window.webkitAudioContext)()
-			aiTargetBuffer = await ctx.decodeAudioData(arr)
+			aiTargetBuffer = await UniversalAudioFormatDecoder.decodeAudioFile(file, ctx)
 			aiTargetInfo.textContent = `${(aiTargetBuffer.duration / 60).toFixed(1)} min · Decodificado`
 			checkAiReady()
 		} catch (_e) {
@@ -3635,7 +3704,10 @@ function setupAiMatchModule() {
 		}
 	})
 
-	aiRefDropzone.addEventListener('click', () => aiRefFileInput.click())
+	aiRefFileInput.addEventListener('click', (e) => e.stopPropagation())
+	aiRefDropzone.addEventListener('click', (e) => {
+		if (e.target !== aiRefFileInput) aiRefFileInput.click()
+	})
 	aiRefFileInput.addEventListener('change', async () => {
 		const file = aiRefFileInput.files?.[0]
 		if (!file) return
@@ -3643,10 +3715,9 @@ function setupAiMatchModule() {
 		aiRefInfo.textContent = `${(file.size / (1024 * 1024)).toFixed(1)} MB · Carregando...`
 
 		try {
-			const arr = await file.arrayBuffer()
 			// @ts-expect-error
 			const ctx = new (window.AudioContext || window.webkitAudioContext)()
-			aiRefBuffer = await ctx.decodeAudioData(arr)
+			aiRefBuffer = await UniversalAudioFormatDecoder.decodeAudioFile(file, ctx)
 			aiRefInfo.textContent = `${(aiRefBuffer.duration / 60).toFixed(1)} min · Decodificado`
 			checkAiReady()
 		} catch (_e) {
@@ -3691,7 +3762,10 @@ function setupAiMatchModule() {
 
 // ─── BATCH PROCESSOR ─────────────────────────────────────────────────────────
 function setupBatchProcessing() {
-	batchDropzone.addEventListener('click', () => batchFileInput.click())
+	batchFileInput.addEventListener('click', (e) => e.stopPropagation())
+	batchDropzone.addEventListener('click', (e) => {
+		if (e.target !== batchFileInput) batchFileInput.click()
+	})
 	batchFileInput.addEventListener('change', () => {
 		const files = Array.from(batchFileInput.files || [])
 		if (files.length > 0) {
@@ -4492,7 +4566,10 @@ function setupGenerativeTabs() {
 		}
 	})
 
-	colabSampleDropzone?.addEventListener('click', () => colabSampleInput?.click())
+	colabSampleInput?.addEventListener('click', (e) => e.stopPropagation())
+	colabSampleDropzone?.addEventListener('click', (e) => {
+		if (e.target !== colabSampleInput) colabSampleInput?.click()
+	})
 	colabSampleInput?.addEventListener('change', async () => {
 		const file = colabSampleInput.files?.[0]
 		if (!file) return
@@ -4529,7 +4606,10 @@ function setupGenerativeTabs() {
 		}
 	})
 
-	colabVoiceDropzone?.addEventListener('click', () => colabVoiceInput?.click())
+	colabVoiceInput?.addEventListener('click', (e) => e.stopPropagation())
+	colabVoiceDropzone?.addEventListener('click', (e) => {
+		if (e.target !== colabVoiceInput) colabVoiceInput?.click()
+	})
 	colabVoiceInput?.addEventListener('change', async () => {
 		const file = colabVoiceInput.files?.[0]
 		if (!file) return
@@ -4659,16 +4739,20 @@ function setupGenerativeTabs() {
 	const _offlineVoiceActive = document.getElementById('offline-voice-active') as HTMLElement
 	const _offlineVoiceFilename = document.getElementById('offline-voice-filename') as HTMLElement
 	const _offlineVoiceStats = document.getElementById('offline-voice-stats') as HTMLElement
-	const offlineBpmSlider = document.getElementById('offline-bpm-slider') as HTMLInputElement
-	const offlineBpmVal = document.getElementById('offline-bpm-val') as HTMLElement
+	const offlineBpmSlider = (document.getElementById('offline-bpm-slider') ||
+		document.getElementById('offline-bpm')) as HTMLInputElement | null
+	const offlineBpmVal = (document.getElementById('offline-bpm-val') ||
+		document.getElementById('offline-bpm-label')) as HTMLElement | null
 	const sliderOfflineDuration = document.getElementById(
 		'slider-offline-duration',
-	) as HTMLInputElement
+	) as HTMLInputElement | null
 	const badgeOfflineDurationCalc = document.getElementById(
 		'badge-offline-duration-calc',
-	) as HTMLElement
-	const offlineVoiceBlend = document.getElementById('offline-voice-blend') as HTMLInputElement
-	const offlineBlendVal = document.getElementById('offline-blend-val') as HTMLElement
+	) as HTMLElement | null
+	const offlineVoiceBlend = (document.getElementById('offline-voice-blend') ||
+		document.getElementById('offline-blend-slider')) as HTMLInputElement | null
+	const offlineBlendVal = (document.getElementById('offline-blend-val') ||
+		document.getElementById('offline-blend-label')) as HTMLElement | null
 	const btnOfflineRecompose = document.getElementById(
 		'btn-offline-trigger-recompose',
 	) as HTMLButtonElement
@@ -4715,7 +4799,10 @@ function setupGenerativeTabs() {
 		})
 	})
 
-	offlineSampleDropzone?.addEventListener('click', () => offlineSampleInput?.click())
+	offlineSampleInput?.addEventListener('click', (e) => e.stopPropagation())
+	offlineSampleDropzone?.addEventListener('click', (e) => {
+		if (e.target !== offlineSampleInput) offlineSampleInput?.click()
+	})
 	offlineSampleInput?.addEventListener('change', async () => {
 		const file = offlineSampleInput.files?.[0]
 		if (!file) return
@@ -4766,7 +4853,10 @@ function setupGenerativeTabs() {
 		}
 	})
 
-	offlineVoiceDropzone?.addEventListener('click', () => offlineVoiceInput?.click())
+	offlineVoiceInput?.addEventListener('click', (e) => e.stopPropagation())
+	offlineVoiceDropzone?.addEventListener('click', (e) => {
+		if (e.target !== offlineVoiceInput) offlineVoiceInput?.click()
+	})
 	offlineVoiceInput?.addEventListener('change', async () => {
 		const file = offlineVoiceInput.files?.[0]
 		if (!file) return
@@ -5024,7 +5114,10 @@ function setupGenerativeTabs() {
 		}
 	})
 
-	pythonSampleDropzone?.addEventListener('click', () => pythonSampleInput?.click())
+	pythonSampleInput?.addEventListener('click', (e) => e.stopPropagation())
+	pythonSampleDropzone?.addEventListener('click', (e) => {
+		if (e.target !== pythonSampleInput) pythonSampleInput?.click()
+	})
 	pythonSampleInput?.addEventListener('change', () => {
 		const file = pythonSampleInput.files?.[0]
 		if (!file) return
@@ -5053,7 +5146,10 @@ function setupGenerativeTabs() {
 		showStudioToast(`🎧 Amostra para guia melódico: ${file.name}`, 'info')
 	})
 
-	pythonVoiceDropzone?.addEventListener('click', () => pythonVoiceInput?.click())
+	pythonVoiceInput?.addEventListener('click', (e) => e.stopPropagation())
+	pythonVoiceDropzone?.addEventListener('click', (e) => {
+		if (e.target !== pythonVoiceInput) pythonVoiceInput?.click()
+	})
 	pythonVoiceInput?.addEventListener('change', async () => {
 		const file = pythonVoiceInput.files?.[0]
 		if (!file) return
